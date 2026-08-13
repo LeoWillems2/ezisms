@@ -1,0 +1,30 @@
+# Ankers (/) zijn hier essentieel: zonder anker sloot het patroon `config`
+# ook Laravel's ota/config/-map uit, en `.env` elke .env in submappen.
+/.env
+
+# De ingevulde .env van een Docker-stack. Het anker hierboven is op de wortel,
+# dus zonder deze regel zou `docker/*/.env` er wél in gaan — en dat is precies
+# het bestand waar het databasewachtwoord in staat. De sjablonen (`.env.example`,
+# `env.voorbeeld`) horen er wél in.
+/docker/**/.env
+
+# Bestaat op dit moment niet meer, maar blijft staan als vangnet: als hier
+# opnieuw een `config`-bestand met omgevingsgegevens komt, hoort dat niet
+# in versiebeheer.
+/config
+
+*.log
+
+# Editor-swapbestanden. Bewust zonder anker: deze horen in élke submap
+# genegeerd te worden, en een swapbestand kan de volledige inhoud van het
+# origineel bevatten (een .env.swp dus ook het databasewachtwoord).
+*.swp
+*.swo
+*~
+
+# Eigen werkbestanden van Leo: aantekeningen en de prompts waarmee dit
+# project is opgebouwd. Geen projectoplevering, en `git add -A` sleepte ze
+# er anders bij elke commit in. Beide met anker: alleen deze in de
+# projectwortel, niet een `todo`-bestand ergens in ota/.
+/todo
+/prompts/

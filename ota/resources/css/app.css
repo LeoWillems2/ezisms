@@ -1,0 +1,123 @@
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+@source "../views";
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-zinc-50: #fafafa;
+    --color-zinc-100: #f5f5f5;
+    --color-zinc-200: #e5e5e5;
+    --color-zinc-300: #d4d4d4;
+    --color-zinc-400: #a3a3a3;
+    --color-zinc-500: #737373;
+    --color-zinc-600: #525252;
+    --color-zinc-700: #404040;
+    --color-zinc-800: #262626;
+    --color-zinc-900: #171717;
+    --color-zinc-950: #0a0a0a;
+
+    --color-accent: var(--color-neutral-800);
+    --color-accent-content: var(--color-neutral-800);
+    --color-accent-foreground: var(--color-white);
+}
+
+@layer theme {
+    .dark {
+        --color-accent: var(--color-white);
+        --color-accent-content: var(--color-white);
+        --color-accent-foreground: var(--color-neutral-800);
+    }
+}
+
+@layer base {
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Diagramkleuren voor het dashboard (implementatie/12c §5).
+
+   Eigen tokens en geen Tailwind-kleurklassen, omdat SVG-attributen als `stroke`
+   en `fill` geen utility-klasse kunnen dragen. Alle waarden zijn gevalideerd
+   tegen de échte vlakken van deze applicatie — `bg-white` licht en `bg-zinc-800`
+   donker — en niet tegen een standaardvlak: contrast is alleen betekenisvol
+   tegen de achtergrond waarop het diagram werkelijk staat.
+
+   De ordinale ramp (`--ord-1..3`) draagt de implementatiestatus: licht naar
+   donker is niet-gestart naar geïmplementeerd, zodat de ordening in de kleur
+   zelf zit. Monotone lichtheid, stapafstand ≥ 0.06, en de stap die het dichtst
+   bij het vlak ligt haalt ≥ 2:1. In donkere modus is de donkerste stap bewust
+   lichter (`#1c5cab` i.p.v. `#104281`): zinc-800 is lichter dan een gewoon
+   donker vlak, en `#104281` zakte daar met 1.87:1 in weg.
+
+   `--sig-*` zijn statuskleuren met vaste betekenis; ze worden nooit als
+   seriekleur hergebruikt. Op licht vlak halen let-op en ernstig geen 3:1 — dat
+   is bekend en de reden dat elk signaal altijd een glyph én een tekstlabel
+   heeft, nooit alleen een kleur.
+   -------------------------------------------------------------------------- */
+:root {
+    --dia-lijn: #2a78d6;
+    --dia-vlak: rgb(42 120 214 / 0.10);
+    --dia-stil: #c3c2b7;
+    --dia-raster: #e5e5e5;
+    --dia-as: #d4d4d4;
+    --dia-oppervlak: #ffffff;
+
+    --ord-1: #86b6ef;
+    --ord-2: #2a78d6;
+    --ord-3: #104281;
+    --ord-buiten: #a3a3a3;
+
+    --sig-goed: #0ca30c;
+    --sig-let-op: #fab219;
+    --sig-ernstig: #ec835a;
+    --sig-kritiek: #d03b3b;
+    --sig-goed-tekst: #006300;
+}
+
+.dark {
+    --dia-lijn: #3987e5;
+    --dia-vlak: rgb(57 135 229 / 0.14);
+    --dia-stil: #52514e;
+    --dia-raster: #404040;
+    --dia-as: #525252;
+    --dia-oppervlak: #262626;
+
+    --ord-1: #9ec5f4;
+    --ord-2: #3987e5;
+    --ord-3: #1c5cab;
+    --ord-buiten: #525252;
+
+    --sig-goed-tekst: #0ca30c;
+}
+
+[data-flux-field] {
+    @apply grid gap-2;
+}
+
+[data-flux-label] {
+    @apply  !mb-0 !leading-tight;
+}
+
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+}
+
+/* \[:where(&)\]:size-4 {
+    @apply size-4;
+} */

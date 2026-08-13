@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <!--
+        Domein-suites (token-optimalisatie): tijdens iteratie draai je één blok met
+        `php artisan test [testsuite=naam]`; kaal `php artisan test` draait alles
+        precies één keer. De suites zijn daarom DISJUNCT: elk Feature-bestand staat
+        in exact één suite. Een nieuw testbestand moet je hier bijzetten;
+        SuiteDekkingTest bewaakt dat (faalt bij een niet-ingedeeld bestand). NB:
+        tests/Feature staat niet meer als losse directory-suite.
+
+        De normprofiel-delta (NEN 7510) is géén suite maar een GROEP, want die
+        ligt over vier domeinen verspreid en een bestand mag maar in één suite.
+        Draaien met `php artisan test` en daarachter de optie `group=nen7510`
+        (met twee streepjes ervoor; die mogen letterlijk niet in XML-commentaar).
+
+        Wil je weten of de applicatie profielvast is, draai de hele suite dan één
+        keer met ISMS_NORM hieronder op nen7510. Dat hoort schoon te zijn: elke
+        test die een profiel nodig heeft, zet dat zelf. Zie implementatie/00k.
+    -->
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="toegang">
+            <file>tests/Feature/AutorisatieTest.php</file>
+            <file>tests/Feature/GebruikersbeheerTest.php</file>
+            <file>tests/Feature/UitnodigingscorrectieTest.php</file>
+            <file>tests/Feature/AdreswijzigingTest.php</file>
+            <file>tests/Feature/TweefactorTest.php</file>
+            <file>tests/Feature/LoginTest.php</file>
+            <file>tests/Feature/ActiefAccountTest.php</file>
+            <file>tests/Feature/WachtwoordHerstelTest.php</file>
+            <file>tests/Feature/GebruikerKeuzelijstTest.php</file>
+            <file>tests/Feature/NietActieveEigenaarTest.php</file>
+            <!-- Hoort bij geen enkel domein: het normprofiel is installatiebreed,
+                 net als de andere onderwerpen in deze suite. -->
+            <file>tests/Feature/NormprofielTest.php</file>
+            <!-- De Administrator staat naast de ISMS-rollen en hoort daarom bij
+                 de toegangssuite en niet bij blok 10, ook al gaat zijn enige
+                 scherm over toetsbestanden (implementatie/01e). -->
+            <file>tests/Feature/AdministratorTest.php</file>
+        </testsuite>
+        <testsuite name="context-assets">
+            <file>tests/Feature/ScopeBeheerTest.php</file>
+            <file>tests/Feature/ContextRegistersTest.php</file>
+            <file>tests/Feature/AssetClassificatieTest.php</file>
+        </testsuite>
+        <testsuite name="risico-soa">
+            <file>tests/Feature/RisicoSoaTest.php</file>
+            <file>tests/Feature/RisicomatrixTest.php</file>
+            <file>tests/Feature/RisicoCriteriaTest.php</file>
+            <file>tests/Feature/RisicocriteriaVersiesTest.php</file>
+            <file>tests/Feature/BeoordelingsschaalTest.php</file>
+            <file>tests/Feature/RestrisicoTrendTest.php</file>
+            <file>tests/Feature/RestrisicoSnapshotTest.php</file>
+            <file>tests/Feature/CapaciteitenCommandoTest.php</file>
+            <file>tests/Feature/ZorgcontrolsetTest.php</file>
+            <file>tests/Feature/ControlsetBestandenTest.php</file>
+            <file>tests/Feature/MaatregelenCommandoTest.php</file>
+            <file>tests/Feature/KenmerkenCommandoTest.php</file>
+        </testsuite>
+        <testsuite name="beleid-bewustzijn">
+            <file>tests/Feature/BeleidTest.php</file>
+            <file>tests/Feature/LeesbevestigingDoelgroepTest.php</file>
+            <file>tests/Feature/BewustzijnTrainingTest.php</file>
+            <file>tests/Feature/PersoneelsbeveiligingTest.php</file>
+            <file>tests/Feature/ToetsUitserverenTest.php</file>
+        </testsuite>
+        <testsuite name="bewijs">
+            <file>tests/Feature/BewijsAuditTest.php</file>
+            <file>tests/Feature/TijdweergaveTest.php</file>
+            <file>tests/Feature/BewijsPreviewTest.php</file>
+            <file>tests/Feature/KoppelingTrailTest.php</file>
+            <file>tests/Feature/KetenhashTest.php</file>
+        </testsuite>
+        <testsuite name="taken">
+            <file>tests/Feature/TakenTest.php</file>
+            <file>tests/Feature/StappenreeksTest.php</file>
+            <file>tests/Feature/NotificatieIntegratieTest.php</file>
+        </testsuite>
+        <testsuite name="incidenten-leveranciers">
+            <file>tests/Feature/IncidentTest.php</file>
+            <file>tests/Feature/LeverancierTest.php</file>
+            <!-- Blok 15 hoort hier bij zijn dichtstbijzijnde buren: een mislukte
+                 wijziging wordt een incident, de aankondigende partij is een
+                 leverancier (implementatie/15 §12). -->
+            <file>tests/Feature/WijzigingsbeheerTest.php</file>
+        </testsuite>
+        <testsuite name="meten-review">
+            <file>tests/Feature/KpiMetingTest.php</file>
+            <file>tests/Feature/MeetaanpakTest.php</file>
+            <file>tests/Feature/ManagementReviewTest.php</file>
+            <file>tests/Feature/DashboardTest.php</file>
+            <!-- De schedulerhartslag hoort hier omdat de zwaarste gevolgen van
+                 een gat bij de KPI's zitten (implementatie/00m §12). -->
+            <file>tests/Feature/SchedulerHartslagTest.php</file>
+        </testsuite>
+        <testsuite name="audit">
+            <file>tests/Feature/AuditProgrammaTest.php</file>
+            <file>tests/Feature/BereidAuditcyclusVoorTest.php</file>
+            <file>tests/Feature/AuditmanagementTest.php</file>
+            <file>tests/Feature/VerwijderAuditdataTest.php</file>
+            <file>tests/Feature/SoaRegelObserverTest.php</file>
+        </testsuite>
+        <testsuite name="kennisbank">
+            <file>tests/Feature/KennisbankTest.php</file>
+            <file>tests/Feature/KennisbankZoekenTest.php</file>
+            <file>tests/Feature/KennisbankNormprofielTest.php</file>
+        </testsuite>
+        <testsuite name="export">
+            <file>tests/Feature/ExporteerIsmsTest.php</file>
+            <file>tests/Feature/SchermkopieTest.php</file>
+            <!-- Dient zowel de schermkopie als het kennisartikel, maar hoort bij
+                 wat er het huis uit gaat en daarmee hier. -->
+            <file>tests/Feature/DocumentvoettekstTest.php</file>
+        </testsuite>
+        <testsuite name="demo">
+            <file>tests/Feature/DemoVulTest.php</file>
+            <file>tests/Feature/DemoEindstandTest.php</file>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="CACHE_STORE" value="array"/>
+        <env name="DB_CONNECTION" value="sqlite"/>
+        <env name="DB_DATABASE" value=":memory:"/>
+        <!-- De suite gaat uit van de repo-standaard: capaciteiten uit. Wie de
+             norm bezit zet ISMS_CAPACITEITEN lokaal aan, en dan zouden de
+             tests op de meegeleverde classificatie omvallen op een dimensie
+             die alleen in dié installatie gevuld is. -->
+        <env name="ISMS_CAPACITEITEN" value="false"/>
+        <!-- Zelfde reden als hierboven: dit zijn installatie-instellingen, en een
+             suite die van de lokale .env afhangt slaagt of faalt per werkplek. De
+             tests die deze twee nodig hebben, zetten ze zelf met config()->set().
+             ISMS_CBW_PLICHTIG=true in een .env liet vijf incidenttests omvallen
+             voordat dit hier stond. -->
+        <env name="ISMS_CBW_PLICHTIG" value="false"/>
+        <env name="ISMS_NORM" value="iso27001"/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+    </php>
+</phpunit>

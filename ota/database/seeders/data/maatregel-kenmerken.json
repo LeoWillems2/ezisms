@@ -1,0 +1,1991 @@
+{
+  "_over": {
+    "wat": "Uitgangsclassificatie, geen normtabel.",
+    "methode": "Herleid uit openbare gegevens over de strekking van elke maatregel. Voor de 8 maatregelen die alleen NEN 7510 kent (A.5.38-5.43, A.6.9, A.8.35) is die dekking dunner en leunt de classificatie zwaarder op de titel. De dimensie `capaciteiten` ontbreekt juist omdat die niet uit openbare bronnen te herleiden is; zie isms:capaciteiten.",
+    "status": "Startwaarde; elke organisatie stelt in het ISMS haar eigen classificatie vast. Die komt náást deze waarde te staan (soa_regels.kenmerken_eigen) en niet eroverheen, zodat altijd te zien is wat meegeleverd was en wat de organisatie heeft bepaald. Wijzigt een waarde hier, dan signaleert `php artisan isms:kenmerken` de SoA-regels die die correctie niet volgen.",
+    "schema": "De dimensies en hun toegestane waarden staan in config/maatregelkenmerken.php.",
+    "zorgvocabulaire": "In zorgmodus kent `eigenschappen` ook authenticiteit, onweerlegbaarheid en controleerbaarheid. Die zijn hier alleen toegekend aan de 8 NEN 7510-maatregelen, waar de titel het draagt; onweerlegbaarheid komt bij geen van de 8 voor, want de maatregelen waar dat over gaat zijn bestaande ISO-maatregelen met een zorgaanvulling die het ISMS niet meelevert. Zie implementatie/00j §2.2."
+  },
+  "regels": [
+    {
+      "annex_a_referentie": "5.1",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Veerkracht"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.2",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming",
+          "Veerkracht"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.3",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.4",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.5",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen",
+          "Reageren",
+          "Herstellen"
+        ],
+        "domeinen": [
+          "Verdediging",
+          "Veerkracht"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.6",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Reageren",
+          "Herstellen"
+        ],
+        "domeinen": [
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.7",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Detectief",
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Detecteren",
+          "Reageren"
+        ],
+        "domeinen": [
+          "Verdediging",
+          "Veerkracht"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.8",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.9",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.10",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.11",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.12",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.13",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.14",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.15",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.16",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.17",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.18",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.19",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.20",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.21",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.22",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.23",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.24",
+      "kenmerken": {
+        "type": [
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Reageren",
+          "Herstellen"
+        ],
+        "domeinen": [
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.25",
+      "kenmerken": {
+        "type": [
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Detecteren",
+          "Reageren"
+        ],
+        "domeinen": [
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.26",
+      "kenmerken": {
+        "type": [
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Reageren",
+          "Herstellen"
+        ],
+        "domeinen": [
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.27",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.28",
+      "kenmerken": {
+        "type": [
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Detecteren",
+          "Reageren"
+        ],
+        "domeinen": [
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.29",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Reageren"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Veerkracht"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.30",
+      "kenmerken": {
+        "type": [
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Reageren"
+        ],
+        "domeinen": [
+          "Veerkracht"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.31",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.32",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.33",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.34",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.35",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.36",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.37",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Herstellen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "6.1",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "6.2",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "6.3",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "6.4",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Reageren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "6.5",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "6.6",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "6.7",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "6.8",
+      "kenmerken": {
+        "type": [
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.1",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.2",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.3",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.4",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.5",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.6",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.7",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.8",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.9",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.10",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.11",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.12",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.13",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Veerkracht"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "7.14",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.1",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.2",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.3",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.4",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.5",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.6",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen",
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.7",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Detectief",
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.8",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.9",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.10",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.11",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.12",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.13",
+      "kenmerken": {
+        "type": [
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Herstellen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.14",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Veerkracht"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.15",
+      "kenmerken": {
+        "type": [
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.16",
+      "kenmerken": {
+        "type": [
+          "Detectief",
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Detecteren",
+          "Reageren"
+        ],
+        "domeinen": [
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.17",
+      "kenmerken": {
+        "type": [
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Integriteit"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.18",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.19",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.20",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen",
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.21",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.22",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.23",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.24",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.25",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.26",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.27",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.28",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.29",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.30",
+      "kenmerken": {
+        "type": [
+          "Preventief",
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen",
+          "Detecteren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.31",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.32",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.33",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.34",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.38",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.39",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Integriteit",
+          "Authenticiteit"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.40",
+      "kenmerken": {
+        "type": [
+          "Detectief"
+        ],
+        "eigenschappen": [
+          "Integriteit",
+          "Authenticiteit"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.41",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Integriteit",
+          "Beschikbaarheid",
+          "Authenticiteit"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.42",
+      "kenmerken": {
+        "type": [
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Reageren",
+          "Herstellen"
+        ],
+        "domeinen": [
+          "Veerkracht"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "5.43",
+      "kenmerken": {
+        "type": [
+          "Corrigerend"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid",
+          "Controleerbaarheid"
+        ],
+        "concepten": [
+          "Reageren"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem",
+          "Verdediging"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "6.9",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Beschikbaarheid"
+        ],
+        "concepten": [
+          "Identificeren",
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Governance en Ecosysteem"
+        ]
+      }
+    },
+    {
+      "annex_a_referentie": "8.35",
+      "kenmerken": {
+        "type": [
+          "Preventief"
+        ],
+        "eigenschappen": [
+          "Vertrouwelijkheid",
+          "Integriteit",
+          "Authenticiteit"
+        ],
+        "concepten": [
+          "Beschermen"
+        ],
+        "domeinen": [
+          "Bescherming",
+          "Verdediging"
+        ]
+      }
+    }
+  ]
+}

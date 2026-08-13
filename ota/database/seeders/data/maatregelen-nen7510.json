@@ -1,0 +1,717 @@
+{
+  "_over": {
+    "wat": "De 101 beheersmaatregelen van NEN 7510-1:2024: de 93 uit Bijlage A van ISO/IEC 27001:2022 plus acht zorgspecifieke (5.38–5.43, 6.9 en 8.35).",
+    "tekst": "Referenties, thema’s en titels zijn de openbaar bekende. De omschrijvingen levert dit ISMS niet mee: dat zou een eigen interpretatie zijn van de norm, op de plek waar een auditor de toepasselijkheid beoordeelt.",
+    "toestanden": "Bij 'omschrijving' betekent de meegeleverde mededeling: hier staat nog geen normtekst. Vervang hem per maatregel door de tekst uit uw eigen exemplaar van de norm; regels die u niet aanraakt blijven de mededeling tonen. Gedeeltelijk invullen mag. Bij 'zorgaanvulling' betekent 'DO NOT TOUCH' dat de norm bij deze maatregel geen zorgspecifieke beheersmaatregel geeft — laat die regels staan. De mededeling betekent dat de norm er wél een heeft; wat die inhoudt, leest u in de norm zelf.",
+    "commando": "php artisan isms:maatregelen"
+  },
+  "maatregelen": [
+    {
+      "annex_a_referentie": "5.1",
+      "thema": "organisatorisch",
+      "naam": "Beleidsregels voor informatiebeveiliging",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.2",
+      "thema": "organisatorisch",
+      "naam": "Rollen en verantwoordelijkheden bij informatiebeveiliging",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.3",
+      "thema": "organisatorisch",
+      "naam": "Functiescheiding",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.4",
+      "thema": "organisatorisch",
+      "naam": "Managementverantwoordelijkheden",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.5",
+      "thema": "organisatorisch",
+      "naam": "Contact met overheidsinstanties",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.6",
+      "thema": "organisatorisch",
+      "naam": "Contact met speciale belangengroepen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.7",
+      "thema": "organisatorisch",
+      "naam": "Informatie en analyses over dreigingen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.8",
+      "thema": "organisatorisch",
+      "naam": "Informatiebeveiliging in projectmanagement",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.9",
+      "thema": "organisatorisch",
+      "naam": "Inventarisatie van informatie en andere gerelateerde bedrijfsmiddelen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.10",
+      "thema": "organisatorisch",
+      "naam": "Aanvaardbaar gebruik van informatie en andere gerelateerde bedrijfsmiddelen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.11",
+      "thema": "organisatorisch",
+      "naam": "Retourneren van bedrijfsmiddelen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.12",
+      "thema": "organisatorisch",
+      "naam": "Classificeren van informatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.13",
+      "thema": "organisatorisch",
+      "naam": "Labelen van informatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.14",
+      "thema": "organisatorisch",
+      "naam": "Overdragen van informatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.15",
+      "thema": "organisatorisch",
+      "naam": "Toegangsbeveiliging",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.16",
+      "thema": "organisatorisch",
+      "naam": "Identiteitsbeheer",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.17",
+      "thema": "organisatorisch",
+      "naam": "Authenticatie-informatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.18",
+      "thema": "organisatorisch",
+      "naam": "Toegangsrechten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.19",
+      "thema": "organisatorisch",
+      "naam": "Informatiebeveiliging in leveranciersrelaties",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.20",
+      "thema": "organisatorisch",
+      "naam": "Adresseren van informatiebeveiliging in leveranciersovereenkomsten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.21",
+      "thema": "organisatorisch",
+      "naam": "Beheren van informatiebeveiliging in de ICT-toeleveringsketen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.22",
+      "thema": "organisatorisch",
+      "naam": "Monitoren, beoordelen en het beheren van wijzigingen van leveranciersdiensten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.23",
+      "thema": "organisatorisch",
+      "naam": "Informatiebeveiliging voor het gebruik van clouddiensten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.24",
+      "thema": "organisatorisch",
+      "naam": "Plannen en voorbereiden van het beheer van informatiebeveiligingsincidenten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.25",
+      "thema": "organisatorisch",
+      "naam": "Beoordelen van en besluiten over informatiebeveiligingsgebeurtenissen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.26",
+      "thema": "organisatorisch",
+      "naam": "Reageren op informatiebeveiligingsincidenten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.27",
+      "thema": "organisatorisch",
+      "naam": "Leren van informatiebeveiligingsincidenten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.28",
+      "thema": "organisatorisch",
+      "naam": "Verzamelen van bewijsmateriaal",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.29",
+      "thema": "organisatorisch",
+      "naam": "Informatiebeveiliging tijdens een verstoring",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.30",
+      "thema": "organisatorisch",
+      "naam": "ICT-gereedheid voor bedrijfscontinuïteit",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.31",
+      "thema": "organisatorisch",
+      "naam": "Wettelijke, statutaire, regelgevende en contractuele eisen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.32",
+      "thema": "organisatorisch",
+      "naam": "Intellectuele-eigendomsrechten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.33",
+      "thema": "organisatorisch",
+      "naam": "Beschermen van registraties",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.34",
+      "thema": "organisatorisch",
+      "naam": "Privacy en bescherming van persoonsgegevens",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.35",
+      "thema": "organisatorisch",
+      "naam": "Onafhankelijke beoordeling van informatiebeveiliging",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.36",
+      "thema": "organisatorisch",
+      "naam": "Naleving van beleid, regels en normen voor informatiebeveiliging",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.37",
+      "thema": "organisatorisch",
+      "naam": "Gedocumenteerde bedieningsprocedures",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "5.38",
+      "thema": "organisatorisch",
+      "naam": "Analyse en specificatie van informatiebeveiligingseisen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.39",
+      "thema": "organisatorisch",
+      "naam": "Zorgontvangers op unieke wijze identificeren",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.40",
+      "thema": "organisatorisch",
+      "naam": "Validatie van getoonde/geprinte gegevens",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.41",
+      "thema": "organisatorisch",
+      "naam": "Openbaar beschikbare gezondheidsinformatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.42",
+      "thema": "organisatorisch",
+      "naam": "Communicatie in noodsituaties",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "5.43",
+      "thema": "organisatorisch",
+      "naam": "Incidenten extern melden",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "6.1",
+      "thema": "mensgericht",
+      "naam": "Screening",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "6.2",
+      "thema": "mensgericht",
+      "naam": "Arbeidsovereenkomst",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "6.3",
+      "thema": "mensgericht",
+      "naam": "Bewustwording van, opleiding en training in informatiebeveiliging",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "6.4",
+      "thema": "mensgericht",
+      "naam": "Disciplinaire procedure",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "6.5",
+      "thema": "mensgericht",
+      "naam": "Verantwoordelijkheden na beëindiging of wijziging van het dienstverband",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "6.6",
+      "thema": "mensgericht",
+      "naam": "Vertrouwelijkheids- of geheimhoudingsovereenkomsten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "6.7",
+      "thema": "mensgericht",
+      "naam": "Werken op afstand",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "6.8",
+      "thema": "mensgericht",
+      "naam": "Melden van informatiebeveiligingsgebeurtenissen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "6.9",
+      "thema": "mensgericht",
+      "naam": "Managementtraining",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "7.1",
+      "thema": "fysiek",
+      "naam": "Fysieke beveiligingszones",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.2",
+      "thema": "fysiek",
+      "naam": "Fysieke toegangsbeveiliging",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.3",
+      "thema": "fysiek",
+      "naam": "Beveiligen van kantoren, ruimten en faciliteiten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.4",
+      "thema": "fysiek",
+      "naam": "Monitoren van de fysieke beveiliging",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.5",
+      "thema": "fysiek",
+      "naam": "Beschermen tegen fysieke en omgevingsdreigingen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.6",
+      "thema": "fysiek",
+      "naam": "Werken in beveiligde zones",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.7",
+      "thema": "fysiek",
+      "naam": "‘Clear desk’ en ‘clear screen’",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.8",
+      "thema": "fysiek",
+      "naam": "Plaatsen en beschermen van apparatuur",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.9",
+      "thema": "fysiek",
+      "naam": "Beveiligen van bedrijfsmiddelen buiten het terrein",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.10",
+      "thema": "fysiek",
+      "naam": "Opslagmedia",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "7.11",
+      "thema": "fysiek",
+      "naam": "Nutsvoorzieningen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.12",
+      "thema": "fysiek",
+      "naam": "Beveiligen van bekabeling",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.13",
+      "thema": "fysiek",
+      "naam": "Onderhoud van apparatuur",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "7.14",
+      "thema": "fysiek",
+      "naam": "Veilig verwijderen of hergebruiken van apparatuur",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.1",
+      "thema": "technologisch",
+      "naam": "'User endpoint devices'",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.2",
+      "thema": "technologisch",
+      "naam": "Speciale toegangsrechten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.3",
+      "thema": "technologisch",
+      "naam": "Beperking toegang tot informatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.4",
+      "thema": "technologisch",
+      "naam": "Toegangsbeveiliging op broncode",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.5",
+      "thema": "technologisch",
+      "naam": "Beveiligde authenticatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "8.6",
+      "thema": "technologisch",
+      "naam": "Capaciteitsbeheer",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.7",
+      "thema": "technologisch",
+      "naam": "Bescherming tegen malware",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.8",
+      "thema": "technologisch",
+      "naam": "Beheer van technische kwetsbaarheden",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.9",
+      "thema": "technologisch",
+      "naam": "Configuratiebeheer",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.10",
+      "thema": "technologisch",
+      "naam": "Wissen van informatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.11",
+      "thema": "technologisch",
+      "naam": "Maskeren van gegevens",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.12",
+      "thema": "technologisch",
+      "naam": "Voorkomen van gegevenslekken (data leakage prevention)",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.13",
+      "thema": "technologisch",
+      "naam": "Back-up van informatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    },
+    {
+      "annex_a_referentie": "8.14",
+      "thema": "technologisch",
+      "naam": "Redundantie van informatieverwerkende faciliteiten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.15",
+      "thema": "technologisch",
+      "naam": "Logging",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.16",
+      "thema": "technologisch",
+      "naam": "Monitoren van activiteiten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.17",
+      "thema": "technologisch",
+      "naam": "Kloksynchronisatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.18",
+      "thema": "technologisch",
+      "naam": "Gebruik van speciale systeemhulpmiddelen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.19",
+      "thema": "technologisch",
+      "naam": "Installeren van software op operationele systemen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.20",
+      "thema": "technologisch",
+      "naam": "Beveiliging netwerkcomponenten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.21",
+      "thema": "technologisch",
+      "naam": "Beveiliging van netwerkdiensten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.22",
+      "thema": "technologisch",
+      "naam": "Netwerksegmentatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.23",
+      "thema": "technologisch",
+      "naam": "Toepassen van webfilters",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.24",
+      "thema": "technologisch",
+      "naam": "Gebruik van cryptografie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.25",
+      "thema": "technologisch",
+      "naam": "Beveiligen tijdens de ontwikkelcyclus",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.26",
+      "thema": "technologisch",
+      "naam": "Toepassingsbeveiligingseisen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.27",
+      "thema": "technologisch",
+      "naam": "Veilige systeemarchitectuur en technische uitgangspunten",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.28",
+      "thema": "technologisch",
+      "naam": "Veilig coderen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.29",
+      "thema": "technologisch",
+      "naam": "Testen van de beveiliging tijdens ontwikkeling en acceptatie",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.30",
+      "thema": "technologisch",
+      "naam": "Uitbestede systeemontwikkeling",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.31",
+      "thema": "technologisch",
+      "naam": "Scheiding van ontwikkel-, test- en productieomgevingen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.32",
+      "thema": "technologisch",
+      "naam": "Wijzigingsbeheer",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.33",
+      "thema": "technologisch",
+      "naam": "Testgegevens",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.34",
+      "thema": "technologisch",
+      "naam": "Bescherming van informatiesystemen tijdens audits",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "DO NOT TOUCH"
+    },
+    {
+      "annex_a_referentie": "8.35",
+      "thema": "technologisch",
+      "naam": "Zero trust-beginselen",
+      "omschrijving": "Dit ISMS levert bij deze maatregel geen omschrijving mee.",
+      "zorgaanvulling": "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
+    }
+  ]
+}

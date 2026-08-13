@@ -1,0 +1,158 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# EzISMS — de stack
+#
+# Kopieer dit bestand en env.voorbeeld naar de map waar de uitgepakte tarbal
+# staat, hernoem env.voorbeeld naar .env, vul hem in en draai:
+#
+#     docker compose up -d --build
+#
+# Geen container_name: die is hostbreed en zou twee ISMS'en op één machine laten
+# botsen. Compose leidt de naam af uit de mapnaam.
+#
+# LET OP BIJ EEN UPGRADE: kopieer dit bestand opnieuw uit de nieuwe boom. Er
+# staan sleutels in die de nieuwe entrypoint verwacht; een oude compose.yml
+# geeft die niet door en dan valt bijvoorbeeld ISMS_CISO_EMAIL stil weg.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+# De logdriver, gedeeld door beide services (implementatie/00p §3).
+#
+# Zonder deze sleutel draait Docker op `json-file` zónder max-size en zónder
+# max-file: het toegangslog van nginx groeit dan onbegrensd door tot de schijf
+# vol is. Op een appliance die jaren draait is dat een kwestie van tijd.
+#
+# `local` en niet `json-file`: hij roteert, comprimeert de oude delen en heeft
+# een zuiniger formaat. `docker compose logs` werkt er gewoon mee — dat geldt
+# niet voor drivers als syslog of fluentd, en daarom staat die keuze hier.
+#
+# 10 MB × 5 is ruwweg een dag of tien aan verkeer bij een kleine organisatie, en
+# hooguit 50 MB per container op de schijf. Wat langer moet blijven dan dat hoort
+# niet hier maar op de hostmap: de Laravel-logs staan al in `storage/logs`, en
+# de audit trail — het bewijsstuk waar een auditor naar vraagt — staat in de
+# database en niet in een logbestand.
+x-logdriver: &logdriver
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?ontbreekt in .env}
+      MYSQL_DATABASE:      ${MYSQL_DATABASE:-ezisms}
+      MYSQL_USER:          ${MYSQL_GEBRUIKER:-ezisms}
+      MYSQL_PASSWORD:      ${MYSQL_WACHTWOORD:?ontbreekt in .env}
+      TZ:                  ${TZ:-Europe/Amsterdam}
+    volumes:
+      # De ./ is verplicht. Zonder leidende ./ of / leest Compose dit als de
+      # NAAM van een named volume, en dan ruimt `down -v` het wél op.
+      - ${ISMS_DATA:-./data}/db:/var/lib/mysql
+    networks: [dbnet]
+    # Geen "ports:" — 3306 is alleen bereikbaar binnen dbnet.
+    # mysqld logt naar stderr (`log-error stderr`), dus zijn foutlog valt onder
+    # de logdriver hieronder. De general log en de slow query log staan uit.
+    logging: *logdriver
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build:
+      context: ./${ISMS_BOOM:?ISMS_BOOM ontbreekt in .env — wijs de uitgepakte tarbal aan}
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # Expliciete lijst, géén env_file. Anders draagt de app-container ook
+    # MYSQL_ROOT_PASSWORD in zijn omgeving, leesbaar via `docker inspect` en
+    # voor elk PHP-proces in die container. Het root-wachtwoord blijft bij db.
+    environment:
+      APP_URL:                ${APP_URL:?ontbreekt in .env}
+      ORGANISATIE:            ${ORGANISATIE:-}
+      # Het versienummer in de zijbalk. Zonder deze regel blijft de vermelding
+      # weg — en waarschuwt de uitrol dat een sleutel uit .env.example niet
+      # gezet is, wat hier terecht is: het nummer hoort bij de boom die draait.
+      APP_VERSION:            ${APP_VERSION:-}
+      # Hoort normaal leeg te blijven: de entrypoint genereert de sleutel en
+      # bewaart hem in installatie/app_key. Toch doorgegeven, want alleen zo kan
+      # de entrypoint zien dát iemand er een heeft ingevuld en weigeren als die
+      # afwijkt van de bewaarde. Zonder deze regel wordt zo'n invulling stil
+      # genegeerd — precies het stille gedrag dat §0.5 wil voorkomen.
+      APP_KEY:                ${APP_KEY:-}
+      ISMS_NORM:              ${ISMS_NORM:?verplicht — iso27001 of nen7510}
+      ISMS_CBW_PLICHTIG:      ${ISMS_CBW_PLICHTIG:-false}
+      ISMS_2FA_AFDWINGEN:     ${ISMS_2FA_AFDWINGEN:-true}
+      ISMS_2FA_RESPIJT_DAGEN: ${ISMS_2FA_RESPIJT_DAGEN:-14}
+      # ISMS_DEMO=ja zet APP_ENV=demo én ISMS_2FA_AFDWINGEN=false én vult het
+      # ISMS met het FruitBV-scenario. Eén schakelaar, want die instellingen
+      # kloppen alleen in combinatie; de entrypoint zet ze (00n §0.2).
+      ISMS_DEMO:              ${ISMS_DEMO:-nee}
+      # Leeg ⇒ er wordt geen account aangemaakt en het slotscherm toont het
+      # commando. Het wachtwoord staat hier BEWUST niet: de omgeving van een
+      # container is leesbaar met `docker inspect` (00n §9.4).
+      ISMS_CISO_EMAIL:        ${ISMS_CISO_EMAIL:-}
+      ISMS_CISO_NAAM:         ${ISMS_CISO_NAAM:-}
+      ISMS_MIGRATIE_POGINGEN: ${ISMS_MIGRATIE_POGINGEN:-3}
+      # De container doet hier niets mee — hij luistert binnenin altijd op 80.
+      # Het slotscherm van de uitrol noemt deze poort alleen, zodat er staat waar
+      # de HAProxy naartoe moet. Zonder deze regel viel dat terug op de
+      # standaardwaarde en meldde een stack op poort 82 doodleuk poort 81.
+      HTTP_POORT:             ${HTTP_POORT:-81}
+      DB_HOST:                db
+      DB_PORT:                3306
+      DB_DATABASE:            ${MYSQL_DATABASE:-ezisms}
+      DB_USERNAME:            ${MYSQL_GEBRUIKER:-ezisms}
+      DB_PASSWORD:            ${MYSQL_WACHTWOORD:?ontbreekt in .env}
+      MAIL_MAILER:            ${MAIL_MAILER:-log}
+      MAIL_HOST:              ${MAIL_HOST:-}
+      MAIL_PORT:              ${MAIL_PORT:-587}
+      MAIL_USERNAME:          ${MAIL_USERNAME:-}
+      MAIL_PASSWORD:          ${MAIL_PASSWORD:-}
+      MAIL_FROM_ADDRESS:      ${MAIL_FROM_ADDRESS:-}
+      LOG_LEVEL:              ${LOG_LEVEL:-warning}
+      TZ:                     ${TZ:-Europe/Amsterdam}
+    volumes:
+      - ${ISMS_DATA:-./data}/app:/var/lib/ezisms
+      # De uitvoermap van `isms:exporteer --doel=/var/tmp/isms_export`. Een
+      # eigen mount en niet een plek onder de mount hierboven: die landt op de
+      # host onder data/app/, en de export hoort naast de bedrijfsgegevens te
+      # staan en niet ertussen. De leidende ./ zit in de standaardwaarde en is
+      # verplicht — zie de opmerking bij de db-mount.
+      #
+      # Ontbreekt deze regel (een oude compose.yml na een upgrade), dan schrijft
+      # de export naar de schrijflaag van de container en is hij weg bij de
+      # eerstvolgende `up -d`. De entrypoint waarschuwt daarvoor.
+      - ${ISMS_DATA:-./data}/isms_export:/var/tmp/isms_export
+    ports:
+      # Hostpoort 81, niet 80: die is op de doelmachine al bezet. HAProxy
+      # termineert de TLS en stuurt hiernaartoe.
+      - "${HTTP_POORT:-81}:80"
+    networks: [dbnet]
+    logging: *logdriver
+    healthcheck:
+      # /up is Laravels eigen healthroute (bootstrap/app.php). Dit is de
+      # HTTP-rookproef: in de entrypoint kan die niet, want nginx draait dan nog
+      # niet.
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/up || exit 1"]
+      interval: 30s
+      timeout: 10s
+      # Ruim, en dat is nodig: een eerste initialisatie migreert en seedt vóórdat
+      # nginx start, en dat duurde bij een gemeten NEN 7510-installatie 6 min 42.
+      # Binnen start_period tellen mislukte controles niet mee; zodra er één
+      # slaagt is de container healthy. Te krap zetten levert dus een container
+      # die minutenlang "unhealthy" heet terwijl hij gewoon aan het seeden is.
+      # Met ISMS_DEMO=ja komt het vullen van het scenario daar nog bij, en bij
+      # een bestaande installatie de verplichte dump.
+      start_period: 900s
+      retries: 3
+
+networks:
+  dbnet:
+    driver: bridge

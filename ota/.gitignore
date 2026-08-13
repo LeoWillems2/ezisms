@@ -1,0 +1,50 @@
+/.phpunit.cache
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/vendor
+.DS_Store
+.env
+.env.backup
+.env.production
+# Editor-swapbestanden: een .env.swp bevat de volledige inhoud van .env,
+# inclusief wachtwoorden, maar valt niet onder de regels hierboven.
+*.swp
+*.swo
+.phpactor.json
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+
+# Infrastructuurgegevens, horen niet in versiebeheer
+deploy.conf
+
+# Bevat tekst uit het gelicentieerde NEN-EN-ISO/IEC 27002:2022-document.
+# Regenereren met: python3 ../scripts/genereer_controls_seed.py
+/database/seeders/data/controls.json
+
+# De capaciteiten-toewijzing: zowel de waardenlijst als de koppeling per
+# maatregel zijn ISO-eigen. Wie de norm bezit maakt dit bestand zelf aan en
+# activeert het met `php artisan isms:capaciteiten aan`. Nooit committen.
+/database/seeders/data/maatregel-capaciteiten.json
+
+# LET OP: maatregelen-iso27001.json en maatregelen-nen7510.json staan hier
+# bewust NIET bij — die horen juist wél in versiebeheer. Ze dragen referenties,
+# thema's en titels (openbaar bekend) plus een vaste markering op elke plek waar
+# normtekst zou kunnen staan. Zodra je ze regenereert met de gekochte norm
+# ernaast, of ze invult zoals een installatie hoort te doen, staat die tekst in
+# je werkkopie en meldt git het bestand als gewijzigd. Commit dat niet; herstel
+# met: git checkout HEAD -- database/seeders/data/maatregelen-iso27001.json
+# De pre-commit hook in scripts/hooks weigert zo'n commit; activeer hem met
+# `git config core.hooksPath scripts/hooks`.
