@@ -18,6 +18,7 @@ use App\Livewire\BelanghebbendenOverzicht;
 use App\Livewire\BeleidsdocumentDetail;
 use App\Livewire\BeleidsdocumentenOverzicht;
 use App\Livewire\BevestigAdreswijziging;
+use App\Livewire\BevindingenOverzicht;
 use App\Livewire\BewijsstukkenOverzicht;
 use App\Livewire\Bouwhulp;
 use App\Livewire\Dashboard;
@@ -269,6 +270,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware("can:heeft-niveau,'auditmanagement','lezen'")->group(function () {
         Route::get('audits', AuditsOverzicht::class)->name('audits.index');
         Route::get('audits/rondes/{auditronde}', AuditrondeDetail::class)->name('audits.ronde');
+        // Het bevindingenregister over de rondes heen. Read-only en onder
+        // dezelfde lees-gate; vastleggen/sluiten blijft in het rondedossier
+        // achter de record-guard (§4).
+        Route::get('audits/bevindingen', BevindingenOverzicht::class)->name('audits.bevindingen');
         // Plan 11b: het meerjarige auditprogramma en de dekkingsmatrix (§9.2.2).
         // Onder dezelfde lees-gate; de planning-acties checken 'muteren' in het
         // component. De matrix is read-only.

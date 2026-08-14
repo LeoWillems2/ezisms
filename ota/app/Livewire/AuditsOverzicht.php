@@ -139,6 +139,9 @@ class AuditsOverzicht extends Component
             'types' => self::TYPES,
             'openPerType' => $openPerType,
             'openTotaal' => $openPerType->sum(),
+            // De filterwaarde waarmee het bevindingenregister hetzelfde toont
+            // als deze telling; zo staat de FQCN niet in de view.
+            'openstaandFilter' => BevindingenOverzicht::OPENSTAAND,
             'dagenSindsInterneAudit' => $laatsteIntern?->uitgevoerd_op
                 ? (int) $laatsteIntern->uitgevoerd_op->diffInDays(now())
                 : null,

@@ -22,13 +22,21 @@
     <div class="grid gap-4 sm:grid-cols-2">
         <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
             <flux:text>Open bevindingen</flux:text>
-            <flux:heading size="lg">{{ $openTotaal }}</flux:heading>
+            {{-- Het getal en elke badge leiden naar het bevindingenregister met
+                 het bijbehorende filter al gezet: een telling waar je niet op
+                 door kunt klikken laat je elke ronde langsgaan om te vinden
+                 wát er dan open staat. --}}
+            <a href="{{ route('audits.bevindingen', ['filterStatus' => $openstaandFilter]) }}" wire:navigate>
+                <flux:heading size="lg" class="hover:underline">{{ $openTotaal }}</flux:heading>
+            </a>
             @if ($openTotaal > 0)
                 <div class="mt-1 flex flex-wrap gap-1">
                     @foreach ($openPerType as $type => $aantal)
-                        <flux:badge size="sm" color="{{ str_contains($type, 'major') ? 'red' : (str_contains($type, 'minor') ? 'amber' : 'zinc') }}">
-                            {{ ucfirst(str_replace('_', ' ', $type)) }}: {{ $aantal }}
-                        </flux:badge>
+                        <a href="{{ route('audits.bevindingen', ['filterType' => $type, 'filterStatus' => $openstaandFilter]) }}" wire:navigate>
+                            <flux:badge size="sm" color="{{ str_contains($type, 'major') ? 'red' : (str_contains($type, 'minor') ? 'amber' : 'zinc') }}">
+                                {{ ucfirst(str_replace('_', ' ', $type)) }}: {{ $aantal }}
+                            </flux:badge>
+                        </a>
                     @endforeach
                 </div>
             @endif

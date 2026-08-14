@@ -225,6 +225,7 @@ class AutorisatieTest extends TestCase
         '/assets' => [200, 200, 200, 200, 403],
         '/audit-log' => [200, 200, 200, 403, 403],
         '/audits' => [200, 200, 200, 403, 403],
+        '/audits/bevindingen' => [200, 200, 200, 403, 403],
         '/audits/dekking' => [200, 200, 200, 403, 403],
         '/audits/programma' => [200, 200, 200, 403, 403],
         // De twee schermen waar de kolommen omdraaien: alleen de Administrator
