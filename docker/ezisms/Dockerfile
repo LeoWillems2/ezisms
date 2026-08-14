@@ -2,9 +2,9 @@
 # EzISMS — de applicatiecontainer
 #
 # De build-context is een uitgepakte distributietarbal, niet de git-werkkopie:
-# vendor/ en public/build zitten daar al gebouwd in, want livewire/flux is
-# proprietary en composer heeft er auth.json met credentials voor nodig. Die
-# credentials blijven op de bouwhost.
+# vendor/ en public/build zitten daar al gebouwd in. Bouwen hoort op de bouwhost
+# — daar staan de gereedschappen en eventuele credentials, en de boom die daar
+# is samengesteld en met SHA256SUMS is vastgelegd is de boom die hier draait.
 #
 # Gevolg: geen nodejs, geen npm, geen composer in dit image.
 # Zie implementatie/00l-docker-stack.md §0.2 en §4.
@@ -76,6 +76,19 @@ RUN find /opt/ezisms -type d -exec chmod 0755 {} + && \
 # van de tarbal faalt hier, met een leesbare melding, in plaats van straks als
 # een HTTP 500 bij de klant.
 RUN sha256sum -c --quiet SHA256SUMS
+
+# Een tarbal van `builddistr.sh --geen-bouw` draagt geen vendor/ en geen
+# public/build. Voor de bare-metal route is dat opgelost — deploy.sh bouwt ze
+# daar op de doelhost — maar dit image kan dat niet: er zit geen composer, geen
+# npm en geen node in (zie de kop van dit bestand). Zonder deze regel struikelt
+# de volgende over een ontbrekend bestand, en dat leest als een defect image in
+# plaats van als een verkeerd gebouwde tarbal.
+RUN [ -f vendor/autoload.php ] && [ -d public/build ] || { \
+        echo "Deze tarbal is met --geen-bouw gebouwd: vendor/ en public/build ontbreken."; \
+        echo "De Docker-route heeft een gebouwde tarbal nodig; bouw hem opnieuw"; \
+        echo "met builddistr.sh zonder --geen-bouw."; \
+        exit 1; \
+    }
 
 # Dezelfde controle als controleer_php_pakket: dit bestand ís de eis, composer
 # schrijft er de platformvoorwaarden in waarmee vendor/ gebouwd is (§0.8).

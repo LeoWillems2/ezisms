@@ -23,6 +23,12 @@ MANIFEST_VERSIE=2
 # krijgt de beheerder een duidelijke melding in plaats van een halve uitrol.
 MINIMALE_DEPLOY_VERSIE="1.0"
 
+# Idem, maar voor een tarbal van `--geen-bouw`. Die vraagt méér van deploy.sh:
+# vendor/ en public/build moeten op de doelhost gebouwd worden, en dat kan pas
+# vanaf 1.1. Een oudere deploy.sh accepteert zo'n pakket anders gewoon en loopt
+# vast op de eerste artisan-aanroep — na het wegschrijven van de release.
+MINIMALE_DEPLOY_VERSIE_ONGEBOUWD="1.1"
+
 # Naamprefix van archief en maplaag: ezisms-<versie>-<commit>.
 PAKKETNAAM="ezisms"
 

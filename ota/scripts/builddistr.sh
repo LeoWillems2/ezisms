@@ -20,9 +20,19 @@
 #      pre-commit hook die de commit bewaakte is verwijderd. Deze controle staat
 #      dus verder naar achteren dan prettig is — hij houdt tegen dat normtekst
 #      wordt uitgeleverd, niet dat ze wordt vastgelegd.
-#   3. Pas daarna wordt er gebouwd (composer, npm). Dat gebeurt hier en niet op
-#      de doelhost, omdat livewire/flux proprietary is en composer daarvoor
-#      auth.json met credentials nodig heeft.
+#   3. Pas daarna wordt er gebouwd (composer, npm). Dat gebeurt hier omdat de
+#      doelhost dan niets meer nodig heeft dan PHP: geen composer, geen npm,
+#      geen node, en geen uitgaande verbinding naar packagist.org, github.com en
+#      het npm-register. Eén boom die op de bouwhost is samengesteld en met
+#      SHA256SUMS is vastgelegd, is bovendien de boom die overal draait.
+#
+#      Tot 14-08-2026 stond hier een tweede reden — livewire/flux zou
+#      proprietary zijn en auth.json met credentials vragen — en daar hing een
+#      harde controle aan. Die klopt niet: `composer.lock` haalt flux van
+#      github.com, en de bouw komt zonder enige auth.json schoon door. De
+#      controle is daarom vervallen. Zet er wél een neer (in de projectmap of in
+#      COMPOSER_HOME) zodra er een betaald pakket bij komt, of om een
+#      GitHub-token mee te geven; composer vindt hem dan zelf.
 #
 # Voorwaarden op de bouwhost: git, php, composer, npm, python3, tar, sha256sum.
 # ─────────────────────────────────────────────────────────────────────────────
@@ -50,8 +60,9 @@ Gebruik: builddistr.sh [opties]
   --ref=<git-ref>     wat er ingepakt wordt (standaard: HEAD)
   --uit=<map>         waar de tarbal komt (standaard: <repo>/dist)
   --versie=<naam>     versienummer (standaard: de datum van vandaag)
-  --geen-bouw         zonder vendor/ en public/build; de doelhost moet dan zelf
-                      composer en npm draaien én een eigen auth.json hebben
+  --geen-bouw         zonder vendor/ en public/build; deploy.sh bouwt die dan op
+                      de doelhost, die daarvoor composer, npm en node nodig heeft.
+                      Niet te gebruiken voor de Docker-route: dat image bouwt niet.
   -h, --help          deze uitleg
 EOF
 }
@@ -108,16 +119,10 @@ fi
 if [[ $BOUWEN == ja ]]; then
     command -v composer >/dev/null || fout "composer ontbreekt (of gebruik --geen-bouw)"
     command -v npm >/dev/null      || fout "npm ontbreekt (of gebruik --geen-bouw)"
-    # Zonder auth.json haalt composer livewire/flux niet binnen en faalt de bouw
-    # halverwege. Liever nu stoppen, met de plek erbij waar composer kijkt.
-    # --no-interaction is hier geen overbodige beleefdheid: draai je dit script
-    # vanuit een submap van ota/, dan ziet composer geen composer.json in de
-    # werkmap, vindt hij die van ota/ en vráágt of hij die mag gebruiken. Die
-    # prompt gaat naar stderr en stdin blijft aan de terminal hangen — het
-    # script lijkt dan zonder reden te blijven staan tot je Enter geeft.
-    COMPOSER_HOME=$(composer config --global home --no-interaction || echo "$HOME/.config/composer")
-    [[ -f "$COMPOSER_HOME/auth.json" || -f "$REPO/ota/auth.json" ]] \
-        || fout "auth.json met de fluxui-credentials ontbreekt ($COMPOSER_HOME/auth.json)"
+    # Hier stond tot 14-08-2026 een controle op auth.json. Die is vervallen; zie
+    # de leeswijzer bovenaan. Heeft composer credentials nodig, dan zegt hij dat
+    # zelf, met de naam van het pakket erbij — dat is een betere melding dan een
+    # aanname vooraf over welk pakket die nodig zou hebben.
 fi
 
 BOUWMAP=$(mktemp -d -t ezisms-bouw.XXXXXXXX)
@@ -248,6 +253,12 @@ meld "storage-skelet: $(wc -l <<<"$STORAGE_SKELET") mappen"
 # ── 4. Bouwen ────────────────────────────────────────────────────────────────
 if [[ $BOUWEN == ja ]]; then
     stap "PHP-afhankelijkheden (zonder dev)"
+    # --no-interaction is hier geen overbodige beleefdheid: vindt composer om
+    # wat voor reden dan ook geen composer.json waar hij hem verwacht, dan
+    # vráágt hij of hij een andere mag gebruiken. Die prompt gaat naar stderr en
+    # stdin blijft aan de terminal hangen — het script lijkt dan zonder reden te
+    # blijven staan tot je Enter geeft. Zelfde reden waarom composer met
+    # ontbrekende credentials hier hoorbaar faalt in plaats van te wachten.
     ( cd "$BOOM" && composer install --no-dev --optimize-autoloader --no-interaction --no-progress )
 
     stap "Frontend bouwen"
@@ -257,9 +268,12 @@ if [[ $BOUWEN == ja ]]; then
     meld "node_modules verwijderd; public/build blijft"
     GEBOUWD='["vendor","public/build"]'
 else
-    waarschuw "zonder --bouw: de doelhost moet zelf composer en npm draaien"
-    waarschuw "en heeft daarvoor een eigen auth.json met Flux-credentials nodig"
+    waarschuw "--geen-bouw: deze tarbal draagt geen vendor/ en geen public/build"
+    waarschuw "deploy.sh bouwt ze op de doelhost; die heeft daarvoor composer, npm"
+    waarschuw "en node nodig, plus toegang tot packagist.org en github.com"
+    waarschuw "de Docker-route werkt hier niet mee: dat image bouwt zelf niets"
     GEBOUWD='[]'
+    MINIMALE_DEPLOY_VERSIE=$MINIMALE_DEPLOY_VERSIE_ONGEBOUWD
 fi
 
 # auth.json kan nooit uit git komen, maar composer schrijft hem soms weg in de
@@ -329,7 +343,10 @@ printf '\nUitrollen op de doelhost:\n'
 printf '   tar xzf %s -O %s/scripts/deploy.sh > deploy.sh\n' "$(basename "$TARBAL")" "$MAPNAAM"
 printf '   sudo bash deploy.sh %s /var/www/isms --eerste\n' "$(basename "$TARBAL")"
 
-if (( DOCKERBESTANDEN )); then
+if (( DOCKERBESTANDEN )) && [[ $BOUWEN == nee ]]; then
+    printf '\n\033[33mDeze tarbal is niet als Docker-stack uit te rollen: het image bouwt geen\n'
+    printf 'vendor/ en public/build. Bouw daarvoor opnieuw zonder --geen-bouw.\033[0m\n'
+elif (( DOCKERBESTANDEN )); then
     printf '\nUitrollen als Docker-stack:\n'
     printf '   mkdir -p ~/ezisms/<naam> && tar xzf %s -C ~/ezisms/<naam>\n' "$(basename "$TARBAL")"
     printf '   cd ~/ezisms/<naam>\n'

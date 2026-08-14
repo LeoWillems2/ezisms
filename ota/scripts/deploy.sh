@@ -50,7 +50,9 @@
 # uitrol onnodig moeilijk maakt.
 set -Eeuo pipefail
 
-DEPLOY_VERSIE="1.0"
+# 1.1: bouwt vendor/ en public/build zelf als het pakket ze niet meebrengt
+#      (`builddistr.sh --geen-bouw`).
+DEPLOY_VERSIE="1.1"
 
 # ── Instellingen ─────────────────────────────────────────────────────────────
 # Alles via ": ${NAAM:=…}", dus per aanroep te overschrijven zonder het script
@@ -306,6 +308,10 @@ opruimen() {
         if [[ $code -eq 0 ]]; then
             rm -rf "$WERKMAP"
         else
+            # Breekt de bouw op de doelhost af, dan staat de werkmap nog op de
+            # 0711 die de applicatiegebruiker doorgang gaf. Blijft hij staan voor
+            # onderzoek, dan hoort hij weer dicht te zijn.
+            chmod 0700 "$WERKMAP" 2>/dev/null || true
             waarschuw "werkmap blijft staan voor onderzoek: $WERKMAP"
             [[ -n $LOGBESTAND ]] && waarschuw "log: $LOGBESTAND"
         fi
@@ -624,15 +630,135 @@ controleer_manifest() {
     if [[ -n ${gebouwd// } ]]; then
         meld "meegeleverd gebouwd: $gebouwd"
     else
-        waarschuw "pakket zonder vendor/ en public/build; die moeten hier gebouwd worden"
-        command -v composer >/dev/null || fout "composer ontbreekt en het pakket bevat geen vendor/"
-        command -v npm >/dev/null      || fout "npm ontbreekt en het pakket bevat geen public/build"
+        # Een pakket van `builddistr.sh --geen-bouw`. Dat is geen halve tarbal
+        # maar een afspraak: de bouwhost had geen composer of npm, dus doet deze
+        # host het. Hier alleen vaststellen dát het kan — het bouwen zelf staat
+        # verderop, ná alle andere controles.
+        BOUWEN_HIER=ja
+        waarschuw "pakket zonder vendor/ en public/build; die worden op deze host gebouwd"
+        local cmd ontbreekt=()
+        for cmd in composer npm node; do
+            command -v "$cmd" >/dev/null || ontbreekt+=("$cmd")
+        done
+        [[ ${#ontbreekt[@]} -eq 0 ]] || fout "dit pakket is met --geen-bouw gebouwd en draagt geen vendor/ en public/build,
+maar op deze host ontbreekt: ${ontbreekt[*]}. Installeer die, of lever een tarbal
+aan die op de bouwhost wél gebouwd is (builddistr.sh zonder --geen-bouw)."
     fi
 
     stap "Integriteit van de uitgepakte bestanden"
     ( cd "$BOOM" && sha256sum -c --quiet SHA256SUMS ) \
         || fout "een of meer bestanden komen niet overeen met SHA256SUMS"
     goed "$(wc -l <"$BOOM/SHA256SUMS") bestanden geverifieerd"
+}
+
+# ═════════════════════════════════════════════════════════════════════════════
+#  Bouwen op de doelhost
+# ═════════════════════════════════════════════════════════════════════════════
+#
+# Alleen voor een pakket van `builddistr.sh --geen-bouw`. Zonder vendor/ is er
+# geen applicatie maar een bestandenboom: `artisan` struikelt op regel 9 over
+# vendor/autoload.php, en zonder public/build laadt geen enkel scherm zijn CSS.
+#
+# Dit gebeurt in de uitgepakte boom en niet in de release, en het gebeurt vóór
+# schrijf_release. Zo kost een mislukte bouw hooguit een werkmap in /var/tmp;
+# stond het erna, dan blijft er een halve release staan die op de eerste
+# artisan-aanroep afbreekt — precies het foutbeeld dat deze functie oplost.
+#
+# De SHA256SUMS uit het pakket dekt hierna niet meer alles wat er ligt. Dat is
+# geen gat: die controle hoort bij de overdracht van de tarbal en is hierboven
+# al gedraaid. Wat hier bijkomt is niet van de bouwhost afkomstig en kan dus ook
+# niet door een manifest van de bouwhost gedekt worden.
+bouw_afhankelijkheden() {
+    [[ $BOUWEN_HIER == ja ]] || return 0
+
+    if [[ $DRYRUN == ja ]]; then
+        stap "Bouwen op deze host"
+        meld "--dry-run: composer en npm zouden hier draaien; overgeslagen"
+        return 0
+    fi
+
+    stap "Bouwen op deze host"
+
+    # Volledige paden, want `runuser` geeft straks de omgeving van root door aan
+    # een account met /usr/sbin/nologin als shell; op de $PATH van dat account
+    # varen is dan een aanname over een gebruiker die nooit inlogt.
+    local composer_bin npm_bin
+    composer_bin=$(command -v composer)
+    npm_bin=$(command -v npm)
+    meld "composer: $composer_bin"
+    meld "npm:      $npm_bin ($(node -v))"
+
+    # vendor/, node_modules/ en de caches van composer en npm komen er allemaal
+    # bij, en die laatste twee landen in de wegwerpthuismap — ook onder
+    # $UITPAKMAP. Eén ruime marge dus, in plaats van vier krappe.
+    controleer_schijfruimte "$WERKMAP" $((1024 * 1024))
+
+    # Bouwen als de applicatiegebruiker en niet als root. composer en npm voeren
+    # scripts uit die uit het pakket en van het netwerk komen (package:discover,
+    # de postinstall-haken van de npm-afhankelijkheden); dat is precies het soort
+    # code dat dit script verder ook niet als root draait.
+    #
+    # Daarvoor moet die gebruiker bij de boom kunnen. 0711 op de werkmap geeft
+    # hem de doorgang zonder leesrecht op de map zelf, dus het deploylog dat er
+    # ook in staat blijft van root en buiten bereik. rsync kopieert straks als
+    # root, en zet_rechten zet het eigendom daarna alsnog goed.
+    chmod 0711 "$WERKMAP"
+    chown -R "$WEBGEBRUIKER:$WEBGROEP" "$BOOM"
+
+    # Eigen credentials voor composer, als de installatie ze klaarzet. Nodig is
+    # het niet: alles in composer.lock komt van packagist en github.com. Wel
+    # nuttig — een GitHub-token houdt een host die vaker uitrolt weg bij de
+    # anonieme aanvraaglimiet, waar composer anders midden in de bouw om een
+    # token gaat vragen. Het bestand gaat mee ín de boom en niet via de
+    # thuismap, want als_app wijst XDG_CONFIG_HOME naar een wegwerpmap.
+    local auth="$DOELPAD/shared/auth.json"
+    if [[ -f $auth ]]; then
+        cp -p "$auth" "$BOOM/auth.json"
+        chown "$WEBGEBRUIKER:$WEBGROEP" "$BOOM/auth.json"
+        chmod 0600 "$BOOM/auth.json"
+        meld "auth.json uit shared/ meegegeven aan composer"
+    fi
+
+    stap "PHP-afhankelijkheden (zonder dev)"
+    # Niet met `|| fout`: het opruimen van auth.json hieronder moet ook gebeuren
+    # als composer halverwege afbreekt. Een credentialbestand hoort de release
+    # niet in te reizen.
+    local status=0
+    ( cd "$BOOM" && als_app "$composer_bin" install --no-dev --optimize-autoloader \
+        --no-interaction --no-progress ) || status=$?
+    rm -f "$BOOM/auth.json"
+    (( status == 0 )) || fout "composer install mislukte op deze host; er is nog niets aan de installatie gewijzigd.
+Kijk of deze host bij packagist.org en github.com kan, en of composer.lock past bij
+PHP $PHP_MAJMIN. Vraagt composer om een GitHub-token, zet dat dan in
+$DOELPAD/shared/auth.json (0600) en rol opnieuw uit."
+
+    stap "Frontend bouwen"
+    ( cd "$BOOM" && als_app "$npm_bin" ci --no-audit --no-fund \
+                 && als_app "$npm_bin" run build ) \
+        || fout "de frontendbouw mislukte; zonder public/build laadt geen enkel scherm zijn CSS.
+Er is nog niets aan de installatie gewijzigd."
+
+    # node_modules is build-time: de installatie heeft alleen public/build nodig.
+    # Zelfde afweging als in builddistr.sh, en hier scheelt het ook in de
+    # rsync-slag en in vijf bewaarde releases.
+    rm -rf "$BOOM/node_modules"
+    meld "node_modules verwijderd; public/build blijft"
+
+    chmod 0700 "$WERKMAP"
+
+    [[ -f "$BOOM/vendor/autoload.php" ]] \
+        || fout "composer kwam goed door, maar vendor/autoload.php ontbreekt"
+    [[ -d "$BOOM/public/build" ]] \
+        || fout "npm kwam goed door, maar public/build ontbreekt"
+
+    # Dit is de controle die controleer_php_pakket bij een --geen-bouw-pakket
+    # niet kón doen: toen bestond vendor/ nog niet. Hij hoort nu vanzelf te
+    # kloppen — composer bouwde tegen déze PHP — maar dat is een aanname en dit
+    # is een feit.
+    PC="$BOOM/vendor/composer/platform_check.php" "$PHP" -r 'require getenv("PC");' >/dev/null 2>&1 \
+        || fout "de zojuist gebouwde vendor/ voldoet niet aan zijn eigen platformeisen"
+
+    goed "vendor/ ($(du -sh "$BOOM/vendor" | cut -f1)) en public/build ($(du -sh "$BOOM/public/build" | cut -f1)) gebouwd"
 }
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -1649,6 +1775,7 @@ FPM_DIENST=""; FPM_SOCKET=""; POOLMAP=""; POOLNAAM=""
 WEBSERVER=""; WEBGROEP=""; PHP_MAJMIN=""
 FOUTVLAG=""; FOUTVLAGMAP=""
 DEMO_GEVULD=""        # niet-leeg zodra isms:demo-vul is gedraaid
+BOUWEN_HIER=nee       # ja zodra het manifest zegt dat het pakket ongebouwd is
 
 hoofd() {
     controleer_root
@@ -1692,6 +1819,10 @@ hoofd() {
     controleer_manifest
     controleer_php_pakket
     controleer_optioneel
+    # Als laatste van de voorbereiding, en nog steeds vóór de eerste wijziging
+    # aan de installatie: bij een --geen-bouw-pakket duurt dit minuten, en dan
+    # wil je dat de goedkope controles al gesproken hebben.
+    bouw_afhankelijkheden
 
     if [[ $MODUS == eerste ]]; then
         if [[ $DRYRUN == ja ]]; then

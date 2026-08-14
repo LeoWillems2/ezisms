@@ -33,7 +33,12 @@ Er zijn **drie routes**, en de rest van dit hoofdstuk beschrijft de eerste:
 - **Bare-metal productie** — uit de tarbal van `scripts/builddistr.sh`, uitgerold
   met `scripts/deploy.sh`. Dat script legt `shared/`, de release-symlink, de
   crontab, het eigendom en de rechten zelf aan; je draait de stappen hieronder
-  daar niet met de hand.
+  daar niet met de hand. Is de tarbal met `--geen-bouw` gemaakt, dan draait
+  `deploy.sh` `composer install` en `npm run build` zelf op de doelhost, vóór er
+  iets aan de installatie verandert; die host heeft dan composer, npm en node
+  nodig. Vraagt composer daar om een GitHub-token, zet dat dan in
+  `<doelpad>/shared/auth.json` (0600) — dat bestand overleeft elke release en
+  wordt na de bouw weer uit de boom verwijderd.
 - **De container** — `docker/ezisms/` in de bovenliggende map, met
   `LEESMIJ.md` als instructie en `compose.yml` als startpunt. De entrypoint
   regelt eigendom, sleutel, migraties en seeds zelf.

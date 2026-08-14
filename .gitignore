@@ -1,3 +1,7 @@
+## copyscript
+
+/copyfromdev
+
 # Ankers (/) zijn hier essentieel: zonder anker sloot het patroon `config`
 # ook Laravel's ota/config/-map uit, en `.env` elke .env in submappen.
 /.env
