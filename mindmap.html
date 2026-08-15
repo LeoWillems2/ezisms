@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactieve Mindmap</title>
+  <!-- Marked Library for Markdown Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f5f7;
+      padding: 40px 20px;
+      color: #172b4d;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .column {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    .tree > li {
+      margin-bottom: 12px;
+    }
+
+    .item {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .item:hover {
+      background-color: #f0f4ff;
+    }
+
+    /* Blauw vierkantje voor hoofditems */
+    .tree > li > .item::before {
+      content: "";
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      background-color: #5856d6;
+      border-radius: 3px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .tree > li > .item {
+      font-weight: 700;
+      font-size: 16px;
+      color: #000;
+    }
+
+    /* Submenu boomstructuur */
+    .tree ul {
+      margin-left: 20px;
+      padding-left: 16px;
+      border-left: 1px solid #cbd5e1;
+      margin-top: 4px;
+      margin-bottom: 8px;
+    }
+
+    .tree ul li {
+      position: relative;
+      margin: 6px 0;
+    }
+
+    .tree ul li::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: -16px;
+      width: 12px;
+      height: 1px;
+      background-color: #cbd5e1;
+    }
+
+    .tree ul .item {
+      font-weight: 400;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    /* Modal / Tooltip Styling */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+    }
+
+    .modal {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 460px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal-title {
+      font-weight: 700;
+      font-size: 18px;
+      color: #0f172a;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+
+    /* Styling voor de Markdown-content binnen de modal */
+    .modal-body {
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .modal-body p {
+      margin-bottom: 10px;
+    }
+
+    .modal-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .modal-body ul, .modal-body ol {
+      list-style-position: inside;
+      margin: 8px 0;
+      padding-left: 8px;
+    }
+
+    .modal-body ul li {
+      list-style-type: disc;
+      margin-bottom: 4px;
+    }
+
+    .modal-body ol li {
+      list-style-type: decimal;
+      margin-bottom: 4px;
+    }
+
+    .modal-body code {
+      background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+
+    .modal-body strong {
+      color: #0f172a;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Kolom 1 -->
+    <div class="column">
+      <ul class="tree">
+        <li><span class="item" data-id="dashboard">Dashboard</span></li>
+        <li><span class="item" data-id="gebruikers">Gebruikers</span></li>
+        <li>
+          <span class="item" data-id="context-scope">Context & Scope</span>
+          <ul>
+            <li><span class="item" data-id="scope-verklaring">Scope-verklaring</span></li>
+            <li><span class="item" data-id="organisatie-eenheden">Organisatie-eenheden</span></li>
+            <li><span class="item" data-id="issues">Issues</span></li>
+            <li><span class="item" data-id="belanghebbenden">Belanghebbenden</span></li>
+          </ul>
+        </li>
+        <li>
+          <span class="item" data-id="assets-parent">Assets</span>
+          <ul>
+            <li><span class="item" data-id="assets">Assets</span></li>
+            <li><span class="item" data-id="systemen">Systemen</span></li>
+          </ul>
+        </li>
+        <li>
+          <span class="item" data-id="soa-risicos">SoA & Risico's</span>
+          <ul>
+            <li><span class="item" data-id="statement-of-applicability">Statement of Applicability</span></li>
+            <li><span class="item" data-id="restrisico-trend">Restrisico-trend</span></li>
+            <li><span class="item" data-id="risicoregister">Risicoregister</span></li>
+            <li><span class="item" data-id="tolerantiematrix">Tolerantiematrix</span></li>
+            <li><span class="item" data-id="risicocriteria">Risicocriteria</span></li>
+          </ul>
+        </li>
+        <li><span class="item" data-id="beleid-procedures">Beleid & procedures</span></li>
+        <li>
+          <span class="item" data-id="bewijs-audit-trail">Bewijs & audit trail</span>
+          <ul>
+            <li><span class="item" data-id="bewijsstukken">Bewijsstukken</span></li>
+            <li><span class="item" data-id="audit-trail">Audit trail</span></li>
+            <li><span class="item" data-id="schermkopieen">Schermkopieën</span></li>
+          </ul>
+        </li>
+        <li><span class="item" data-id="incidenten">Incidenten</span></li>
+        <li><span class="item" data-id="afwijkingen">Afwijkingen</span></li>
+      </ul>
+    </div>
+
+    <!-- Kolom 2 -->
+    <div class="column">
+      <ul class="tree">
+        <li><span class="item" data-id="leveranciers">Leveranciers</span></li>
+        <li>
+          <span class="item" data-id="wijzigingsbeheer">Wijzigingsbeheer</span>
+          <ul>
+            <li><span class="item" data-id="register">Register</span></li>
+            <li><span class="item" data-id="wijzigingssjablonen">Wijzigingssjablonen</span></li>
+          </ul>
+        </li>
+        <li>
+          <span class="item" data-id="audits">Audits</span>
+          <ul>
+            <li><span class="item" data-id="overzicht">Overzicht</span></li>
+            <li><span class="item" data-id="auditprogramma">Auditprogramma</span></li>
+            <li><span class="item" data-id="dekkingsmatrix">Dekkingsmatrix</span></li>
+          </ul>
+        </li>
+        <li><span class="item" data-id="management-review">Management review</span></li>
+        <li><span class="item" data-id="kpis">KPI's</span></li>
+        <li>
+          <span class="item" data-id="bewustzijn-training">Bewustzijn & training</span>
+          <ul>
+            <li><span class="item" data-id="mijn-trainingen">Mijn trainingen</span></li>
+            <li><span class="item" data-id="trainingen">Trainingen</span></li>
+            <li><span class="item" data-id="doelgroepen">Doelgroepen</span></li>
+            <li><span class="item" data-id="toetsen-uitzetten">Toetsen uitzetten</span></li>
+            <li><span class="item" data-id="bouwhulp">Bouwhulp</span></li>
+            <li><span class="item" data-id="toetsresultaten">Toetsresultaten</span></li>
+          </ul>
+        </li>
+        <li>
+          <span class="item" data-id="taken-parent">Taken</span>
+          <ul>
+            <li><span class="item" data-id="taken">Taken</span></li>
+            <li><span class="item" data-id="sjablonen">Sjablonen</span></li>
+          </ul>
+        </li>
+        <li>
+          <span class="item" data-id="notificaties-integraties">Notificaties & integraties</span>
+          <ul>
+            <li><span class="item" data-id="notificatieregels">Notificatieregels</span></li>
+            <li><span class="item" data-id="integraties">Integraties</span></li>
+          </ul>
+        </li>
+        <li><span class="item" data-id="toetsbestanden">Toetsbestanden</span></li>
+        <li><span class="item" data-id="export">Export</span></li>
+        <li><span class="item" data-id="kennisbank">Kennisbank</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Modal Popup -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-body" id="modalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    // JSON Data Object met Markdown formatted content
+    const modalData = {
+      "dashboard": { "titel": "Dashboard", "content": "Persoonlijke startpagina. Elk paneel controleert zijn eigen blokrecht: een Medewerker houdt alleen zijn takenlijst over, een CISO ziet alles.\n\n- **Mijn openstaande taken** — de eerstvolgende deadlines, verlopen taken in rood.\n- **Kerncijfers** — KPI-strip met de laatste meetwaarde, het verschil met de vorige en de richting.\n- **Signalen** — niet de score maar de afwijking; elke vlag heeft een kleur *en* een teken *en* een zin.\n- **PDCA-trend** — per KPI een klein diagram met de maandelijkse meetpunten, gegroepeerd per fase.\n- **Risico's**, **Maatregelen per thema** en **Documenten en bewijzen** — de stand van het register in één blik." },
+      "gebruikers": { "titel": "Gebruikers", "content": "Accounts, rollen en toegangsstatus binnen het ISMS.\n\n- Uitnodigen per e-mail; de uitgenodigde stelt zelf een wachtwoord in via de mail.\n- Kolommen: naam, e-mail, rol(len), afdeling, status, tweefactor, laatst ingelogd, vervalt op.\n- **Vervaldatum** voor tijdelijke accounts, zoals een extern ingehuurde auditor.\n- **Personeelsdossier**: screening/VOG (A.6.1), NDA of geheimhoudingsbeding (A.6.2/A.6.6) en offboarding — de datum waarop de accounts zijn ingetrokken.\n- Account blokkeren met reden, uitnodiging corrigeren, e-mailadres wijzigen met bevestiging door de gebruiker." },
+      "context-scope": { "titel": "Context & Scope", "content": "Hoofdstuk 4 van de norm: wat de organisatie is, wat er speelt, wie er iets van vindt, en waar de grens ligt.\n\n- Tabbladen: Scope-verklaring, Organisatie-eenheden, Issues en Belanghebbenden.\n- De issues en belanghebbenden voeden de scope-verklaring; de organisatie-eenheden zijn de bouwstenen ervan." },
+      "scope-verklaring": { "titel": "Scope-verklaring", "content": "De formele ISMS-scope met gemotiveerde uitsluitingen en interfaces (§4.3).\n\n- **Scopetekst**: welke delen van de organisatie binnen het ISMS vallen.\n- **Uitsluitingen** met verplichte motivatie — een uitsluiting zonder reden houdt geen stand.\n- **Interfaces** naar buiten-scope onderdelen, met een optionele risico-implicatie (bijv. IT-beheer door een externe partij).\n- Koppelt de relevante organisatie-eenheden, issues en belanghebbenden aan deze versie.\n- **Versiehistorie**: versie, geldig vanaf, goedgekeurd door. Is de geplande herziening verstreken, dan staat dat bovenaan." },
+      "organisatie-eenheden": { "titel": "Organisatie-eenheden", "content": "Afdelingen, locaties en processen — de bouwstenen van de ISMS-scope.\n\n- Type per eenheid: afdeling, locatie of proces.\n- Boomstructuur: een eenheid kan onder een andere hangen.\n- Worden hergebruikt als scope van assets, auditrondes en de doelgroep bij het uitzetten van toetsen." },
+      "issues": { "titel": "Issues", "content": "Interne en externe issues die de context van de organisatie bepalen (§4.1).\n\n- Aard: intern of extern.\n- Vrije **categorie** — bijv. juridisch, technologisch, markt, organisatorisch.\n- **Laatst beoordeeld op**: een issueregister dat jaren stilstaat is geen contextanalyse.\n- Kolom met de risico's die uit het issue zijn voortgekomen." },
+      "belanghebbenden": { "titel": "Belanghebbenden", "content": "Belanghebbenden en hun eisen of verwachtingen (§4.2).\n\n- Aard: intern of extern — klant, toezichthouder, aandeelhouder, medewerker, leverancier.\n- **Relevantie voor het ISMS** per partij.\n- Per belanghebbende een lijst **eisen**, elk met een bron: wettelijk, contractueel of verwachting.\n- Het onderscheid wettelijk/contractueel/verwachting is wat een auditor hier zoekt." },
+      "assets-parent": { "titel": "Assets", "content": "Wat er te beschermen valt: de inventaris met eigenaarschap en classificatie, en de systemen waarin die assets worden verwerkt.\n\n- Tabbladen: Assets en Systemen.\n- Een asset wijst naar de systemen waarin hij wordt verwerkt; een systeem toont zijn gekoppelde assets." },
+      "assets": { "titel": "Assets", "content": "Inventaris van informatie, systemen en hardware met eigenaarschap en classificatie.\n\n- Type: informatie, hardware, of systeem/dienst.\n- **Eigenaarschap volgens RACI**: Accountable (eindverantwoordelijk, puur informatief) en Responsible (dagelijkse uitvoering).\n- **Classificatie C / I / B** plus een vlag voor persoonsgegevens; filter *alleen niet-geclassificeerd* legt het gat bloot.\n- Binnen of buiten scope, en de organisatie-eenheid waar het asset hangt.\n- Status: geregistreerd, actief, buiten gebruik, afgestoten.\n- **Toewijzingen**: aan wie is het uitgegeven, op welke datum, en wanneer geretourneerd (A.5.11)." },
+      "systemen": { "titel": "Systemen", "content": "Systemen en diensten waarin assets worden verwerkt.\n\n- Hostingtype intern of extern, met de bijbehorende **leverancier**.\n- **Beschikbaarheidseis** (A.8.14): bedrijfskritiek, hoog, normaal of niet kritiek.\n- **Redundant uitgevoerd?** met toelichting — de eis en de voorziening naast elkaar.\n- Kolom met het aantal gekoppelde assets; afgevoerde systemen staan standaard verborgen." },
+      "soa-risicos": { "titel": "SoA & Risico's", "content": "De kern van de risicobehandeling: de verklaring van toepasselijkheid over Bijlage A, het risicoregister met zijn matrix, de criteria eronder en de trend erover.\n\n- Tabbladen: Statement of Applicability, Restrisico-trend, Risicoregister, Tolerantiematrix, Risicocriteria.\n- Risico's koppelen aan maatregelen; de SoA toont per maatregel het hoogste restrisico dat eraan hangt." },
+      "statement-of-applicability": { "titel": "Statement of Applicability", "content": "Alle beheersmaatregelen uit Bijlage A, met per maatregel de toepasselijkheid, de onderbouwing en de implementatiestatus.\n\n- Bovenaan drie tellers: **beoordeeld**, **van toepassing** en **geïmplementeerd** — het gap-signaal in één oogopslag.\n- Van toepassing ja / nee / **onbeslist**, met verplichte motivatie zodra er een beslissing ligt — óók bij een 'nee'. Onbeslist is geen geldige eindstand voor een audit.\n- Implementatiestatus: n.v.t., niet gestart, in uitvoering, geïmplementeerd.\n- Kolom **Restrisico**: het hoogste netto-restrisico van de gekoppelde risico's, met dezelfde semafoorkleuren als het register.\n- Kolom **Beleid**: de beleidsdocumenten die de maatregel onderbouwen, of de waarschuwing *geen beleid*.\n- Eigen **maatregelclassificatie** in vier dimensies; wijkt die af van het meegeleverde uitgangspunt, dan is dat zichtbaar.\n- Per regel bewijsstukken koppelen; in NEN 7510-modus verschijnt de zorgspecifieke aanvulling apart." },
+      "restrisico-trend": { "titel": "Restrisico-trend", "content": "De ontwikkeling van het restrisico per maatregel over de jaren (§9.1-meting, §10-verbetering).\n\n- Per maatregel het hoogste netto-restrisico van de gekoppelde risico's, per peiljaar.\n- **Read-only**: de jaarsnapshots worden onveranderlijk vastgelegd en nooit herrekend.\n- Per snapshot een toelichting — waarom het cijfer is wat het is.\n- De actuele stand staat op de SoA; hier zie je alleen de beweging." },
+      "risicoregister": { "titel": "Risicoregister", "content": "Het risicoregister: identificatie, beoordeling en behandeling.\n\n- Per risico een eigen **referentie**, titel, dreiging en kwetsbaarheid.\n- **Kans × impact (1–5)** geeft de score, met semafoorkleur tegen de drempels uit de risicocriteria.\n- **Behandeloptie**: mitigeren, accepteren, overdragen of vermijden, met restrisicoscore.\n- Koppeling naar het betrokken asset en naar de maatregelen uit de SoA.\n- Risico-eigenaar en **volgende beoordeling**; is die verstreken, dan meldt het detailscherm dat.\n- **Restrisico accepteren** legt vast door wie en op welke datum — acceptatie is een besluit, geen status.\n- Filters op status, aanleiding, en *alleen boven de drempel*." },
+      "tolerantiematrix": { "titel": "Tolerantiematrix", "content": "Het risicoregister als kans × impact.\n\n- Elk vakje toont hoeveel risico's erin vallen; klikken opent de lijst eronder.\n- De kleurbanden komen uit de vastgestelde risicocriteria, niet uit een vaste tabel in de code.\n- Legenda met de acceptatiedrempel en de waarschuwingsgrens." },
+      "risicocriteria": { "titel": "Risicocriteria", "content": "Het kader waartegen elk risico wordt gewogen: risk appetite en beoordelingsschalen.\n\n- **Risk appetite** met twee drempels: waarschuwingsgrens (amber) en acceptatiedrempel (rood). Daarboven hoort een expliciete acceptatie.\n- Per as een **beoordelingsschaal**: niveau, betekenis, optionele kwantitatieve band en een leidraad voor wie scoort.\n- Herleidbaar naar het **beleidsdocument** waarin het kader is vastgelegd en naar het §9.3-besluit waarin een wijziging is genomen.\n- **Versiehistorie** met drempels, goedkeurder en wijzigingsreden — dat is wat de auditor hier leest.\n- Waarschuwingen bij een verstreken herziening, ontbrekende beleidsverankering of het ontbreken van actieve criteria." },
+      "beleid-procedures": { "titel": "Beleid & procedures", "content": "Vastgesteld beleid met versiehistorie, goedkeuring en leesbevestiging (A.5.1).\n\n- Documenten met titel, type, eigenaar en status; per document een **actieve versie**.\n- **Versies**: status, publicatiedatum, goedgekeurd door en wijzigingsreden, met het documentbestand eraan.\n- **Leesbevestiging vereist** — het scherm toont wie al bevestigd heeft; iedere medewerker bevestigt zijn eigen.\n- **Volgende herziening**: levert automatisch een herzieningstaak op zodra de versie actief is.\n- Koppeling *onderbouwt SoA-maatregelen*: hier leg je vast welke maatregel dit document dekt." },
+      "bewijs-audit-trail": { "titel": "Bewijs & audit trail", "content": "De aantoonbaarheid van het ISMS: het bewijsmateriaal, het logboek van wat er gebeurd is, en wat er naar buiten ging.\n\n- Tabbladen: Bewijsstukken, Audit trail en Schermkopieën.\n- Bewijs hangt aan de entiteiten in de andere blokken; het logboek registreert de mutaties dáár." },
+      "bewijsstukken": { "titel": "Bewijsstukken", "content": "Centrale opslag van documenten die aantonen dat het ISMS-proces gevolgd is.\n\n- Upload van maximaal 20 MB; toegestaan zijn pdf, png, jpg, docx, xlsx en txt.\n- Vaste **bewaartermijn** per stuk, zichtbaar in de kolom *bewaren tot*.\n- Koppelen aan een risico, asset of maatregel doe je vanaf dát detailscherm; één bewijsstuk mag aan meerdere entiteiten hangen.\n- Status actief of gearchiveerd; filters op blok, entiteit en *alleen ongekoppeld*.\n- De download loopt door de autorisatiecheck heen — er is geen directe URL naar de schijf. RTF-bewijs heeft een HTML-preview.\n- Een Medewerker mag eigen bewijs uploaden en ziet alleen zijn eigen rijen." },
+      "audit-trail": { "titel": "Audit trail", "content": "Append-only logboek van wie-wat-wanneer over alle blokken heen. Regels kunnen niet worden gewijzigd of verwijderd.\n\n- Bovenaan de **ketencontrole** met kophash: intact of niet, gecontroleerd of verzegeld, en wanneer. Dat is de eerste vraag die een auditor stelt.\n- Filters op blok, entiteit, actie (aangemaakt, gewijzigd, status gewijzigd, verwijderd), gebruiker en periode.\n- Kolom **Wijziging** toont welk veld van welke waarde naar welke ging.\n- Statusovergangen zoek je op de sleutel *status*, niet op de actie." },
+      "schermkopieen": { "titel": "Schermkopieën", "content": "Wat er als Word-document het systeem uit is gegaan: welk scherm, met welke filters, hoeveel regels en door wie.\n\n- De kopieën zelf worden **niet** bewaard — dit is de lijst, niet het archief.\n- Badge *persoonsgegevens* als die erin zaten; niet wélke, alleen dát.\n- Een overdrachtsregister, geen meetwaarde: het hoort daarom bij Bewijs en niet bij de KPI's." },
+      "incidenten": { "titel": "Incidenten", "content": "Beveiligingsincidenten en meldingen (A.5.24–5.28). Melden kan iedereen.\n\n- Titel, *wat is er gebeurd*, ernst en status; een melder ziet zijn eigen meldingen, de CISO ziet ze allemaal.\n- Koppeling naar het **gerealiseerde risico** en het betrokken asset.\n- **Externe meldplicht**: raakt het persoonsgegevens (AVG, met eventueel een mededeling aan de betrokkenen, art. 34) en/of gaat het om netwerk- of informatiesystemen (Cbw, gefaseerd: 24 uur, 72 uur, 1 maand).\n- Het ankerpunt voor alle termijnen is de **kennisname door de organisatie**, niet het tijdstip van het incident.\n- Afwijkingen die uit dit incident voortkomen staan eronder; sluiten kan pas als er een corrigerende maatregel is óf een motivatie waarom die niet nodig is." },
+      "afwijkingen": { "titel": "Afwijkingen", "content": "Afwijkingen en corrigerende maatregelen (§10.2), met effectiviteitstoets.\n\n- Bron: een incident, een auditbevinding of de directiebeoordeling.\n- **Grondoorzaken** met de gebruikte methodiek — niet alleen de conclusie maar ook hoe je eruit bent gekomen.\n- **Corrigerende maatregelen** met eigenaar en deadline; de eigenaar mag zijn eigen maatregel afmelden.\n- **Effectiviteitstoets** vastleggen per maatregel: is het ook echt verholpen?\n- De kolom *nog te toetsen* en de melding *sluiten kan nog niet* bewaken dat de cyclus af is." },
+      "leveranciers": { "titel": "Leveranciers", "content": "Leveranciers en derdenrisico: de securityrelevante clausules (A.5.19–5.23) — bewust géén volledig contractbeheer.\n\n- Risiconiveau laag, midden of hoog, met status en volgende beoordelingsdatum.\n- **Diensten** die de leverancier levert en de **contractclausules** die er security-technisch toe doen.\n- Een geldig eigen certificaat van de leverancier telt — naast een contractclausule — als recht op audit.\n- **Beoordelingen** met datum, bevindingen en de volgende geplande ronde.\n- **Beëindiging**: is data en toegang teruggegeven of vernietigd? Daarna is het dossier alleen-lezen.\n- Leveranciersrisico zelf loopt via het gewone risicoregister, niet via een tweede register hier." },
+      "wijzigingsbeheer": { "titel": "Wijzigingsbeheer", "content": "Het register achter A.8.32 en de routes die bepalen hoe een wijziging erdoorheen loopt.\n\n- Tabbladen: Register en Wijzigingssjablonen (dat laatste vraagt muteerrecht).\n- Inzage in álle wijzigingen is de bedoeling: A.8.32 c) verplicht tot het informeren van belanghebbenden." },
+      "register": { "titel": "Register", "content": "Welke wijzigingen zijn er geweest, en met welke goedkeuring.\n\n- Soort en **zwaarte**: standaard, ingrijpend of spoed — die bepalen welk sjabloon van toepassing is.\n- Geraakte systemen, voorgenomen datum, voortgang en status (aangemeld, in behandeling, uitgevoerd, afgewezen, geannuleerd, gesloten).\n- Aanmelden mag iedereen; de CISO neemt in behandeling en kiest sjabloon en datum.\n- Het dossier bevat **impactanalyse** (downtime, afhankelijkheden, gewijzigde werking, licenties — A.8.32 a) en **terugvalplan** (verplicht vóórdat een uitvoerstap mag worden afgerond — A.8.32 f).\n- **Stappen** met volgorde, eigenaar, deadline en status; sommige stappen eisen bewijs voordat ze afgerond mogen worden.\n- **Evaluatie** achteraf: geslaagd of teruggedraaid, en wat ging goed en wat kan beter. Daarna is het dossier vast.\n- Optioneel ticketnummer uit het eigen ITSM-systeem." },
+      "wijzigingssjablonen": { "titel": "Wijzigingssjablonen", "content": "De routes die een wijziging aflegt, per soort en zwaarte.\n\n- Per sjabloon een omschrijving: waarvoor is deze route bedoeld, en wat onderscheidt hem van de andere?\n- **Stappen** met volgorde, type, standaard-eigenaar en een deadline ten opzichte van de planning (negatief = ervóór).\n- Per stap: **bewijs verplicht vóór afronden**, en bij afkeuren terug naar welke volgorde.\n- Bij een informeer-stap kies je de doelgroep.\n- Waarschuwing als een route A.8.32 niet volledig dekt." },
+      "audits": { "titel": "Audits", "content": "De interne auditcyclus (§9.2) en de externe certificeringsaudit.\n\n- Tabbladen: Overzicht (plannen, rondes, bevindingen), Auditprogramma (meerjarig) en Dekkingsmatrix.\n- Een tijdelijk Auditor-account krijgt hier leesrecht en mag op zijn eigen ronde bevindingen vastleggen." },
+      "overzicht": { "titel": "Overzicht", "content": "Interne audits (§9.2) en de externe certificeringsaudit: plannen, rondes en bevindingen.\n\n- **Auditplan** per jaar; daaronder de **rondes** met type, geplande datum, uitvoerder en status.\n- Uitvoerder is óf een (vaak tijdelijk) intern Auditor-account, óf een externe auditor bij naam — de certificerende instelling heeft geen account, haar rapport hangt als bewijs onder de ronde.\n- Het **rondedossier** heeft vier delen: dekking, planning, bevindingen en auditrapport & bewijs.\n- **Bevindingen** met type, omschrijving, de maatregel waar ze op slaan en een status; niet-conformiteiten gaan door naar Afwijkingen (§10.2).\n- Een apart, read-only bevindingenregister toont alle bevindingen over de rondes heen." },
+      "auditprogramma": { "titel": "Auditprogramma", "content": "De meerjarige interne-auditcyclus (§9.2.2): welk deel van H4–H10 en Bijlage A wanneer aan bod komt.\n\n- Programma met naam, aard (certificeringscyclus of voorbereiding), startdatum en aantal jaren.\n- De **certificaatdatum is het natuurlijke anker** voor de startdatum.\n- Planning per object en per jaar: wat wordt wanneer geaudit.\n- Het programma is een eigen entiteit, los van de losse auditplannen per jaar." },
+      "dekkingsmatrix": { "titel": "Dekkingsmatrix", "content": "Welk deel van het ISMS wanneer intern geaudit is (§9.2.2). Read-only.\n\n- **Alleen afgeronde rondes tellen** als dekking — een geplande ronde is geen bewijs.\n- Drie kerncijfers: cyclusdekking in procenten, het aantal objecten dat nog nooit geaudit is, en het venster van de cyclus.\n- Kleurraster per object per jaar, met legenda (uitgevoerd, gepland, niet gedekt).\n- Zonder auditprogramma is er niets te tonen; het scherm verwijst dan door." },
+      "management-review": { "titel": "Management review", "content": "De directiebeoordeling (§9.3) met de verplichte agenda, besluiten en verbeteracties (§10.2).\n\n- Sessies plannen met datum en deelnemers (wie namens de directie en het ISMS aanwezig is).\n- De **verplichte §9.3-onderwerpen** staan als agenda klaar en worden per categorie afgevinkt en onderbouwd.\n- **Besluiten & verbeteracties** met eigenaar, deadline en optioneel bronblok; die krijgen via Taken een herinnering op de deadline.\n- Bovenaan het aantal openstaande verbeteracties en de datum van de laatst gehouden review.\n- Waarschuwing wanneer er niet recent een review is gehouden." },
+      "kpis": { "titel": "KPI's", "content": "De meetaanpak (§9.1): wát het ISMS meet om PDCA-voortgang aan te tonen, waartegen het beoordeeld wordt, en de vastgelegde meetpunten.\n\n- KPI-catalogus gegroepeerd per **PDCA-fase**.\n- Per KPI de definitie: teller, noemer, meetbron en berekeningswijze (ratio/percentage, aantal, gemiddelde in dagen), eenheid en of hoger of juist lager beter is.\n- **Streefwaarde** en optionele signaalwaarde; een streefwaarde vaststellen is een eigen handeling.\n- **Meetpunten** met gemeten-op, uitkomst, de streefwaarde zoals die tóén gold, wie het vastlegde en welke definitieversie erbij hoorde.\n- Verandert de meetmethode, dan komt er een nieuwe definitieversie — anders is de historie niet meer vergelijkbaar.\n- De meting voedt de directiebeoordeling en de KPI-strip op het dashboard." },
+      "bewustzijn-training": { "titel": "Bewustzijn & training", "content": "Awareness en bekwaamheid (§7.2, §7.3, A.6.3): van de modules tot de uitslagen.\n\n- Tabbladen: Mijn trainingen, Trainingen, Doelgroepen, Toetsen uitzetten, Bouwhulp en Toetsresultaten.\n- *Mijn trainingen* is het scherm van iedere medewerker; de rest is beheer en vraagt meer rechten." },
+      "mijn-trainingen": { "titel": "Mijn trainingen", "content": "De trainingen die voor jouw doelgroep(en) verplicht zijn, en de toetsen die los aan jou zijn toegewezen.\n\n- Per training: geldigheid, status en de actie die van je verwacht wordt.\n- Voltooiing van een module registreer je zelf.\n- **Losse toetsen** met deadline en status, aan jou toegewezen buiten een module om.\n- Een geslaagde toets registreert de voltooiing machinaal — daar komt geen hand aan te pas." },
+      "trainingen": { "titel": "Trainingen", "content": "Awareness- en trainingsmodules, hun doelgroepen en de trainingsgraad (§7.2, §7.3, A.6.3).\n\n- Per module: titel, doelgroep, optionele toets en status (actief of ingetrokken).\n- **Geldigheidsduur in maanden** — leeg betekent eenmalig, geen verloop.\n- Kolommen **trainingsgraad** en **verlopen**: hoeveel van de doelgroep is bij, en bij hoeveel is de geldigheid om.\n- De toets aan een module koppelen maakt van een uitslag een registratie van voltooiing." },
+      "doelgroepen": { "titel": "Doelgroepen", "content": "Awareness-doelgroepen met expliciet lidmaatschap, los van de afdelingsindeling.\n\n- Lidmaatschap is een bewuste keuze en geen afgeleide van de organisatiestructuur.\n- Per doelgroep het aantal leden en de gekoppelde modules.\n- Vraagt muteerrecht; alleen de CISO ziet dit tabblad." },
+      "toetsen-uitzetten": { "titel": "Toetsen uitzetten", "content": "Zet een toets als taak uit bij geselecteerde gebruikers, met een deadline.\n\n- Stap 1 — **welke toets**: een module-toets (koppelt de uitslag aan een trainingsmodule) of een losse toets, eenmalig.\n- Stap 2 — **gebruikers**: selecteren, met filters op rol en organisatie-eenheid.\n- Af te ronden binnen een aantal weken; dat wordt de deadline van de taak.\n- Uitzetten is een muteer-actie: het maakt taken aan. Een geslaagde toets registreert de voltooiing machinaal." },
+      "bouwhulp": { "titel": "Bouwhulp", "content": "Hoe je een eigen toets bouwt en aan het ISMS koppelt.\n\n- Wat een toets is: één op zichzelf staande HTML-pagina.\n- Hoe de terugkoppeling werkt — de token in de URL is het bewijs, de deelnemer heeft geen account nodig.\n- De functie **onQuizVoltooid** downloaden en in je toets opnemen.\n- Waarin je toets draait: een afgeschermde omgeving die niet bij de gegevens of de sessie van het ISMS kan.\n- Een geplaatste toets is vooraf te bekijken zonder hem uit te zetten." },
+      "toetsresultaten": { "titel": "Toetsresultaten", "content": "Deelname en uitslagen per uitgezette toets (A.6.3).\n\n- Kolommen: toets, deelnemer, status, score, pogingen, deadline en afgerond op.\n- Status uitgezet, openstaand, geslaagd of gezakt.\n- Filters per toets en per status.\n- Read-only voor de Auditor; de Medewerker komt hier niet — die ziet alleen zijn eigen trainingen." },
+      "taken-parent": { "titel": "Taken", "content": "De werkvoorraad van het ISMS: wat moet er wanneer gebeuren, en van wie.\n\n- Tabbladen: Taken en Sjablonen (dat laatste vraagt muteerrecht).\n- Taken ontstaan handmatig, uit een sjabloon, of automatisch vanuit een ander blok (herziening van beleid, verbeteractie, uitgezette toets)." },
+      "taken": { "titel": "Taken", "content": "Terugkerende en eenmalige compliance-taken met eigenaar, deadline en escalatie.\n\n- Kolommen: titel, gekoppeld aan (blok en entiteit), eigenaar, deadline, status.\n- Status open, in uitvoering, wachtend of voltooid; verlopen taken worden apart gemerkt.\n- **Eigenaar is verplicht**: een taak zonder eigenaar verschijnt bij niemand op het dashboard.\n- Filters op blok, status en *alleen mijn taken*.\n- Een Medewerker ziet hier alleen zijn eigen taken; terugkerende taken beheer je bij Sjablonen." },
+      "sjablonen": { "titel": "Sjablonen", "content": "Taaksjablonen voor terugkerende taken.\n\n- Herhaling: eenmalig, maandelijks, per kwartaal, jaarlijks of een eigen interval in dagen.\n- **Dagen vooraf aanmaken** — een jaarlijkse taak die pas op de deadline verschijnt is nutteloos.\n- Standaard-eigenaar en bron-blok; zonder eigenaar staat de gegenereerde taak bij niemand.\n- `isms:genereer-taken` maakt de eerstvolgende taak aan zodra de deadline binnen het ingestelde venster valt.\n- Per sjabloon zichtbaar hoeveel taken het inmiddels heeft opgeleverd, en of het actief is." },
+      "notificaties-integraties": { "titel": "Notificaties & integraties", "content": "De randen van het systeem: wat er uitgaat per mail, en welke koppelingen er met de buitenwereld zijn.\n\n- Tabbladen: Notificatieregels en Integraties.\n- Beide staan op leesrecht zodat de Auditor de configuratie kan inzien; muteren vraagt meer." },
+      "notificatieregels": { "titel": "Notificatieregels", "content": "Welke gebeurtenis mailt wie.\n\n- Per regel een **gebeurtenis-type** uit de lijst die de code daadwerkelijk uitzendt.\n- **Ontvanger-rol** (bijv. CISO); leeg betekent: de betrokkene uit de gebeurtenis zelf.\n- Een regel uitzetten is een bewuste keuze en wordt vastgelegd in de audit trail.\n- **Recente verzendingen** met tijdstip, gebeurtenis, ontvanger en resultaat." },
+      "integraties": { "titel": "Integraties", "content": "Het register van externe koppelingen: dát een koppeling bestaat en of de laatste synchronisatie lukte.\n\n- **Er wordt hier niets gesynchroniseerd** — de synchronisatie zelf gebeurt buiten dit systeem.\n- Per adapter: naam, type en status (actief, inactief, fout).\n- *Sync vastleggen* noteert achteraf met de hand het resultaat: tijdstip, succes of fout, aantal verwerkte records.\n- Daaronder de log van de laatste synchronisaties — dat is wat een auditor als bewijs van beheersing leest." },
+      "toetsbestanden": { "titel": "Toetsbestanden", "content": "De HTML-toetsen die in dit ISMS uitgezet kunnen worden. Beheerscherm van de Administrator.\n\n- Een toets is een op zichzelf staande HTML-pagina.\n- Wat hier geplaatst wordt, wordt uitgeserveerd in een **afgeschermde omgeving**: de pagina kan niet bij de gegevens of de sessie van het ISMS.\n- Kolommen: titel, bestand, grootte, gewijzigd.\n- Plaatsen is beheer; het **uitzetten** — bepalen wie de toets krijgt — doet de CISO onder Bewustzijn & training." },
+      "export": { "titel": "Export", "content": "Het ISMS wegschrijven als leesbare Markdown-mapstructuur. Beheerscherm van de Administrator.\n\n- De export komt op een vast pad op de server; elke export krijgt een eigen map met datumstempel en **overschrijft nooit iets**.\n- De inhoud is hier niet in te zien — daarvoor is toegang tot de server nodig.\n- Personen staan erin met initialen en rol, niet met hun volledige naam; bewijsstukken worden alleen bij naam genoemd en niet meegekopieerd.\n- Vraagt een expliciete bevestiging: buiten de applicatie gelden de rechten uit dit systeem niet meer.\n- Uitleveren is een handeling aan de installatie, geen recht op de inhoud — de Administrator start de export maar leest hem niet." },
+      "kennisbank": { "titel": "Kennisbank", "content": "Gecureerde uitleg en achtergrond bij de opzet van het ISMS. Naslag voor elke ingelogde gebruiker, zonder blokrecht.\n\n- Artikelen over onder meer rollen en rechten, de audit trail, SoA en restrisico, incidenten en afwijkingen, wijzigingsbeheer, KPI's en de sitestructuur.\n- Aparte ingangen voor de CISO en voor de auditor, plus de verantwoording en disclaimer.\n- **Zoeken** doorzoekt alleen de kennisbank: niet hoofdlettergevoelig, ongevoelig voor accenten, en een deel van een woord volstaat.\n- Een resultaat springt naar de paragraaf waarin de term staat; de zoekterm staat in de URL en is dus deelbaar.\n- Een artikel als bestand meenemen mag alleen de CISO — lezen is naslag, downloaden is meenemen." }
+    };
+
+    const items = document.querySelectorAll('.item');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalContent = document.getElementById('modalContent');
+
+    items.forEach(item => {
+      item.addEventListener('mouseenter', () => {
+        // Controleer of het item een onderliggende <ul> heeft (kinderen)
+        const hasChildren = item.nextElementSibling && item.nextElementSibling.tagName === 'UL';
+        if (hasChildren) {
+          return; // Negeer mouseenter als er onderliggende items zijn
+        }
+
+        const id = item.getAttribute('data-id');
+        const data = modalData[id];
+
+        let markdownText = "";
+        if (data) {
+          modalTitle.textContent = data.titel;
+          markdownText = data.content;
+        } else {
+          modalTitle.textContent = item.textContent.trim();
+          markdownText = "todo `" + id + "`";
+        }
+
+        // Markdown parsing via marked.js
+        modalContent.innerHTML = typeof marked !== 'undefined' ? marked.parse(markdownText) : markdownText;
+
+        modalBackdrop.classList.add('active');
+      });
+
+      item.addEventListener('mouseleave', () => {
+        modalBackdrop.classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>
