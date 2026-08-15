@@ -319,9 +319,19 @@ controleer_database() {
 
 controleer_optioneel() {
     stap "Optioneel — hier stopt het script niet op"
-    command -v pandoc >/dev/null \
-        && meld "pandoc: $(pandoc --version | head -1)" \
-        || waarschuw "pandoc ontbreekt: documentgeneratie valt terug (README §Documentgeneratie)"
+    # Zelfde controle als op bare metal: niet "staat pandoc erop" maar "kan deze
+    # pandoc een .docx schrijven mét --sandbox". Het image pint pandoc vast en
+    # toetst dit al bij de build, dus hier hoort dit altijd te slagen — behalve
+    # als iemand in de container met de hand een andere pandoc heeft gezet.
+    if ! command -v pandoc >/dev/null; then
+        waarschuw "pandoc ontbreekt: documentgeneratie valt terug (README §Documentgeneratie)"
+    elif printf '# Toets\n' | pandoc --sandbox --from=markdown --to=docx \
+                                     --output=/dev/null 2>/dev/null; then
+        meld "pandoc: $(pandoc --version | head -1)"
+    else
+        waarschuw "pandoc $(pandoc --version | head -1 | cut -d' ' -f2) kan met --sandbox geen .docx schrijven"
+        waarschuw "  ⇒ elke Word-download geeft HTTP 503. Bouw het image opnieuw: docker compose up -d --build"
+    fi
 
     "$PHP" -r 'exit(($i = @gd_info()) && ($i["FreeType Support"] ?? false) ? 0 : 1);' \
         && meld "gd met FreeType: aanwezig" \

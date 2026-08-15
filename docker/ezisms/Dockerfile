@@ -23,22 +23,74 @@ ARG PHP_REEKS=8.5
 
 # ── Pakketten ────────────────────────────────────────────────────────────────
 # Geen cron: de scheduler draait onder supervisord (§0.6).
+# Geen pandoc: die komt niet uit apt maar uit de RUN hieronder — zie daar waarom.
 #
-# pandoc  — RTF-preview van beleidsdocumenten en de Word-versie van een
-#           schermkopie; vereist >= 3.1.7, de eerste versie met een RTF-lezer.
 # php-gd  — moet FreeType hebben, anders verschijnt de tolerantiematrix als
 #           tabel zonder plaatje.
 # mysql-client — mysqldump vóór elke migratie op een bestaande database. Dat is
 #           verplicht en heeft geen ontsnapping (00n §9.5), dus zonder dit
 #           pakket start een bestaande installatie niet meer.
-# curl    — de healthcheck van compose.yml roept hem in de container aan.
+# curl    — de healthcheck van compose.yml roept hem in de container aan, en de
+#           pandoc-RUN hieronder haalt er zijn pakket mee op.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         nginx supervisor \
         "php${PHP_REEKS}-fpm" "php${PHP_REEKS}-cli" "php${PHP_REEKS}-mysql" \
         "php${PHP_REEKS}-mbstring" "php${PHP_REEKS}-xml" "php${PHP_REEKS}-curl" \
         "php${PHP_REEKS}-zip" "php${PHP_REEKS}-gd" \
-        mysql-client pandoc curl ca-certificates tzdata \
+        mysql-client curl ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
+
+# ── pandoc ───────────────────────────────────────────────────────────────────
+# pandoc maakt de RTF/docx/odt-preview van bewijsstukken, de schermkopie voor de
+# auditor en de Word-versie van een kennisartikel. Vereist >= 3.1.7, de eerste
+# versie met een RTF-lezer.
+#
+# NIET `apt install pandoc`, en dat is de reden dat dit een eigen laag is. De
+# pandoc van Ubuntu 26.04 (3.7.0.2+ds-1, met zijn datafiles in een apart pakket
+# pandoc-data) kan met `--sandbox` géén .docx schrijven:
+#
+#     $ echo '# Hoi' | pandoc --sandbox --from=markdown --to=docx --output=-
+#     Could not find data file data/data/docx/[Content_Types].xml
+#
+# In sandbox-modus leest pandoc zijn datafiles uitsluitend uit de binary zelf, en
+# in die build zitten ze er niet in. `--data-dir` helpt niet — de sandbox negeert
+# die map juist, dat is zijn hele punt. Gevolg: een HTTP 503 op élke Word-
+# download, terwijl de HTML-preview bleef werken omdat de html-writer die
+# datafiles niet nodig heeft.
+#
+# `--sandbox` laten vallen voor alleen de docx-conversie was het alternatief,
+# maar dan leest de docx-writer plaatjespaden uit de markdown van schijf — en in
+# de markdown van een register of een schermkopie staat gebruikersinvoer.
+#
+# Dit is dezelfde bron als op de ontwikkelmachine (ontwikkelmachine/LEESMIJ.md):
+# de release van jgm/pandoc, één statische binary met de datafiles ingebakken.
+# Vastgepind op versie én hash, want een build hoort niet stilletjes iets anders
+# op te halen dan wat er getoetst is. Bij een nieuwe versie: het nummer hier en
+# de twee sommen hieronder, alle drie tegelijk.
+#
+# LET OP: deze laag heeft github.com nodig tijdens de build.
+ARG PANDOC_VERSIE=3.10.2
+RUN set -eu; \
+    arch="$(dpkg --print-architecture)"; \
+    case "$arch" in \
+        amd64) som=6c06b69b49ae95087573631a6fcafb233ab7ab51e5cfa73f7539d6c964a2640d ;; \
+        arm64) som=868c7675806237dd21711e3890e82f2844e011c8f542a1ddc6245df4324dd6b5 ;; \
+        *) echo "Geen vastgepind pandoc-pakket voor architectuur '$arch'." >&2; exit 1 ;; \
+    esac; \
+    deb="pandoc-${PANDOC_VERSIE}-1-${arch}.deb"; \
+    curl -fsSLo "/tmp/${deb}" \
+        "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSIE}/${deb}"; \
+    echo "${som}  /tmp/${deb}" | sha256sum -c -; \
+    dpkg -i "/tmp/${deb}"; \
+    rm -f "/tmp/${deb}"
+
+# De controle waar het hierboven om begonnen is, en niet zomaar `pandoc
+# --version`: dit is precies het commando uit App\Support\Pandoc::converteer().
+# Levert een toekomstige pandoc dezelfde sandbox-fout op, dan faalt de build hier
+# met een leesbare melding, in plaats van straks bij de klant als een 503 zonder
+# regel in het log.
+RUN printf '# Toets\n' | pandoc --sandbox --from=markdown --to=docx --output=/dev/null \
+    && pandoc --version | head -1
 
 # ── Twee accounts, zelfde taakverdeling als bij deploy.sh ────────────────────
 #   ezisms    bezit de code en draait niets. Het webproces kan zijn eigen

@@ -4,6 +4,10 @@ Twee containers: een MySQL-server en een applicatiecontainer met nginx, php-fpm
 en de takenplanner. U bouwt het image zelf uit de distributietarbal — er is geen
 registry en geen Docker-login nodig.
 
+Het bouwen zelf heeft wél internet nodig: de Ubuntu-archieven voor de pakketten
+en `github.com` voor pandoc (op versie én hash vastgepind in de Dockerfile).
+Staat er een proxy tussen, dan moet Docker die twee kunnen bereiken.
+
 Bij elke start controleert de container de installatie, maakt hij op een
 bestaande database eerst een dump, migreert en seedt hij, en toont hij een
 slotscherm in het log. Klopt er iets niet — een normprofiel dat op twee plekken

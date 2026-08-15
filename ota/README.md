@@ -96,19 +96,38 @@ verloopt alle verder gebruikersbeheer via `/gebruikers`.
 `php artisan db:seed` bevat uitsluitend referentiedata (geen testdata) en hoort
 daarom ook in productie te draaien — zie conventies §1.
 
-### Optioneel: pandoc voor de documentpreview
+### pandoc voor preview én Word-documenten
 
-De HTML-preview van bewijsstukken (blok 5) — RTF, DOCX en ODT — gebruikt de
-`pandoc`-binary. Zonder pandoc werkt de rest van de applicatie gewoon; de preview
-toont dan "niet beschikbaar" en de download blijft de geldende weg.
+Twee dingen lopen via de `pandoc`-binary. De HTML-preview van bewijsstukken
+(blok 5) — RTF, DOCX en ODT — is een terugval: zonder pandoc toont die "niet
+beschikbaar" en blijft de download de geldende weg. Maar sinds `implementatie/12h`
+maakt pandoc ook de **Word-documenten**: de schermkopie voor de auditor en een
+kennisartikel als `.docx`. Daar is geen terugval; die knoppen geven dan een 503.
+
+Twee eisen, en de tweede is de eis waar een distributiepakket op zakt:
 
 ```bash
 pandoc --version    # >= 3.1.7 voor de RTF-lezer; docx/odt lezen ook oudere versies
+
+# Kan deze pandoc een .docx schrijven mét --sandbox? Dit is het commando dat de
+# applicatie zelf doet (App\Support\Pandoc::converteer); het hoort 0 te geven.
+printf '# Toets\n' | pandoc --sandbox --from=markdown --to=docx --output=/dev/null
+echo $?
 ```
 
-Let op dat het distropackage vaak ouder is (Ubuntu 22.04 levert pandoc 2.9, zónder
-RTF-lezer). Installeer in dat geval een recente release van pandoc.github.io en zet
-het pad desnoods via `PANDOC_BIN` in `.env`.
+Zakt die tweede regel met `Could not find data file data/data/docx/…`, dan is de
+binary gebouwd zónder ingebakken datafiles (de datafiles staan dan in een apart
+pakket, bijvoorbeeld `pandoc-data`). `--sandbox` gebruikt uitsluitend de
+ingebakken versie, en `--data-dir` maakt daar niets aan uit. De pandoc van
+Ubuntu 26.04 (3.7.0.2) heeft dit; die van Ubuntu 22.04 (2.9) mist bovendien de
+RTF-lezer.
+
+Installeer in beide gevallen de release van
+[github.com/jgm/pandoc](https://github.com/jgm/pandoc/releases) — één statische
+binary met alles erin — en zet het pad desnoods via `PANDOC_BIN` in `.env`. De
+Docker-route doet precies dat, met een vastgepinde versie en hash in
+`docker/Dockerfile`. `deploy.sh` draait de controle hierboven bij elke uitrol en
+waarschuwt als hij zakt.
 
 ### Optioneel: GD met FreeType voor de matrixafbeelding
 

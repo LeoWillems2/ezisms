@@ -545,9 +545,21 @@ controleer_database() {
 
 controleer_optioneel() {
     stap "Optioneel — hier stopt het script niet op"
-    command -v pandoc >/dev/null \
-        && meld "pandoc: $(pandoc --version | head -1)" \
-        || waarschuw "pandoc ontbreekt: documentgeneratie valt terug (README §Documentgeneratie)"
+    # Niet "staat pandoc erop" maar "kan deze pandoc doen wat wij hem vragen".
+    # Dit ís het commando uit App\Support\Pandoc::converteer(), en het verschil
+    # is niet theoretisch: de pandoc van Ubuntu 26.04 (3.7.0.2) bestaat wel maar
+    # kan met --sandbox geen .docx schrijven, en dat werd zichtbaar als een 503
+    # op de Word-download zonder ook maar één regel in storage/logs.
+    if ! command -v pandoc >/dev/null; then
+        waarschuw "pandoc ontbreekt: documentgeneratie valt terug (README §Documentgeneratie)"
+    elif printf '# Toets\n' | pandoc --sandbox --from=markdown --to=docx \
+                                     --output=/dev/null 2>/dev/null; then
+        meld "pandoc: $(pandoc --version | head -1)"
+    else
+        waarschuw "pandoc $(pandoc --version | head -1 | cut -d' ' -f2) kan met --sandbox geen .docx schrijven"
+        waarschuw "  ⇒ elke Word-download geeft HTTP 503. Installeer de release van"
+        waarschuw "     github.com/jgm/pandoc in plaats van het distributiepakket (README §Documentgeneratie)"
+    fi
 
     "$PHP" -r 'exit(($i = @gd_info()) && ($i["FreeType Support"] ?? false) ? 0 : 1);' \
         && meld "gd met FreeType: aanwezig" \

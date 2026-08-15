@@ -48,7 +48,11 @@ sudo apt install -y nodejs
 
 # Pandoc, voor de RTF-preview van beleidsdocumenten en de Word-versie van een
 # schermkopie. Minimaal 3.1.7 — dat is de eerste versie met een RTF-lezer.
-# Niet uit apt: 24.04 levert een oudere. Zie PANDOC_BIN in .env.example.
+# Niet uit apt, en dat is niet alleen een kwestie van ouderdom: de pandoc van
+# een distributie zet zijn datafiles in een apart pakket, en met --sandbox (wat
+# de applicatie doet) leest pandoc alleen de in de binary ingebakken versie.
+# Zo'n build schrijft dus helemaal geen .docx. Zie de pandoc-laag in
+# docker/ezisms/Dockerfile, en PANDOC_BIN in .env.example.
 wget https://github.com/jgm/pandoc/releases/download/3.10.1/pandoc-3.10.1-1-amd64.deb
 sudo dpkg -i pandoc-3.10.1-1-amd64.deb
 ```
