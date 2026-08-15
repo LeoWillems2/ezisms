@@ -2,7 +2,7 @@
   "_over": {
     "wat": "Dertien beleidsdocumenten en procedures met hun versiehistorie, leesbevestigingen en koppeling naar SoA-regels.",
     "bron": "saasdemo/scenario.md §8",
-    "inhoud": "De documenten zijn leeg op titel en datum na (uitgangspunt uit p1). Wat telt is de status, de versiehistorie en de koppeling naar de SoA.",
+    "inhoud": "De documenten zijn leeg op titel en datum na (uitgangspunt uit de opdracht, scenario.md §0). Wat telt is de status, de versiehistorie en de koppeling naar de SoA.",
     "publiceren": "Een versie actief maken is sinds implementatie/01c een goedkeuractie: dat doet een directeur (bobo of baas), niet de CISO."
   },
 

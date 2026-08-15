@@ -13,6 +13,36 @@ ZZP'ers alleen als gebruiker (9a), gegenereerde wachtwoorden (10),
 
 ---
 
+## 0. De opdracht
+
+Hier stond een verwijzing naar `saasdemo/p1`, het bestand met de oorspronkelijke
+opdracht. Dat bestand is verwijderd; wat eruit nog geldt, staat hieronder. Alles
+wat p1 verder beschreef (organisatie, scope, personen) is uitgewerkt in §2 en §3
+en daar de bron.
+
+**Doel.** Een gevuld demo-ISMS, zodat PDCA, KPI's en andere meetwaarden te
+bouwen en te tonen zijn zonder te wachten tot er echte gebruiksdata is. Zonder
+zulke data valt deze ISMS-software niet uit te leveren.
+
+**Uitgangspunten die nog gelden:**
+
+- Alles wat bij de demo hoort — scripts, fixtures, hulpdata — staat in
+  `saasdemo/`.
+- Het onderwerp is een zelfontwikkeld SaaS-handelsplatform voor groenten en
+  fruit; OTA en productie zijn gescheiden.
+- De scope beperkt zich tot dat platform in productie. Ontwikkeling valt
+  buiten scope; alleen de beheerders met productietoegang zijn in scope, en dat
+  zijn ZZP'ers. Het management bestaat uit twee directieleden.
+- De benodigde documenten en bewijsstukken mogen leeg zijn, maar dragen wel een
+  titel of onderwerpaanduiding.
+- KPI's en risico's zijn voor de hand liggende scenario's, geen exotische.
+
+**Vervallen uit de opdracht:** de absolute data (driejaarlijkse cyclus vanaf
+1 maart 2026, eindstand 2 januari 2028). Die zijn vervangen door een relatieve
+tijdlijn — zie §1.
+
+---
+
 ## 1. Tijdmodel
 
 De tijdlijn is **relatief**, niet absoluut (antwoord 1c). Alles wordt uitgedrukt
@@ -24,7 +54,7 @@ in maandoffsets:
 | **M22** | "nu" — de dag van vullen; dit is de stand die de demo toont |
 
 Draai je de demo op 28-07-2026, dan is M0 = 01-10-2024 en M22 = 01-08-2026.
-De data uit `p1` (1 maart 2026 → 2 januari 2028) vervallen daarmee als
+De data uit de opdracht (1 maart 2026 → 2 januari 2028) vervallen daarmee als
 *absolute* data; wat overblijft is hun **afstand**: 22 maanden ISMS-historie
 eindigend op vandaag. Het voordeel is dat de demo op elke dag klopt: taken zijn
 echt te laat, herbeoordelingen zijn echt verlopen, en de Check-fase is gevuld.
@@ -266,7 +296,8 @@ van meteen 100%.
 ## 8. Beleid en procedures
 
 Dertien documenten. Alle inhoud is leeg op titel en datum na (uitgangspunt uit
-`p1`); wat telt is de status, de versiehistorie en de koppeling naar SoA-regels.
+de opdracht, §0); wat telt is de status, de versiehistorie en de koppeling naar
+SoA-regels.
 
 | Document | Type | Actief vanaf | Herziening |
 |---|---|---|---|
