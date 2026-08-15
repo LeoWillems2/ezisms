@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OWASP Top 10 Web Security - Lespakket & Toets</title>
+
+    <!-- External CSS & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Canvas Confetti for Quiz Pass Celebration -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        code, pre {
+            font-family: 'Fira Code', monospace;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid #6366f1;
+            color: #818cf8;
+            font-weight: 600;
+        }
+
+        .slide-frame {
+            background-color: #ffffff;
+            color: #334155;
+            border-radius: 16px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+            position: relative;
+            overflow: hidden;
+            padding: 40px 50px;
+            min-height: 520px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .slide-frame::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, #6366f1 0%, #06b6d4 100%);
+            z-index: 2;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- Logo / Title -->
+                <div class="flex items-center gap-3">
+                    <div class="p-2.5 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
+                        <i class="fa-solid fa-shield-halved text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg text-white leading-tight">OWASP Top 10 Web Security</h1>
+                        <p class="text-xs text-slate-400">Interactieve Training & Kennistoets (Slagingsnorm: 80%)</p>
+                    </div>
+                </div>
+
+                <!-- Tabs Navigation -->
+                <nav class="flex space-x-6">
+                    <button onclick="switchTab('presentation')" id="tab-pres" class="tab-btn active py-4 px-2 text-sm font-medium text-slate-300 hover:text-white transition flex items-center gap-2">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                        <span>Presentatie</span>
+                    </button>
+                    <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn py-4 px-2 text-sm font-medium text-slate-400 hover:text-white transition flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Kennistoets</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+
+        <!-- TAB 1: PRESENTATION -->
+        <section id="view-presentation" class="block">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl">
+                
+                <!-- Slide Header Bar -->
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <span id="slide-number-badge" class="bg-indigo-500/20 text-indigo-400 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-500/30">
+                            Slide 1 van 11
+                        </span>
+                        <h2 id="slide-header-title" class="text-xl font-bold text-white">Laden...</h2>
+                    </div>
+                    <div class="text-slate-400 text-sm hidden sm:flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-indigo-400"></i>
+                        <span>OWASP Foundation Guidelines</span>
+                    </div>
+                </div>
+
+                <!-- Main Slide Content Container -->
+                <div id="slide-content-frame" class="slide-frame">
+                    <!-- Dynamic Slide HTML inserted via JS -->
+                </div>
+
+                <!-- Slide Navigation Controls -->
+                <div class="flex items-center justify-between border-t border-slate-800 pt-6 mt-6">
+                    <button onclick="prevSlide()" id="btn-prev" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-xl transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2">
+                        <i class="fa-solid fa-arrow-left"></i> Vorige
+                    </button>
+
+                    <!-- Dynamic Navigation Dots -->
+                    <div class="flex items-center gap-1.5" id="slide-dots"></div>
+
+                    <button onclick="nextSlide()" id="btn-next" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition flex items-center gap-2 shadow-lg shadow-indigo-600/20">
+                        Volgende <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 2: QUIZ -->
+        <section id="view-quiz" class="hidden">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 md:p-8 shadow-2xl max-w-4xl mx-auto">
+                <div class="border-b border-slate-800 pb-4 mb-6">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-1">Toets OWASP Web Application Security</h2>
+                            <p class="text-slate-400 text-sm">Beantwoord de 10 vragen over de OWASP Top 10 risico's.</p>
+                        </div>
+                        <span class="bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                            <i class="fa-solid fa-bullseye"></i> Slagingsnorm: 80% (minst. 8 / 10)
+                        </span>
+                    </div>
+                </div>
+
+                <form id="quizForm" class="space-y-6">
+                    <!-- Dynamic Questions Container -->
+                    <div id="quiz-questions-container" class="space-y-6"></div>
+
+                    <div class="pt-4 border-t border-slate-800">
+                        <button type="button" onclick="evaluateQuiz()" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-base rounded-xl transition shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Toets Controleren & Resultaat Bekijken</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Quiz Results Display Box -->
+                <div id="result-box" class="hidden mt-8 p-6 bg-slate-800/90 border-2 rounded-2xl text-center transition duration-300">
+                    <div id="status-icon-container" class="w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-3"></div>
+                    <h3 class="text-xl font-bold text-white mb-1">Behaalde Uitslag</h3>
+                    <div id="score-display" class="text-5xl font-black my-2">0 / 10</div>
+                    <p id="score-message" class="text-slate-300 text-sm max-w-lg mx-auto mb-6 leading-relaxed"></p>
+                    
+                    <div class="flex justify-center gap-4">
+                        <button onclick="resetQuiz()" class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-rotate-right"></i> Toets Opnieuw Maken
+                        </button>
+                        <button onclick="switchTab('presentation')" class="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-semibold rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-book-open"></i> Presentatie Herhalen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 border-t border-slate-900 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            OWASP Web Application Security Training &copy; 2026 - Richtlijnen gebaseerd op OWASP Top 10 Standards.
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Terugmelden aan het ISMS. Deze toets riep tot 11-08-2026 een
+        // `window.onQuizPassed` aan die nergens bestaat — de uitslag kwam
+        // daardoor nooit aan, ook niet toen de toets nog uit public/toetsen
+        // kwam. De naam die het ISMS meelevert is onQuizVoltooid(score, total,
+        // passed), en die hoort ook bij zakken aangeroepen te worden.
+
+        const slideData = [
+            {
+                headerTitle: "1. Wat is OWASP?",
+                content: `
+                    <div class="flex flex-col items-center justify-center text-center h-full min-h-[420px]">
+                        <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-full text-indigo-600 mb-4">
+                            <i class="fa-solid fa-earth-americas text-4xl"></i>
+                        </div>
+                        <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4 leading-tight">Open Web Application Security Project (OWASP)</h1>
+                        <p class="text-lg text-slate-600 max-w-2xl leading-relaxed">
+                            OWASP is een wereldwijde non-profit organisatie die zich inzet voor betere softwarebeveiliging. De bekende <strong>OWASP Top 10</strong> biedt een actueel overzicht van de meest kritieke beveiligingsrisico's voor webapplicaties.
+                        </p>
+                    </div>
+                `
+            },
+            {
+                headerTitle: "2. A01: Broken Access Control",
+                content: `
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">A01: Broken Access Control (Gebroken Toegangsbeheer)</h2>
+                    <p class="text-slate-600 mb-6">Aanvallers kunnen acties uitvoeren of data inzien buiten hun toegewezen autorisatie (bijv. beheerdersfuncties of data van andere gebruikers).</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-rose-50 border border-rose-200 rounded-xl p-5">
+                            <h3 class="text-lg font-bold text-rose-800 mb-2"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Risico Voorbeeld</h3>
+                            <p class="text-slate-700 text-sm">Een gebruiker past de URL aan van <code class="text-rose-700">example.com/app/account?id=101</code> naar <code class="text-rose-700">id=102</code> en kan zo dossiers van een ander inzien.</p>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
+                            <h3 class="text-lg font-bold text-emerald-800 mb-2"><i class="fa-solid fa-shield-halved mr-1"></i> Oplossing</h3>
+                            <p class="text-slate-700 text-sm">Dwing autorisatie af op de server-side. Vertrouw nooit alleen op verborgen knoppen of URL-parameters in de browser.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                headerTitle: "3. A02: Cryptographic Failures",
+                content: `
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">A02: Cryptographic Failures (Cryptografische Fouten)</h2>
+                    <p class="text-slate-600 mb-6">Het betreft kwetsbaarheden rondom het niet of onvoldoende beschermen van gevoelige data (zoals wachtwoorden, creditcardnummers en BSNs) in rust of tijdens transport.</p>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-lock text-indigo-600 text-lg mt-1"></i>
+                            <div>
+                                <strong class="text-slate-900">In Transport:</strong> Gebruik altijd HTTPS/TLS met sterke cijfers voor data-overdracht over het netwerk.
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-database text-indigo-600 text-lg mt-1"></i>
+                            <div>
+                                <strong class="text-slate-900">In Rust:</strong> Gebruik moderne hashing-algoritmes zoals Argon2id of Bcrypt voor wachtwoorden, en sla gevoelige gegevens nooit in leesbare 'plain text' op.
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                headerTitle: "4. A03: Injection (bijv. SQL Injection & XSS)",
+                content: `
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">A03: Injection (Injectie)</h2>
+                    <p class="text-slate-600 mb-4">Injectie ontstaat wanneer niet-gecontroleerde gebruikersinvoer als opdracht of query naar een interpreter (zoals de SQL database of browser) wordt gestuurd.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-xs text-slate-200">
+                            <div class="text-rose-400 font-bold mb-1">KWETSBAAR (SQL Injection)</div>
+                            <code>$query = "SELECT * FROM users WHERE user='" . $_POST['user'] . "'";</code>
+                        </div>
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl text-xs text-slate-200">
+                            <div class="text-emerald-400 font-bold mb-1">VEILIG (Prepared Statement)</div>
+                            <code>$stmt = $pdo->prepare('SELECT * FROM users WHERE user = :u');<br>$stmt->execute(['u' => $_POST['user']]);</code>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                headerTitle: "5. A04: Insecure Design & A05: Security Misconfiguration",
+                content: `
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">Insecure Design & Misconfiguration</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 text-indigo-700">A04: Insecure Design</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">Fouten die ontstaan in het ontwerpproces nog voordat er code geschreven is. Beveiliging moet vanaf dag 1 ingebouwd zijn (Security by Design / Threat Modeling).</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                            <h3 class="text-lg font-bold text-slate-900 mb-2 text-indigo-700">A05: Security Misconfiguration</h3>
+                            <p class="text-slate-600 text-sm leading-relaxed">Onveilige standaardinstellingen, openstaande poorten, ingeschakelde foutmeldingen op productie of onnodige functies/diensten die actief staan op de server.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                headerTitle: "6. A06: Vulnerable and Outdated Components",
+                content: `
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">A06: Kwetsbare en Verouderde Componenten</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                        <div class="md:col-span-4 text-center bg-indigo-50 border border-indigo-200 p-6 rounded-2xl">
+                            <i class="fa-solid fa-cubes-stacked text-5xl text-indigo-600 mb-2"></i>
+                            <div class="text-sm font-bold text-slate-800">Dependencies & Packages</div>
+                        </div>
+                        <div class="md:col-span-8 space-y-3 text-slate-700 text-sm">
+                            <p class="leading-relaxed">Webapplicaties leunen zwaar op externe bibliotheken (NPM packages, Composer libraries, plugins).</p>
+                            <p class="leading-relaxed"><strong>Risico:</strong> Als een externe bibliotheek een bekend beveiligingslek (CVE) bevat, is de gehele applicatie kwetsbaar voor aanvallers.</p>
+                            <p class="leading-relaxed"><strong>Oplossing:</strong> Voer regelmatig automatische audits uit (zoals <code class="text-indigo-600 bg-slate-100 px-1.5 py-0.5 rounded font-mono">npm audit</code> of <code class="text-indigo-600 bg-slate-100 px-1.5 py-0.5 rounded font-mono">composer audit</code>) en houd afhankelijkheden up-to-date.</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                headerTitle: "7. A07: Identification and Authentication Failures",
+                content: `
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">A07: Identificatie- & Authenticatiefouten</h2>
+                    <p class="text-slate-600 mb-4 text-sm">Ontstaat wanneer het inlog- en sessiebeheer niet goed ingericht is, waardoor aanvallers accounts over kunnen nemen.</p>
+                    <ul class="space-y-3 text-slate-700 text-sm">
+                        <li class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <i class="fa-solid fa-key text-indigo-600 mt-0.5"></i>
+                            <span><strong>Zwakke Wachtwoorden:</strong> Geen vereisten voor wachtwoordsterkte of het toestaan van bekende/veelgebruikte wachtwoorden.</span>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <i class="fa-solid fa-mobile-screen-button text-indigo-600 mt-0.5"></i>
+                            <span><strong>Geen Multi-Factor Authenticatie (MFA):</strong> Het ontbreken van een extra verificatiestap maakt accounts kwetsbaar bij gelekte wachtwoorden.</span>
+                        </li>
+                        <li class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
+                            <i class="fa-solid fa-cookie-bite text-indigo-600 mt-0.5"></i>
+                            <span><strong>Sessie Fixatie / Diefstal:</strong> Onveilig beheer van sessie-cookies (geen HttpOnly of Secure vlaggen).</span>
+                        </li>
+                    </ul>
+                `
+            },
+            {
+                headerTitle: "8. A08: Software and Data Integrity Failures",
+                content: `
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">A08: Software & Data Integriteitsfouten</h2>
+                    <p class="text-slate-600 mb-6 text-sm">Dit treedt op als code en updates niet verifieerbaar zijn of als data zonder controle wordt gedeserialiseerd.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                            <h3 class="font-bold text-slate-900 mb-2 text-indigo-700"><i class="fa-solid fa-download mr-1"></i> CI/CD & Auto-Updates</h3>
+                            <p class="text-slate-600 text-xs leading-relaxed">Het installeren van updates zonder digitale handtekeningen of via onbeveiligde kanalen geeft aanvallers de kans om kwaadaardige code in te sluizen (Supply Chain Attacks).</p>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
+                            <h3 class="font-bold text-slate-900 mb-2 text-indigo-700"><i class="fa-solid fa-code-merge mr-1"></i> Insecure Deserialization</h3>
+                            <p class="text-slate-600 text-xs leading-relaxed">Het direct inlezen van gecomplexeerde objecten van onbetrouwbare bronnen kan leiden tot willekeurige code-executie (Remote Code Execution).</p>
+                        </div>
+                    </div>
+                `
+            },
+            {
+                headerTitle: "9. A09: Security Logging & Monitoring Failures",
+                content: `
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">A09: Slechte Logging & Monitoring</h2>
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
+                        <h3 class="font-bold text-amber-900 mb-1"><i class="fa-solid fa-clock-rotate-left mr-1"></i> Gemiddelde Tijd tot Ontdekking (200+ Dagen)</h3>
+                        <p class="text-slate-700 text-sm leading-relaxed">Aanvallers blijven vaak maanden onopgemerkt op netwerken aanwezig wanneer er geen actieve monitoring en heldere logging plaatsvindt.</p>
+                    </div>
+                    <ul class="list-disc list-inside space-y-2 text-slate-700 text-sm bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <li>Log mislukte inlogpogingen, autorisatiefouten en verdachte verzoeken.</li>
+                        <li>Zorg dat logbestanden centraal en beveiligd worden opgeslagen (voorkom dat aanvallers hun eigen sporen wissen).</li>
+                        <li>Richt automatische alarmen in bij afwijkend of gevaarlijk gedrag.</li>
+                    </ul>
+                `
+            },
+            {
+                headerTitle: "10. A10: Server-Side Request Forgery (SSRF)",
+                content: `
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">A10: Server-Side Request Forgery (SSRF)</h2>
+                    <p class="text-slate-600 mb-6">SSRF-kwetsbaarheden ontstaan wanneer een webapplicatie een externe bron ophaalt zonder de door de gebruiker opgegeven URL te valideren.</p>
+                    <div class="bg-slate-900 border border-slate-800 p-5 rounded-xl text-slate-200 text-xs space-y-3">
+                        <div class="text-indigo-400 font-bold uppercase">Hoe werkt SSRF?</div>
+                        <p>1. Een aanvaller dwingt de server om een verzoek te sturen naar een intern IP-adres (bijv. <code class="text-amber-300">http://169.254.169.254</code> of <code class="text-amber-300">http://localhost:8080/admin</code>).</p>
+                        <p>2. Omdat het verzoek vanaf de interne server komt, omzeilt de aanvaller de firewall en krijgt hij toegang tot interne services.</p>
+                    </div>
+                `
+            },
+            {
+                headerTitle: "11. Samenvatting & Toets Voorbereiding",
+                content: `
+                    <div class="flex flex-col items-center justify-center text-center h-full min-h-[420px]">
+                        <h2 class="text-3xl font-bold text-slate-900 mb-4">Klaar voor de Kennistoets?</h2>
+                        <p class="text-slate-600 max-w-xl mb-6">Je hebt de OWASP Top 10 doorgenomen. Zorg dat je de risico's en oplossingen begrijpt.</p>
+                        <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl text-indigo-900 text-sm font-semibold mb-6">
+                            <i class="fa-solid fa-circle-info mr-1"></i> Om te slagen voor de toets moet je minstens <strong>80%</strong> behalen (minstens 8 van de 10 vragen goed).
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        const quizData = [
+            {
+                q: "1. Wat is het hoofddoel van de stichting OWASP?",
+                options: [
+                    "A. Het verkopen van commerciële antivirussoftware.",
+                    "B. Het verbeteren van softwarebeveiliging door open standaarden, bewustwording en richtlijnen.",
+                    "C. Het beheren van domeinnamen op het internet."
+                ],
+                correct: "B",
+                explanation: "OWASP is een non-profit organisatie die openbare documentatie en richtlijnen (zoals de OWASP Top 10) biedt om software veiliger te maken."
+            },
+            {
+                q: "2. Wat houdt het risico 'A01: Broken Access Control' in?",
+                options: [
+                    "A. Gebruikers kunnen handelingen uitvoeren of gevoelige data inzien buiten hun toegewezen rechten.",
+                    "B. Wachtwoorden worden niet gehashed in de database opgeslagen.",
+                    "C. De server is fysiek niet afgesloten in het datacenter."
+                ],
+                correct: "A",
+                explanation: "Broken Access Control betekent dat autorisatie-controles ontbreken of omzeild kunnen worden, waardoor gebruikers rechten misbruiken."
+            },
+            {
+                q: "3. Welke methode is het meest effectief tegen SQL Injection (A03: Injection)?",
+                options: [
+                    "A. Het gebruik van Prepared Statements / Geparametriseerde queries.",
+                    "B. Het uitsluitend gebruiken van HTTPS-verbindingen.",
+                    "C. Het herstarten van de database-server na elke login."
+                ],
+                correct: "A",
+                explanation: "Prepared Statements scheiden SQL-code strikt van de data, waardoor kwaadaardige SQL-instructies niet uitgevoerd kunnen worden."
+            },
+            {
+                q: "4. Welk probleem valt onder 'A02: Cryptographic Failures'?",
+                options: [
+                    "A. Onvoldoende of afwezige versleuteling van gevoelige gegevens (in rust of tijdens transport).",
+                    "B. Het ontbreken van CSS styling op een inlogpagina.",
+                    "C. Een trage internetverbinding van de gebruiker."
+                ],
+                correct: "A",
+                explanation: "Cryptographic Failures omvatten het lekken van onversleutelde gevoelige data (zoals wachtwoorden, creditcards of BSNs)."
+            },
+            {
+                q: "5. Wat is het risico bij 'A06: Vulnerable and Outdated Components'?",
+                options: [
+                    "A. Het gebruiken van externe bibliotheken/packages die bekende beveiligingslekken (CVE's) bevatten.",
+                    "B. Het werken met een verouderde computer monitor.",
+                    "C. Het niet installeren van een ad-blocker in de browser."
+                ],
+                correct: "A",
+                explanation: "Als je applicatie afhankelijk is van verouderde bibliotheken met bekende lekken, kunnen aanvallers die lekken misbruiken om jouw app te hacken."
+            },
+            {
+                q: "6. Welke beveiligingsmaatregel valt onder 'A07: Identification and Authentication Failures'?",
+                options: [
+                    "A. Het verplicht stellen van Multi-Factor Authenticatie (MFA) en sterke wachtwoorden.",
+                    "B. Het toevoegen van meer afbeeldingen op de homepage.",
+                    "C. Het verbergen van de broncode via JavaScript."
+                ],
+                correct: "A",
+                explanation: "A07 gaat over zwakheden in inlogsystemen. MFA en sterke wachtwoorden beschermen accounts tegen overnames."
+            },
+            {
+                q: "7. Wat wordt verstaan onder 'A05: Security Misconfiguration'?",
+                options: [
+                    "A. Foutieve instellingen op de server, zoals actief gelaten standaard-accounts of ingeschakelde foutmeldingen op productie.",
+                    "B. Een typfout in een HTML paragraaf-tag.",
+                    "C. Het niet gebruiken van een draadloze muis."
+                ],
+                correct: "A",
+                explanation: "Security Misconfiguration ontstaat door onveilige standaardinstellingen, openstaande poorten of het tonen van gedetailleerde debug-fouten aan gebruikers."
+            },
+            {
+                q: "8. Wat gebeurt er bij Server-Side Request Forgery (SSRF - A10)?",
+                options: [
+                    "A. De webserver wordt door een aanvaller gedwongen om verzoeken uit te voeren naar een interne of externe bron.",
+                    "B. De browser van de gebruiker crasht door een geheugenlek.",
+                    "C. Er wordt een foutieve factuur via de post verstuurd."
+                ],
+                correct: "A",
+                explanation: "Bij SSRF misbruikt de aanvaller de webserver om verzoeken te sturen naar interne systemen die vanaf het internet afgeschermd zijn."
+            },
+            {
+                q: "9. Waarom is 'A09: Security Logging and Monitoring Failures' gevaarlijk?",
+                options: [
+                    "A. Omdat inbraakpogingen en datalekken hierdoor maandenlang onopgemerkt kunnen blijven.",
+                    "B. Omdat de website daardoor trager laadt.",
+                    "C. Omdat Google de pagina lager indexeert."
+                ],
+                correct: "A",
+                explanation: "Zonder goede logging en monitoring merken organisaties niet op dat ze gehackt zijn, waardoor aanvallers langdurig toegang houden."
+            },
+            {
+                q: "10. Wat is de minimale score die je moet behalen om volgens de norm (80%) te slagen voor deze toets?",
+                options: [
+                    "A. Minstens 5 van de 10 vragen goed (50%).",
+                    "B. Minstens 8 van de 10 vragen goed (80%).",
+                    "C. Alle 10 vragen goed (100%)."
+                ],
+                correct: "B",
+                explanation: "De gestelde norm is 80%, wat neerkomt op minimaal 8 correcte antwoorden op de 10 vragen."
+            }
+        ];
+
+        // State Variables
+        let currentSlide = 0;
+
+        function renderSlide() {
+            const slide = slideData[currentSlide];
+            document.getElementById('slide-header-title').innerText = slide.headerTitle;
+            document.getElementById('slide-number-badge').innerText = `Slide ${currentSlide + 1} van ${slideData.length}`;
+            document.getElementById('slide-content-frame').innerHTML = slide.content;
+
+            // Nav buttons update
+            document.getElementById('btn-prev').disabled = currentSlide === 0;
+
+            const nextBtn = document.getElementById('btn-next');
+            if (currentSlide === slideData.length - 1) {
+                nextBtn.innerHTML = 'Naar Kennistoets <i class="fa-solid fa-list-check"></i>';
+                nextBtn.onclick = () => switchTab('quiz');
+            } else {
+                nextBtn.innerHTML = 'Volgende <i class="fa-solid fa-arrow-right"></i>';
+                nextBtn.onclick = nextSlide;
+            }
+
+            // Render Dots
+            const dotsContainer = document.getElementById('slide-dots');
+            dotsContainer.innerHTML = slideData.map((_, idx) => `
+                <button onclick="goToSlide(${idx})" class="h-2 rounded-full transition-all duration-200 ${idx === currentSlide ? 'bg-indigo-500 w-6' : 'bg-slate-700 w-2 hover:bg-slate-500'}"></button>
+            `).join('');
+        }
+
+        function nextSlide() {
+            if (currentSlide < slideData.length - 1) {
+                currentSlide++;
+                renderSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                renderSlide();
+            }
+        }
+
+        function goToSlide(idx) {
+            currentSlide = idx;
+            renderSlide();
+        }
+
+        function switchTab(tabName) {
+            document.getElementById('view-presentation').classList.add('hidden');
+            document.getElementById('view-quiz').classList.add('hidden');
+
+            document.getElementById('tab-pres').classList.remove('active');
+            document.getElementById('tab-quiz').classList.remove('active');
+
+            if (tabName === 'presentation') {
+                document.getElementById('view-presentation').classList.remove('hidden');
+                document.getElementById('tab-pres').classList.add('active');
+            } else if (tabName === 'quiz') {
+                document.getElementById('view-quiz').classList.remove('hidden');
+                document.getElementById('tab-quiz').classList.add('active');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-questions-container');
+            container.innerHTML = quizData.map((qItem, idx) => {
+                const qNum = idx + 1;
+                return `
+                    <div class="bg-slate-950 border border-slate-800 p-5 rounded-xl space-y-3">
+                        <div class="font-semibold text-white text-base">${qItem.q}</div>
+                        <div class="space-y-2">
+                            ${qItem.options.map(opt => {
+                                const val = opt.charAt(0);
+                                return `
+                                    <label class="flex items-center gap-3 p-3 bg-slate-900 border border-slate-800 rounded-lg cursor-pointer hover:bg-slate-800/80 transition text-xs sm:text-sm text-slate-300">
+                                        <input type="radio" name="q${qNum}" value="${val}" class="accent-indigo-500 w-4 h-4">
+                                        <span>${opt}</span>
+                                    </label>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div id="feedback-q${qNum}" class="hidden p-3 rounded-lg text-xs leading-relaxed mt-2"></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function evaluateQuiz() {
+            let score = 0;
+            const total = quizData.length;
+
+            quizData.forEach((qItem, idx) => {
+                const qNum = idx + 1;
+                const selected = document.querySelector(`input[name="q${qNum}"]:checked`);
+                const feedbackEl = document.getElementById(`feedback-q${qNum}`);
+
+                if (selected) {
+                    if (selected.value === qItem.correct) {
+                        score++;
+                        feedbackEl.className = "p-3 rounded-lg text-xs bg-emerald-950/80 text-emerald-200 border border-emerald-800/60 mt-2 block";
+                        feedbackEl.innerHTML = `<strong><i class="fa-solid fa-check-circle text-emerald-400 mr-1"></i> Correct!</strong> ${qItem.explanation}`;
+                    } else {
+                        feedbackEl.className = "p-3 rounded-lg text-xs bg-rose-950/80 text-rose-200 border border-rose-800/60 mt-2 block";
+                        feedbackEl.innerHTML = `<strong><i class="fa-solid fa-xmark-circle text-rose-400 mr-1"></i> Onjuist.</strong> Het juiste antwoord is ${qItem.correct}. ${qItem.explanation}`;
+                    }
+                } else {
+                    feedbackEl.className = "p-3 rounded-lg text-xs bg-amber-950/80 text-amber-200 border border-amber-800/60 mt-2 block";
+                    feedbackEl.innerHTML = `<strong><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> Niet ingevuld.</strong> Het juiste antwoord is ${qItem.correct}. ${qItem.explanation}`;
+                }
+            });
+
+            const resultBox = document.getElementById('result-box');
+            const scoreDisplay = document.getElementById('score-display');
+            const scoreMsg = document.getElementById('score-message');
+            const iconContainer = document.getElementById('status-icon-container');
+
+            scoreDisplay.innerText = `${score} / ${total}`;
+            const percentage = (score / total) * 100;
+
+            // Threshold is 80% (score >= 8 out of 10)
+            if (percentage >= 80) {
+                // PASSED (>= 80%)
+                resultBox.className = "mt-8 p-6 bg-slate-800/90 border-2 border-emerald-500 rounded-2xl text-center block shadow-lg shadow-emerald-500/10";
+                scoreDisplay.className = "text-5xl font-black my-2 text-emerald-400";
+                iconContainer.className = "w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                iconContainer.innerHTML = '<i class="fa-solid fa-award"></i>';
+                
+                scoreMsg.innerText = `Gefeliciteerd! Je bent geslaagd met een score van ${percentage}% (minstens 80% vereist). Je hebt uitstekende kennis van de OWASP Top 10!`;
+
+                // Confetti celebration
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 90,
+                        spread: 75,
+                        origin: { y: 0.6 }
+                    });
+                }
+
+                triggerQuizVoltooid(score, total, true);
+
+            } else {
+                // FAILED (< 80%)
+                resultBox.className = "mt-8 p-6 bg-slate-800/90 border-2 border-rose-500 rounded-2xl text-center block shadow-lg shadow-rose-500/10";
+                scoreDisplay.className = "text-5xl font-black my-2 text-rose-400";
+                iconContainer.className = "w-16 h-16 mx-auto rounded-full flex items-center justify-center text-3xl mb-3 bg-rose-500/20 text-rose-400 border border-rose-500/30";
+                iconContainer.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+
+                scoreMsg.innerText = `Je hebt een score van ${percentage}% behaald. Om te slagen moet je minstens 80% behalen (minstens 8 van de 10 vragen goed). Neem de presentatie nogmaals door en probeer het opnieuw!`;
+
+                // Ook een mislukte poging registreren: het ISMS houdt bij
+                // dát er geoefend is, niet alleen wie geslaagd is.
+                triggerQuizVoltooid(score, total, false);
+            }
+
+            resultBox.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz() {
+            document.getElementById('quizForm').reset();
+            document.getElementById('result-box').classList.add('hidden');
+            quizData.forEach((_, idx) => {
+                const feedbackEl = document.getElementById(`feedback-q${idx + 1}`);
+                if (feedbackEl) feedbackEl.classList.add('hidden');
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Keyboard navigation for slides
+        document.addEventListener('keydown', (e) => {
+            if (!document.getElementById('view-presentation').classList.contains('hidden')) {
+                if (e.key === 'ArrowRight') nextSlide();
+                if (e.key === 'ArrowLeft') prevSlide();
+            }
+        });
+
+        // Initialize App
+        window.onload = function() {
+            renderSlide();
+            renderQuiz();
+        };
+
+
+/**
+ * onQuizVoltooid — koppeling tussen een toets en het ISMS.
+ *
+ * Plak dit blok onderin je toets-HTML binnen een <script>-tag en roep
+ * onQuizVoltooid(score, total, passed) aan zodra de deelnemer de toets heeft
+ * afgerond — zowel bij slagen als bij zakken, zodat het ISMS ook een mislukte
+ * poging registreert.
+ *
+ *     score  = aantal goede antwoorden (getal)
+ *     total  = totaal aantal vragen (getal)
+ *     passed = geslaagd? (true / false)
+ *
+ * Het ISMS reikt de deelnemer een URL uit met ?callback=<token>. Zonder die
+ * token is de toets vrijblijvend en wordt er niets geregistreerd — zo kun je de
+ * toets ook los, zonder ISMS, gebruiken of testen.
+ */
+
+// Optionele helper: roept onQuizVoltooid aan als die bestaat. Handig als je de
+// koppeling los wilt kunnen laten (bijv. lokaal testen zonder ISMS).
+function triggerQuizVoltooid(score, total, passed) {
+    if (typeof window.onQuizVoltooid === 'function') {
+        window.onQuizVoltooid(score, total, passed);
+    } else if (typeof onQuizVoltooid === 'function') {
+        onQuizVoltooid(score, total, passed);
+    }
+}
+
+function onQuizVoltooid(score, total, passed) {
+    const token = new URLSearchParams(window.location.search).get('callback');
+
+    // Zonder ?callback=<token> is de toets vrijblijvend: niets registreren.
+    if (!token) {
+        return;
+    }
+
+    // De terugmeld-URL wordt hier zelf samengesteld: de querystring bevat alleen
+    // de token, geen volledige URL. Zo kan deze pagina nooit als doorgeefluik
+    // naar een willekeurige host dienen; de callback blijft op dezelfde host.
+    const callbackUrl = '/toetsen/callback/' + encodeURIComponent(token);
+
+    fetch(callbackUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            score: score,
+            total: total,
+            passed: passed
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (passed) {
+            alert('Je uitslag is opgeslagen in het ISMS.');
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Fout bij verzenden uitslag:', error);
+        // Zichtbaar voor de deelnemer: anders denkt iemand dat de uitslag is
+        // opgeslagen terwijl dat niet zo is.
+        alert('Let op: je uitslag kon niet worden opgeslagen in het ISMS. '
+            + 'Probeer het later opnieuw of neem contact op met de beheerder.');
+    });
+}
+
+
+    </script>
+</body>
+</html>

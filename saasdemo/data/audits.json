@@ -1,0 +1,68 @@
+{
+  "_over": {
+    "wat": "De bevindingen per auditronde: het enige wat de tijdlijn niet zelf kon dragen.",
+    "bron": "saasdemo/scenario.md §9; toegevoegd bij stap 7b omdat tijdlijn.json alleen aantallen per type geeft.",
+    "waarom_apart": "tijdlijn.json bepaalt de volgorde en de aantallen, dit bestand de inhoud — dezelfde werkverdeling als bij de andere fixtures. De motor controleert dat beide het eens zijn over de aantallen; wijkt het af, dan is dat een fixture-fout en geen stille afwijking.",
+    "non_conformiteiten": "Een bevinding die tot een afwijking leidt, heeft hier geen eigen omschrijving: die staat bij de afwijking in tijdlijn.json en zou hier een tweede waarheid worden. Het veld `afwijking` verwijst ernaar.",
+    "maatregel": "Optioneel; de Annex A-referentie waar de bevinding op slaat."
+  },
+
+  "bevindingen": {
+    "ronde-nulmeting": [
+      { "type": "non_conformiteit_minor", "omschrijving": "De directie heeft de informatiebeveiligingsdoelstellingen niet meetbaar vastgelegd. Het beleid geeft wel richting, maar er zijn geen doelen waaraan de voortgang te toetsen is." },
+
+      { "type": "observatie", "maatregel": "5.35", "omschrijving": "De SoA is recent afgerond, maar bij een deel van de van toepassing verklaarde maatregelen gaat de onderbouwing niet verder dan een verwijzing naar het beleid." },
+      { "type": "observatie", "omschrijving": "Het risicoregister bevat behandelplannen, maar de koppeling tussen een behandeling en de bijbehorende maatregelen uit Bijlage A is nog niet gelegd." },
+      { "type": "observatie", "maatregel": "5.12", "omschrijving": "De classificatie van bedrijfsmiddelen is vastgelegd, maar bij drie bedrijfsmiddelen ontbreekt een expliciete motivatie voor het toegekende niveau." },
+      { "type": "observatie", "maatregel": "5.18", "omschrijving": "Toegangsrechten tot de productieomgeving zijn niet aantoonbaar periodiek beoordeeld; de eerste review staat gepland." },
+      { "type": "observatie", "maatregel": "8.8", "omschrijving": "Er is geen actueel overzicht van de third-party afhankelijkheden van FruitCloud." },
+      { "type": "observatie", "maatregel": "8.13", "omschrijving": "De back-upprocedure beschrijft de frequentie, maar niet hoe de herstelbaarheid wordt aangetoond." },
+      { "type": "observatie", "maatregel": "6.3", "omschrijving": "Bewustzijnsactiviteiten zijn aangekondigd maar nog niet uitgevoerd; er is geen nulmeting van het kennisniveau." },
+      { "type": "observatie", "maatregel": "5.20", "omschrijving": "Bij twee leveranciers is de beveiligingsbijlage bij het contract niet terug te vinden in het dossier." },
+      { "type": "observatie", "omschrijving": "De scopeverklaring benoemt de raakvlakken met de omgeving, maar de afspraken op die raakvlakken zijn niet uitgewerkt." },
+
+      { "type": "verbeterkans", "omschrijving": "Overweeg de terugkerende beheertaken in het ISMS zelf te plannen. De uitvoering wordt daarmee aantoonbaar, in plaats van afhankelijk van losse agenda-afspraken." },
+      { "type": "verbeterkans", "omschrijving": "De motivaties in de SoA zijn per maatregel geschreven; verwijzen naar het onderliggende risico maakt de samenhang zichtbaar." },
+      { "type": "verbeterkans", "omschrijving": "Een vaste rapportagevorm richting de directie maakt de voortgang beter volgbaar dan de huidige mondelinge terugkoppeling." },
+      { "type": "verbeterkans", "omschrijving": "Het incidentformulier kan korter: de huidige opzet vraagt informatie die op het moment van melden nog niet bekend is." },
+      { "type": "verbeterkans", "omschrijving": "Overweeg de beheerdocumentatie te spiegelen tussen beide beheerders, zodat kennis niet bij één persoon blijft." },
+      { "type": "verbeterkans", "omschrijving": "De classificatieniveaus zijn helder, maar de omgangsregels per niveau zijn nog niet vertaald naar concrete werkinstructies." }
+    ],
+
+    "ronde-intern-voorbereiding": [
+      { "type": "non_conformiteit_minor", "afwijking": "afwijking-hersteltest" },
+      { "type": "observatie", "maatregel": "8.8", "omschrijving": "De maandelijkse patchronde wordt uitgevoerd, maar de uitkomst wordt niet vastgelegd; achteraf is niet vast te stellen welke updates zijn beoordeeld." },
+      { "type": "observatie", "maatregel": "8.5", "omschrijving": "Beheerhandelingen op productie worden met persoonsgebonden accounts verricht, maar zonder aanvullende authenticatie." },
+      { "type": "verbeterkans", "omschrijving": "De interne auditplanning kan aan de risicoscores worden gekoppeld, zodat de zwaarste onderwerpen vaker aan bod komen." }
+    ],
+
+    "ronde-cert-fase1": [
+      { "type": "observatie", "maatregel": "5.1", "omschrijving": "Het informatiebeveiligingsbeleid verwijst naar bijlagen die als los document bestaan, maar niet als versie zijn vastgelegd." },
+      { "type": "observatie", "omschrijving": "De scopeverklaring is helder, maar de motivatie bij twee uitsluitingen is korter dan bij een certificeringsaudit wordt verwacht." },
+      { "type": "observatie", "maatregel": "5.2", "omschrijving": "De rolbeschrijving van de CISO is vastgelegd; de vervanging bij afwezigheid is niet beschreven." }
+    ],
+
+    "ronde-cert-fase2": [
+      { "type": "non_conformiteit_minor", "afwijking": "afwijking-toegangsreview" },
+      { "type": "non_conformiteit_minor", "afwijking": "afwijking-logging" },
+      { "type": "observatie", "maatregel": "5.13", "omschrijving": "De classificatie van bedrijfsmiddelen is doorgevoerd, maar de labeling in de systemen zelf volgt die indeling nog niet overal." },
+      { "type": "observatie", "maatregel": "5.22", "omschrijving": "Leveranciersbeoordelingen zijn uitgevoerd; de diepgang verschilt sterk per leverancier zonder dat die keuze is onderbouwd." },
+      { "type": "observatie", "maatregel": "6.3", "omschrijving": "De bewustzijnstraining is door vrijwel iedereen afgerond; er is geen aanpak voor medewerkers die gedurende het jaar instromen." }
+    ],
+
+    "ronde-intern-jaar1": [
+      { "type": "non_conformiteit_minor", "afwijking": "afwijking-leveranciersfrequentie" },
+      { "type": "observatie", "omschrijving": "De contextanalyse is bij aanvang opgesteld en sindsdien niet herzien, terwijl er in de periode twee belanghebbenden zijn bijgekomen." },
+      { "type": "observatie", "omschrijving": "De informatiebeveiligingsdoelstellingen zijn meetbaar, maar de norm per doelstelling is niet vastgelegd; daardoor blijft 'gehaald' een interpretatie." },
+      { "type": "observatie", "omschrijving": "De risicobeoordelingsmethode is beschreven; de onderbouwing van de gekozen acceptatiedrempel ontbreekt." },
+      { "type": "verbeterkans", "omschrijving": "De directiebeoordeling behandelt alle verplichte inputs; een vaste volgorde en een samenvattende conclusie maken het verslag beter bruikbaar." },
+      { "type": "verbeterkans", "omschrijving": "Overweeg de KPI's te ontdubbelen: twee van de acht meten in de praktijk hetzelfde onderwerp." }
+    ],
+
+    "ronde-surveillance-1": [
+      { "type": "non_conformiteit_minor", "afwijking": "afwijking-continuiteitsplan" },
+      { "type": "observatie", "omschrijving": "De corrigerende maatregelen uit de certificeringsaudit zijn aantoonbaar afgerond en op effectiviteit getoetst; de doorlooptijd was wel langer dan de eigen norm." },
+      { "type": "observatie", "maatregel": "6.3", "omschrijving": "Het bewustzijnsprogramma draait, maar één medewerker heeft de jaarlijkse herhaling niet afgerond." }
+    ]
+  }
+}

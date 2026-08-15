@@ -1,0 +1,140 @@
+{
+  "_over": {
+    "wat": "De acht ISMS-accounts van FruitBV, hun rollen, het personeelsdossier (A.6) en de doelgroepen.",
+    "bron": "saasdemo/scenario.md §3",
+    "wachtwoorden": "Worden bij het vullen gegenereerd en één keer op de console getoond. Ze staan bewust niet in dit bestand.",
+    "let_op": "De twee ZZP-beheerders staan hier als gebruiker en NIET in het leveranciersregister; ze vallen in scope wegens productietoegang."
+  },
+
+  "gebruikers": [
+    {
+      "sleutel": "ciske",
+      "naam": "Ciske Willems",
+      "email": "ciso@acme.example",
+      "rol": "CISO",
+      "functie": "CISO",
+      "eenheid": "directie",
+      "aangemaakt_in_maand": 0,
+      "nda_getekend_in_maand": 0,
+      "screening_type": "vog",
+      "screening_in_maand": 0,
+      "status": "actief"
+    },
+    {
+      "sleutel": "bobo",
+      "naam": "Bobo Spruitje",
+      "email": "bobo@acme.example",
+      "rol": "Management",
+      "functie": "Directeur",
+      "eenheid": "directie",
+      "aangemaakt_in_maand": 0,
+      "nda_getekend_in_maand": 0,
+      "screening_type": "vog",
+      "screening_in_maand": 0,
+      "status": "actief"
+    },
+    {
+      "sleutel": "baas",
+      "naam": "Baas Prei",
+      "email": "baas@acme.example",
+      "rol": "Management",
+      "functie": "Directeur",
+      "eenheid": "directie",
+      "aangemaakt_in_maand": 0,
+      "nda_getekend_in_maand": 0,
+      "screening_type": "vog",
+      "screening_in_maand": 0,
+      "status": "actief"
+    },
+    {
+      "sleutel": "jantien",
+      "naam": "Jantien Wortel",
+      "email": "jantien@acme.example",
+      "rol": "Medewerker",
+      "functie": "Beheerder productie (ZZP)",
+      "eenheid": "platformbeheer",
+      "aangemaakt_in_maand": 0,
+      "nda_getekend_in_maand": 0,
+      "screening_type": "vog",
+      "screening_in_maand": 1,
+      "status": "actief"
+    },
+    {
+      "sleutel": "kees",
+      "naam": "Kees Karot",
+      "email": "kees@acme.example",
+      "rol": "Medewerker",
+      "functie": "Beheerder productie (ZZP)",
+      "eenheid": "platformbeheer",
+      "aangemaakt_in_maand": 0,
+      "nda_getekend_in_maand": 0,
+      "screening_type": "vog",
+      "screening_in_maand": 1,
+      "status": "actief"
+    },
+    {
+      "sleutel": "aurelius",
+      "naam": "Aurelius Aardappel",
+      "email": "aurelius@acme.example",
+      "rol": "Auditor",
+      "functie": "Interne auditor",
+      "eenheid": "directie",
+      "aangemaakt_in_maand": 3,
+      "nda_getekend_in_maand": 3,
+      "screening_type": "referentiecheck",
+      "screening_in_maand": 3,
+      "status": "actief",
+      "toelichting": "Komt pas in M3 binnen: de nulmeting van M4 is zijn eerste opdracht."
+    },
+    {
+      "sleutel": "piet",
+      "naam": "Piet Peer",
+      "email": "piet@acme.example",
+      "rol": "Medewerker",
+      "functie": "Medewerker Handel",
+      "eenheid": "handel",
+      "aangemaakt_in_maand": 0,
+      "nda_getekend_in_maand": 0,
+      "screening_type": "referentiecheck",
+      "screening_in_maand": 0,
+      "status": "actief",
+      "toelichting": "Geen ISMS-taken; staat model voor de ~12 medewerkers zonder account en maakt de bewustzijnscijfers geloofwaardig."
+    },
+    {
+      "sleutel": "keesje",
+      "naam": "Keesje Kers",
+      "email": "keesje@acme.example",
+      "rol": "Medewerker",
+      "functie": "Medewerker Administratie",
+      "eenheid": "administratie",
+      "aangemaakt_in_maand": 0,
+      "nda_getekend_in_maand": 0,
+      "screening_type": "referentiecheck",
+      "screening_in_maand": 0,
+      "status": "inactief",
+      "uit_dienst_in_maand": 19,
+      "toelichting": "Gaat in M19 uit dienst; account gedeactiveerd en toegang ingetrokken. Zonder deze regel staat de gebruikersbeheerpagina op acht keer 'actief' en blijft de accountlevenscyclus uit blok 1 onzichtbaar."
+    }
+  ],
+
+  "doelgroepen": [
+    {
+      "sleutel": "dg-alle",
+      "naam": "Alle gebruikers",
+      "omschrijving": "Iedereen met een ISMS-account.",
+      "leden": ["ciske", "bobo", "baas", "jantien", "kees", "aurelius", "piet", "keesje"]
+    },
+    {
+      "sleutel": "dg-beheerders",
+      "naam": "Beheerders",
+      "omschrijving": "Personen met toegang tot de productieomgeving van FruitCloud.",
+      "leden": ["jantien", "kees"]
+    },
+    {
+      "sleutel": "dg-directie",
+      "naam": "Directie",
+      "omschrijving": "De twee directeuren; doelgroep voor beleid dat de directie moet vaststellen.",
+      "leden": ["bobo", "baas"]
+    }
+  ]
+}

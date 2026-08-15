@@ -1,0 +1,42 @@
+{
+  "_over": {
+    "wat": "Wat FruitBV zélf met de meetaanpak doet: welke meegeleverde streefwaarden het vaststelt, en welke KPI het buiten het ISMS meet.",
+    "bron": "implementatie/12e §9",
+    "waarom": "De KPI-definities zijn productkennis en staan in KpiDefinitieSeeder. De streefwaarden die daar meekomen zijn een vóórstel: geen enkele installatie hoort een streefwaarde te erven die niemand heeft vastgesteld. Wat een organisatie ervan overneemt is een bestuurlijk besluit, en dat hoort dus hier.",
+    "tijdmodel": "`vanaf_maand` is een offset op dezelfde M0..M22-schaal als tijdlijn.json."
+  },
+
+  "normen": {
+    "_over": "De meegeleverde voorstellen die FruitBV overneemt. Bewust niet alle acht: soa_toepasselijk_met_beleid en soa_geimplementeerd hebben geen voorstel (12d §2c), en reviewtaken_gem_overschrijding laat FruitBV bewust open — die staat op het dashboard dus als 'geen streefwaarde vastgesteld', en dat is een realistische stand.",
+    "vanaf_maand": 4,
+    "sleutels": [
+      "soa_beoordeeld",
+      "risico_met_eigenaar_en_plan",
+      "soa_herbeoordeeld_binnen_termijn",
+      "risico_herbeoordeeld_binnen_termijn",
+      "reviewtaken_op_tijd"
+    ]
+  },
+
+  "handmatig": [
+    {
+      "sleutel": "phishing_klikratio",
+      "naam": "Klikratio phishingsimulatie",
+      "fase": "check",
+      "eenheid": "ratio",
+      "richting": "omlaag",
+      "berekeningswijze": "Medewerkers die op de link in de simulatiemail klikten, gedeeld door het aantal verzonden simulatiemails. Wordt buiten het ISMS gemeten en per ronde met de hand vastgelegd.",
+      "streefwaarde": 5,
+      "signaalwaarde": 15,
+      "toelichting": "Kwartaalronde phishingsimulatie.",
+      "reeks": {
+        "6": [26, 138],
+        "9": [19, 141],
+        "12": [12, 144],
+        "15": [14, 146],
+        "18": [8, 149],
+        "21": [6, 151]
+      }
+    }
+  ]
+}

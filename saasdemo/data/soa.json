@@ -1,0 +1,77 @@
+{
+  "_over": {
+    "wat": "De Statement of Applicability: welke maatregelen niet van toepassing zijn, en in welke golven de rest wordt beoordeeld en geïmplementeerd.",
+    "bron": "saasdemo/scenario.md §7",
+    "let_op": "De 93 maatregelen zelf komen uit MaatregelSeeder; dit bestand beschrijft alleen de beoordeling erop. De SoA wordt bewust in twee slagen gevuld (M3 en M4), zodat de Plan-KPI zichtbaar oploopt in plaats van meteen op 100% te staan.",
+    "eindstand": "88 van toepassing, 5 niet van toepassing; van de toepasselijke ~80 geïmplementeerd en ~8 in uitvoering."
+  },
+
+  "niet_van_toepassing": [
+    {
+      "referentie": "7.11",
+      "motivatie": "FruitBV heeft geen eigen serverruimte of datacenter. Nutsvoorzieningen voor de productieomgeving vallen onder de verantwoordelijkheid van WortelNet en zijn geborgd via het leveranciersbeheer en de ISO 27001-certificering van die partij."
+    },
+    {
+      "referentie": "7.12",
+      "motivatie": "Er is geen eigen bekabelingsinfrastructuur die platformgegevens draagt. De bekabeling in het datacenter is in beheer bij WortelNet; het kantoornetwerk valt buiten de scope."
+    },
+    {
+      "referentie": "7.13",
+      "motivatie": "FruitBV bezit geen apparatuur waarop platformgegevens worden verwerkt of opgeslagen, met uitzondering van de beheerlaptops. Onderhoud van de serverapparatuur ligt bij WortelNet."
+    },
+    {
+      "referentie": "7.14",
+      "motivatie": "Er wordt geen eigen apparatuur afgevoerd of hergebruikt waarop platformgegevens hebben gestaan. Verwijdering van opslagmedia in het datacenter is een verantwoordelijkheid van WortelNet en contractueel belegd."
+    },
+    {
+      "referentie": "8.30",
+      "motivatie": "FruitCloud wordt volledig in eigen huis ontwikkeld. Er is geen uitbestede ontwikkeling; de ontwikkelstraat valt bovendien buiten de scope, met changecontrole op de grens naar productie."
+    }
+  ],
+
+  "beoordelingsgolven": [
+    {
+      "maand": 3,
+      "aandeel": 0.48,
+      "toelichting": "Eerste slag: ongeveer 45 van de 93 regels beoordeeld. Begint bij de organisatorische maatregelen (thema 'organisatorisch' en 'mensgericht'), want daar zit het beleid dat op dat moment wordt geschreven."
+    },
+    {
+      "maand": 4,
+      "aandeel": 1.0,
+      "toelichting": "Rest van de SoA afgerond; alle 93 regels beoordeeld, 88 van toepassing verklaard."
+    }
+  ],
+
+  "implementatiegolven": [
+    { "maand": 5, "geimplementeerd": 35, "toelichting": "Eerste implementatieslag; ~40% van de toepasselijke regels." },
+    { "maand": 8, "geimplementeerd": 55, "toelichting": "Na de interne audit van M7 en de hersteltest van M8." },
+    { "maand": 10, "geimplementeerd": 70, "toelichting": "Gaten dichten vóór de certificeringsaudit fase 2; ~79%." },
+    { "maand": 13, "geimplementeerd": 74, "toelichting": "Corrigerende maatregelen op de twee externe minors afgerond." },
+    { "maand": 20, "geimplementeerd": 80, "toelichting": "Jaarlijkse SoA-herziening; twee regels van 'in uitvoering' naar 'geïmplementeerd'. Eindstand ~91% van de toepasselijke regels." }
+  ],
+
+  "eigen_classificatie": {
+    "_toelichting": "Plan 04d fase 2: een handvol maatregelen krijgt een eigen vaststelling op de SoA-regel in plaats van de meegeleverde uitgangsclassificatie. Twee daarvan wijken inhoudelijk af, zodat de badge 'afgeweken' in de demo te zien is zodra fase 3 het scherm oplevert.",
+    "maand": 20,
+    "regels": [
+      {
+        "referentie": "8.16",
+        "kenmerken": { "type": ["Detectief"], "eigenschappen": ["Vertrouwelijkheid", "Integriteit", "Beschikbaarheid"], "concepten": ["Detecteren"], "domeinen": ["Verdediging"] },
+        "wijkt_af": true,
+        "toelichting": "Na de uitbreiding van de logging is monitoring bij FruitBV puur detectief ingericht; de meegeleverde classificatie noemt ook 'Corrigerend'."
+      },
+      {
+        "referentie": "5.30",
+        "kenmerken": { "type": ["Corrigerend"], "eigenschappen": ["Beschikbaarheid"], "concepten": ["Herstellen"], "domeinen": ["Veerkracht"] },
+        "wijkt_af": true,
+        "toelichting": "ICT-continuïteit is hier volledig herstelgericht: er is geen preventieve uitwijkvoorziening, alleen een herstelprocedure."
+      },
+      {
+        "referentie": "8.8",
+        "kenmerken": { "type": ["Preventief"], "eigenschappen": ["Vertrouwelijkheid", "Integriteit", "Beschikbaarheid"], "concepten": ["Identificeren", "Beschermen"], "domeinen": ["Governance en Ecosysteem", "Bescherming", "Verdediging"] },
+        "wijkt_af": false,
+        "toelichting": "Bevestiging zonder wijziging: de organisatie heeft ernaar gekeken en het uitgangspunt overgenomen. Levert bewust géén 'afgeweken'-badge op."
+      }
+    ]
+  }
+}

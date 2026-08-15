@@ -1,0 +1,1053 @@
+{
+  "_over": {
+    "wat": "De gebeurtenissen per maandoffset. Dit bestand bepaalt de vólgorde; de andere fixtures bepalen de inhoud.",
+    "bron": "saasdemo/scenario.md §9",
+    "tijdmodel": "M0 = de eerste dag van de maand, 22 maanden vóór de dag van vullen. M22 = 'nu'. Alle data zijn relatief, zodat de demo op elke draaidag klopt: taken zijn echt te laat en herbeoordelingen echt verlopen.",
+    "verwijzingen": "`sleutel`-waarden verwijzen naar de andere bestanden in deze map.",
+    "handelingen_door": "Waar `door` staat, moet de motor de handeling namens die gebruiker uitvoeren — dat bepaalt wat er in de audit trail komt te staan. Vier handelingen horen bij een directeur (implementatie/01c): scope activeren, beleid publiceren, restrisico boven de drempel accepteren, en de directiebeoordeling afsluiten."
+  },
+  "terugkerend": [
+    {
+      "wat": "isms:meet-kpis",
+      "wanneer": "op elke maandgrens die de tijdlijn passeert",
+      "toelichting": "Levert 22 meetpunten per KPI. De curve rolt eruit; §10 van het scenario beschrijft wat hij zou moeten doen."
+    },
+    {
+      "wat": "isms:genereer-taken",
+      "wanneer": "op elke maandgrens",
+      "toelichting": "Maakt de terugkerende taken uit TaaksjabloonSeeder aan. De maandelijkse patchronde levert er ~22, genoeg volume om de taken-KPI betekenis te geven."
+    },
+    {
+      "wat": "isms:verloop-taken",
+      "wanneer": "op elke maandgrens, ná genereer-taken",
+      "toelichting": "Markeert verstreken taken als verlopen. Dit is wat tegenslag 4 (M16) zichtbaar maakt."
+    },
+    {
+      "wat": "isms:leg-restrisico-vast",
+      "wanneer": "op elke 31 december die de tijdlijn passeert",
+      "toelichting": "Bij 22 maanden zijn dat er twee, dus de restrisico-trend krijgt twee peiljaren. Welke kalenderjaren dat zijn hangt af van de dag van vullen — inherent aan een relatieve tijdlijn."
+    }
+  ],
+  "maanden": [
+    {
+      "maand": 0,
+      "kop": "Directiebesluit en context",
+      "gebeurtenissen": [
+        {
+          "type": "gebruikers_aanmaken",
+          "sleutels": [
+            "ciske",
+            "bobo",
+            "baas",
+            "jantien",
+            "kees",
+            "piet",
+            "keesje"
+          ],
+          "door": "ciske"
+        },
+        {
+          "type": "context_vastleggen",
+          "issues": "alle",
+          "belanghebbenden": "alle",
+          "door": "ciske"
+        },
+        {
+          "type": "scope_concept",
+          "sleutel": "scope-v1",
+          "door": "ciske"
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Directiebesluit invoering ISMS",
+          "koppeling": "scope-v1"
+        }
+      ]
+    },
+    {
+      "maand": 1,
+      "kop": "Scope en eerste beleid actief",
+      "gebeurtenissen": [
+        {
+          "type": "scope_activeren",
+          "sleutel": "scope-v1",
+          "door": "bobo",
+          "let_op": "Goedkeuractie: de directie stelt de scope vast, niet de CISO."
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "beleid-isb",
+          "versie": 1,
+          "door": "bobo"
+        },
+        {
+          "type": "systemen_registreren",
+          "sleutels": "alle",
+          "door": "ciske"
+        },
+        {
+          "type": "assets_registreren",
+          "sleutels": "alle",
+          "door": "ciske"
+        },
+        {
+          "type": "assets_classificeren",
+          "sleutels": "alle",
+          "door": "ciske"
+        }
+      ]
+    },
+    {
+      "maand": 2,
+      "kop": "Risicoregister ronde 1 en leveranciers",
+      "gebeurtenissen": [
+        {
+          "type": "risicos_identificeren",
+          "sleutels": [
+            "risico-1",
+            "risico-2",
+            "risico-3",
+            "risico-4",
+            "risico-5",
+            "risico-6",
+            "risico-7",
+            "risico-8",
+            "risico-9",
+            "risico-10"
+          ],
+          "door": "ciske"
+        },
+        {
+          "type": "risicos_beoordelen",
+          "sleutels": [
+            "risico-1",
+            "risico-2",
+            "risico-3",
+            "risico-4",
+            "risico-5",
+            "risico-6",
+            "risico-7",
+            "risico-8",
+            "risico-9",
+            "risico-10"
+          ],
+          "door": "ciske"
+        },
+        {
+          "type": "leveranciers_opvoeren",
+          "sleutels": [
+            "wortelnet",
+            "microsoft",
+            "peenpay",
+            "snijboon"
+          ],
+          "door": "ciske"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "beleid-toegang",
+          "versie": 1,
+          "door": "bobo"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "beleid-gebruik",
+          "versie": 1,
+          "door": "baas"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "proc-incident",
+          "versie": 1,
+          "door": "bobo"
+        }
+      ]
+    },
+    {
+      "maand": 3,
+      "kop": "SoA eerste slag",
+      "gebeurtenissen": [
+        {
+          "type": "gebruikers_aanmaken",
+          "sleutels": [
+            "aurelius"
+          ],
+          "door": "ciske"
+        },
+        {
+          "type": "soa_golf",
+          "golf": 0,
+          "toelichting": "~45 van 93 regels beoordeeld."
+        },
+        {
+          "type": "risicos_identificeren",
+          "sleutels": [
+            "risico-11",
+            "risico-12",
+            "risico-13",
+            "risico-14"
+          ],
+          "door": "ciske"
+        },
+        {
+          "type": "risicos_beoordelen",
+          "sleutels": [
+            "risico-11",
+            "risico-12",
+            "risico-13",
+            "risico-14"
+          ],
+          "door": "ciske"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "proc-backup",
+          "versie": 1,
+          "door": "baas"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "proc-change",
+          "versie": 1,
+          "door": "bobo"
+        }
+      ]
+    },
+    {
+      "maand": 4,
+      "kop": "SoA af, behandelplannen, nulmeting",
+      "gebeurtenissen": [
+        {
+          "type": "soa_golf",
+          "golf": 1,
+          "toelichting": "Alle 93 beoordeeld, 88 van toepassing."
+        },
+        {
+          "type": "risico_behandelplannen",
+          "sleutels": "alle_bekende",
+          "door": "ciske"
+        },
+        {
+          "type": "risico_accepteren",
+          "sleutel": "risico-4",
+          "door": "ciske",
+          "let_op": "Score 10, onder de drempel: valt binnen het mandaat van de CISO."
+        },
+        {
+          "type": "leveranciersbeoordelingen",
+          "ronde": 1,
+          "door": "ciske"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "beleid-crypto",
+          "versie": 1,
+          "door": "bobo"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "beleid-leveranciers",
+          "versie": 1,
+          "door": "baas"
+        },
+        {
+          "type": "auditprogramma_aanmaken",
+          "sleutel": "prog-voorbereiding",
+          "aard": "voorbereiding",
+          "start_maand": 0,
+          "aantal_jaren": 1,
+          "status": "actief",
+          "door": "ciske"
+        },
+        {
+          "type": "auditronde",
+          "sleutel": "ronde-nulmeting",
+          "programma": "prog-voorbereiding",
+          "rondetype": "intern_nulmeting",
+          "telt_mee_voor_dekking": false,
+          "auditor": "aurelius",
+          "scope": "alle_actieve_auditobjecten",
+          "afgerond": true,
+          "bevindingen": {
+            "non_conformiteit_minor": 1,
+            "observatie": 9,
+            "verbeterkans": 6
+          },
+          "toelichting": "De nulmeting dekt per definitie alles in één keer en telt daarom niet mee voor de dekking — anders kleurt de matrix in jaar 1 volledig groen."
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Rapport nulmeting ISMS",
+          "koppeling": "ronde-nulmeting"
+        }
+      ]
+    },
+    {
+      "maand": 5,
+      "kop": "Implementatie loopt op; incident 1",
+      "gebeurtenissen": [
+        {
+          "type": "soa_implementatiegolf",
+          "golf": 0,
+          "toelichting": "~35 geïmplementeerd."
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "beleid-bewaartermijnen",
+          "versie": 1,
+          "door": "bobo"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "proc-datalek",
+          "versie": 1,
+          "door": "bobo"
+        },
+        {
+          "type": "incident",
+          "sleutel": "incident-1",
+          "titel": "Phishingmail bij Handel",
+          "omschrijving": "Een medewerker van Handel ontving een phishingmail die zich voordeed als een betaalverzoek van een handelspartner. De mail is gemeld, niet aangeklikt.",
+          "ernst": "midden",
+          "gemeld_door": "piet",
+          "gekoppeld_risico": "risico-7",
+          "opgelost_na_dagen": 2,
+          "leidt_tot_afwijking": false,
+          "geen_afwijking_reden": "Geen beveiligingsinbreuk: de mail is herkend en gemeld volgens de procedure. Wel aanleiding voor de phishingtraining in M6.",
+          "kennisname_uren_eerder": 1,
+          "raakt_persoonsgegevens": false,
+          "extern_meldingsplichtig": false
+        }
+      ]
+    },
+    {
+      "maand": 6,
+      "kop": "Bewustzijnstraining; tegenslag 1",
+      "gebeurtenissen": [
+        {
+          "type": "beleid_publiceren",
+          "document": "proc-interne-audit",
+          "versie": 1,
+          "door": "baas"
+        },
+        {
+          "type": "training_ronde",
+          "module": "training-basis",
+          "ronde": 0
+        },
+        {
+          "type": "training_ronde",
+          "module": "training-phishing",
+          "ronde": 0
+        },
+        {
+          "type": "leesbevestigingen_uitzetten",
+          "documenten": "alle_actieve",
+          "toelichting": "Per doelgroep; een enkele bevestiging blijft openstaan."
+        },
+        {
+          "type": "taak_te_laat",
+          "sleutel": "taak-toegangsreview-q",
+          "taaksjabloon": "Controle toegangsrechten",
+          "dagen_te_laat": 23,
+          "toelichting": "Tegenslag 1. Zichtbaar als knik in 'Beheerde taken op tijd afgerond' en als piek in de gemiddelde overschrijding."
+        }
+      ]
+    },
+    {
+      "maand": 7,
+      "kop": "Interne audit voorbereidingsfase",
+      "gebeurtenissen": [
+        {
+          "type": "beleid_publiceren",
+          "document": "proc-toegangsreview",
+          "versie": 1,
+          "door": "bobo"
+        },
+        {
+          "type": "auditronde",
+          "sleutel": "ronde-intern-voorbereiding",
+          "programma": "prog-voorbereiding",
+          "rondetype": "intern",
+          "telt_mee_voor_dekking": false,
+          "auditor": "aurelius",
+          "scope": "alle_actieve_auditobjecten",
+          "afgerond": true,
+          "bevindingen": {
+            "non_conformiteit_minor": 1,
+            "observatie": 2,
+            "verbeterkans": 1
+          },
+          "toelichting": "Volwaardige interne audit gericht op de gaten uit de nulmeting. Telt evenmin mee voor dekking: de cyclus loopt nog niet."
+        },
+        {
+          "type": "afwijking",
+          "sleutel": "afwijking-hersteltest",
+          "bron": "audit_bevinding",
+          "bevinding_van": "ronde-intern-voorbereiding",
+          "omschrijving": "Er is geen bewijs van een uitgevoerde hersteltest van de back-up. De procedure schrijft die voor, maar de uitvoering is niet aantoonbaar.",
+          "eigenaar": "ciske",
+          "grondoorzaak": "De back-upprocedure schrijft een hersteltest voor, maar er is nooit een moment ingepland waarop die test moest plaatsvinden. Niemand was eigenaar van de uitvoering.",
+          "corrigerende_maatregel": {
+            "omschrijving": "Hersteltest uitvoeren op een volledige database-restore en het resultaat als bewijsstuk vastleggen.",
+            "deadline_maand": 8
+          }
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Rapport interne audit voorbereidingsfase",
+          "koppeling": "ronde-intern-voorbereiding"
+        }
+      ]
+    },
+    {
+      "maand": 8,
+      "kop": "Hersteltest en directiebeoordeling 1",
+      "gebeurtenissen": [
+        {
+          "type": "taak_afronden",
+          "taaksjabloon": "Hersteltest back-up",
+          "op_tijd": true
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Verslag hersteltest back-up",
+          "koppeling": "afwijking-hersteltest"
+        },
+        {
+          "type": "corrigerende_maatregel_voltooien",
+          "afwijking": "afwijking-hersteltest"
+        },
+        {
+          "type": "effectiviteitstoets",
+          "afwijking": "afwijking-hersteltest",
+          "resultaat": "effectief"
+        },
+        {
+          "type": "afwijking_sluiten",
+          "sleutel": "afwijking-hersteltest",
+          "door": "ciske"
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Testrapport hersteltest — onderbouwing verlaging risico 5",
+          "koppeling": "risico-5"
+        },
+        {
+          "type": "risico_herbeoordelen",
+          "sleutel": "risico-5",
+          "door": "ciske"
+        },
+        {
+          "type": "risico_herbeoordelen",
+          "sleutel": "risico-1",
+          "door": "ciske"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "proc-backup",
+          "versie": 2,
+          "door": "baas"
+        },
+        {
+          "type": "soa_implementatiegolf",
+          "golf": 1
+        },
+        {
+          "type": "directiebeoordeling",
+          "sleutel": "review-1",
+          "deelnemers": [
+            "bobo",
+            "baas",
+            "ciske"
+          ],
+          "inputs": "alle_negen",
+          "besluiten": 3,
+          "verbeteracties": 2,
+          "gehouden_door": "bobo",
+          "let_op": "Goedkeuractie: de directie legt de sessie als gehouden vast."
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Notulen directiebeoordeling 1",
+          "koppeling": "review-1"
+        }
+      ]
+    },
+    {
+      "maand": 9,
+      "kop": "Certificeringsaudit fase 1",
+      "gebeurtenissen": [
+        {
+          "type": "auditronde",
+          "sleutel": "ronde-cert-fase1",
+          "programma": null,
+          "rondetype": "extern_certificering",
+          "extern_auditor_naam": "Certificerende instelling",
+          "telt_mee_voor_dekking": false,
+          "afgerond": true,
+          "bevindingen": {
+            "observatie": 3
+          },
+          "toelichting": "Documentbeoordeling. Geen non-conformiteiten."
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Auditrapport certificering fase 1",
+          "koppeling": "ronde-cert-fase1"
+        }
+      ]
+    },
+    {
+      "maand": 10,
+      "kop": "Gaten dichten",
+      "gebeurtenissen": [
+        {
+          "type": "soa_implementatiegolf",
+          "golf": 2,
+          "toelichting": "~70 van 88."
+        },
+        {
+          "type": "training_ronde",
+          "module": "training-beheerders",
+          "ronde": 0
+        },
+        {
+          "type": "risico_herbeoordelen",
+          "sleutels": [
+            "risico-2",
+            "risico-6",
+            "risico-9"
+          ],
+          "door": "ciske"
+        }
+      ]
+    },
+    {
+      "maand": 11,
+      "kop": "Certificeringsaudit fase 2 — twee minors",
+      "gebeurtenissen": [
+        {
+          "type": "auditronde",
+          "sleutel": "ronde-cert-fase2",
+          "programma": null,
+          "rondetype": "extern_certificering",
+          "extern_auditor_naam": "Certificerende instelling",
+          "telt_mee_voor_dekking": false,
+          "afgerond": true,
+          "bevindingen": {
+            "non_conformiteit_minor": 2,
+            "observatie": 3
+          }
+        },
+        {
+          "type": "afwijking",
+          "sleutel": "afwijking-toegangsreview",
+          "bron": "audit_bevinding",
+          "bevinding_van": "ronde-cert-fase2",
+          "maatregel": "5.18",
+          "omschrijving": "De review van toegangsrechten is niet aantoonbaar elk kwartaal uitgevoerd; over twee kwartalen ontbreekt het bewijs.",
+          "eigenaar": "ciske",
+          "grondoorzaak": "De kwartaalreview stond in de procedure, maar niet in een agenda of takenlijst. De uitvoering hing aan het geheugen van de CISO en de wijze van vastleggen was niet voorgeschreven.",
+          "corrigerende_maatregel": {
+            "omschrijving": "Kwartaalreview inrichten met vaste vastlegging van deelnemers, bevindingen en doorgevoerde intrekkingen.",
+            "deadline_maand": 13
+          }
+        },
+        {
+          "type": "afwijking",
+          "sleutel": "afwijking-logging",
+          "bron": "audit_bevinding",
+          "bevinding_van": "ronde-cert-fase2",
+          "maatregel": "8.16",
+          "omschrijving": "Monitoring en logging zijn onvoldoende om een incident achteraf te reconstrueren; logging is niet centraal verzameld en de bewaartermijn is te kort.",
+          "eigenaar": "ciske",
+          "grondoorzaak": "Bij de inrichting van het platform is logging opgezet om storingen op te lossen, niet om beveiligingsincidenten te reconstrueren. Die tweede eis is nooit gesteld.",
+          "corrigerende_maatregel": {
+            "omschrijving": "Centrale logverzameling inrichten met een bewaartermijn van twaalf maanden en alarmering op beheerhandelingen.",
+            "deadline_maand": 13
+          }
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Auditrapport certificering fase 2",
+          "koppeling": "ronde-cert-fase2"
+        }
+      ]
+    },
+    {
+      "maand": 12,
+      "kop": "Certificaat; overgang naar de cyclus",
+      "gebeurtenissen": [
+        {
+          "type": "bewijsstuk",
+          "titel": "ISO 27001-certificaat FruitCloud",
+          "toelichting": "Het anker voor de startdatum van de certificeringscyclus."
+        },
+        {
+          "type": "auditprogramma_afsluiten",
+          "sleutel": "prog-voorbereiding",
+          "door": "ciske",
+          "toelichting": "De statuswijziging staat in de audit trail en is de zichtbare overgang naar de gecertificeerde situatie."
+        },
+        {
+          "type": "auditcyclus_voorbereiden",
+          "sleutel": "prog-cyclus",
+          "commando": "isms:bereid-auditcyclus-voor",
+          "start_maand": 12,
+          "aantal_jaren": 3,
+          "activeer": true,
+          "toelichting": "Programmajaar 1 loopt M12–M23. De programmajaren beginnen op de certificaatdatum, niet op 1 januari — precies het geval waar de kalenderjaar-verankering uit 11b op stukliep."
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "beleid-isb",
+          "versie": 2,
+          "door": "baas"
+        }
+      ]
+    },
+    {
+      "maand": 13,
+      "kop": "Corrigerende maatregelen afgerond",
+      "gebeurtenissen": [
+        {
+          "type": "corrigerende_maatregel_voltooien",
+          "afwijking": "afwijking-toegangsreview"
+        },
+        {
+          "type": "effectiviteitstoets",
+          "afwijking": "afwijking-toegangsreview",
+          "resultaat": "effectief"
+        },
+        {
+          "type": "afwijking_sluiten",
+          "sleutel": "afwijking-toegangsreview",
+          "door": "ciske"
+        },
+        {
+          "type": "corrigerende_maatregel_voltooien",
+          "afwijking": "afwijking-logging"
+        },
+        {
+          "type": "effectiviteitstoets",
+          "afwijking": "afwijking-logging",
+          "resultaat": "effectief"
+        },
+        {
+          "type": "afwijking_sluiten",
+          "sleutel": "afwijking-logging",
+          "door": "ciske"
+        },
+        {
+          "type": "risico_herbeoordelen",
+          "sleutels": [
+            "risico-1",
+            "risico-3",
+            "risico-11",
+            "risico-13"
+          ],
+          "door": "ciske"
+        },
+        {
+          "type": "soa_implementatiegolf",
+          "golf": 3
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Kwartaalreview toegangsrechten",
+          "herhaal_per_kwartaal_vanaf_maand": 13
+        }
+      ]
+    },
+    {
+      "maand": 14,
+      "kop": "Tegenslag 2 — incident 2",
+      "gebeurtenissen": [
+        {
+          "type": "incident",
+          "sleutel": "incident-2",
+          "titel": "Misbruik van een kwetsbaarheid in een third-party library op OTA",
+          "omschrijving": "Een bekende kwetsbaarheid in een gebruikte library werd actief misbruikt op de OTA-omgeving. Geen productie-impact, maar in OTA stond een kopie van productiedata — daarom is een datalekanalyse uitgevoerd.",
+          "ernst": "hoog",
+          "gemeld_door": "jantien",
+          "gekoppeld_risico": "risico-8",
+          "gekoppeld_asset": "asset-klantgegevens",
+          "opgelost_na_dagen": 6,
+          "leidt_tot_afwijking": true,
+          "kennisname_uren_eerder": 5,
+          "raakt_persoonsgegevens": true,
+          "extern_meldingsplichtig": true,
+          "meldplicht_motivatie": "In de OTA-omgeving stond een kopie van productiedata met klantgegevens. Onbevoegde toegang is niet uit te sluiten, dus gemeld bij de Autoriteit Persoonsgegevens. Geen hoog risico voor de betrokkenen: de kopie was gepseudonimiseerd en binnen vijf uur afgesloten, dus geen mededeling aan betrokkenen (art. 34 lid 3)."
+        },
+        {
+          "type": "afwijking",
+          "sleutel": "afwijking-patchbeheer",
+          "bron": "incident",
+          "incident": "incident-2",
+          "maatregel": "8.8",
+          "omschrijving": "Patchbeheer heeft een actief misbruikte kwetsbaarheid niet tijdig onderkend; er was geen overzicht van third-party afhankelijkheden. Bovendien stond productiedata in OTA, in strijd met het eigen uitgangspunt.",
+          "eigenaar": "ciske",
+          "grondoorzaak": "Er was geen inventarisatie van third-party afhankelijkheden, waardoor de maandelijkse patchronde alleen naar de eigen componenten keek. Het vullen van OTA met een productiekopie was daarnaast een gegroeide werkwijze die nooit tegen het eigen uitgangspunt is gehouden.",
+          "corrigerende_maatregel": {
+            "omschrijving": "Afhankelijkhedenoverzicht inrichten met automatische signalering, en OTA vullen met geanonimiseerde data.",
+            "deadline_maand": 17
+          }
+        },
+        {
+          "type": "risico_herbeoordelen",
+          "sleutel": "risico-8",
+          "door": "ciske",
+          "let_op": "Gaat OMHOOG naar 4×4 = 16, boven de acceptatiedrempel. Mitigeren is daarmee verplicht."
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "proc-patch",
+          "versie": 2,
+          "door": "baas"
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Datalekanalyse incident OTA",
+          "koppeling": "incident-2"
+        }
+      ]
+    },
+    {
+      "maand": 15,
+      "kop": "Leveranciersbeoordeling 2 — tegenslag 3",
+      "gebeurtenissen": [
+        {
+          "type": "leveranciersbeoordelingen",
+          "ronde": 2,
+          "door": "ciske"
+        },
+        {
+          "type": "leverancier_risiconiveau_wijzigen",
+          "sleutel": "snijboon",
+          "naar_risiconiveau": "hoog",
+          "door": "ciske"
+        },
+        {
+          "type": "beleid_publiceren",
+          "document": "proc-incident",
+          "versie": 2,
+          "door": "bobo"
+        },
+        {
+          "type": "risico_herbeoordelen",
+          "sleutel": "risico-14",
+          "door": "ciske"
+        },
+        {
+          "type": "corrigerende_maatregel_voltooien",
+          "afwijking": "afwijking-patchbeheer",
+          "deel": "ota-anonimiseren"
+        }
+      ]
+    },
+    {
+      "maand": 16,
+      "kop": "Tegenslag 4 — verlopen kwartaaltaak",
+      "gebeurtenissen": [
+        {
+          "type": "taak_verlopen",
+          "taaksjabloon": "Herbeoordeling risicoregister",
+          "toelichting": "Wordt niet opgepakt en verloopt. Zichtbaar als duidelijke dip in 'Risico's binnen termijn herbeoordeeld' en als tweede knik in de takenKPI."
+        }
+      ]
+    },
+    {
+      "maand": 17,
+      "kop": "Inhaalslag en twee nieuwe risico's",
+      "gebeurtenissen": [
+        {
+          "type": "risico_herbeoordelen",
+          "sleutels": "alle_bestaande",
+          "door": "ciske",
+          "toelichting": "Inhaalslag na de verlopen taak; herstelt de Check-KPI."
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Patchrapportage — onderbouwing verlaging risico 8",
+          "koppeling": "risico-8"
+        },
+        {
+          "type": "risico_herbeoordelen",
+          "sleutels": [
+            "risico-8",
+            "risico-10"
+          ],
+          "door": "ciske",
+          "toelichting": "Risico 8 terug naar 2×4 na de patchronde."
+        },
+        {
+          "type": "corrigerende_maatregel_voltooien",
+          "afwijking": "afwijking-patchbeheer"
+        },
+        {
+          "type": "effectiviteitstoets",
+          "afwijking": "afwijking-patchbeheer",
+          "resultaat": "effectief"
+        },
+        {
+          "type": "afwijking_sluiten",
+          "sleutel": "afwijking-patchbeheer",
+          "door": "ciske"
+        },
+        {
+          "type": "risicos_identificeren",
+          "sleutels": [
+            "risico-15",
+            "risico-16"
+          ],
+          "door": "ciske",
+          "toelichting": "Nog zonder behandelplan — dit veroorzaakt het dipje in de Plan-KPI."
+        },
+        {
+          "type": "risico_behandelplan",
+          "sleutel": "risico-15",
+          "door": "ciske"
+        }
+      ]
+    },
+    {
+      "maand": 18,
+      "kop": "Interne audit programmajaar 1",
+      "gebeurtenissen": [
+        {
+          "type": "auditronde",
+          "sleutel": "ronde-intern-jaar1",
+          "programma": "prog-cyclus",
+          "programmajaar": 1,
+          "rondetype": "intern",
+          "telt_mee_voor_dekking": true,
+          "auditor": "aurelius",
+          "scope": "programmajaar_1",
+          "afgerond": true,
+          "bevindingen": {
+            "non_conformiteit_minor": 1,
+            "observatie": 3,
+            "verbeterkans": 2
+          },
+          "toelichting": "H4 Context, H5 Leiderschap, H6 Planning plus de bijbehorende maatregelen. De eerste ronde die de dekkingsmatrix kleurt."
+        },
+        {
+          "type": "afwijking",
+          "sleutel": "afwijking-leveranciersfrequentie",
+          "bron": "audit_bevinding",
+          "bevinding_van": "ronde-intern-jaar1",
+          "maatregel": "5.22",
+          "omschrijving": "Leveranciersbeoordelingen zijn niet uitgevoerd volgens de eigen vastgestelde frequentie; bij één leverancier zat er meer dan een jaar tussen.",
+          "eigenaar": "ciske",
+          "grondoorzaak": "De beoordelingsfrequentie stond in het leveranciersbeleid, maar was niet per leverancier vertaald naar een datum. De eerste ronde is ad hoc ingepland en daarna volgde geen nieuwe planning.",
+          "corrigerende_maatregel": {
+            "omschrijving": "Beoordelingsmomenten als terugkerende taak inplannen en de frequentie per risiconiveau vastleggen.",
+            "deadline_maand": 20
+          }
+        },
+        {
+          "type": "risico_accepteren",
+          "sleutel": "risico-15",
+          "door": "baas",
+          "let_op": "Goedkeuractie: score 16, boven de drempel. Tot dit moment blijft het risico op 'behandelplan_opgesteld' staan."
+        },
+        {
+          "type": "training_ronde",
+          "module": "training-basis",
+          "ronde": 1
+        },
+        {
+          "type": "training_ronde",
+          "module": "training-phishing",
+          "ronde": 1
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Rapport interne audit programmajaar 1",
+          "koppeling": "ronde-intern-jaar1"
+        },
+        {
+          "type": "wijziging_doorlopen",
+          "sleutel": "wij-peenpay-release",
+          "toelichting": "Wijzigingsbeheer (A.8.32): het dossier wordt aangemeld, in behandeling genomen en tot de in de fixture vastgelegde stap doorlopen."
+        }
+      ]
+    },
+    {
+      "maand": 19,
+      "kop": "Directiebeoordeling 2; Keesje uit dienst",
+      "gebeurtenissen": [
+        {
+          "type": "directiebeoordeling",
+          "sleutel": "review-2",
+          "deelnemers": [
+            "bobo",
+            "baas",
+            "ciske"
+          ],
+          "inputs": "alle_negen",
+          "besluiten": 2,
+          "verbeteracties": 3,
+          "verbeteracties_open": 1,
+          "gehouden_door": "baas",
+          "toelichting": "Besluit tot investering in monitoring. Eén verbeteractie blijft lopen — een dichtgetimmerde verbetercyclus is ongeloofwaardig."
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Notulen directiebeoordeling 2",
+          "koppeling": "review-2"
+        },
+        {
+          "type": "gebruiker_uit_dienst",
+          "sleutel": "keesje",
+          "door": "ciske",
+          "toelichting": "Account gedeactiveerd en toegang ingetrokken; maakt de accountlevenscyclus uit blok 1 zichtbaar."
+        },
+        {
+          "type": "risico_eigenaar_wijzigen",
+          "sleutel": "risico-12",
+          "naar": "ciske",
+          "door": "ciske"
+        },
+        {
+          "type": "scope_concept",
+          "sleutel": "scope-v2",
+          "door": "ciske"
+        },
+        {
+          "type": "risicocriteria_concept",
+          "sleutel": "criteria-v2",
+          "door": "ciske",
+          "toelichting": "Uit besluit 2 volgt een scherpere acceptatiedrempel (15 naar 12) en een kwantitatieve band per schaalstap. De CISO stelt op en dient in; vaststellen doet de directie in M20."
+        }
+      ]
+    },
+    {
+      "maand": 20,
+      "kop": "SoA-herziening",
+      "gebeurtenissen": [
+        {
+          "type": "scope_activeren",
+          "sleutel": "scope-v2",
+          "door": "bobo"
+        },
+        {
+          "type": "risicocriteria_vaststellen",
+          "sleutel": "criteria-v2",
+          "door": "bobo",
+          "toelichting": "Vóór de herbeoordelingen hieronder: de risico's die door de scherpere drempel boven de acceptatiegrens uitkomen, krijgen hier hun herbeoordelingstaak."
+        },
+        {
+          "type": "soa_herbeoordelen",
+          "omvang": "alle_toepasselijke",
+          "door": "ciske",
+          "toelichting": "Herstelt de Check-KPI 'SoA binnen termijn herbeoordeeld'."
+        },
+        {
+          "type": "soa_implementatiegolf",
+          "golf": 4,
+          "toelichting": "~80 van 88; twee regels van 'in uitvoering' naar 'geïmplementeerd'."
+        },
+        {
+          "type": "soa_eigen_classificatie",
+          "bron": "soa.json:eigen_classificatie",
+          "door": "ciske"
+        },
+        {
+          "type": "risico_herbeoordelen",
+          "sleutels": [
+            "risico-2",
+            "risico-12",
+            "risico-16"
+          ],
+          "door": "ciske"
+        },
+        {
+          "type": "corrigerende_maatregel_voltooien",
+          "afwijking": "afwijking-leveranciersfrequentie"
+        },
+        {
+          "type": "effectiviteitstoets",
+          "afwijking": "afwijking-leveranciersfrequentie",
+          "resultaat": "effectief"
+        },
+        {
+          "type": "afwijking_sluiten",
+          "sleutel": "afwijking-leveranciersfrequentie",
+          "door": "ciske"
+        },
+        {
+          "type": "wijziging_doorlopen",
+          "sleutel": "wij-tls-spoed",
+          "toelichting": "Wijzigingsbeheer (A.8.32): het dossier wordt aangemeld, in behandeling genomen en tot de in de fixture vastgelegde stap doorlopen."
+        }
+      ]
+    },
+    {
+      "maand": 21,
+      "kop": "Eerste opvolgingsaudit",
+      "gebeurtenissen": [
+        {
+          "type": "auditronde",
+          "sleutel": "ronde-surveillance-1",
+          "programma": null,
+          "rondetype": "extern_surveillance",
+          "extern_auditor_naam": "Certificerende instelling",
+          "telt_mee_voor_dekking": false,
+          "afgerond": true,
+          "bevindingen": {
+            "non_conformiteit_minor": 1,
+            "observatie": 2
+          }
+        },
+        {
+          "type": "afwijking",
+          "sleutel": "afwijking-continuiteitsplan",
+          "bron": "audit_bevinding",
+          "bevinding_van": "ronde-surveillance-1",
+          "maatregel": "5.30",
+          "omschrijving": "Het continuïteitsplan voor ICT is opgesteld maar nooit getest; er is geen bewijs van een oefening of test.",
+          "eigenaar": "ciske",
+          "grondoorzaak": "Het continuïteitsplan is opgesteld als document ter voorbereiding op de certificering. Het testen ervan is als aparte stap benoemd, maar nooit belegd of ingepland.",
+          "status_in_eindstand": "actie_lopend",
+          "corrigerende_maatregel": {
+            "omschrijving": "Continuïteitsoefening uitvoeren op een volledige uitval van de productieomgeving en het resultaat vastleggen.",
+            "deadline_weken_na_m22": 6,
+            "status_in_eindstand": "in_uitvoering"
+          }
+        },
+        {
+          "type": "bewijsstuk",
+          "titel": "Auditrapport opvolgingsaudit 1",
+          "koppeling": "ronde-surveillance-1"
+        }
+      ]
+    },
+    {
+      "maand": 22,
+      "kop": "Nu — de stand die de demo toont",
+      "gebeurtenissen": [
+        {
+          "type": "eindstand",
+          "controles": [
+            "De minor uit M21 staat op 'non_conformiteit_gestart'; de corrigerende maatregel is 'in_uitvoering' met een deadline over zes weken.",
+            "Programmajaar 1 van de certificeringscyclus loopt nog (t/m M23); jaar 2 en 3 staan gepland met rondes op 'gepland'.",
+            "De dekkingsmatrix toont de eerste schijf groen en de rest gepland — één afgeronde dekkende ronde (M18).",
+            "Het voorbereidingsprogramma is afgesloten; zijn twee rondes tellen niet mee voor de dekking.",
+            "Restrisico-snapshots zijn vastgelegd voor beide gepasseerde jaargrenzen.",
+            "Eén account is gedeactiveerd (Keesje), zeven zijn actief.",
+            "Twee leesbevestigingen en één trainingsherhaling staan open.",
+            "Eén verbeteractie uit directiebeoordeling 2 loopt nog.",
+            "Risico 15 is door de directie geaccepteerd; risico 16 heeft sinds M20 een behandelplan."
+          ]
+        },
+        {
+          "type": "wijziging_doorlopen",
+          "sleutel": "wij-database-migratie",
+          "toelichting": "Wijzigingsbeheer (A.8.32): het dossier wordt aangemeld, in behandeling genomen en tot de in de fixture vastgelegde stap doorlopen."
+        }
+      ]
+    }
+  ]
+}

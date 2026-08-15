@@ -1,0 +1,180 @@
+{
+  "_over": {
+    "wat": "Dertien beleidsdocumenten en procedures met hun versiehistorie, leesbevestigingen en koppeling naar SoA-regels.",
+    "bron": "saasdemo/scenario.md §8",
+    "inhoud": "De documenten zijn leeg op titel en datum na (uitgangspunt uit p1). Wat telt is de status, de versiehistorie en de koppeling naar de SoA.",
+    "publiceren": "Een versie actief maken is sinds implementatie/01c een goedkeuractie: dat doet een directeur (bobo of baas), niet de CISO."
+  },
+
+  "documenten": [
+    {
+      "sleutel": "beleid-isb",
+      "titel": "Informatiebeveiligingsbeleid",
+      "type": "beleid",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": true,
+      "doelgroepen": ["dg-alle"],
+      "soa_regels": ["5.1", "5.2", "5.4"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 1, "goedgekeurd_door": "bobo" },
+        { "versienummer": 2, "actief_in_maand": 12, "goedgekeurd_door": "baas", "wijzigingsreden": "Jaarlijkse herziening; scope en rolverdeling aangescherpt na certificering." }
+      ]
+    },
+    {
+      "sleutel": "beleid-toegang",
+      "titel": "Toegangsbeleid",
+      "type": "beleid",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": true,
+      "doelgroepen": ["dg-alle"],
+      "soa_regels": ["5.15", "5.16", "5.17", "5.18", "8.2", "8.5"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 2, "goedgekeurd_door": "bobo" }
+      ]
+    },
+    {
+      "sleutel": "beleid-gebruik",
+      "titel": "Beleid aanvaardbaar gebruik",
+      "type": "beleid",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": true,
+      "doelgroepen": ["dg-alle"],
+      "soa_regels": ["5.10", "6.2", "8.1"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 2, "goedgekeurd_door": "baas" }
+      ]
+    },
+    {
+      "sleutel": "beleid-crypto",
+      "titel": "Cryptografiebeleid",
+      "type": "beleid",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": false,
+      "doelgroepen": ["dg-beheerders"],
+      "soa_regels": ["8.24"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 4, "goedgekeurd_door": "bobo" }
+      ]
+    },
+    {
+      "sleutel": "beleid-leveranciers",
+      "titel": "Leveranciersbeleid",
+      "type": "beleid",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": false,
+      "doelgroepen": ["dg-directie"],
+      "soa_regels": ["5.19", "5.20", "5.21", "5.22", "5.23"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 4, "goedgekeurd_door": "baas" }
+      ]
+    },
+    {
+      "sleutel": "beleid-bewaartermijnen",
+      "titel": "Bewaartermijnenbeleid",
+      "type": "beleid",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": false,
+      "doelgroepen": ["dg-alle"],
+      "soa_regels": ["5.33", "5.34", "8.10"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 5, "goedgekeurd_door": "bobo" }
+      ]
+    },
+    {
+      "sleutel": "proc-incident",
+      "titel": "Procedure incidentbeheer",
+      "type": "procedure",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": true,
+      "doelgroepen": ["dg-alle"],
+      "soa_regels": ["5.24", "5.25", "5.26", "5.27", "6.8"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 2, "goedgekeurd_door": "bobo" },
+        { "versienummer": 2, "actief_in_maand": 15, "goedgekeurd_door": "bobo", "wijzigingsreden": "Aangescherpt na incident 2: expliciete stap voor datalekanalyse en melding aan de toezichthouder." }
+      ]
+    },
+    {
+      "sleutel": "proc-backup",
+      "titel": "Procedure back-up en herstel",
+      "type": "procedure",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": false,
+      "doelgroepen": ["dg-beheerders"],
+      "soa_regels": ["8.13", "5.29", "5.30"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 3, "goedgekeurd_door": "baas" },
+        { "versienummer": 2, "actief_in_maand": 8, "goedgekeurd_door": "baas", "wijzigingsreden": "Jaarlijkse hersteltest opgenomen als vaste stap, met vastlegging van het bewijs." }
+      ]
+    },
+    {
+      "sleutel": "proc-change",
+      "titel": "Change- en releaseprocedure",
+      "type": "procedure",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": false,
+      "doelgroepen": ["dg-beheerders"],
+      "soa_regels": ["8.32", "8.31", "8.9"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 3, "goedgekeurd_door": "bobo" }
+      ]
+    },
+    {
+      "sleutel": "proc-patch",
+      "titel": "Procedure kwetsbaarheden- en patchbeheer",
+      "type": "procedure",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": false,
+      "doelgroepen": ["dg-beheerders"],
+      "soa_regels": ["8.8", "8.19"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 4, "goedgekeurd_door": "baas" },
+        { "versienummer": 2, "actief_in_maand": 14, "goedgekeurd_door": "baas", "wijzigingsreden": "Na incident 2: overzicht van third-party afhankelijkheden verplicht, en een maximale doorlooptijd per ernstniveau." }
+      ]
+    },
+    {
+      "sleutel": "proc-datalek",
+      "titel": "Datalekprocedure (AVG)",
+      "type": "procedure",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": true,
+      "doelgroepen": ["dg-alle"],
+      "soa_regels": ["5.34", "5.26"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 5, "goedgekeurd_door": "bobo" }
+      ]
+    },
+    {
+      "sleutel": "proc-interne-audit",
+      "titel": "Procedure interne audit",
+      "type": "procedure",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": false,
+      "doelgroepen": ["dg-directie"],
+      "soa_regels": ["5.35", "5.36"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 6, "goedgekeurd_door": "baas" }
+      ]
+    },
+    {
+      "sleutel": "proc-toegangsreview",
+      "titel": "Procedure toegangsrechten-review",
+      "type": "procedure",
+      "eigenaar": "ciske",
+      "leesbevestiging_vereist": false,
+      "doelgroepen": ["dg-beheerders"],
+      "soa_regels": ["5.18"],
+      "versies": [
+        { "versienummer": 1, "actief_in_maand": 7, "goedgekeurd_door": "bobo" }
+      ],
+      "toelichting": "Bestond al vanaf M7, maar de uitvoering was tot M11 niet aantoonbaar per kwartaal — dat is externe minor (a) uit de certificeringsaudit."
+    }
+  ],
+
+  "leesbevestigingen": {
+    "_toelichting": "Bij v1 en bij elke nieuwe actieve versie wordt de doelgroep om bevestiging gevraagd. Bewust niet 100%: er blijft steeds een enkele bevestiging openstaan, zodat het gap-signaal zichtbaar is.",
+    "openstaand_in_eindstand": [
+      { "document": "proc-incident", "versie": 2, "gebruiker": "piet", "toelichting": "Piet heeft de herziene incidentprocedure nog niet bevestigd." },
+      { "document": "beleid-isb", "versie": 2, "gebruiker": "kees", "toelichting": "Kees heeft v2 van het informatiebeveiligingsbeleid nog niet bevestigd." }
+    ]
+  }
+}

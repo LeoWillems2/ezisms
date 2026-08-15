@@ -1,0 +1,67 @@
+{
+  "_over": {
+    "wat": "Bewustzijnstrainingen, hun doelgroepen en de voltooiingen.",
+    "bron": "saasdemo/scenario.md §9 (M6) en §3",
+    "let_op": "Bewust niet iedereen rondt alles af: een populatie die 100% scoort maakt de bewustzijns-KPI betekenisloos."
+  },
+
+  "modules": [
+    {
+      "sleutel": "training-basis",
+      "titel": "Basis informatiebeveiliging en AVG",
+      "geldigheidsduur_maanden": 12,
+      "actief": true,
+      "doelgroepen": ["dg-alle"],
+      "beschikbaar_vanaf_maand": 6,
+      "rondes": [
+        {
+          "maand": 6,
+          "voltooid_door": ["ciske", "bobo", "baas", "jantien", "kees", "aurelius", "piet", "keesje"],
+          "toelichting": "Ronde 1: iedereen. Dit is de nulmeting van het bewustzijnsprogramma."
+        },
+        {
+          "maand": 18,
+          "voltooid_door": ["ciske", "bobo", "baas", "jantien", "kees", "aurelius", "keesje"],
+          "openstaand": ["piet"],
+          "toelichting": "Ronde 2 na het verstrijken van de geldigheidsduur. Piet heeft de herhaling niet afgerond — zichtbaar gat in de eindstand."
+        }
+      ]
+    },
+    {
+      "sleutel": "training-phishing",
+      "titel": "Phishing herkennen",
+      "geldigheidsduur_maanden": 12,
+      "actief": true,
+      "doelgroepen": ["dg-alle"],
+      "beschikbaar_vanaf_maand": 6,
+      "rondes": [
+        {
+          "maand": 6,
+          "voltooid_door": ["ciske", "bobo", "baas", "jantien", "kees", "aurelius", "piet", "keesje"],
+          "toelichting": "Direct na incident 1 (phishingmail bij Handel in M5) uitgezet — de aanleiding is in de demo te volgen."
+        },
+        {
+          "maand": 18,
+          "voltooid_door": ["ciske", "bobo", "baas", "jantien", "kees", "aurelius", "keesje"],
+          "openstaand": ["piet"]
+        }
+      ]
+    },
+    {
+      "sleutel": "training-beheerders",
+      "titel": "Veilig beheer van de productieomgeving",
+      "geldigheidsduur_maanden": 12,
+      "actief": true,
+      "toets_bestand": "owasp1.html",
+      "doelgroepen": ["dg-beheerders"],
+      "beschikbaar_vanaf_maand": 10,
+      "rondes": [
+        {
+          "maand": 10,
+          "voltooid_door": ["jantien", "kees"],
+          "toelichting": "Uitgezet als corrigerende maatregel op de observaties over beheerpraktijk uit de interne audit van M7."
+        }
+      ]
+    }
+  ]
+}

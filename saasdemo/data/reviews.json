@@ -1,0 +1,58 @@
+{
+  "_over": {
+    "wat": "De twee directiebeoordelingen: de negen verplichte inputs, de besluiten en de verbeteracties.",
+    "bron": "saasdemo/scenario.md §9 (M8 en M19); toegevoegd bij stap 7b omdat tijdlijn.json alleen aantallen noemt.",
+    "inputs": "De negen categorieën zijn die van ISO 27001 §9.3.2 en liggen vast in Reviewsessie::VERPLICHTE_CATEGORIEEN. Alle negen moeten aanwezig zijn, anders is de review niet volledig — dat is precies wat het scherm controleert.",
+    "let_op": "Verbeteracties hangen onder een besluit, niet onder de sessie. `besluit` verwijst naar de volgorde (1-gebaseerd) in `besluiten`."
+  },
+
+  "sessies": {
+    "review-1": {
+      "conclusie": "Het ISMS is opgezet en werkt; de nadruk verschuift van inrichten naar aantoonbaar uitvoeren.",
+      "agendapunten": [
+        { "categorie": "status_vorige_acties", "samenvatting": "Eerste directiebeoordeling: er zijn geen acties uit een vorige sessie. De acties uit het directiebesluit van M0 (scope vaststellen, beleid publiceren, risicoregister opzetten) zijn alle afgerond." },
+        { "categorie": "context_wijzigingen", "samenvatting": "De context is ongewijzigd. De vraag van grote retailklanten om een ISO 27001-certificaat is sterker geworden; twee aanbestedingen in de komende maanden vragen er expliciet om.", "gekoppeld_blok_naam": "context-scope" },
+        { "categorie": "belanghebbende_feedback", "samenvatting": "Twee handelspartners hebben vragen gesteld over de verwerking van hun ordergegevens. De datalekprocedure is met hen gedeeld. Van de toezichthouder is geen signaal ontvangen.", "gekoppeld_blok_naam": "context-scope" },
+        { "categorie": "kpi_resultaten", "samenvatting": "De SoA is volledig beoordeeld en de implementatiegraad loopt op. De herbeoordelingstermijnen worden gehaald. De taken-KPI liet in M6 een knik zien door een te laat uitgevoerde toegangsreview." },
+        { "categorie": "auditresultaten", "samenvatting": "Nulmeting (M4) en interne audit (M7) uitgevoerd. Eén non-conformiteit: de hersteltest van de back-up was niet aantoonbaar. Die is inmiddels uitgevoerd, getoetst en gesloten.", "gekoppeld_blok_naam": "auditmanagement" },
+        { "categorie": "non_conformiteiten", "samenvatting": "Eén afwijking geopend en gesloten (hersteltest back-up). De corrigerende maatregel is op effectiviteit getoetst en effectief bevonden.", "gekoppeld_blok_naam": "incident-afwijkingenbeheer" },
+        { "categorie": "monitoring_resultaten", "samenvatting": "Eén incident: een phishingmail bij Handel, herkend en gemeld volgens de procedure. Geen beveiligingsinbreuk. Aanleiding voor de phishingtraining van M6.", "gekoppeld_blok_naam": "incident-afwijkingenbeheer" },
+        { "categorie": "verbeterkansen", "samenvatting": "Uit de nulmeting kwamen zes verbeterkansen, waarvan de belangrijkste het inplannen van terugkerende beheertaken in het ISMS zelf betreft. Dat is inmiddels doorgevoerd.", "gekoppeld_blok_naam": "auditmanagement" },
+        { "categorie": "risico_resultaten", "samenvatting": "Veertien risico's in het register, alle met eigenaar en behandelplan. Eén risico (afhankelijkheid van WortelNet) is bewust geaccepteerd binnen het mandaat van de CISO. Geen risico boven de acceptatiedrempel.", "gekoppeld_blok_naam": "risico-soa" }
+      ],
+      "besluiten": [
+        { "omschrijving": "De directie stelt vast dat het ISMS geschikt, passend en doeltreffend is voor de huidige omvang van FruitBV, en geeft opdracht de certificeringsaudit aan te vragen." },
+        { "omschrijving": "De hersteltest van de back-up wordt een vaste jaarlijkse activiteit met vastlegging van het bewijs; de procedure is daarop aangepast." },
+        { "omschrijving": "Er komt geen extra formatie voor informatiebeveiliging in dit boekjaar. De directie accepteert dat de uitvoering afhankelijk blijft van de CISO en de twee beheerders, en herijkt dat bij de volgende beoordeling." }
+      ],
+      "verbeteracties": [
+        { "besluit": 1, "omschrijving": "Documentbeoordeling (fase 1) voorbereiden: scopeverklaring, beleid en SoA controleren op volledigheid voordat het dossier naar de certificerende instelling gaat.", "eigenaar": "ciske", "deadline_maand": 9, "voltooid": true },
+        { "besluit": 2, "omschrijving": "De uitkomst van de maandelijkse patchronde voortaan vastleggen, zodat achteraf te zien is welke updates zijn beoordeeld.", "eigenaar": "ciske", "deadline_maand": 10, "voltooid": true }
+      ]
+    },
+
+    "review-2": {
+      "conclusie": "Het ISMS draait; de aandacht verschuift naar het volhouden van de frequenties die de organisatie zichzelf heeft opgelegd.",
+      "agendapunten": [
+        { "categorie": "status_vorige_acties", "samenvatting": "Beide verbeteracties uit de vorige beoordeling zijn afgerond: het certificeringsdossier is opgeleverd en de patchronde wordt vastgelegd." },
+        { "categorie": "context_wijzigingen", "samenvatting": "FruitBV is gecertificeerd sinds M12. Er zijn twee belanghebbenden bijgekomen sinds de oorspronkelijke contextanalyse; die is sindsdien niet herzien. De scope is in M20 opnieuw vastgesteld.", "gekoppeld_blok_naam": "context-scope" },
+        { "categorie": "belanghebbende_feedback", "samenvatting": "Het certificaat is door drie retailklanten opgevraagd en geaccepteerd. Eén handelspartner vroeg naar de afhandeling van het incident van M14; die is toegelicht.", "gekoppeld_blok_naam": "context-scope" },
+        { "categorie": "kpi_resultaten", "samenvatting": "De implementatiegraad van de SoA staat rond 84%. De herbeoordelings-KPI liet in M16 een dip zien door een verlopen kwartaaltaak; de inhaalslag van M17 heeft die hersteld." },
+        { "categorie": "auditresultaten", "samenvatting": "Certificeringsaudit fase 2 (M11) leverde twee minors op, beide gesloten. De interne audit over programmajaar 1 (M18) behandelde H4 tot en met H6 en leverde één minor op over de frequentie van leveranciersbeoordelingen.", "gekoppeld_blok_naam": "auditmanagement" },
+        { "categorie": "non_conformiteiten", "samenvatting": "Drie afwijkingen gesloten in deze periode (toegangsreview, logging, patchbeheer), alle met een effectieve corrigerende maatregel. Eén afwijking over de leveranciersfrequentie loopt nog.", "gekoppeld_blok_naam": "incident-afwijkingenbeheer" },
+        { "categorie": "monitoring_resultaten", "samenvatting": "Eén incident van hoge ernst: misbruik van een kwetsbaarheid in een third-party library op de OTA-omgeving. Geen productie-impact, wel een datalekanalyse omdat er productiedata in OTA stond.", "gekoppeld_blok_naam": "incident-afwijkingenbeheer" },
+        { "categorie": "verbeterkansen", "samenvatting": "De interne audit noemt twee verbeterkansen: een vaste opzet voor het verslag van de directiebeoordeling, en het ontdubbelen van de KPI-set.", "gekoppeld_blok_naam": "auditmanagement" },
+        { "categorie": "risico_resultaten", "samenvatting": "Zestien risico's. Het patchbeheer-risico steeg na het incident naar 16 en is na de patchronde terug op 8. De afhankelijkheid van één betaaldienstverlener staat op 16 en is door de directie geaccepteerd.", "gekoppeld_blok_naam": "risico-soa" }
+      ],
+      "besluiten": [
+        { "omschrijving": "De directie investeert in centrale monitoring en alarmering op beheerhandelingen, bovenop de logging die als corrigerende maatregel is ingericht." },
+        { "omschrijving": "De beoordelingsfrequentie per leverancier wordt vastgelegd naar risiconiveau en als terugkerende taak ingepland, zodat de eigen norm niet opnieuw wordt gemist." }
+      ],
+      "verbeteracties": [
+        { "besluit": 1, "omschrijving": "Alarmering inrichten op beheerhandelingen in de productieomgeving en de meldroute naar de CISO beproeven.", "eigenaar": "ciske", "deadline_maand": 21, "voltooid": true },
+        { "besluit": 2, "omschrijving": "Beoordelingsmomenten per leverancier vastleggen naar risiconiveau en opnemen in de terugkerende taken.", "eigenaar": "ciske", "deadline_maand": 20, "voltooid": true },
+        { "besluit": 1, "omschrijving": "De KPI-set herzien: twee indicatoren meten in de praktijk hetzelfde en één ontbrekende indicator op de effectiviteit van maatregelen toevoegen.", "eigenaar": "ciske", "deadline_maand": 24, "voltooid": false, "toelichting": "Blijft bewust open in de eindstand: een verbetercyclus waarin alles altijd af is, is ongeloofwaardig." }
+      ]
+    }
+  }
+}

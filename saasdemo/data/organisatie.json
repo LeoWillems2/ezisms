@@ -1,0 +1,205 @@
+{
+  "_over": {
+    "wat": "Context en scope van FruitBV: organisatie-eenheden, issues, belanghebbenden met eisen, en de scopeverklaring met uitsluitingen en raakvlakken.",
+    "bron": "saasdemo/scenario.md §2",
+    "tijd": "Alle momenten zijn maandoffsets vanaf M0 (22 maanden voor de dag van vullen). Zie tijdlijn.json.",
+    "sleutels": "Elke entiteit heeft een `sleutel` die alleen binnen de fixtures geldt; de motor vertaalt die naar database-id's."
+  },
+
+  "organisatie": {
+    "naam": "FruitBV",
+    "omschrijving": "Nederlandse groothandel in groenten en fruit, 20 medewerkers (16 FTE), kantoor in Barendrecht.",
+    "platform": "FruitCloud — handelsplatform voor telers, groothandel en retail, in eigen huis ontwikkeld."
+  },
+
+  "organisatie_eenheden": [
+    { "sleutel": "directie", "naam": "Directie", "type": "afdeling" },
+    { "sleutel": "handel", "naam": "Handel", "type": "afdeling" },
+    { "sleutel": "platformbeheer", "naam": "Platformbeheer", "type": "afdeling" },
+    { "sleutel": "administratie", "naam": "Administratie", "type": "afdeling" },
+
+    { "sleutel": "kantoor", "naam": "Kantoor Barendrecht", "type": "locatie" },
+    { "sleutel": "datacenter", "naam": "Datacenter WortelNet (Amsterdam)", "type": "locatie" },
+
+    { "sleutel": "proces-onboarding", "naam": "Klantonboarding", "type": "proces" },
+    { "sleutel": "proces-orders", "naam": "Orderafhandeling", "type": "proces" },
+    { "sleutel": "proces-facturatie", "naam": "Facturatie & betalingen", "type": "proces" },
+    { "sleutel": "proces-release", "naam": "Platformbeheer & release", "type": "proces" }
+  ],
+
+  "issues": [
+    {
+      "sleutel": "issue-afhankelijkheid-platform",
+      "aard": "intern",
+      "categorie": "Bedrijfsvoering",
+      "omschrijving": "De volledige omzet loopt via één platform; uitval raakt onmiddellijk de handel van alle aangesloten partijen.",
+      "beoordeeld_in_maand": 0
+    },
+    {
+      "sleutel": "issue-kleine-beheerclub",
+      "aard": "intern",
+      "categorie": "Personeel",
+      "omschrijving": "Productiebeheer rust op twee ZZP'ers; kennis en toegang zijn geconcentreerd bij weinig mensen.",
+      "beoordeeld_in_maand": 0
+    },
+    {
+      "sleutel": "issue-eigen-ontwikkeling",
+      "aard": "intern",
+      "categorie": "Techniek",
+      "omschrijving": "Het platform wordt in eigen huis ontwikkeld; de grens tussen ontwikkeling en productie moet bewaakt worden.",
+      "beoordeeld_in_maand": 0
+    },
+    {
+      "sleutel": "issue-klanteisen-certificering",
+      "aard": "extern",
+      "categorie": "Markt",
+      "omschrijving": "Grote retailklanten vragen bij aanbestedingen om een ISO 27001-certificaat; zonder certificaat vallen contracten af.",
+      "beoordeeld_in_maand": 0
+    },
+    {
+      "sleutel": "issue-avg",
+      "aard": "extern",
+      "categorie": "Wet- en regelgeving",
+      "omschrijving": "Het platform verwerkt persoonsgegevens en bankrekeningnummers van handelspartners; de AVG stelt eisen aan bewaartermijnen en datalekmelding.",
+      "beoordeeld_in_maand": 0
+    },
+    {
+      "sleutel": "issue-dreigingsbeeld",
+      "aard": "extern",
+      "categorie": "Dreigingen",
+      "omschrijving": "Ransomware en factuurfraude in de agrarische keten nemen toe; betaalgegevens zijn een aantrekkelijk doelwit.",
+      "beoordeeld_in_maand": 0
+    }
+  ],
+
+  "belanghebbenden": [
+    {
+      "sleutel": "bh-retailklanten",
+      "naam": "Retailklanten",
+      "aard": "extern",
+      "relevantie_voor_isms": "Stellen beveiligingseisen in contracten en vragen om aantoonbaarheid.",
+      "eisen": [
+        { "omschrijving": "Aantoonbaar beheerst informatiebeveiligingsbeheer, blijkend uit een geldig ISO 27001-certificaat.", "bron": "contractueel" },
+        { "omschrijving": "Melding van een beveiligingsincident dat hun gegevens raakt binnen 24 uur.", "bron": "contractueel" }
+      ]
+    },
+    {
+      "sleutel": "bh-telers",
+      "naam": "Telers en leveranciers op het platform",
+      "aard": "extern",
+      "relevantie_voor_isms": "Vertrouwen hun bedrijfs- en betaalgegevens aan het platform toe.",
+      "eisen": [
+        { "omschrijving": "Bankrekeninggegevens zijn alleen te wijzigen na verificatie langs een tweede kanaal.", "bron": "verwachting" },
+        { "omschrijving": "Order- en prijsinformatie is niet inzichtelijk voor andere handelspartijen.", "bron": "verwachting" }
+      ]
+    },
+    {
+      "sleutel": "bh-directie",
+      "naam": "Directie FruitBV",
+      "aard": "intern",
+      "relevantie_voor_isms": "Draagt de eindverantwoordelijkheid, stelt scope, beleid en risicoacceptatie vast.",
+      "eisen": [
+        { "omschrijving": "Beveiligingsinvesteringen staan in verhouding tot het bedrijfsrisico.", "bron": "verwachting" }
+      ]
+    },
+    {
+      "sleutel": "bh-medewerkers",
+      "naam": "Medewerkers FruitBV",
+      "aard": "intern",
+      "relevantie_voor_isms": "Werken dagelijks met het platform en met klantgegevens.",
+      "eisen": [
+        { "omschrijving": "Werkbare beveiligingsmaatregelen die het handelsproces niet onnodig vertragen.", "bron": "verwachting" }
+      ]
+    },
+    {
+      "sleutel": "bh-beheerders",
+      "naam": "Beheerders productie (ZZP)",
+      "aard": "intern",
+      "relevantie_voor_isms": "Hebben toegang tot de productieomgeving en vallen daarmee binnen de scope.",
+      "eisen": [
+        { "omschrijving": "Duidelijke afspraken over toegang, geheimhouding en verantwoordelijkheid bij incidenten.", "bron": "contractueel" }
+      ]
+    },
+    {
+      "sleutel": "bh-wortelnet",
+      "naam": "WortelNet (hostingprovider)",
+      "aard": "extern",
+      "relevantie_voor_isms": "Beheert de onderliggende infrastructuur; een deel van de beheersing is uitbesteed.",
+      "eisen": [
+        { "omschrijving": "Wederzijdse afspraken over incidentmelding en onderhoudsvensters.", "bron": "contractueel" }
+      ]
+    },
+    {
+      "sleutel": "bh-toezichthouder",
+      "naam": "Autoriteit Persoonsgegevens",
+      "aard": "extern",
+      "relevantie_voor_isms": "Toezichthouder op de verwerking van persoonsgegevens.",
+      "eisen": [
+        { "omschrijving": "Melding van een datalek binnen 72 uur na constatering.", "bron": "wettelijk" },
+        { "omschrijving": "Persoonsgegevens worden niet langer bewaard dan noodzakelijk.", "bron": "wettelijk" }
+      ]
+    },
+    {
+      "sleutel": "bh-verzekeraar",
+      "naam": "Cyberverzekeraar",
+      "aard": "extern",
+      "relevantie_voor_isms": "Stelt voorwaarden aan de dekking van de cyberpolis.",
+      "eisen": [
+        { "omschrijving": "Aantoonbare back-ups met periodieke hersteltest.", "bron": "contractueel" },
+        { "omschrijving": "Meervoudige authenticatie op alle beheertoegang.", "bron": "contractueel" }
+      ]
+    }
+  ],
+
+  "scopeverklaringen": [
+    {
+      "sleutel": "scope-v1",
+      "versienummer": 1,
+      "concept_in_maand": 0,
+      "actief_in_maand": 1,
+      "goedgekeurd_door_rol": "management",
+      "herziening_na_maanden": 12,
+      "scopetekst": "Het ISMS van FruitBV omvat het handelsplatform FruitCloud in productie, de gegevens die daarin worden verwerkt (waaronder NAW-gegevens, e-mailadressen en bankrekeningnummers van handelspartners), de hostingdienst van WortelNet waarop de productieomgeving draait, en de personen met toegang tot die productieomgeving. De ontwikkelstraat, de OTA-omgeving en de algemene kantoorautomatisering vallen buiten de scope.",
+      "eenheden": ["directie", "platformbeheer", "handel", "datacenter", "proces-onboarding", "proces-orders", "proces-facturatie", "proces-release"],
+      "belanghebbenden": ["bh-retailklanten", "bh-telers", "bh-directie", "bh-beheerders", "bh-wortelnet", "bh-toezichthouder", "bh-verzekeraar"],
+      "uitsluitingen": [
+        {
+          "omschrijving": "De ontwikkelstraat en de OTA-omgeving van FruitCloud.",
+          "motivatie": "Ontwikkeling verwerkt geen productiegegevens en levert via een gecontroleerde release aan productie. De grens zelf is wél in scope: de changecontrole op de release is een beheersmaatregel binnen het ISMS."
+        },
+        {
+          "omschrijving": "De algemene kantoorautomatisering (werkplekken Handel en Administratie, kantoornetwerk).",
+          "motivatie": "Deze middelen verwerken geen platformgegevens en zijn niet nodig om FruitCloud in productie te beheren. Microsoft 365 is als raakvlak wel opgenomen, omdat ISMS-documentatie daar leeft."
+        }
+      ],
+      "raakvlakken": [
+        {
+          "omschrijving": "Ontwikkelstraat → productie (release)",
+          "risico_implicatie": "Code van buiten de scope belandt binnen de scope; vraagt om changecontrole op de grens."
+        },
+        {
+          "omschrijving": "WortelNet — hosting en beheer van de onderliggende infrastructuur",
+          "risico_implicatie": "Beveiliging is deels uitbesteed; de aantoonbaarheid loopt via leveranciersbeheer."
+        },
+        {
+          "omschrijving": "Bankkoppeling / betaaldienstverlener",
+          "risico_implicatie": "Uitwisseling van rekeninggegevens; integriteit en vertrouwelijkheid van betaalinformatie."
+        },
+        {
+          "omschrijving": "Microsoft 365 (mail en documenten)",
+          "risico_implicatie": "ISMS-documenten en communicatie leven buiten het platform."
+        }
+      ]
+    },
+    {
+      "sleutel": "scope-v2",
+      "versienummer": 2,
+      "concept_in_maand": 19,
+      "actief_in_maand": 20,
+      "goedgekeurd_door_rol": "management",
+      "herziening_na_maanden": 12,
+      "wijzigingsreden": "Jaarlijkse herziening: scope ongewijzigd, raakvlak betaaldienstverlener aangescherpt na de leveranciersbeoordeling.",
+      "erft_van": "scope-v1"
+    }
+  ]
+}

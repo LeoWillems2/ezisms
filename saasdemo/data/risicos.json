@@ -1,0 +1,350 @@
+{
+  "_over": {
+    "wat": "Zestien risico's met hun startbeoordeling, behandeling en eindstand.",
+    "bron": "saasdemo/scenario.md §6",
+    "schaal": "kans en impact 1–5, score = kans × impact. Acceptatiedrempel 15 (rood), waarschuwing 10 (amber).",
+    "drempel_let_op": "`Risico::boventDrempel()` toetst `score > 15` op de score van het risico zelf, niet op het restrisico van de behandeling. Alleen risico's boven die grens wachten op acceptatie door de directie; daaronder accepteert de CISO binnen zijn mandaat.",
+    "aanleidingen": "`issues` verwijst naar de §4.1-kwesties in organisatie.json waaruit een risico is geïdentificeerd (plan 02b). Twee gaten zijn bewust: risico 15 en 16 hebben géén aanleiding — die komen uit de leveranciersbeoordeling, en het dashboard hoort dáár niet over te zeuren. En `issue-klanteisen-certificering` is aan geen enkel risico gekoppeld, want die kwestie landt in beleid en in het auditprogramma. Daardoor toont het issue-register in de demo daadwerkelijk een dekkingssignaal; een demo waarin alles gedekt is, laat de functie juist niet zien.",
+    "afwijking_van_scenario": "scenario.md §6 geeft risico 15 en 16 geen cijfers. Risico 15 is hier bewust op 4×4=16 gezet met behandeloptie 'accepteren', zodat de goedkeuractie van de rol Management (implementatie/01c) daadwerkelijk in de demo voorkomt. Met uitsluitend de scores uit §6 zou geen enkel risico boven de drempel uitkomen en zou die knop nooit gebruikt worden.",
+    "criteria": "De risicocriteria zijn sinds implementatie/04g een vastgesteld kader met eigen versies. Versie 1 komt uit RisicocriteriaSeeder (drempel 15, waarschuwing 10) en geldt tot M20; versie 2 staat hieronder en wordt in de tijdlijn door de CISO opgesteld (M19) en door de directie vastgesteld (M20). Dat is de enige plek in de demo waar CISO en directie in één schermflow samenwerken — en het laat zien wat een aangescherpte drempel met een bestaand register doet."
+  },
+
+  "criteria": [
+    {
+      "sleutel": "criteria-v2",
+      "versienummer": 2,
+      "drempelwaarde_score": 12,
+      "waarschuwingsdrempel_score": 8,
+      "omschrijving": "FruitBV accepteert risico's tot en met score 12 binnen het mandaat van de CISO. Daarboven is acceptatie een expliciet, met naam vastgelegd directiebesluit.",
+      "wijzigingsreden": "Besluit uit directiebeoordeling 2: de certificeringsklant eist een lagere restrisicotolerantie, en de auditor wil de risicobereidheid per impactstap in geld kunnen lezen.",
+      "kwantitatieve_banden": {
+        "impact": {
+          "1": "Minder dan € 5.000; geen kernproces geraakt.",
+          "2": "€ 5.000 tot € 25.000, of tot een dag uitval van een ondersteunend proces.",
+          "3": "€ 25.000 tot € 100.000, of tot 0,5% van de jaaromzet.",
+          "4": "0,5% tot 3% van de jaaromzet, of meer dan drie dagen uitval van FruitCloud.",
+          "5": "Meer dan 3% van de jaaromzet, of verlies van de certificering."
+        },
+        "kans": {
+          "1": "Minder dan eens per tien jaar.",
+          "2": "Eens per drie tot tien jaar.",
+          "3": "Ongeveer eens per jaar.",
+          "4": "Elk kwartaal.",
+          "5": "Maandelijks of vaker."
+        }
+      }
+    }
+  ],
+
+  "risicos": [
+    {
+      "sleutel": "risico-1",
+      "titel": "Ransomware legt FruitCloud plat",
+      "dreiging": "Aanvaller versleutelt productie- en back-upsystemen en eist losgeld.",
+      "kwetsbaarheid": "Brede beheertoegang en back-ups die tot M8 nooit op herstelbaarheid zijn getest.",
+      "eigenaar": "ciske",
+      "asset": "asset-productieomgeving",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-dreigingsbeeld", "issue-afhankelijkheid-platform"],
+      "start": { "kans": 3, "impact": 5 },
+      "eind": { "kans": 2, "impact": 5 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["8.7", "8.13", "5.29", "5.30", "8.16"],
+      "restrisico": 10,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 8, "kans": 3, "impact": 5, "toelichting": "Hersteltest uitgevoerd; herstelbaarheid aangetoond." },
+        { "maand": 13, "kans": 2, "impact": 5, "toelichting": "Offline back-upkopie en meervoudige authenticatie op beheertoegang." }
+      ]
+    },
+    {
+      "sleutel": "risico-2",
+      "titel": "Datalek klantgegevens via kwetsbaarheid in de webapplicatie",
+      "dreiging": "Aanvaller benut een kwetsbaarheid in FruitCloud en haalt klantgegevens op.",
+      "kwetsbaarheid": "Geen periodieke beveiligingstest op de applicatie.",
+      "eigenaar": "ciske",
+      "asset": "asset-klantgegevens",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-avg", "issue-eigen-ontwikkeling"],
+      "start": { "kans": 3, "impact": 5 },
+      "eind": { "kans": 2, "impact": 4 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["8.8", "8.26", "8.28", "8.29"],
+      "restrisico": 8,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 10, "kans": 2, "impact": 5, "toelichting": "Beveiligingstest uitgevoerd en bevindingen verholpen." },
+        { "maand": 20, "kans": 2, "impact": 4, "toelichting": "Dataminimalisatie doorgevoerd; minder gegevens in de webcontext." }
+      ]
+    },
+    {
+      "sleutel": "risico-3",
+      "titel": "Misbruik of te ruime rechten van een beheeraccount",
+      "dreiging": "Een beheeraccount wordt misbruikt of heeft meer rechten dan nodig.",
+      "kwetsbaarheid": "Twee beheerders met volledige rechten en geen periodieke rechtenreview.",
+      "eigenaar": "ciske",
+      "asset": "asset-secrets",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-kleine-beheerclub"],
+      "start": { "kans": 3, "impact": 4 },
+      "eind": { "kans": 2, "impact": 4 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["5.15", "5.18", "8.2", "8.5"],
+      "restrisico": 8,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 13, "kans": 2, "impact": 4, "toelichting": "Kwartaalreview toegangsrechten aantoonbaar ingericht na de externe minor uit M11." }
+      ]
+    },
+    {
+      "sleutel": "risico-4",
+      "titel": "Uitval WortelNet (afhankelijkheid van één hostingpartij)",
+      "dreiging": "Langdurige uitval of faillissement van de hostingprovider.",
+      "kwetsbaarheid": "Er is geen tweede hostingpartij en geen geteste uitwijk.",
+      "eigenaar": "bobo",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-afhankelijkheid-platform"],
+      "start": { "kans": 2, "impact": 5 },
+      "eind": { "kans": 2, "impact": 5 },
+      "behandeloptie": "accepteren",
+      "soa_regels": ["5.19", "5.22", "5.30"],
+      "restrisico": 10,
+      "behandelplan_in_maand": 4,
+      "geaccepteerd_in_maand": 4,
+      "geaccepteerd_door": "ciske",
+      "toelichting": "Score 10, dus onder de drempel: de CISO accepteert binnen zijn mandaat. Niet elk risico daalt, en een expliciet geaccepteerd risico is precies wat §6.1.3 wil zien."
+    },
+    {
+      "sleutel": "risico-5",
+      "titel": "Back-up blijkt niet herstelbaar",
+      "dreiging": "Bij een calamiteit blijkt de back-up onbruikbaar.",
+      "kwetsbaarheid": "Back-ups worden gemaakt maar zijn nooit teruggezet.",
+      "eigenaar": "ciske",
+      "asset": "asset-backups",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-afhankelijkheid-platform"],
+      "start": { "kans": 3, "impact": 5 },
+      "eind": { "kans": 1, "impact": 5 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["8.13", "5.30"],
+      "restrisico": 5,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 8, "kans": 1, "impact": 5, "toelichting": "Hersteltest uitgevoerd en als bewijsstuk vastgelegd; jaarlijkse hersteltest ingepland." }
+      ]
+    },
+    {
+      "sleutel": "risico-6",
+      "titel": "Frauduleuze wijziging van een bankrekeningnummer",
+      "dreiging": "Aanvaller wijzigt het rekeningnummer van een handelspartner en laat uitbetaling omleiden.",
+      "kwetsbaarheid": "Wijziging is mogelijk zonder verificatie langs een tweede kanaal.",
+      "eigenaar": "baas",
+      "asset": "asset-bankgegevens",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-dreigingsbeeld"],
+      "start": { "kans": 3, "impact": 5 },
+      "eind": { "kans": 2, "impact": 5 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["5.3", "8.2", "5.14"],
+      "restrisico": 10,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 10, "kans": 2, "impact": 5, "toelichting": "Vierogenprincipe en terugbelverificatie bij rekeningwijzigingen." }
+      ]
+    },
+    {
+      "sleutel": "risico-7",
+      "titel": "Phishing leidt tot accountovername bij een handelspartner",
+      "dreiging": "Een handelspartner trapt in phishing; zijn account wordt overgenomen.",
+      "kwetsbaarheid": "Beperkt bewustzijn bij partners, geen verplichte meervoudige authenticatie.",
+      "eigenaar": "ciske",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-dreigingsbeeld"],
+      "start": { "kans": 4, "impact": 3 },
+      "eind": { "kans": 3, "impact": 3 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["6.3", "8.7", "8.23"],
+      "restrisico": 9,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 6, "kans": 3, "impact": 3, "toelichting": "Bewustzijnstraining ronde 1 en waarschuwingsbanner bij externe mail." }
+      ]
+    },
+    {
+      "sleutel": "risico-8",
+      "titel": "Kwetsbaarheden in third-party libraries (patchachterstand)",
+      "dreiging": "Bekende kwetsbaarheid in een gebruikte library wordt misbruikt.",
+      "kwetsbaarheid": "Geen vaste patchcyclus en geen zicht op de afhankelijkheden.",
+      "eigenaar": "ciske",
+      "asset": "asset-productieomgeving",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-eigen-ontwikkeling"],
+      "start": { "kans": 3, "impact": 4 },
+      "eind": { "kans": 2, "impact": 4 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["8.8", "8.19", "8.32"],
+      "restrisico": 8,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 14, "kans": 4, "impact": 4, "toelichting": "OMHOOG na incident 2: een kwetsbaarheid in een library werd actief misbruikt. Score 16, boven de acceptatiedrempel — mitigeren is verplicht." },
+        { "maand": 17, "kans": 2, "impact": 4, "toelichting": "Patchronde uitgevoerd en afhankelijkhedenoverzicht ingericht." }
+      ],
+      "toelichting": "Het enige risico dat eerst omhoog gaat. Dat is het patroon dat een Act-KPI zou moeten meten: een score die daalt ná een maatregel met bewijs."
+    },
+    {
+      "sleutel": "risico-9",
+      "titel": "Ongeautoriseerde wijziging in productie zonder changecontrole",
+      "dreiging": "Een beheerder wijzigt productie buiten het releaseproces om.",
+      "kwetsbaarheid": "Directe schrijftoegang tot productie naast de releasepijplijn.",
+      "eigenaar": "ciske",
+      "asset": "asset-productieomgeving",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-eigen-ontwikkeling"],
+      "start": { "kans": 3, "impact": 4 },
+      "eind": { "kans": 2, "impact": 4 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["8.32", "8.31", "8.9"],
+      "restrisico": 8,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 10, "kans": 2, "impact": 4, "toelichting": "Change- en releaseprocedure afgedwongen; wijzigingen buiten de pijplijn worden gelogd en gemeld." }
+      ]
+    },
+    {
+      "sleutel": "risico-10",
+      "titel": "Uitval of vertrek van een van de twee beheerders",
+      "dreiging": "Een van de twee ZZP-beheerders valt uit of stopt.",
+      "kwetsbaarheid": "Kennis en toegang zijn geconcentreerd bij twee personen zonder vastgelegde overdracht.",
+      "eigenaar": "bobo",
+      "geidentificeerd_in_maand": 2,
+      "issues": ["issue-kleine-beheerclub"],
+      "start": { "kans": 3, "impact": 4 },
+      "eind": { "kans": 3, "impact": 3 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["5.2", "5.30", "5.37"],
+      "restrisico": 9,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 17, "kans": 3, "impact": 3, "toelichting": "Beheerdocumentatie bijgewerkt en toegang gespiegeld, zodat één beheerder kan overnemen." }
+      ]
+    },
+    {
+      "sleutel": "risico-11",
+      "titel": "Onvoldoende logging: incident niet reconstrueerbaar",
+      "dreiging": "Na een incident is niet vast te stellen wat er is gebeurd.",
+      "kwetsbaarheid": "Beperkte logging, korte bewaartermijn, geen centrale verzameling.",
+      "eigenaar": "ciske",
+      "asset": "asset-productieomgeving",
+      "geidentificeerd_in_maand": 3,
+      "issues": ["issue-avg"],
+      "start": { "kans": 4, "impact": 3 },
+      "eind": { "kans": 2, "impact": 3 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["8.15", "8.16", "8.17"],
+      "restrisico": 6,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 13, "kans": 2, "impact": 3, "toelichting": "Logging uitgebreid en centraal verzameld, naar aanleiding van de externe minor op A.8.16." }
+      ]
+    },
+    {
+      "sleutel": "risico-12",
+      "titel": "Te lange bewaartermijn klantgegevens (AVG)",
+      "dreiging": "Persoonsgegevens worden langer bewaard dan noodzakelijk.",
+      "kwetsbaarheid": "Geen vastgestelde bewaartermijnen en geen opschoning.",
+      "eigenaar": "keesje",
+      "asset": "asset-klantgegevens",
+      "geidentificeerd_in_maand": 3,
+      "issues": ["issue-avg"],
+      "start": { "kans": 3, "impact": 3 },
+      "eind": { "kans": 2, "impact": 2 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["5.33", "5.34", "8.10"],
+      "restrisico": 4,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 5, "kans": 3, "impact": 2, "toelichting": "Bewaartermijnenbeleid actief." },
+        { "maand": 20, "kans": 2, "impact": 2, "toelichting": "Geautomatiseerde opschoning ingericht." }
+      ],
+      "eigenaar_wijzigt": [
+        { "maand": 19, "naar": "ciske", "toelichting": "Keesje uit dienst; eigenaarschap terug naar de CISO." }
+      ]
+    },
+    {
+      "sleutel": "risico-13",
+      "titel": "DDoS tijdens het hoogseizoen",
+      "dreiging": "Volumeaanval maakt het platform onbereikbaar op de drukste handelsdagen.",
+      "kwetsbaarheid": "Geen specifieke DDoS-bescherming boven de standaard van de hostingpartij.",
+      "eigenaar": "ciske",
+      "asset": "asset-productieomgeving",
+      "geidentificeerd_in_maand": 3,
+      "issues": ["issue-afhankelijkheid-platform"],
+      "start": { "kans": 2, "impact": 4 },
+      "eind": { "kans": 2, "impact": 3 },
+      "behandeloptie": "overdragen",
+      "soa_regels": ["8.6", "8.20", "5.30"],
+      "restrisico": 6,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 13, "kans": 2, "impact": 3, "toelichting": "DDoS-mitigatie afgenomen bij WortelNet en contractueel vastgelegd." }
+      ]
+    },
+    {
+      "sleutel": "risico-14",
+      "titel": "Productiedata in de OTA-omgeving",
+      "dreiging": "Productiegegevens belanden in een omgeving met lagere beveiliging.",
+      "kwetsbaarheid": "Testdata werd gevuld met een kopie uit productie.",
+      "eigenaar": "ciske",
+      "asset": "asset-klantgegevens",
+      "geidentificeerd_in_maand": 3,
+      "issues": ["issue-eigen-ontwikkeling", "issue-avg"],
+      "start": { "kans": 3, "impact": 4 },
+      "eind": { "kans": 1, "impact": 4 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["8.31", "8.33", "8.11"],
+      "restrisico": 4,
+      "behandelplan_in_maand": 4,
+      "verloop": [
+        { "maand": 15, "kans": 1, "impact": 4, "toelichting": "Na incident 2: OTA gevuld met geanonimiseerde data, kopiëren uit productie technisch geblokkeerd." }
+      ],
+      "toelichting": "Dit risico materialiseert in M14 (incident 2) en daalt daarna scherp — de aanleiding en de maatregel zijn in de demo aan elkaar te koppelen."
+    },
+    {
+      "sleutel": "risico-15",
+      "titel": "Afhankelijkheid van één betaaldienstverlener",
+      "dreiging": "Uitval of contractbeëindiging bij PeenPay legt alle uitbetalingen stil.",
+      "kwetsbaarheid": "Er is geen tweede betaaldienstverlener aangesloten en overstappen kost maanden.",
+      "eigenaar": "baas",
+      "leverancier": "peenpay",
+      "geidentificeerd_in_maand": 17,
+      "start": { "kans": 4, "impact": 4 },
+      "eind": { "kans": 4, "impact": 4 },
+      "behandeloptie": "accepteren",
+      "soa_regels": ["5.19", "5.21", "5.22", "5.30"],
+      "restrisico": 16,
+      "behandelplan_in_maand": 17,
+      "geaccepteerd_in_maand": 18,
+      "geaccepteerd_door": "baas",
+      "toelichting": "Score 16 en dus bóven de acceptatiedrempel: dit restrisico wacht op een handtekening van de directie en blijft tot M18 op 'behandelplan_opgesteld' staan. Dat is de enige plek in de demo waar de goedkeuractie van de rol Management zichtbaar wordt — zie de notitie in _over."
+    },
+    {
+      "sleutel": "risico-16",
+      "titel": "AI-plugin in de klantportal verwerkt ordergegevens",
+      "dreiging": "Een ingebouwde AI-assistent stuurt order- en klantgegevens naar een externe dienst.",
+      "kwetsbaarheid": "De plugin is door Handel ingeschakeld zonder beoordeling vooraf.",
+      "eigenaar": "ciske",
+      "asset": "asset-orders",
+      "geidentificeerd_in_maand": 17,
+      "start": { "kans": 3, "impact": 4 },
+      "eind": { "kans": 2, "impact": 4 },
+      "behandeloptie": "mitigeren",
+      "soa_regels": ["5.19", "5.23", "5.34"],
+      "restrisico": 8,
+      "behandelplan_in_maand": 20,
+      "verloop": [
+        { "maand": 20, "kans": 2, "impact": 4, "toelichting": "Plugin uitgeschakeld in afwachting van een leveranciersbeoordeling en een verwerkersovereenkomst." }
+      ],
+      "toelichting": "Nieuw geïdentificeerde risico's zijn het bewijs dát er gekeken wordt. Dit risico heeft in M17 nog geen behandelplan — dat veroorzaakt het dipje in de Plan-KPI."
+    }
+  ]
+}

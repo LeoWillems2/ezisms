@@ -1,0 +1,140 @@
+{
+  "_over": {
+    "wat": "Het leveranciersregister met diensten, contractclausules en de twee beoordelingsrondes.",
+    "bron": "saasdemo/scenario.md §5",
+    "let_op": "De ZZP-beheerders staan hier bewust NIET in (antwoord 9a in v1.md): zij zijn gebruiker, geen leverancier.",
+    "clausuletypen": "vertrouwelijkheid · recht_op_audit · sla · incidentmeldplicht · verwerkersovereenkomst"
+  },
+
+  "leveranciers": [
+    {
+      "sleutel": "wortelnet",
+      "naam": "WortelNet",
+      "status": "actief",
+      "risiconiveau": "hoog",
+      "opgevoerd_in_maand": 2,
+      "eigen_certificering": "ISO 27001",
+      "certificering_geldig_tot_maand": 26,
+      "diensten": ["Hosting van de FruitCloud-productieomgeving", "Beheer van de onderliggende infrastructuur", "Back-upvoorziening"],
+      "clausules": {
+        "vertrouwelijkheid": true,
+        "recht_op_audit": true,
+        "sla": true,
+        "incidentmeldplicht": true,
+        "verwerkersovereenkomst": true
+      },
+      "toelichting": "De volledige set clausules aanwezig — het voorbeeld van hoe het hoort."
+    },
+    {
+      "sleutel": "microsoft",
+      "naam": "Microsoft",
+      "status": "actief",
+      "risiconiveau": "midden",
+      "opgevoerd_in_maand": 2,
+      "diensten": ["Microsoft 365 (mail, documenten, samenwerking)"],
+      "clausules": {
+        "vertrouwelijkheid": true,
+        "recht_op_audit": false,
+        "sla": true,
+        "incidentmeldplicht": true,
+        "verwerkersovereenkomst": true
+      },
+      "toelichting": "Standaardvoorwaarden; recht op audit is bij een hyperscaler niet te onderhandelen en dat is vastgelegd in plaats van weggelaten."
+    },
+    {
+      "sleutel": "peenpay",
+      "naam": "PeenPay",
+      "status": "actief",
+      "risiconiveau": "hoog",
+      "opgevoerd_in_maand": 2,
+      "diensten": ["Betaalkoppeling en uitbetaling aan handelspartners"],
+      "clausules": {
+        "vertrouwelijkheid": true,
+        "recht_op_audit": false,
+        "sla": true,
+        "incidentmeldplicht": true,
+        "verwerkersovereenkomst": true
+      },
+      "toelichting": "Financiële gegevens; SLA en incidentmeldplicht zijn hier de dragende afspraken."
+    },
+    {
+      "sleutel": "snijboon",
+      "naam": "SnijBoon Support",
+      "status": "actief",
+      "risiconiveau": "hoog",
+      "risiconiveau_bij_opvoer": "laag",
+      "opgevoerd_in_maand": 2,
+      "diensten": ["Helpdesktool voor klantvragen"],
+      "clausules": {
+        "vertrouwelijkheid": true,
+        "recht_op_audit": false,
+        "sla": false,
+        "incidentmeldplicht": false,
+        "verwerkersovereenkomst": false
+      },
+      "toelichting": "Tegenslag 3: zakt in M15 van laag naar hoog. De tool bleek klantgegevens te verwerken zonder verwerkersovereenkomst en zonder incidentmeldplicht."
+    }
+  ],
+
+  "beoordelingen": [
+    {
+      "leverancier": "wortelnet",
+      "maand": 4,
+      "uitgevoerd_door": "ciske",
+      "bevindingen": "Certificaat en laatste auditrapport ontvangen en beoordeeld. SLA gehaald over de hele periode. Geen bijzonderheden.",
+      "volgende_na_maanden": 12
+    },
+    {
+      "leverancier": "microsoft",
+      "maand": 4,
+      "uitgevoerd_door": "ciske",
+      "bevindingen": "Beoordeling op basis van de gepubliceerde compliance-documentatie. Recht op audit ontbreekt; geaccepteerd gezien de aard van de dienst.",
+      "volgende_na_maanden": 12
+    },
+    {
+      "leverancier": "peenpay",
+      "maand": 4,
+      "uitgevoerd_door": "ciske",
+      "bevindingen": "Assurancerapportage opgevraagd en beoordeeld. Incidentmeldplicht contractueel geborgd.",
+      "volgende_na_maanden": 12
+    },
+    {
+      "leverancier": "snijboon",
+      "maand": 4,
+      "uitgevoerd_door": "ciske",
+      "bevindingen": "Beperkte toetsing: op dat moment ingeschat als lage impact, geen klantgegevens verondersteld.",
+      "volgende_na_maanden": 12
+    },
+
+    {
+      "leverancier": "wortelnet",
+      "maand": 15,
+      "uitgevoerd_door": "ciske",
+      "bevindingen": "Hercertificering bevestigd, SLA gehaald. Onderhoudsvensters vooraf gemeld conform afspraak.",
+      "volgende_na_maanden": 12
+    },
+    {
+      "leverancier": "microsoft",
+      "maand": 15,
+      "uitgevoerd_door": "ciske",
+      "bevindingen": "Ongewijzigd. Verwerkersovereenkomst opnieuw bevestigd.",
+      "volgende_na_maanden": 12
+    },
+    {
+      "leverancier": "peenpay",
+      "maand": 15,
+      "uitgevoerd_door": "ciske",
+      "bevindingen": "Geen incidenten gemeld. Aandachtspunt: er is geen alternatieve betaaldienstverlener ingericht — leidt tot risico 15.",
+      "volgende_na_maanden": 12,
+      "leidt_tot_risico": "risico-15"
+    },
+    {
+      "leverancier": "snijboon",
+      "maand": 15,
+      "uitgevoerd_door": "ciske",
+      "bevindingen": "Bij navraag blijkt de tool klantgegevens te verwerken. Geen verwerkersovereenkomst, geen incidentmeldplicht, geen aantoonbare beveiligingsmaatregelen. Risiconiveau bijgesteld van laag naar hoog. Actie: clausules alsnog overeenkomen of de dienst uitfaseren.",
+      "volgende_na_maanden": 6,
+      "verhoogt_risiconiveau_naar": "hoog"
+    }
+  ]
+}

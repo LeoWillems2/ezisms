@@ -1,0 +1,81 @@
+{
+  "_over": {
+    "wat": "Het wijzigingenregister van FruitBV (blok 15, A.8.32). Drie dossiers die samen de drie routes laten zien: een afgeronde standaardrelease, een lopende ingrijpende migratie, en een spoedwijziging waarvan de goedkeuring achteraf nog openstaat.",
+    "bron": "implementatie/15-wijzigingsbeheer.md §13 stap 9",
+    "waarom_drie": "De eindstand moet het gap-signaal echt laten zien. Alleen nette dossiers tonen een register dat niets stuurt; de spoedwijziging zonder goedkeuring achteraf is precies het cijfer waar een CISO op hoort te reageren.",
+    "stappen": "`afronden_tot_volgorde` rondt alle stappen tot en met dat nummer af; een goedkeuringsstap krijgt de uitkomst uit `goedkeuringen`, met de volgorde als sleutel."
+  },
+  "wijzigingen": [
+    {
+      "sleutel": "wij-peenpay-release",
+      "titel": "Upgrade betaalkoppeling PeenPay naar release 2026.2",
+      "sjabloon": "Leveranciersrelease — standaard",
+      "leverancier": "peenpay",
+      "systemen": [
+        "sys-peenpay"
+      ],
+      "aangemeld_door": "jantien",
+      "aangekondigd_in_maand": 17,
+      "gepland_in_maand": 18,
+      "externe_referentie": "CHG-2026-0041",
+      "impact_toelichting": "Nieuwe uitbetaalmodule en een gewijzigd berichtformaat richting de handelspartners. Verwachte onderbreking van twee uur op zaterdagochtend; uitbetalingen staan dan stil.",
+      "terugvalplan": "PeenPay houdt de vorige release veertien dagen beschikbaar. Terugzetten binnen vier uur op verzoek van de applicatiebeheerder; de export van vrijdagavond blijft die periode bewaard.",
+      "afronden_tot_volgorde": 5,
+      "goedkeuringen": {
+        "3": "goedgekeurd"
+      },
+      "sluiten": {
+        "geslaagd": true,
+        "teruggedraaid": false,
+        "evaluatie": "Upgrade verliep binnen het venster. Aandachtspunt: het gewijzigde berichtformaat was niet in de communicatie meegenomen, waardoor er maandagochtend zes vragen binnenkwamen. Volgende keer een voorbeeldbericht meesturen."
+      },
+      "bewijs": {
+        "titel": "Release notes PeenPay 2026.2 en acceptatieverslag",
+        "omschrijving": "De door de leverancier geleverde release notes, met daarbij het verslag van de test op de acceptatieomgeving en de acceptatieverklaring van de applicatiebeheerder."
+      }
+    },
+    {
+      "sleutel": "wij-database-migratie",
+      "titel": "Migratie FruitCloud naar nieuwe database-instantie",
+      "sjabloon": "Leveranciersrelease — ingrijpend",
+      "leverancier": "wortelnet",
+      "systemen": [
+        "sys-productie",
+        "sys-database"
+      ],
+      "aangemeld_door": "kees",
+      "aangekondigd_in_maand": 21,
+      "gepland_in_maand": 22,
+      "externe_referentie": "CHG-2026-0058",
+      "impact_toelichting": "WortelNet vervangt de onderliggende database-instantie. Vier uur onderbreking, en de herstelprocedure verandert mee.",
+      "terugvalplan": "Failover terug naar de oude instantie, die vier weken beschikbaar blijft. WortelNet bevestigt de terugvaltijd op maximaal één uur.",
+      "afronden_tot_volgorde": 4,
+      "goedkeuringen": {},
+      "sluiten": null,
+      "toelichting_bij_eindstand": "Loopt nog: de autorisatie (stap 5) is aan de beurt. Zo laat de demo een dossier zien dat midden in de reeks staat.",
+      "bewijs": {
+        "titel": "Migratieplan WortelNet en uitkomst van de terugvaltoets",
+        "omschrijving": "Het migratieplan van de leverancier, het testverslag op de acceptatieomgeving en de vastgelegde uitkomst van de toets op het terugvalplan."
+      }
+    },
+    {
+      "sleutel": "wij-tls-spoed",
+      "titel": "Spoed: TLS-configuratie aangescherpt na kwetsbaarheidsmelding",
+      "sjabloon": "Spoedwijziging",
+      "leverancier": null,
+      "systemen": [
+        "sys-productie"
+      ],
+      "aangemeld_door": "kees",
+      "aangekondigd_in_maand": 20,
+      "gepland_in_maand": 20,
+      "externe_referentie": null,
+      "impact_toelichting": "Actief misbruikte kwetsbaarheid in de TLS-configuratie. Direct dichtgezet; geen onderbreking verwacht.",
+      "terugvalplan": "De vorige configuratie staat in versiebeheer en is binnen tien minuten terug te zetten.",
+      "afronden_tot_volgorde": 1,
+      "goedkeuringen": {},
+      "sluiten": null,
+      "toelichting_bij_eindstand": "De goedkeuring achteraf blijft bewust open: dit voedt het gap-signaal op het register en de KPI 'Spoedwijzigingen achteraf goedgekeurd'."
+    }
+  ]
+}

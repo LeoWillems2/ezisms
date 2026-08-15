@@ -1,0 +1,211 @@
+{
+  "_over": {
+    "wat": "Systemen en het assetregister met C/I/B-classificatie.",
+    "bron": "saasdemo/scenario.md §4",
+    "schaal": "openbaar → intern → vertrouwelijk → geheim",
+    "let_op": "De broncode staat bewust op binnen_scope=false: het register is breder dan de scope, en die grens is een geregistreerde keuze.",
+    "persoonsgegevens": "AVG-soort per asset (03b). Bewust niet overal ingevuld: 'nog niet beoordeeld' is een echte toestand en moet in de demo zichtbaar zijn."
+  },
+  "systemen": [
+    {
+      "sleutel": "sys-productie",
+      "naam": "FruitCloud productie",
+      "hostingtype": "extern",
+      "leverancier": "wortelnet",
+      "beschikbaarheidseis": "hoog",
+      "redundant": true,
+      "redundantie_toelichting": "Actief-passief over twee datacenterzalen bij WortelNet; failover binnen 30 minuten.",
+      "status": "in_gebruik",
+      "in_gebruik_vanaf_maand": 0
+    },
+    {
+      "sleutel": "sys-database",
+      "naam": "FruitCloud database",
+      "hostingtype": "extern",
+      "leverancier": "wortelnet",
+      "beschikbaarheidseis": "hoog",
+      "redundant": true,
+      "redundantie_toelichting": "Gerepliceerd naar een standby-instantie; point-in-time recovery tot 15 minuten terug.",
+      "status": "in_gebruik",
+      "in_gebruik_vanaf_maand": 0
+    },
+    {
+      "sleutel": "sys-backup",
+      "naam": "Back-upomgeving",
+      "hostingtype": "extern",
+      "leverancier": "wortelnet",
+      "beschikbaarheidseis": "normaal",
+      "redundant": false,
+      "redundantie_toelichting": "Eén back-uplocatie, gescheiden van de productiezaal. Herstel is getest, niet redundant uitgevoerd.",
+      "status": "in_gebruik",
+      "in_gebruik_vanaf_maand": 0
+    },
+    {
+      "sleutel": "sys-m365",
+      "naam": "Microsoft 365",
+      "hostingtype": "extern",
+      "leverancier": "microsoft",
+      "beschikbaarheidseis": "normaal",
+      "redundant": true,
+      "redundantie_toelichting": "Redundantie binnen de dienst van de leverancier; geen eigen voorziening.",
+      "status": "in_gebruik",
+      "in_gebruik_vanaf_maand": 0
+    },
+    {
+      "sleutel": "sys-peenpay",
+      "naam": "Betaalkoppeling PeenPay",
+      "hostingtype": "extern",
+      "leverancier": "peenpay",
+      "beschikbaarheidseis": "normaal",
+      "redundant": false,
+      "redundantie_toelichting": "Eén betaaldienstverlener zonder uitwijk — de aanleiding voor risico 15.",
+      "status": "in_gebruik",
+      "in_gebruik_vanaf_maand": 0
+    }
+  ],
+  "assets": [
+    {
+      "sleutel": "asset-klantgegevens",
+      "naam": "Klantgegevens handelspartners (NAW, e-mail)",
+      "type": "informatie",
+      "omschrijving": "Contact- en vestigingsgegevens van telers, groothandels en retailers op het platform.",
+      "eenheid": "handel",
+      "accountable": "bobo",
+      "responsible": "jantien",
+      "binnen_scope": true,
+      "vertrouwelijkheidsniveau": "vertrouwelijk",
+      "integriteitsniveau": "vertrouwelijk",
+      "beschikbaarheidsniveau": "intern",
+      "systemen": [
+        "sys-productie",
+        "sys-database"
+      ],
+      "geclassificeerd_in_maand": 1,
+      "persoonsgegevens": "gewoon"
+    },
+    {
+      "sleutel": "asset-bankgegevens",
+      "naam": "Bankrekeninggegevens handelspartners",
+      "type": "informatie",
+      "omschrijving": "Rekeningnummers waarop uitbetaling plaatsvindt. Een gewijzigd rekeningnummer is direct geld — hier weegt integriteit het zwaarst.",
+      "eenheid": "administratie",
+      "accountable": "baas",
+      "responsible": "kees",
+      "binnen_scope": true,
+      "vertrouwelijkheidsniveau": "geheim",
+      "integriteitsniveau": "geheim",
+      "beschikbaarheidsniveau": "intern",
+      "systemen": [
+        "sys-database",
+        "sys-peenpay"
+      ],
+      "geclassificeerd_in_maand": 1,
+      "persoonsgegevens": "gewoon"
+    },
+    {
+      "sleutel": "asset-orders",
+      "naam": "Order- en transactiegegevens",
+      "type": "informatie",
+      "omschrijving": "Handelsorders, prijzen en leveringen tussen partijen op het platform.",
+      "eenheid": "handel",
+      "accountable": "bobo",
+      "responsible": "jantien",
+      "binnen_scope": true,
+      "vertrouwelijkheidsniveau": "vertrouwelijk",
+      "integriteitsniveau": "geheim",
+      "beschikbaarheidsniveau": "vertrouwelijk",
+      "systemen": [
+        "sys-productie",
+        "sys-database"
+      ],
+      "geclassificeerd_in_maand": 1,
+      "persoonsgegevens": "gewoon"
+    },
+    {
+      "sleutel": "asset-productieomgeving",
+      "naam": "FruitCloud productieomgeving",
+      "type": "systeem_of_dienst",
+      "omschrijving": "De draaiende applicatie inclusief configuratie, bij WortelNet gehost.",
+      "eenheid": "platformbeheer",
+      "accountable": "ciske",
+      "responsible": "jantien",
+      "binnen_scope": true,
+      "vertrouwelijkheidsniveau": "vertrouwelijk",
+      "integriteitsniveau": "geheim",
+      "beschikbaarheidsniveau": "vertrouwelijk",
+      "systemen": [
+        "sys-productie"
+      ],
+      "geclassificeerd_in_maand": 1,
+      "persoonsgegevens": "geen"
+    },
+    {
+      "sleutel": "asset-backups",
+      "naam": "Back-ups FruitCloud",
+      "type": "informatie",
+      "omschrijving": "Dagelijkse back-ups van applicatie en database, bewaard bij WortelNet.",
+      "eenheid": "platformbeheer",
+      "accountable": "ciske",
+      "responsible": "kees",
+      "binnen_scope": true,
+      "vertrouwelijkheidsniveau": "vertrouwelijk",
+      "integriteitsniveau": "geheim",
+      "beschikbaarheidsniveau": "intern",
+      "systemen": [
+        "sys-backup"
+      ],
+      "geclassificeerd_in_maand": 1,
+      "persoonsgegevens": "gewoon"
+    },
+    {
+      "sleutel": "asset-secrets",
+      "naam": "Productiesecrets en sleutels",
+      "type": "informatie",
+      "omschrijving": "API-sleutels, certificaten en databasewachtwoorden van de productieomgeving.",
+      "eenheid": "platformbeheer",
+      "accountable": "ciske",
+      "responsible": "jantien",
+      "binnen_scope": true,
+      "vertrouwelijkheidsniveau": "geheim",
+      "integriteitsniveau": "geheim",
+      "beschikbaarheidsniveau": "vertrouwelijk",
+      "systemen": [
+        "sys-productie",
+        "sys-database"
+      ],
+      "geclassificeerd_in_maand": 1,
+      "persoonsgegevens": "geen"
+    },
+    {
+      "sleutel": "asset-beheerlaptops",
+      "naam": "Beheerlaptops ZZP'ers",
+      "type": "hardware",
+      "omschrijving": "De eigen laptops van Jantien en Kees waarmee zij productie beheren.",
+      "eenheid": "platformbeheer",
+      "accountable": "ciske",
+      "responsible": "jantien",
+      "binnen_scope": true,
+      "vertrouwelijkheidsniveau": "vertrouwelijk",
+      "integriteitsniveau": "intern",
+      "beschikbaarheidsniveau": "intern",
+      "systemen": [],
+      "geclassificeerd_in_maand": 1
+    },
+    {
+      "sleutel": "asset-broncode",
+      "naam": "Broncode FruitCloud",
+      "type": "informatie",
+      "omschrijving": "De broncode van het platform, beheerd in de ontwikkelstraat.",
+      "eenheid": "platformbeheer",
+      "accountable": "ciske",
+      "responsible": "jantien",
+      "binnen_scope": false,
+      "vertrouwelijkheidsniveau": "vertrouwelijk",
+      "integriteitsniveau": "vertrouwelijk",
+      "beschikbaarheidsniveau": "intern",
+      "systemen": [],
+      "geclassificeerd_in_maand": 1,
+      "toelichting": "Bewust buiten scope: laat zien dat het register breder is dan de scope en dat de grens een geregistreerde keuze is."
+    }
+  ]
+}
