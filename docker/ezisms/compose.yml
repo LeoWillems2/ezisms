@@ -86,7 +86,7 @@ services:
       # afwijkt van de bewaarde. Zonder deze regel wordt zo'n invulling stil
       # genegeerd — precies het stille gedrag dat §0.5 wil voorkomen.
       APP_KEY:                ${APP_KEY:-}
-      ISMS_NORM:              ${ISMS_NORM:?verplicht — iso27001 of nen7510}
+      ISMS_NORM:              ${ISMS_NORM:?verplicht — iso27001, nen7510 of bio2}
       ISMS_CBW_PLICHTIG:      ${ISMS_CBW_PLICHTIG:-false}
       ISMS_2FA_AFDWINGEN:     ${ISMS_2FA_AFDWINGEN:-true}
       ISMS_2FA_RESPIJT_DAGEN: ${ISMS_2FA_RESPIJT_DAGEN:-14}

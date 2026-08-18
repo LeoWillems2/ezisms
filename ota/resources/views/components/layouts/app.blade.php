@@ -19,5 +19,7 @@
         @endif
 
         {{ $slot }}
+
+        <x-copyright />
     </flux:main>
 </x-layouts.app.sidebar>

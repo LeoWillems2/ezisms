@@ -245,6 +245,26 @@ class DemoVulTest extends TestCase
         $this->assertSame(0, Gebruiker::count());
     }
 
+    /**
+     * Dezelfde weigering onder de BIO, en dit is precies het geval waarvoor de
+     * controle op `is('iso27001')` en niet op een capaciteit staat: de BIO deelt
+     * de 93 beheersmaatregelen met ISO, dus aan de controlset is dit profiel niet
+     * te herkennen. Wat het scenario zou laten liggen zijn de 118
+     * overheidsmaatregelen eronder — en inhoudelijk is FruitBV een fruithandel
+     * en geen gemeente (00q §10).
+     */
+    #[Group('bio2')]
+    public function test_de_demo_weigert_op_een_bio_installatie(): void
+    {
+        config()->set('norm.actief', 'bio2');
+
+        $this->artisan('isms:demo-vul', ['--fixtures' => $this->map])
+            ->expectsOutputToContain('draait niet op een BIO2-installatie')
+            ->assertFailed();
+
+        $this->assertSame(0, Gebruiker::count());
+    }
+
     public function test_een_tweede_vulling_wordt_geweigerd_zolang_de_vergrendeling_staat(): void
     {
         Cache::lock('isms:demo-vul', 3600)->get();

@@ -5,7 +5,7 @@ op productie afhankelijk is. Bedoeld voor kwetsbaarheidsbeheer en
 licentie-verantwoording (ISO 27001 A.5.19–5.21 leveranciers-/ketenrisico,
 A.8.8 technische kwetsbaarheden).
 
-- **Peildatum:** 2026-08-10
+- **Peildatum:** 2026-08-18
 - **Applicatie:** ISMS-ondersteuningsplatform (Laravel, map `ota/`)
 - **Bron van de versies:** `composer.lock` en `package-lock.json` (exacte,
   vastgezette versies), aangevuld met de op de server aangetroffen systeemsoftware.
@@ -29,7 +29,7 @@ wordt op een aparte HAProxy getermineerd; nginx praat onversleuteld daarachter.
 | Component | Versie | Rol | Licentie |
 |---|---|---|---|
 | Besturingssysteem | Ubuntu 24.04.3 LTS | Basis onder alle systeempakketten hieronder | Distributie — diverse licenties |
-| Linux-kernel | 6.17.0-35-generic | Kernel | GPL-2.0 |
+| Linux-kernel | 7.0.0-28-generic | Kernel | GPL-2.0 |
 | PHP | 8.4.22 (vereist `^8.2`) | Applicatie-runtime | PHP License 3.01 |
 | nginx | 1.24.0 (Ubuntu) | Webserver / reverse proxy | BSD-2-Clause |
 | HAProxy | *(aparte server)* | TLS-terminatie vóór nginx | GPL-2.0-or-later |
@@ -68,7 +68,7 @@ Dev: `phpunit/phpunit`, `laravel/pint`, `mockery/mockery`, `fakerphp/faker`,
 
 ---
 
-## 3. PHP — alle productiepakketten (99)
+## 3. PHP — alle productiepakketten (100)
 
 Volledig uitgerold op productie (`composer install --no-dev`).
 
@@ -103,6 +103,7 @@ Volledig uitgerold op productie (`composer install --no-dev`).
 | `league/mime-type-detection` | 1.17.0 | MIT |
 | `league/uri-interfaces` | 7.8.1 | MIT |
 | `league/uri` | 7.8.1 | MIT |
+| `livewire/blaze` | 1.0.15 | MIT |
 | `livewire/flux` | 2.15.0 | proprietary |
 | `livewire/livewire` | 4.3.3 | MIT |
 | `livewire/volt` | 1.10.5 | MIT |
@@ -239,14 +240,29 @@ gecompileerde bundle (`public/build/`) gaat mee.
 
 ---
 
-## 6. Licentie-samenvatting (PHP-pakketten)
+## 6. Meegeleverde statische bestanden (geen package manager)
+
+Bestanden van derden die rechtstreeks in `public/` staan en met de applicatie
+worden uitgerold. Ze komen niet uit een lockfile, dus deze tabel is handwerk:
+werk hem bij zodra je zo'n bestand toevoegt of vervangt. Ze staan er bewust
+lokaal — de applicatie laadt niets van een extern domein, zodat een installatie
+zonder uitgaand verkeer identiek oogt.
+
+| Bestand(en) | Herkomst | Rol | Licentie |
+|---|---|---|---|
+| `public/fonts/instrument-sans/*.woff2` (6×) | fonts.bunny.net, opgehaald 2026-08-18 | Schermlettertype (400/500/600, latin + latin-ext); `public/fonts/instrument-sans.css` draagt de `@font-face`-regels | SIL OFL 1.1 (`OFL.txt` meegeleverd) |
+| `public/images/cc/{cc,by,nc,sa}.svg` | mirrors.creativecommons.org, opgehaald 2026-08-18 | Licentie-iconen in de footer | Creative Commons — persmateriaal, vrij te gebruiken bij een CC-licentievermelding |
+
+---
+
+## 7. Licentie-samenvatting (PHP-pakketten)
 
 Aantal composer-pakketten per licentie-aanduiding (prod + dev; sommige pakketten
 melden meerdere licenties).
 
 | Licentie | Aantal |
 |---|---|
-| MIT | 97 |
+| MIT | 98 |
 | BSD-3-Clause | 33 |
 | BSD-2-Clause | 2 |
 | GPL-2.0-only | 2 |
@@ -263,11 +279,11 @@ De enige uitzondering op "open source" is de **proprietary** `livewire/flux`.
 
 ---
 
-## 7. Buiten scope
+## 8. Buiten scope
 
 - **Gelicentieerde norm-inhoud** (NEN-EN-ISO/IEC-teksten) is *data*, geen
   software: `controls.json` en `maatregel-capaciteiten.json` zijn gitignored en
-  worden nooit gedistribueerd (zie het maatregelseed-beleid). De twee
+  worden nooit gedistribueerd (zie het maatregelseed-beleid). De drie
   controlsets `maatregelen-iso27001.json`, `maatregelen-nen7510.json` en
   `maatregelen-bio2.json` (plus `overheidsmaatregelen-bio2.json`) zijn wél
   distribueerbaar: ze dragen referenties, thema's en titels plus vaste

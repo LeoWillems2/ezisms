@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Maatregel;
+use App\Models\Overheidsmaatregel;
 use App\Support\Demo\Bewijsgenerator;
 use App\Support\Demo\DemoFixtureFout;
 use App\Support\Demo\Fixtures;
@@ -24,8 +25,8 @@ use Illuminate\Support\Facades\Storage;
  * Dat is een bewuste keuze uit `saasdemo/scenario.md` §11.6 — draai dit nooit op
  * een omgeving met echte data.
  *
- * **De simulatiemotor is ISO-only** (nen7510-opzet.md §4.8). Op een
- * zorginstallatie weigert dit commando; zie de toelichting bij die controle.
+ * **De simulatiemotor is ISO-only** (nen7510-opzet.md §4.8). Op elk ander
+ * normprofiel weigert dit commando; zie de toelichting bij die controle.
  *
  * Het commando is dun: alles wat een beslissing neemt staat in
  * `App\Support\Demo`, waar het te testen is.
@@ -56,17 +57,36 @@ class DemoVul extends Command
         }
 
         // Expliciet weigeren en niet stilzwijgend aannemen (nen7510-opzet.md
-        // §4.8). Het scenario is geschreven voor de 93 ISO-maatregelen; onder
-        // NEN 7510 telt de SoA er 101 en levert het ISMS geen enkele
-        // maatregelomschrijving. De demo zou dan doordraaien en een compleet
-        // ogend ISMS opleveren met acht onbeoordeelde controls en overal een lege
-        // omschrijving — een demonstratie die de verkeerde norm laat zien is
-        // erger dan geen demonstratie.
-        if (Normprofiel::heeft('zorgaanvulling')) {
+        // §4.8). Het scenario is geschreven voor de controlset van ISO 27001 en
+        // vult alleen die; wat een ander profiel daarnaast kent blijft leeg. Een
+        // demonstratie die de verkeerde norm laat zien is erger dan geen
+        // demonstratie.
+        //
+        // **`is()` en niet `heeft()`, anders dan 00k §1 voorschreef.** Dat
+        // voorschrift ging ervan uit dat een derde profiel een eigen controlset
+        // zou meebrengen; de BIO doet dat juist niet — dezelfde 93
+        // beheersmaatregelen, met 118 overheidsmaatregelen eronder. Een controle
+        // op capaciteiten had die dus doorgelaten. Voor een commando dat begint
+        // met het wissen van de hele database is de veilige kant: alles weigeren
+        // wat niet het profiel is waarvoor het scenario geschreven is. Dan valt
+        // een vierde profiel er vanzelf ook buiten. Gelijk aan wat de
+        // Docker-entrypoint al deed bij `ISMS_DEMO=ja` (00n §0.2).
+        if (! Normprofiel::is('iso27001')) {
+            // Alleen de geldende verplichtingen tellen mee: een vervallen of
+            // verplaatst nummer blijft staan als referentie en is niets wat de
+            // demo had moeten beoordelen.
+            $telling = Maatregel::count().' beheersmaatregelen';
+
+            if (Normprofiel::heeft('overheidsmaatregelen')) {
+                $telling .= ' plus '.Overheidsmaatregel::where('status', 'geldend')->count()
+                    .' overheidsmaatregelen';
+            }
+
             $this->error('isms:demo-vul draait niet op een '.Normprofiel::label('naam_kort').'-installatie.');
-            $this->line('Het FruitBV-scenario is geschreven voor de 93 maatregelen van ISO 27001. Hier telt de');
-            $this->line('SoA er '.Maatregel::count().', en de maatregelomschrijvingen worden in dit profiel niet');
-            $this->line('meegeleverd — de demo zou een gevuld ISMS met de verkeerde controlset tonen.');
+            $this->line('Het FruitBV-scenario is geschreven voor de 93 maatregelen van ISO 27001 en vult');
+            $this->line('alleen die. Hier telt de norm '.$telling.';');
+            $this->line('wat het scenario niet aanraakt blijft onbeoordeeld — de demo zou een compleet');
+            $this->line('ogend ISMS met de verkeerde norm tonen.');
             $this->line('Zet ISMS_NORM=iso27001 op een aparte demo-installatie.');
 
             return self::FAILURE;

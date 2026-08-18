@@ -21,6 +21,8 @@
                 </div>
             </div>
         </div>
+        <div class="px-6 pb-6"><x-copyright /></div>
+
         @fluxScripts
     </body>
 </html>

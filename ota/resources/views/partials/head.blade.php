@@ -6,8 +6,11 @@
 <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
 <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
 
-<link rel="preconnect" href="https://fonts.bunny.net">
-<link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+{{-- Instrument Sans staat in public/fonts en niet bij fonts.bunny.net: een
+     installatie zonder uitgaand verkeer moet hetzelfde lettertype tonen, en de
+     app hoort bij elke paginaweergave geen externe host aan te roepen. --}}
+<link rel="preload" href="{{ asset('fonts/instrument-sans/instrument-sans-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+<link href="{{ asset('fonts/instrument-sans.css') }}" rel="stylesheet" />
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance

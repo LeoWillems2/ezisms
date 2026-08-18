@@ -126,14 +126,14 @@ fi
 # 5, anders bakt config:cache 'production' in en weigert het commando alsnog.
 #
 # De weigering op een verkeerd profiel zit hier ook, en dus vóór de migratie:
-# ISMS_DEMO=ja met ISMS_NORM=nen7510 stopt met een leesbare melding in plaats
-# van straks halverwege een gevulde database (00n §9.4).
+# ISMS_DEMO=ja met een ander profiel dan iso27001 stopt met een leesbare melding
+# in plaats van straks halverwege een gevulde database (00n §9.4).
 
 if [[ ${ISMS_DEMO:-nee} == ja ]]; then
     if [[ ${ISMS_NORM:-} != iso27001 ]]; then
         blokkeer_en_wacht "             ISMS_DEMO=ja gaat niet samen met ISMS_NORM=${ISMS_NORM:-<leeg>}.
-             Het FruitBV-demoscenario is geschreven voor de 93 maatregelen van
-             ISO 27001; onder NEN 7510 zijn het er 101 en weigert isms:demo-vul.
+             Het FruitBV-demoscenario is geschreven voor de controlset van
+             ISO 27001; onder een ander normprofiel toont het de verkeerde.
 
              Kies er één: ISMS_DEMO=nee, of ISMS_NORM=iso27001.
              Daarna:  docker compose up -d"

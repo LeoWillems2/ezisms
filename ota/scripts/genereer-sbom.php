@@ -266,7 +266,22 @@ $npmTabel
 
 ---
 
-## 6. Licentie-samenvatting (PHP-pakketten)
+## 6. Meegeleverde statische bestanden (geen package manager)
+
+Bestanden van derden die rechtstreeks in `public/` staan en met de applicatie
+worden uitgerold. Ze komen niet uit een lockfile, dus deze tabel is handwerk:
+werk hem bij zodra je zo'n bestand toevoegt of vervangt. Ze staan er bewust
+lokaal — de applicatie laadt niets van een extern domein, zodat een installatie
+zonder uitgaand verkeer identiek oogt.
+
+| Bestand(en) | Herkomst | Rol | Licentie |
+|---|---|---|---|
+| `public/fonts/instrument-sans/*.woff2` (6×) | fonts.bunny.net, opgehaald 2026-08-18 | Schermlettertype (400/500/600, latin + latin-ext); `public/fonts/instrument-sans.css` draagt de `@font-face`-regels | SIL OFL 1.1 (`OFL.txt` meegeleverd) |
+| `public/images/cc/{cc,by,nc,sa}.svg` | mirrors.creativecommons.org, opgehaald 2026-08-18 | Licentie-iconen in de footer | Creative Commons — persmateriaal, vrij te gebruiken bij een CC-licentievermelding |
+
+---
+
+## 7. Licentie-samenvatting (PHP-pakketten)
 
 Aantal composer-pakketten per licentie-aanduiding (prod + dev; sommige pakketten
 melden meerdere licenties).
@@ -284,12 +299,13 @@ De enige uitzondering op "open source" is de **proprietary** `livewire/flux`.
 
 ---
 
-## 7. Buiten scope
+## 8. Buiten scope
 
 - **Gelicentieerde norm-inhoud** (NEN-EN-ISO/IEC-teksten) is *data*, geen
   software: `controls.json` en `maatregel-capaciteiten.json` zijn gitignored en
-  worden nooit gedistribueerd (zie het maatregelseed-beleid). De twee
-  controlsets `maatregelen-iso27001.json` en `maatregelen-nen7510.json` zijn wél
+  worden nooit gedistribueerd (zie het maatregelseed-beleid). De drie
+  controlsets `maatregelen-iso27001.json`, `maatregelen-nen7510.json` en
+  `maatregelen-bio2.json` (plus `overheidsmaatregelen-bio2.json`) zijn wél
   distribueerbaar: ze dragen referenties, thema's en titels plus vaste
   markeringen, geen normtekst. Idem `maatregel-kenmerken.json`.
 - **CISO-beheerde toets-HTML** (`public/toetsen/*.html`) is content op de
