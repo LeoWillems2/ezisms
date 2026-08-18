@@ -15,7 +15,7 @@ het niet doet, en waar het van andere ISMS-software verschilt.
 - **Het draait op je eigen server.** Eén organisatie per installatie, geen
   clouddienst, geen meekijkende leverancier; je bewijsstukken staan op je eigen
   schijf.
-- **Het is Nederlandstalig** en volgt ISO/IEC 27001:2022 of NEN 7510 — je kiest
+- **Het is Nederlandstalig** en volgt ISO/IEC 27001:2022, NEN 7510 of de BIO2 — je kiest
   het profiel bij installatie.
 - **Het levert de normtekst niet mee.** Dat is een bewuste keuze met gevolgen;
   zie *Wat dit systeem uitdrukkelijk niet is*.
@@ -137,14 +137,27 @@ en herinneringen afhandelt.
 Aanmelden gaat met eigen accounts; er is (nog) geen koppeling met je
 identity-provider.
 
-## ISO 27001 of NEN 7510
+## Welk normprofiel: ISO 27001, NEN 7510 of BIO2
 
-Bij installatie kies je het normprofiel. NEN 7510 is geen andere norm maar een
-uitbreiding: dezelfde hoofdstukken 4 tot en met 10, dezelfde maatregelen plus
-acht zorgspecifieke, en bij een deel van de bestaande maatregelen een aanvulling.
-In het NEN-profiel zie je die extra maatregelen gewoon in de Verklaring van
-Toepasselijkheid staan, en delen van de kennisbank leggen dan de zorgspecifieke
-kant uit.
+Bij installatie kies je het normprofiel. Geen van de drie is een andere norm dan
+ISO 27001; ze bouwen er allemaal op voort, en ze doen dat op twee verschillende
+manieren.
+
+**NEN 7510 breidt uit in de breedte.** Dezelfde hoofdstukken 4 tot en met 10,
+dezelfde maatregelen plus een handvol zorgspecifieke, en bij een deel van de
+bestaande maatregelen een aanvulling. In dat profiel zie je die extra maatregelen
+gewoon in de Verklaring van Toepasselijkheid staan.
+
+**De BIO2 breidt uit in de diepte.** Bijlage A blijft ongewijzigd — er komt geen
+maatregel bij — maar onder een groot deel ervan hangen genummerde
+*overheidsmaatregelen*: de verplichte minimale invulling. Waar ISO zegt "beheer je
+toegangsrechten", zegt de BIO hoe vaak je ze beoordeelt. Dat profiel is voor
+overheidsentiteiten die onder de Cyberbeveiligingswet vallen, en het werkt naar
+verantwoording aan de RDI in plaats van naar een certificaat.
+
+Delen van de kennisbank leggen per profiel de eigen kant uit; in de lijst links
+staat onder *Naslag* een artikel "Wat … toevoegt" voor de norm die deze installatie
+volgt.
 
 De keuze ligt vast per installatie en is niet achteraf om te zetten.
 

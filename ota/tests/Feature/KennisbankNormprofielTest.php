@@ -138,9 +138,9 @@ class KennisbankNormprofielTest extends TestCase
         $this->assertContains('integraties-en-normeis', $treffers);
     }
 
-    public function test_eerste_slug_bestaat_in_beide_profielen(): void
+    public function test_eerste_slug_bestaat_in_elk_profiel(): void
     {
-        foreach (['iso27001', 'nen7510'] as $profiel) {
+        foreach (self::profielen() as $profiel) {
             config()->set('norm.actief', $profiel);
 
             $slug = Kennisartikelen::eersteSlug();
@@ -159,7 +159,7 @@ class KennisbankNormprofielTest extends TestCase
      */
     public function test_elk_artikel_heeft_in_elk_profiel_een_bestaand_bestand(): void
     {
-        foreach (['iso27001', 'nen7510'] as $profiel) {
+        foreach (self::profielen() as $profiel) {
             config()->set('norm.actief', $profiel);
 
             foreach (Kennisartikelen::alles() as $slug => $meta) {
@@ -178,7 +178,7 @@ class KennisbankNormprofielTest extends TestCase
     }
 
     /**
-     * Elke variant-slug moet in beide profielen een ánder bestand opleveren.
+     * Elke variant-slug moet in élk profiel een ánder bestand opleveren.
      * Twee identieke paden zouden betekenen dat iemand een variant heeft
      * ingekort tot een kopie — dan hoort de array weg.
      */
@@ -194,11 +194,15 @@ class KennisbankNormprofielTest extends TestCase
 
             $varianten++;
             $this->assertSame(
-                ['iso27001', 'nen7510'],
+                self::profielen(),
                 array_keys($meta['bestand']),
                 "Artikel '{$slug}' heeft geen bestand voor elk normprofiel."
             );
-            $this->assertCount(2, array_unique($meta['bestand']), "Artikel '{$slug}' wijst beide profielen naar hetzelfde bestand.");
+            $this->assertCount(
+                count(self::profielen()),
+                array_unique($meta['bestand']),
+                "Artikel '{$slug}' wijst twee profielen naar hetzelfde bestand.",
+            );
         }
 
         $this->assertGreaterThan(0, $varianten);
@@ -226,5 +230,20 @@ class KennisbankNormprofielTest extends TestCase
         $this->actingAs($gebruiker)->get('/kennisbank')
             ->assertOk()
             ->assertSee(route('kennisbank', 'wat-nen-7510-toevoegt'));
+    }
+    /**
+     * De profielen die deze installatie kent, in de volgorde van
+     * `config/norm.php`.
+     *
+     * Uit de configuratie en niet hardgecodeerd: bij het derde profiel (bio2)
+     * faalden drie tests hier op een lijst van twee, terwijl ze juist bedoeld zijn
+     * om te bewaken dat élk profiel compleet is. Een lijst die niet meegroeit
+     * bewaakt op den duur het verkeerde.
+     *
+     * @return list<string>
+     */
+    private static function profielen(): array
+    {
+        return array_keys(config('norm.profielen'));
     }
 }

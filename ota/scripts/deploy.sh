@@ -76,7 +76,8 @@ Gebruik: deploy.sh <tarbal> <doelpad> [opties]
   <doelpad>             absoluut pad naar de installatie
 
   --eerste              bevestig dat dit een nieuwe installatie is
-  --profiel=<naam>      alleen bij --eerste: iso27001 of nen7510
+  --profiel=<naam>      alleen bij --eerste: een profiel dat deze uitgave kent
+                        (iso27001, nen7510, bio2 — zie config/norm.php)
   --norm=<pad>          map met eigen, gelicentieerde seedbestanden
   --gebruiker=<naam>    eigenaar van de code (standaard: ezisms). De applicatie
                         zelf draait als de webservergebruiker; overschrijf die
@@ -127,6 +128,11 @@ fout() {
 TARBAL=""; DOELPAD=""
 EERSTE_BEVESTIGD=nee
 PROFIEL_ARG=""
+
+# Voorvoegsels van seedbestanden die per normprofiel bestaan:
+# `<voorvoegsel>-<profiel>.json`. Gebruikt door verwijder_andere_controlsets() en
+# door het verschilrapport, die het over dezelfde verzameling eens moeten zijn.
+VOORVOEGSELS_PER_PROFIEL=(maatregelen overheidsmaatregelen)
 NORMMAP=""
 DRYRUN=nee
 TERUG=nee
@@ -164,8 +170,11 @@ verwerk_argumenten() {
     [[ $DOELPAD == /* ]] || fout "het doelpad moet absoluut zijn (dit script draait als root)"
     [[ $SEEDDATA == installatie || $SEEDDATA == release ]] \
         || fout "--seeddata= verwacht 'installatie' of 'release'"
-    [[ $PROFIEL_ARG == "" || $PROFIEL_ARG == iso27001 || $PROFIEL_ARG == nen7510 ]] \
-        || fout "--profiel= verwacht 'iso27001' of 'nen7510'"
+    # De geldige profielen staan niet hier. Ze staan in het uitgeleverde
+    # config/norm.php, en dat is de enige plek die het weet — deze lijst stond tot
+    # 17-08-2026 wél hier en liep bij het derde profiel achter. De boom is op dit
+    # moment nog niet uitgepakt, dus de controle zelf gebeurt in
+    # controleer_profiel_arg(), meteen na het uitpakken.
 
     DOELPAD=${DOELPAD%/}
     : "${GROEP:=$GEBRUIKER}"
@@ -192,17 +201,57 @@ verwerk_argumenten() {
 # GEDEELD MET deploy-docker.sh :: env_waarde()
 # Eén waarde uit een .env-bestand. Bewust geen `source`: een .env is data en
 # geen shellscript, en `source` voert uit wat erin staat.
+#
+# LEEST ZOALS PHPDOTENV LEEST, en dat is geen detail. Twee storingen op
+# 17-08-2026 kwamen allebei doordat deze functie iets ánders zag dan de
+# applicatie:
+#
+#   1. `head -n1` in plaats van `tail -n1`. phpdotenv is *immutable* en negeert
+#      een tweede regel met dezelfde sleutel; de eerste wint. Dit script nam de
+#      laatste, dus bij een dubbele ISMS_NORM rapporteerde de uitrol `bio2` terwijl
+#      de seeders `iso27001` te zien kregen.
+#   2. Een comment achter de waarde wordt afgeknipt. phpdotenv doet dat; dit
+#      script niet, waardoor `DB_PASSWORD='geheim'   # ongewijzigd` als één
+#      wachtwoord van 52 tekens naar PDO ging — "access denied", terwijl de
+#      applicatie zelf prima verbond.
+#
+# Het afknippen gebeurt alleen búiten aanhalingstekens; een `#` binnen een
+# gequote waarde hoort bij het wachtwoord.
 env_waarde() { # <bestand> <sleutel> [standaard]
     local regel waarde
-    regel=$(grep -E "^[[:space:]]*$2[[:space:]]*=" "$1" 2>/dev/null | tail -n1) || true
+    regel=$(grep -E "^[[:space:]]*$2[[:space:]]*=" "$1" 2>/dev/null | head -n1) || true
     if [[ -z ${regel:-} ]]; then printf '%s' "${3-}"; return; fi
     waarde=${regel#*=}
     waarde=${waarde%$'\r'}
     waarde=$(printf '%s' "$waarde" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    if [[ ${#waarde} -ge 2 && ( $waarde == \"*\" || $waarde == \'*\' ) ]]; then
-        waarde=${waarde:1:${#waarde}-2}
+
+    # Alleen op het ópeningsteken toetsen, niet op begin én einde: met een comment
+    # erachter eindigt de regel niet op een quote, en dan viel de hele regel
+    # inclusief quotes en comment door als waarde.
+    if [[ $waarde == \"* || $waarde == \'* ]]; then
+        # Gequoteerd: knip op het sluitende teken, zodat een comment erná verdwijnt
+        # en een `#` erbinnen blijft staan.
+        local teken=${waarde:0:1} rest
+        rest=${waarde:1}
+        waarde=${rest%%"$teken"*}
+    else
+        # Niet gequoteerd: alles vanaf een `#` die door witruimte wordt voorafgegaan
+        # is comment. Een `#` middenin een woord (`geheim#1`) blijft dus staan.
+        waarde=$(printf '%s' "$waarde" | sed -E 's/[[:space:]]+#.*$//')
+        waarde=${waarde%"${waarde##*[![:space:]]}"}
     fi
+
     printf '%s' "$waarde"
+}
+
+# Sleutels die meer dan één keer in het .env-bestand staan.
+#
+# phpdotenv gebruikt de eerste en negeert de rest, en dat is niet wat iemand
+# bedoelt die onderaan een regel bijzet. Zwijgen hierover kostte een halve
+# installatie: de uitrol las het ene profiel, de seeders het andere.
+dubbele_sleutels() { # <bestand> → één sleutel per regel
+    grep -oE "^[[:space:]]*[A-Z_][A-Z0-9_]*[[:space:]]*=" "$1" 2>/dev/null \
+        | tr -d ' \t=' | sort | uniq -d
 }
 
 # Eén waarde uit MANIFEST.json. PHP is de JSON-lezer, want python3 staat niet op
@@ -401,6 +450,16 @@ lees_env() {
     DB_PASSWORD=$(env_waarde "$ENVBESTAND" DB_PASSWORD "")
 
     [[ -n $DB_DATABASE ]] || fout "DB_DATABASE staat niet in $ENVBESTAND"
+
+    # Een sleutel die er twee keer staat is bijna nooit bedoeld, en de gevolgen zijn
+    # stil: de applicatie gebruikt de eerste regel en niemand ziet dat de tweede
+    # niets doet. Waarschuwen en niet afbreken — het is geen fout van dit script en
+    # de eerste regel is een geldige keuze.
+    local dubbel; dubbel=$(dubbele_sleutels "$ENVBESTAND")
+    if [[ -n $dubbel ]]; then
+        waarschuw "deze sleutels staan meer dan één keer in $(basename "$ENVBESTAND"): $(tr '\n' ' ' <<<"$dubbel")"
+        waarschuw "de bovenste regel geldt; de rest wordt genegeerd, ook door de applicatie zelf"
+    fi
     meld "omgeving:    $APP_ENV"
     meld "normprofiel: $NORM_ENV"
     meld "database:    $DB_USERNAME@$DB_HOST:$DB_PORT/$DB_DATABASE"
@@ -780,18 +839,53 @@ Er is nog niets aan de installatie gewijzigd."
 stempelbestand() { printf '%s' "$DOELPAD/shared/installatie/normprofiel"; }
 
 # GEDEELD MET deploy-docker.sh :: profiel_uit_database()
-# Het profiel zoals de database het laat zien. Onafhankelijk van .env en van de
-# stempel, want beide zijn tekstregels die iemand kan wijzigen; de database is
-# het resultaat van wat er werkelijk is geseed.
+# Het profiel zoals de database het zelf vastlegt: de tabel `normprofiel`
+# (migratie 000048). Onafhankelijk van .env en van de stempel, want dat zijn
+# tekstregels die iemand kan wijzigen.
+#
+# Tot 17-08-2026 stond hier een gevolgtrekking uit de controlset: 101 maatregelen
+# plus de acht zorgmaatregelen was nen7510, 93 zonder was iso27001. Dat werkte
+# zolang elk profiel zijn eigen aantal had, en brak bij het derde: de BIO laat
+# Bijlage A ongemoeid en heeft dus óók 93 maatregelen en géén zorgmaatregelen. Een
+# volkomen correcte BIO-installatie werd daardoor als `iso27001` gelezen, en
+# `controleer_geseed_profiel()` brak de uitrol af met de melding dat de seeders het
+# verkeerde profiel hadden opgeleverd — terwijl `NormprofielSeeder` in hetzelfde log
+# meldde dat hij `bio2` had vastgelegd.
+#
+# Raad dus niet meer, maar lees de vastlegging. Wat de controlset ervan vindt is een
+# aparte vraag; die stelt controleer_controlset() hieronder, en die weet de
+# verwachte aantallen niet zelf — dat weet `isms:maatregelen`.
 profiel_uit_database() {
-    local aantal zorg
+    local profiel aantal
+    profiel=$(db_query "SELECT profiel FROM normprofiel LIMIT 1" 2>/dev/null) || profiel=""
+    if [[ -n $profiel ]]; then printf '%s' "$profiel"; return; fi
+
+    # Geen rij, of de tabel bestaat nog niet. Dan is 'leeg' alleen juist als er ook
+    # geen maatregelen staan; staan die er wél, dan is dit geen installatie die dit
+    # script kan plaatsen en moet dat zo klinken.
     aantal=$(db_query "SELECT COUNT(*) FROM maatregelen" 2>/dev/null) || { printf 'onbekend'; return; }
-    zorg=$(db_query "SELECT COUNT(*) FROM maatregelen WHERE annex_a_referentie IN
-        ('5.38','5.39','5.40','5.41','5.42','5.43','6.9','8.35')" 2>/dev/null)
-    if   [[ $aantal -eq 101 && $zorg -eq 8 ]]; then printf 'nen7510'
-    elif [[ $aantal -eq 93  && $zorg -eq 0 ]]; then printf 'iso27001'
-    elif [[ $aantal -eq 0 ]];                  then printf 'leeg'
-    else printf 'afwijkend(%s maatregelen, %s zorgmaatregelen)' "$aantal" "$zorg"
+    if [[ $aantal -eq 0 ]]; then printf 'leeg'; else
+        printf 'afwijkend(%s maatregelen, geen vastgelegd profiel)' "$aantal"
+    fi
+}
+
+# GEDEELD MET deploy-docker.sh :: controleer_controlset()
+# Past de geseede controlset bij het vastgelegde profiel?
+#
+# Dit is wat de oude gevolgtrekking hierboven wél goed deed: onafhankelijk
+# vaststellen dat er niet een half geseede of verkeerde set in de database staat.
+# Het aantal per profiel staat nadrukkelijk niet hier maar in
+# `Console\Commands\Maatregelen::AANTALLEN`; dat commando controleert het bestand
+# én meldt wat er in de database staat. Twee lijsten met verwachte aantallen is
+# precies de fout die deze functie moet voorkomen.
+controleer_controlset() {
+    if artisan isms:maatregelen --controleer >/dev/null 2>&1; then
+        goed "controlset past bij het profiel"
+    else
+        # Geen `fout`: het profiel is hierboven al eenduidig vastgesteld en de
+        # installatie draait. Dit is een signaal over de referentiedata, en de
+        # rookproef verderop kijkt daar nog een keer naar.
+        waarschuw "isms:maatregelen --controleer klaagt over de controlset; draai hem met de hand voor de melding"
     fi
 }
 
@@ -880,12 +974,18 @@ verschilrapport() {
     local bestand naam
     for bestand in "$BOOM"/database/seeders/data/*.json; do
         naam=$(basename "$bestand")
-        # De controlset van het andere profiel wordt bij de uitrol weggegooid
-        # (verwijder_andere_controlsets). Hem hier melden als "nieuw in deze
-        # release" zet de beheerder op een spoor dat nergens heen loopt.
-        if [[ $naam == maatregelen-*.json && $naam != "maatregelen-$NORM_ENV.json" ]]; then
-            continue
-        fi
+        # Profielgebonden bestanden van een ánder profiel worden bij de uitrol
+        # weggegooid (verwijder_andere_controlsets). Ze hier melden als "nieuw in
+        # deze release" zet de beheerder op een spoor dat nergens heen loopt.
+        # Dezelfde voorvoegsellijst als die functie, zodat de twee niet uiteenlopen.
+        local voorvoegsel overslaan=nee
+        for voorvoegsel in "${VOORVOEGSELS_PER_PROFIEL[@]}"; do
+            if [[ $naam == "$voorvoegsel"-*.json && $naam != "$voorvoegsel-$NORM_ENV.json" ]]; then
+                overslaan=ja
+                break
+            fi
+        done
+        [[ $overslaan == ja ]] && continue
         if [[ -f "$huidig/database/seeders/data/$naam" ]]; then
             if cmp -s "$bestand" "$huidig/database/seeders/data/$naam"; then
                 meld "     $naam: gelijk"
@@ -1007,28 +1107,45 @@ neem_seeddata_over() {
 }
 
 # GEDEELD MET deploy-docker.sh :: verwijder_andere_controlsets()
-# Eén controlset per installatie. Het pakket brengt ze allebei mee, want het
-# weet niet welke norm de ontvanger volgt; deze installatie weet dat wel.
+# Eén set profielgebonden seedbestanden per installatie. Het pakket brengt die van
+# álle profielen mee, want het weet niet welke norm de ontvanger volgt; deze
+# installatie weet dat wel.
 #
-# Het andere bestand is niet alleen overbodig, het is verwarrend: wie het
-# openslaat bewerkt een bestand dat nooit geseed wordt, en typt dus normtekst
-# over die nergens aankomt. Daarom onvoorwaardelijk en bij élke uitrol —
-# weggooien bij alleen `--eerste` zou het bestand bij de volgende release
-# gewoon terugbrengen, want de lus hierboven kopieert alleen wat er óp de
-# installatie staat.
+# De andere bestanden zijn niet alleen overbodig, ze zijn verwarrend: wie er een
+# openslaat bewerkt een bestand dat nooit geseed wordt, en typt dus normtekst over
+# die nergens aankomt.
 #
-# Geen `case` op het profiel: het te behouden bestand heet altijd
-# `maatregelen-$NORM_ENV.json`, dus het overbodige is "alle andere". Zo hoeft
-# deze functie bij een derde profiel niet mee te veranderen.
+# Geen `case` op het profiel en geen lijst met bestandsnamen: elk profielgebonden
+# bestand heet `<voorvoegsel>-<profiel>.json`, dus het overbodige is "alle andere".
+# Sinds 17-08-2026 loopt dat over meer dan één voorvoegsel, omdat de BIO naast zijn
+# controlset ook een laag overheidsmaatregelen meebrengt.
+#
+# LET OP het verschil van één letter: `overheidsmaatregelen-<profiel>.json` komt uit
+# het pakket en valt hieronder, maar `overheidsmaatregel-teksten.json` is van de
+# installatie zelf — de BIO-teksten die de CISO heeft ingevoerd — en hoort te
+# blijven. Dat bestand draagt geen profielnaam en past dus op geen van de patronen.
+#
+# De lijst zelf staat bij de andere instellingen bovenaan, want het
+# verschilrapport gebruikt hem ook en dat draait eerder.
 verwijder_andere_controlsets() {
-    local bestand
-    for bestand in "$RELEASE"/database/seeders/data/maatregelen-*.json; do
-        [[ -f $bestand ]] || continue
-        [[ $(basename "$bestand") == "maatregelen-$NORM_ENV.json" ]] && continue
-        rm -f "$bestand"
-        meld "andere controlset verwijderd: $(basename "$bestand")"
+    local voorvoegsel bestand naam behouden=""
+    for voorvoegsel in "${VOORVOEGSELS_PER_PROFIEL[@]}"; do
+        for bestand in "$RELEASE/database/seeders/data/$voorvoegsel"-*.json; do
+            [[ -f $bestand ]] || continue
+            naam=$(basename "$bestand")
+            if [[ $naam == "$voorvoegsel-$NORM_ENV.json" ]]; then
+                behouden+=" $naam"
+                continue
+            fi
+            rm -f "$bestand"
+            meld "niet van dit profiel, verwijderd: $naam"
+        done
     done
-    meld "deze installatie houdt: maatregelen-$NORM_ENV.json"
+
+    # Niets behouden is geen fout: alleen de BIO heeft een tweede voorvoegsel, dus
+    # in een ISO- of NEN-installatie bestaat overheidsmaatregelen-<profiel>.json
+    # helemaal niet.
+    meld "deze installatie houdt:${behouden:- niets profielgebonden}"
 }
 
 zet_symlinks() {
@@ -1580,8 +1697,32 @@ terugrollen() {
 #  De twee uitrollen
 # ═════════════════════════════════════════════════════════════════════════════
 
+# De profielen die de uitgeleverde code kent, uit config/norm.php.
+#
+# Uit de code en niet uit een lijst in dit script: die liep bij het derde profiel
+# achter, en dan weigert de uitrol een profiel dat de applicatie prima kent (of,
+# erger, laat er een door die ze niet kent). PHP leest het bestand, want dat is
+# hier per definitie aanwezig.
+bekende_profielen() { # → één profiel per regel
+    PAD="$RELEASE/config/norm.php" "$PHP" -r '
+        $config = require getenv("PAD");
+        echo implode("\n", array_keys($config["profielen"] ?? [])), "\n";
+    ' 2>/dev/null
+}
+
+controleer_profiel_arg() {
+    [[ -n $PROFIEL_ARG ]] || return 0
+
+    local bekend; bekend=$(bekende_profielen)
+    [[ -n $bekend ]] || fout "kan de profielen niet uit $RELEASE/config/norm.php lezen"
+
+    grep -qxF "$PROFIEL_ARG" <<<"$bekend" \
+        || fout "--profiel=$PROFIEL_ARG kent deze uitgave niet; geldig is: $(tr '\n' ' ' <<<"$bekend")"
+}
+
 bevestig_profiel() {
     stap "Normprofiel vastleggen"
+    controleer_profiel_arg
     [[ -n $PROFIEL_ARG ]] && NORM_ENV=$PROFIEL_ARG
 
     cat <<EOF

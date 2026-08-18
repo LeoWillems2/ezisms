@@ -1,0 +1,1159 @@
+{
+  "_over": {
+    "wat": "De genummerde regels uit deel 2 van de BIO2 (overheidsmaatregelen).",
+    "herkomst": "Baseline Informatiebeveiliging Overheid 2 v1.3 (BZK/CIP, 9 januari 2026), ingelezen uit de Excel-uitgave v1.1 van 21 april 2026. Het PDF is de bron van waarheid; zie 00q §3 voor de vier plekken waar de Excel afwijkt.",
+    "licentie": "CC BY-NC-SA 4.0. Daarom staat hier geen normtekst: dit bestand draagt alleen openbaar bekende structuur (nummers, koppeling, status, reikwijdte). Zie 00q §8.",
+    "tekst": "'Dit ISMS levert bij deze overheidsmaatregel geen tekst mee.' waar de norm een verplichting heeft. Een installatie die de BIO zelf heeft, vult overheidsmaatregel-teksten.json (gitignored) met `--met-tekst`.",
+    "generator": "scripts/genereer_overheidsmaatregelen_seed.py"
+  },
+  "buiten_cbw_reikwijdte": [
+    "5.32",
+    "5.33",
+    "5.34"
+  ],
+  "overheidsmaatregelen": [
+    {
+      "nummer": "5.01.01",
+      "annex_a_referentie": "5.1",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.01.02",
+      "annex_a_referentie": "5.1",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.02.01",
+      "annex_a_referentie": "5.2",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.02.02",
+      "annex_a_referentie": "5.2",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.04.01",
+      "annex_a_referentie": "5.4",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.04.02",
+      "annex_a_referentie": "5.4",
+      "volgnummer": 2,
+      "status": "verplaatst",
+      "verwezen_naar": "5.10.02",
+      "cbw_reikwijdte": true,
+      "tekst": null
+    },
+    {
+      "nummer": "5.04.03",
+      "annex_a_referentie": "5.4",
+      "volgnummer": 3,
+      "status": "verplaatst",
+      "verwezen_naar": "5.10.03",
+      "cbw_reikwijdte": true,
+      "tekst": null
+    },
+    {
+      "nummer": "5.05.01",
+      "annex_a_referentie": "5.5",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.08.01",
+      "annex_a_referentie": "5.8",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.09.01",
+      "annex_a_referentie": "5.9",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.10.02",
+      "annex_a_referentie": "5.10",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.10.03",
+      "annex_a_referentie": "5.10",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.12.01",
+      "annex_a_referentie": "5.12",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.14.01",
+      "annex_a_referentie": "5.14",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.14.02",
+      "annex_a_referentie": "5.14",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.14.03",
+      "annex_a_referentie": "5.14",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.14.04",
+      "annex_a_referentie": "5.14",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.14.05",
+      "annex_a_referentie": "5.14",
+      "volgnummer": 5,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.15.01",
+      "annex_a_referentie": "5.15",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.16.01",
+      "annex_a_referentie": "5.16",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.16.02",
+      "annex_a_referentie": "5.16",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.17.01",
+      "annex_a_referentie": "5.17",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.17.02",
+      "annex_a_referentie": "5.17",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.17.03",
+      "annex_a_referentie": "5.17",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.18.01",
+      "annex_a_referentie": "5.18",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.18.02",
+      "annex_a_referentie": "5.18",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.19.01",
+      "annex_a_referentie": "5.19",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.20.01",
+      "annex_a_referentie": "5.20",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.20.02",
+      "annex_a_referentie": "5.20",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.20.03",
+      "annex_a_referentie": "5.20",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.20.04",
+      "annex_a_referentie": "5.20",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.20.05",
+      "annex_a_referentie": "5.20",
+      "volgnummer": 5,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.20.06",
+      "annex_a_referentie": "5.20",
+      "volgnummer": 6,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.21.01",
+      "annex_a_referentie": "5.21",
+      "volgnummer": 1,
+      "status": "vervallen",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": null
+    },
+    {
+      "nummer": "5.21.02",
+      "annex_a_referentie": "5.21",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.21.03",
+      "annex_a_referentie": "5.21",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.21.04",
+      "annex_a_referentie": "5.21",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.21.05",
+      "annex_a_referentie": "5.21",
+      "volgnummer": 5,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.22.01",
+      "annex_a_referentie": "5.22",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.22.02",
+      "annex_a_referentie": "5.22",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.23.01",
+      "annex_a_referentie": "5.23",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.24.01",
+      "annex_a_referentie": "5.24",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.24.02",
+      "annex_a_referentie": "5.24",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.24.03",
+      "annex_a_referentie": "5.24",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.24.04",
+      "annex_a_referentie": "5.24",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.24.05",
+      "annex_a_referentie": "5.24",
+      "volgnummer": 5,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.24.06",
+      "annex_a_referentie": "5.24",
+      "volgnummer": 6,
+      "status": "verplaatst",
+      "verwezen_naar": "5.21.05",
+      "cbw_reikwijdte": true,
+      "tekst": null
+    },
+    {
+      "nummer": "5.24.07",
+      "annex_a_referentie": "5.24",
+      "volgnummer": 7,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.24.08",
+      "annex_a_referentie": "5.24",
+      "volgnummer": 8,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.25.01",
+      "annex_a_referentie": "5.25",
+      "volgnummer": 1,
+      "status": "verplaatst",
+      "verwezen_naar": "5.26.02",
+      "cbw_reikwijdte": true,
+      "tekst": null
+    },
+    {
+      "nummer": "5.26.01",
+      "annex_a_referentie": "5.26",
+      "volgnummer": 1,
+      "status": "verplaatst",
+      "verwezen_naar": "5.25.02",
+      "cbw_reikwijdte": true,
+      "tekst": null
+    },
+    {
+      "nummer": "5.26.02",
+      "annex_a_referentie": "5.26",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.27.01",
+      "annex_a_referentie": "5.27",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.27.02",
+      "annex_a_referentie": "5.27",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.28.01",
+      "annex_a_referentie": "5.28",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.30.01",
+      "annex_a_referentie": "5.30",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.30.02",
+      "annex_a_referentie": "5.30",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.33.01",
+      "annex_a_referentie": "5.33",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": false,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.35.01",
+      "annex_a_referentie": "5.35",
+      "volgnummer": 1,
+      "status": "vervallen",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": null
+    },
+    {
+      "nummer": "5.35.02",
+      "annex_a_referentie": "5.35",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "5.36.01",
+      "annex_a_referentie": "5.36",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "6.01.01",
+      "annex_a_referentie": "6.1",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "6.02.01",
+      "annex_a_referentie": "6.2",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "6.03.01",
+      "annex_a_referentie": "6.3",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "6.03.02",
+      "annex_a_referentie": "6.3",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "6.03.03",
+      "annex_a_referentie": "6.3",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "6.03.04",
+      "annex_a_referentie": "6.3",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "6.08.01",
+      "annex_a_referentie": "6.8",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "7.01.01",
+      "annex_a_referentie": "7.1",
+      "volgnummer": 1,
+      "status": "vervallen",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": null
+    },
+    {
+      "nummer": "7.01.02",
+      "annex_a_referentie": "7.1",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "7.02.01",
+      "annex_a_referentie": "7.2",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "7.07.01",
+      "annex_a_referentie": "7.7",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "7.10.01",
+      "annex_a_referentie": "7.10",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "7.10.02",
+      "annex_a_referentie": "7.10",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "7.10.03",
+      "annex_a_referentie": "7.10",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.01.01",
+      "annex_a_referentie": "8.1",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.01.02",
+      "annex_a_referentie": "8.1",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.02.01",
+      "annex_a_referentie": "8.2",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.03.01",
+      "annex_a_referentie": "8.3",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.03.02",
+      "annex_a_referentie": "8.3",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.05.01",
+      "annex_a_referentie": "8.5",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.07.01",
+      "annex_a_referentie": "8.7",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.07.02",
+      "annex_a_referentie": "8.7",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.07.03",
+      "annex_a_referentie": "8.7",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.07.04",
+      "annex_a_referentie": "8.7",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.08.01",
+      "annex_a_referentie": "8.8",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.08.02",
+      "annex_a_referentie": "8.8",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.08.03",
+      "annex_a_referentie": "8.8",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.08.04",
+      "annex_a_referentie": "8.8",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.08.05",
+      "annex_a_referentie": "8.8",
+      "volgnummer": 5,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.08.06",
+      "annex_a_referentie": "8.8",
+      "volgnummer": 6,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.13.01",
+      "annex_a_referentie": "8.13",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.13.02",
+      "annex_a_referentie": "8.13",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.13.03",
+      "annex_a_referentie": "8.13",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.13.04",
+      "annex_a_referentie": "8.13",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.15.01",
+      "annex_a_referentie": "8.15",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.15.02",
+      "annex_a_referentie": "8.15",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.15.03",
+      "annex_a_referentie": "8.15",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.15.04",
+      "annex_a_referentie": "8.15",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.15.05",
+      "annex_a_referentie": "8.15",
+      "volgnummer": 5,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.15.06",
+      "annex_a_referentie": "8.15",
+      "volgnummer": 6,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.16.01",
+      "annex_a_referentie": "8.16",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.16.02",
+      "annex_a_referentie": "8.16",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.16.03",
+      "annex_a_referentie": "8.16",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.16.04",
+      "annex_a_referentie": "8.16",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.18.01",
+      "annex_a_referentie": "8.18",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.18.02",
+      "annex_a_referentie": "8.18",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.19.01",
+      "annex_a_referentie": "8.19",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.20.01",
+      "annex_a_referentie": "8.20",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.20.02",
+      "annex_a_referentie": "8.20",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.21.01",
+      "annex_a_referentie": "8.21",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.21.02",
+      "annex_a_referentie": "8.21",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.21.03",
+      "annex_a_referentie": "8.21",
+      "volgnummer": 3,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.21.04",
+      "annex_a_referentie": "8.21",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.22.01",
+      "annex_a_referentie": "8.22",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.24.01",
+      "annex_a_referentie": "8.24",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.24.02",
+      "annex_a_referentie": "8.24",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.24.03",
+      "annex_a_referentie": "8.24",
+      "volgnummer": 3,
+      "status": "vervallen",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": null
+    },
+    {
+      "nummer": "8.24.04",
+      "annex_a_referentie": "8.24",
+      "volgnummer": 4,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.24.05",
+      "annex_a_referentie": "8.24",
+      "volgnummer": 5,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.27.01",
+      "annex_a_referentie": "8.27",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.29.01",
+      "annex_a_referentie": "8.29",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.30.01",
+      "annex_a_referentie": "8.30",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.31.01",
+      "annex_a_referentie": "8.31",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.31.02",
+      "annex_a_referentie": "8.31",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.32.01",
+      "annex_a_referentie": "8.32",
+      "volgnummer": 1,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    },
+    {
+      "nummer": "8.32.02",
+      "annex_a_referentie": "8.32",
+      "volgnummer": 2,
+      "status": "geldend",
+      "verwezen_naar": null,
+      "cbw_reikwijdte": true,
+      "tekst": "Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
+    }
+  ]
+}

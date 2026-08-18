@@ -171,7 +171,8 @@ DATAMAP="$BOOM/database/seeders/data"
 TOEGESTAAN=$(printf '%s\n' "${SEEDDATA_TOEGESTAAN[@]}")
 
 TOEGESTAAN="$TOEGESTAAN" OMSCHRIJVINGTEKST="$OMSCHRIJVINGTEKST" ZORGTEKST="$ZORGTEKST" \
-ZORGLEEG="$ZORGLEEG" DATAMAP="$DATAMAP" python3 - <<'PY' || fout "de seeddata is niet uitleverbaar; zie hierboven"
+ZORGLEEG="$ZORGLEEG" BIOTEKST="$BIOTEKST" DATAMAP="$DATAMAP" \
+python3 - <<'PY' || fout "de seeddata is niet uitleverbaar; zie hierboven"
 import json, os, sys
 from pathlib import Path
 
@@ -197,7 +198,7 @@ for naam in sorted(aanwezig - toegestaan):
 # b. Beide controlsets: één lus, twee velden, dezelfde regel. De titels worden
 #    hier niet gecontroleerd — die zijn openbaar en statisch, en de testsuite
 #    vergelijkt ze tussen de twee bestanden.
-for profiel in ("iso27001", "nen7510"):
+for profiel in ("iso27001", "nen7510", "bio2"):
     naam = f"maatregelen-{profiel}.json"
     pad = datamap / naam
     if not pad.is_file():
@@ -214,6 +215,24 @@ for profiel in ("iso27001", "nen7510"):
                 f"maatregelen (o.a. {', '.join(echt[:3])}) — herstel met: "
                 f"git checkout HEAD -- ota/database/seeders/data/{naam}"
             )
+
+# c. De BIO-laag: geen enkele geldende verplichting mag zijn tekst dragen. De
+#    vervallen en verplaatste nummers hebben er geen (status zegt het al), dus die
+#    blijven buiten de controle.
+biopad = datamap / "overheidsmaatregelen-bio2.json"
+if biopad.is_file():
+    biodata = json.loads(biopad.read_text(encoding="utf-8"))
+    echt = [r["nummer"] for r in biodata.get("overheidsmaatregelen", [])
+            if r.get("status") == "geldend" and r.get("tekst") != os.environ["BIOTEKST"]]
+    if echt:
+        fouten.append(
+            f"overheidsmaatregelen-bio2.json draagt BIO-tekst bij {len(echt)} "
+            f"verplichtingen (o.a. {', '.join(echt[:3])}) — die staat onder "
+            f"CC BY-NC-SA 4.0 en mag niet mee. Herstel met: git checkout HEAD -- "
+            f"ota/database/seeders/data/overheidsmaatregelen-bio2.json"
+        )
+else:
+    fouten.append("overheidsmaatregelen-bio2.json: ontbreekt; elke tarbal draagt de BIO-laag")
 
 for f in fouten:
     print(f"   \033[31m{f}\033[0m", file=sys.stderr)

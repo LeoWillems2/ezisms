@@ -29,6 +29,7 @@ use App\Models\IntegratieAdapter;
 use App\Models\KpiDefinitie;
 use App\Models\Leesbevestiging;
 use App\Models\Leverancier;
+use App\Models\OverheidsmaatregelBeoordeling;
 use App\Models\Leveranciersbeoordeling;
 use App\Models\Notificatieregel;
 use App\Models\RestrisicoSnapshot;
@@ -51,6 +52,7 @@ use App\Models\Uitsluiting;
 use App\Models\Verbeteractie;
 use App\Models\Wijziging;
 use App\Models\Wijzigingssjabloon;
+use App\Support\Autorisatiegeheugen;
 use App\Support\Ketenhash;
 use App\Support\Normlabels;
 use App\Support\Pandoc;
@@ -78,6 +80,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(Pandoc::class, fn () => new Pandoc(
             config('services.pandoc.bin', 'pandoc')
         ));
+
+        // Scoped: per request weggegooid, zodat het geheugen nooit een request
+        // overleeft. Zie de klassenkop van Autorisatiegeheugen.
+        $this->app->scoped(Autorisatiegeheugen::class);
     }
 
     /**
@@ -250,17 +256,24 @@ class AppServiceProvider extends ServiceProvider
     private function registreerAutorisatie(): void
     {
         Gate::define('heeft-niveau', function (Gebruiker $gebruiker, string $blokCode, string $niveau): bool {
-            $voldoendeNiveaus = self::voldoendeNiveaus($niveau);
+            // Lijstschermen stellen deze vraag per rij; het antwoord verandert
+            // binnen een request niet (zie Autorisatiegeheugen).
+            return $this->app->make(Autorisatiegeheugen::class)->onthoud(
+                "{$gebruiker->id}|{$blokCode}|{$niveau}",
+                function () use ($gebruiker, $blokCode, $niveau): bool {
+                    $voldoendeNiveaus = self::voldoendeNiveaus($niveau);
 
-            if ($voldoendeNiveaus === []) {
-                return false; // onbekend niveau: nooit toestaan
-            }
+                    if ($voldoendeNiveaus === []) {
+                        return false; // onbekend niveau: nooit toestaan
+                    }
 
-            return RolPermissie::query()
-                ->whereIn('rol_id', $gebruiker->rollen()->pluck('rollen.id'))
-                ->whereIn('niveau', $voldoendeNiveaus)
-                ->whereHas('blok', fn ($q) => $q->where('code', $blokCode))
-                ->exists();
+                    return RolPermissie::query()
+                        ->whereIn('rol_id', $gebruiker->rollen->pluck('id'))
+                        ->whereIn('niveau', $voldoendeNiveaus)
+                        ->whereHas('blok', fn ($q) => $q->where('code', $blokCode))
+                        ->exists();
+                },
+            );
         });
 
         // De enige autorisatiecheck op een rolnáám, en dat is met opzet zo smal
@@ -314,6 +327,11 @@ class AppServiceProvider extends ServiceProvider
             'asset_toewijzing' => AssetToewijzing::class,
             'systeem' => Systeem::class,
             'soa_regel' => SoaRegel::class,
+            // De BIO-verplichting onder een beheersmaatregel (blok 4b). Alleen
+            // de beoordeling staat hier: `Overheidsmaatregel` zelf is
+            // referentiedata en niet auditeerbaar, dus die heeft geen alias
+            // nodig.
+            'overheidsmaatregel_beoordeling' => OverheidsmaatregelBeoordeling::class,
             'risico' => Risico::class,
             // De alias `risicoacceptatiecriterium` is met 04g vervallen. Hij
             // hoeft niet resolvebaar te blijven: `audit_logregels` bewaart

@@ -8,6 +8,7 @@ use App\Models\SchermkopieRegistratie;
 use App\Support\Pandoc;
 use App\Support\Schermafbeelding;
 use App\Support\Schermkopie;
+use App\Support\Schermkopiebijlage;
 use App\Support\SchermkopieNietBeschikbaar;
 use Database\Seeders\BlokSeeder;
 use Database\Seeders\RolPermissieSeeder;
@@ -246,6 +247,74 @@ class SchermkopieTest extends TestCase
         $this->expectExceptionMessage('pandoc ontbreekt');
 
         $this->kopie([['A.5.1', 'Beleidsregels', 'Ja']], 1)->docx();
+    }
+
+    // --- De bijlage (deelproducten/04c §5) ---------------------------------
+
+    public function test_zonder_bijlage_verandert_er_niets_aan_het_document(): void
+    {
+        $this->actingAs($this->ciso);
+
+        // De bijlage is een uitbreiding voor een scherm met een tweede
+        // detailniveau. Elk ander scherm hoort er niets van te merken — geen kop,
+        // geen lege tabel, geen extra witregel.
+        $markdown = $this->kopie([['A.5.1', 'Beleidsregels', 'Ja']], 1)->markdown();
+
+        $this->assertStringNotContainsString('##', $markdown);
+        // Twee scheidingsregels: die van het kopblok en die van de hoofdtabel.
+        $this->assertSame(2, substr_count($markdown, "\n|---"));
+    }
+
+    public function test_de_bijlage_komt_onder_de_hoofdtabel_met_eigen_kop_en_omvang(): void
+    {
+        $this->actingAs($this->ciso);
+
+        $kopie = new Schermkopie(
+            scherm: 'Verklaring van Toepasselijkheid',
+            kolommen: ['Referentie', 'Maatregel'],
+            rijen: [['A.5.24', 'Incidentbeheer']],
+            totaalRijen: 1,
+            bijlage: new Schermkopiebijlage(
+                titel: 'Overheidsmaatregelen (BIO2)',
+                kolommen: ['Nummer', 'Status'],
+                rijen: [['5.24.03', 'Belegd']],
+                toelichting: 'De verplichte minimale invulling.',
+                omvangregel: '1 verplichting bij 1 van de 1 getoonde beheersmaatregelen.',
+            ),
+        );
+
+        $markdown = $kopie->markdown();
+
+        $this->assertStringContainsString('## Overheidsmaatregelen (BIO2)', $markdown);
+        $this->assertStringContainsString('De verplichte minimale invulling.', $markdown);
+        $this->assertStringContainsString('1 verplichting bij 1 van de 1', $markdown);
+        $this->assertStringContainsString('| 5.24.03 | Belegd |', $markdown);
+
+        // Volgorde: de bijlage staat ónder de hoofdtabel, niet ertussen.
+        $this->assertLessThan(
+            strpos($markdown, '## Overheidsmaatregelen'),
+            strpos($markdown, 'A.5.24'),
+        );
+    }
+
+    public function test_een_lege_bijlage_toont_streepjes_en_niet_niets(): void
+    {
+        $this->actingAs($this->ciso);
+
+        $markdown = (new Schermkopie(
+            scherm: 'Verklaring van Toepasselijkheid',
+            kolommen: ['Referentie'],
+            rijen: [['A.5.1']],
+            totaalRijen: 1,
+            bijlage: new Schermkopiebijlage(
+                titel: 'Overheidsmaatregelen',
+                kolommen: ['Nummer', 'Status'],
+                rijen: [],
+            ),
+        ))->markdown();
+
+        // Een kop zonder rijen leest als een fout in het document.
+        $this->assertStringContainsString('| — | — |', $markdown);
     }
 
     // --- De knop op een scherm ---------------------------------------------

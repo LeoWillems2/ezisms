@@ -109,10 +109,13 @@ class Maatregel extends Model
     protected $table = 'maatregelen';
 
     /** @var list<string> */
-    protected $fillable = ['annex_a_referentie', 'thema', 'naam', 'omschrijving', 'kenmerken', 'zorgaanvulling'];
+    protected $fillable = [
+        'annex_a_referentie', 'thema', 'naam', 'omschrijving', 'kenmerken',
+        'zorgaanvulling', 'cbw_reikwijdte',
+    ];
 
     /** @var array<string, string> */
-    protected $casts = ['kenmerken' => 'array'];
+    protected $casts = ['kenmerken' => 'array', 'cbw_reikwijdte' => 'boolean'];
 
     public function soaRegel(): HasOne
     {

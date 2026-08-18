@@ -56,12 +56,12 @@ wat je bij een audit wilt kunnen tonen: wie zette wanneer welke koppeling aan.
 
 Een kale lijst is zwakker bewijs dan een lijst die ergens aan hangt:
 
-- **Koppel de integratie aan een leverancier** (blok 9, `/leveranciers`). Dan is
+- **Koppel de integratie aan een leverancier**. Dan is
   een koppeling niet los, maar onderdeel van het leveranciersdossier — en versterkt
   hij A.5.19–A.5.22 in plaats van alleen A.5.9. *(Deze koppeling zit nog niet in de
   module; het is de logische volgende stap als je dit als serieus bewijs wilt
   inzetten.)*
-- **Koppel aan het asset-/systeemregister** (blok 3): welke koppeling raakt welk
+- **Koppel aan het asset-/systeemregister**: welke koppeling raakt welk
   systeem, en dus welke classificatie.
 - **Houd het actueel.** Een auditor let vooral op **volledigheid en actualiteit**:
   een register dat achterloopt op de werkelijkheid is een bevinding op zichzelf.

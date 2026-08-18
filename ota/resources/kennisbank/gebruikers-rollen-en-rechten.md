@@ -75,10 +75,8 @@ rol die per definitie onafhankelijk moet zijn — muteerrechten cadeau. Wie mag
 exporteren mag per definitie inzien.
 
 **`goedkeuren`** is vaststellen, en dat is een andere sóórt bevoegdheid dan
-bewerken — geen grotere hoeveelheid ervan. Het stond tot juli 2026 bovenaan de
-ladder, en juist daardoor was "goedkeuren maar niet bewerken" niet uit te
-drukken: een directielid met `goedkeuren` op `risico-soa` had het hele
-risicoregister kunnen herschrijven. Sinds het losstaat, is functiescheiding
+bewerken — geen grotere hoeveelheid ervan.
+Omdat het losstaat, is functiescheiding
 mogelijk: de CISO stelt op (`muteren`), Management stelt vast (`goedkeuren`).
 
 Vijf acties toetsen erop: beleid publiceren, een scope-versie activeren, een
@@ -390,10 +388,8 @@ in de audit trail. Gebruik in code daarom `updateGeaudit()` / `deleteGeaudit()`.
 Hetzelfde geldt voor **koppelingen** tussen records (welk beleid dekt welke
 maatregel, wie zit in welke doelgroep, welke clausules vielen binnen een
 auditronde). Die raken de velden van het record niet aan en bleven daardoor
-buiten de trail; sinds 3 augustus 2026 worden ze wél gelogd, als één regel per
-handeling met de namen van wat erbij kwam en wat eraf ging. Wat vóór die datum is
-gekoppeld, draagt geen datum en geen naam — en van wat toen is ontkoppeld, is
-niets bewaard.
+buiten de trail; ze worden gelogd, als één regel per
+handeling met de namen van wat erbij kwam en wat eraf ging.
 
 ## Wat dit model bewust niet doet
 

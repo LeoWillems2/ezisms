@@ -23,6 +23,7 @@ use App\Models\Leesbevestiging;
 use App\Models\Leverancier;
 use App\Models\Meting;
 use App\Models\OrganisatieEenheid;
+use App\Models\OverheidsmaatregelBeoordeling;
 use App\Models\RestrisicoSnapshot;
 use App\Models\Reviewsessie;
 use App\Models\Risico;
@@ -502,7 +503,12 @@ class ExporteerIsms extends Command
         }
 
         // SoA per control: de kern die een CISO overneemt.
-        $regels = SoaRegel::with(['maatregel', 'restrisicoSnapshots'])->get()
+        $metBio = Normprofiel::heeft('overheidsmaatregelen');
+        $regels = SoaRegel::with([
+            'maatregel',
+            'restrisicoSnapshots',
+            ...($metBio ? ['overheidsmaatregelBeoordelingen.overheidsmaatregel', 'overheidsmaatregelBeoordelingen.risicobehandeling.risico'] : []),
+        ])->get()
             ->sortBy(fn (SoaRegel $s) => $s->maatregel?->annex_a_referentie);
         $md .= "## Verklaring van Toepasselijkheid (SoA)\n\n";
         foreach ($regels as $s) {
@@ -516,9 +522,17 @@ class ExporteerIsms extends Command
                 .($s->motivatie ? "- Motivatie: {$this->cel($s->motivatie)}\n" : '')
                 .($s->beleidreferentie ? "- Beleidreferentie: {$this->cel($s->beleidreferentie)}\n" : '')
                 .($s->procesreferentie ? "- Procesreferentie: {$this->cel($s->procesreferentie)}\n" : '')
+                .($metBio && ! $m->cbw_reikwijdte
+                    ? "- Reikwijdte: **buiten de Cyberbeveiligingswet**; verplichtende zelfregulering\n"
+                    : '')
                 .$this->classificatie($s)
                 .$this->bewijs('soa_regel', $s->id)
-                .$this->restrisicoTrend($s)."\n";
+                .$this->restrisicoTrend($s)
+                .$this->overheidsmaatregelen($s)."\n";
+        }
+
+        if ($metBio) {
+            $md .= $this->uitzonderingen($regels);
         }
 
         $this->schrijf('03-risico-en-soa.md', $md);
@@ -1073,6 +1087,139 @@ class ExporteerIsms extends Command
     }
 
     /**
+     * De BIO-verplichtingen onder één beheersmaatregel
+     * (deelproducten/04b §1).
+     *
+     * Zonder dit blok is dit geen VvT voor een BIO-entiteit: de RDI vraagt niet of
+     * A.5.24 is geïmplementeerd maar of 5.24.03 belegd is. Vandaar het nummer
+     * vooraan elke regel — daar verwijst een auditrapport naar.
+     *
+     * Vervallen en verplaatste nummers staan hier niet: die dragen geen
+     * beoordeling. Ze blijven wél in het systeem, zodat een auditor met de vorige
+     * uitgave in de hand antwoord krijgt.
+     */
+    private function overheidsmaatregelen(SoaRegel $regel): string
+    {
+        $beoordelingen = $regel->overheidsmaatregelBeoordelingen ?? collect();
+
+        if ($beoordelingen->isEmpty()) {
+            return '';
+        }
+
+        $md = "- Overheidsmaatregelen (".Normprofiel::label('naam_kort')."):\n";
+
+        foreach ($beoordelingen as $beoordeling) {
+            $om = $beoordeling->overheidsmaatregel;
+
+            if ($om === null) {
+                continue;
+            }
+
+            $md .= "  - **{$om->nummer}** — {$beoordeling->statusLabel()}"
+                .($om->cbw_reikwijdte ? '' : ' · buiten Cbw-reikwijdte')
+                .($beoordeling->laatst_beoordeeld_op
+                    ? ' · beoordeeld '.$this->datum($beoordeling->laatst_beoordeeld_op)
+                    : '')."\n"
+                // De tekst alleen als de installatie hem zelf heeft ingelezen; de
+                // markering uit het seedbestand hoort niet in een auditdossier.
+                // `alinea()` en niet `cel()`: hier is ruimte en dit is geen tabel.
+                .($om->toontTekst() ? '    - '.$this->alinea($om->tekst, '      ')."\n" : '')
+                .($beoordeling->motivatie
+                    ? '    - Onderbouwing: '.$this->alinea($beoordeling->motivatie, '      ')."\n"
+                    : '')
+                .$this->referenties($beoordeling)
+                .$this->bewijs('overheidsmaatregel_beoordeling', $beoordeling->id, '    ');
+        }
+
+        return $md;
+    }
+
+    /**
+     * De eigen verwijzingen bij één verplichting (deelproducten/04c §2).
+     *
+     * Waar het beleidsdocument bij de beheersmaatregel hangt, staat hier de
+     * vindplaats: een hoofdstuk, een processtap. Deel 1 §4 vraagt om opzet,
+     * bestaan en werking *met verwijzingen*, en dit is die verwijzing.
+     */
+    private function referenties(OverheidsmaatregelBeoordeling $beoordeling): string
+    {
+        $delen = array_filter([
+            $beoordeling->beleidreferentie ? 'beleid: '.$this->cel($beoordeling->beleidreferentie) : null,
+            $beoordeling->procesreferentie ? 'proces: '.$this->cel($beoordeling->procesreferentie) : null,
+        ]);
+
+        return $delen === [] ? '' : '    - Verwijzing — '.implode('; ', $delen)."\n";
+    }
+
+    /**
+     * De bijlage die deel 1 §7 van de BIO voorschrijft: uitzonderingen op de VvT,
+     * met de verwijzing naar de onderbouwende risicoanalyse.
+     *
+     * Twee soorten uitzondering, en ze horen bij elkaar in één bijlage omdat de
+     * norm ze in één adem noemt:
+     *
+     * 1. Een **beheersmaatregel** die niet van toepassing is verklaard. Voor de 39
+     *    maatregelen zonder overheidsmaatregel is dit de enige route, en de norm
+     *    eist daar een risicoanalyse bij.
+     * 2. Een **overheidsmaatregel** die niet van toepassing kán zijn.
+     *
+     * Ontbreekt de risicoanalyse, dan staat dat er met zoveel woorden. Weglaten zou
+     * de bijlage completer laten lijken dan ze is, en dat is precies het document
+     * waar een auditor op afgaat.
+     *
+     * @param  \Illuminate\Support\Collection<int, SoaRegel>  $regels
+     */
+    private function uitzonderingen($regels): string
+    {
+        $md = "## Bijlage: uitzonderingen op de VvT\n\n";
+        $rijen = [];
+
+        foreach ($regels as $regel) {
+            $maatregel = $regel->maatregel;
+
+            if ($maatregel === null) {
+                continue;
+            }
+
+            if ($regel->van_toepassing === false) {
+                $rijen[] = [
+                    'A.'.$maatregel->annex_a_referentie,
+                    'Beheersmaatregel',
+                    $this->cel($regel->motivatie ?? '—'),
+                    $regel->risicobehandelingen->isEmpty()
+                        ? '**ontbreekt**'
+                        : $this->cel($regel->risicobehandelingen
+                            ->map(fn ($b) => $b->risico?->titel ?? 'risico #'.$b->risico_id)
+                            ->implode('; ')),
+                ];
+            }
+
+            foreach ($regel->overheidsmaatregelBeoordelingen as $beoordeling) {
+                if ($beoordeling->status !== 'niet_van_toepassing') {
+                    continue;
+                }
+
+                $rijen[] = [
+                    $beoordeling->overheidsmaatregel?->nummer ?? '?',
+                    'Overheidsmaatregel',
+                    $this->cel($beoordeling->motivatie ?? '—'),
+                    $beoordeling->risicobehandeling === null
+                        ? '**ontbreekt**'
+                        : $this->cel($beoordeling->risicobehandeling->risico?->titel
+                            ?? 'risico #'.$beoordeling->risicobehandeling->risico_id),
+                ];
+            }
+        }
+
+        if ($rijen === []) {
+            return $md."Geen uitzonderingen: elke beheersmaatregel is van toepassing en elke "
+                ."overheidsmaatregel is als van toepassing beoordeeld.\n\n";
+        }
+
+        return $md.$this->tabel(['Referentie', 'Niveau', 'Onderbouwing', 'Risicoanalyse'], $rijen)."\n";
+    }
+
+    /**
      * De effectieve maatregelclassificatie per control (plan 04d fase 4), met
      * een markering waar de organisatie zelf iets heeft vastgesteld.
      *
@@ -1111,6 +1258,23 @@ class ExporteerIsms extends Command
     private function cel(?string $waarde): string
     {
         return str_replace(['|', "\r\n", "\n", "\r"], ['\|', ' ', ' ', ' '], trim((string) $waarde));
+    }
+
+    /**
+     * Meerregelige tekst binnen een opsommingsregel, met behoud van de structuur.
+     *
+     * {@see cel()} vervangt elke regelovergang door een spatie. Dat is juist in
+     * een tabelcel en fout in een opsomming: 40 van de 118 BIO-verplichtingen
+     * hebben een opsomming in hun tekst, en die liep tot 17-08-2026 als één lange
+     * regel de export in. Hier blijven de regelovergangen staan en springen de
+     * vervolgregels in, zodat ze binnen het opsommingsteken vallen. Pipes blijven
+     * met rust — buiten een tabel is dat een gewoon teken.
+     */
+    private function alinea(?string $waarde, string $inspring): string
+    {
+        $tekst = trim((string) $waarde);
+
+        return str_replace(["\r\n", "\r", "\n"], "\n".$inspring, $tekst);
     }
 
     /** Welke kant op is goed — zonder deze vlag leest een dalende ratio als achteruitgang. */

@@ -29,6 +29,10 @@ class DatabaseSeeder extends Seeder
             ClassificatieschemaSeeder::class,
             MaatregelSeeder::class,
             MaatregelKenmerkenSeeder::class,
+            // Ná MaatregelSeeder: de overheidsmaatregelen hangen aan de
+            // beheersmaatregelen én aan hun SoA-regels, dus die moeten er zijn.
+            // Doet niets buiten een BIO-installatie.
+            OverheidsmaatregelSeeder::class,
             RisicocriteriaSeeder::class,
             TaaksjabloonSeeder::class,
             KpiDefinitieSeeder::class,

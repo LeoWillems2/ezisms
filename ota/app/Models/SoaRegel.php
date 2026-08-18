@@ -52,6 +52,22 @@ class SoaRegel extends Model
         return $this->hasMany(RestrisicoSnapshot::class)->orderBy('peiljaar');
     }
 
+    /**
+     * De BIO-verplichtingen onder deze beheersmaatregel, met wat de organisatie
+     * erover heeft vastgesteld (deelproducten/04b §2).
+     *
+     * Leeg buiten een BIO-installatie: daar staan geen overheidsmaatregelen in de
+     * tabel. Gesorteerd op volgnummer, want 5.24.03 hoort tussen .02 en .04 en niet
+     * op de plek waar de seeder hem toevallig aanmaakte.
+     */
+    public function overheidsmaatregelBeoordelingen(): HasMany
+    {
+        return $this->hasMany(OverheidsmaatregelBeoordeling::class)
+            ->join('overheidsmaatregelen', 'overheidsmaatregelen.id', '=', 'overheidsmaatregel_beoordelingen.overheidsmaatregel_id')
+            ->orderBy('overheidsmaatregelen.volgnummer')
+            ->select('overheidsmaatregel_beoordelingen.*');
+    }
+
     /** Blok 5: het koppelvlak dat hier bewust openbleef tot beleid bestond. */
     public function beleidsdocumenten(): BelongsToMany
     {

@@ -183,12 +183,14 @@ class MeetaanpakTest extends TestCase
             ->call('nieuweKpi')
             ->set('naam', 'Klikratio phishingsimulatie')
             ->set('meetbron', '')          // handmatig
-            ->set('fase', 'check')
-            ->set('eenheid', 'ratio')
-            ->set('richting', 'omlaag')
-            ->set('berekeningswijze', 'Klikkers gedeeld door verzonden simulatiemails.')
-            ->set('streefwaarde', '5')
-            ->set('signaalwaarde', '15')
+            ->set([
+                'fase' => 'check',
+                'eenheid' => 'ratio',
+                'richting' => 'omlaag',
+                'berekeningswijze' => 'Klikkers gedeeld door verzonden simulatiemails.',
+                'streefwaarde' => '5',
+                'signaalwaarde' => '15',
+            ])
             ->call('opslaan')
             ->assertHasNoErrors();
 
@@ -235,8 +237,10 @@ class MeetaanpakTest extends TestCase
         Livewire::actingAs($this->ciso())
             ->test(MeetaanpakOverzicht::class)
             ->call('bewerk', $kpi->id)
-            ->set('naam', 'SoA-regels met een beslissing')
-            ->set('streefwaarde', '98')
+            ->set([
+                'naam' => 'SoA-regels met een beslissing',
+                'streefwaarde' => '98',
+            ])
             ->call('opslaan')
             ->assertHasNoErrors();
 
@@ -323,9 +327,11 @@ class MeetaanpakTest extends TestCase
         Livewire::actingAs($this->ciso())
             ->test(MeetaanpakOverzicht::class)
             ->call('bewerk', $this->definitie('soa_beoordeeld')->id)
-            ->set('richting', 'omhoog')
-            ->set('streefwaarde', '90')
-            ->set('signaalwaarde', '95')
+            ->set([
+                'richting' => 'omhoog',
+                'streefwaarde' => '90',
+                'signaalwaarde' => '95',
+            ])
             ->call('opslaan')
             ->assertHasErrors('signaalwaarde');
     }
@@ -410,8 +416,10 @@ class MeetaanpakTest extends TestCase
         Livewire::actingAs($this->ciso())
             ->test(MeetaanpakOverzicht::class)
             ->call('bewerk', $kpi->id)
-            ->set('streefwaarde', '80')
-            ->set('signaalwaarde', '60')
+            ->set([
+                'streefwaarde' => '80',
+                'signaalwaarde' => '60',
+            ])
             ->call('opslaan')
             ->assertHasNoErrors();
 
@@ -426,8 +434,10 @@ class MeetaanpakTest extends TestCase
         Livewire::actingAs($this->ciso())
             ->test(MeetaanpakOverzicht::class)
             ->call('bewerk', $kpi->id)
-            ->set('streefwaarde', '')
-            ->set('signaalwaarde', '')
+            ->set([
+                'streefwaarde' => '',
+                'signaalwaarde' => '',
+            ])
             ->call('opslaan')
             ->assertHasNoErrors();
 
@@ -578,8 +588,10 @@ class MeetaanpakTest extends TestCase
         Livewire::actingAs($this->ciso())
             ->test(MeetaanpakOverzicht::class)
             ->call('bewerk', $kpi->id)
-            ->set('naam', 'Klikratio simulatie')
-            ->set('streefwaarde', '4')
+            ->set([
+                'naam' => 'Klikratio simulatie',
+                'streefwaarde' => '4',
+            ])
             ->call('opslaan')
             ->assertSet('toontMethodevraag', false)
             ->assertHasNoErrors();
@@ -616,10 +628,12 @@ class MeetaanpakTest extends TestCase
         Livewire::actingAs($this->ciso())
             ->test(MeetaanpakOverzicht::class)
             ->call('bewerk', $kpi->id)
-            ->set('berekeningswijze', 'Zelfde methode, andere woorden.')
-            ->set('richting', 'omhoog')
-            ->set('streefwaarde', '95')
-            ->set('signaalwaarde', '80')
+            ->set([
+                'berekeningswijze' => 'Zelfde methode, andere woorden.',
+                'richting' => 'omhoog',
+                'streefwaarde' => '95',
+                'signaalwaarde' => '80',
+            ])
             ->call('opslaan')
             ->call('beantwoordMethodevraag', false)
             ->assertHasNoErrors();
@@ -632,10 +646,12 @@ class MeetaanpakTest extends TestCase
         Livewire::actingAs($this->ciso())
             ->test(MeetaanpakOverzicht::class)
             ->call('nieuweKpi')
-            ->set('naam', 'Patches binnen SLA')
-            ->set('meetbron', '')
-            ->set('fase', 'do')
-            ->set('berekeningswijze', 'Patches binnen de SLA gedeeld door alle patches.')
+            ->set([
+                'naam' => 'Patches binnen SLA',
+                'meetbron' => '',
+                'fase' => 'do',
+                'berekeningswijze' => 'Patches binnen de SLA gedeeld door alle patches.',
+            ])
             ->call('opslaan')
             ->assertSet('toontMethodevraag', false)
             ->assertHasNoErrors();
@@ -673,10 +689,12 @@ class MeetaanpakTest extends TestCase
         Livewire::actingAs($ciso)
             ->test(MeetaanpakOverzicht::class)
             ->call('nieuwMeetpunt', $kpi->id)
-            ->set('gemetenOp', now()->toDateString())
-            ->set('teller', '7')
-            ->set('noemer', '140')
-            ->set('meettoelichting', 'Simulatieronde Q3.')
+            ->set([
+                'gemetenOp' => now()->toDateString(),
+                'teller' => '7',
+                'noemer' => '140',
+                'meettoelichting' => 'Simulatieronde Q3.',
+            ])
             ->call('slaMeetpuntOp')
             ->assertHasNoErrors();
 
@@ -698,9 +716,11 @@ class MeetaanpakTest extends TestCase
 
         foreach ([['7', '140'], ['9', '140']] as [$teller, $noemer]) {
             $component->call('nieuwMeetpunt', $kpi->id)
-                ->set('gemetenOp', now()->toDateString())
-                ->set('teller', $teller)
-                ->set('noemer', $noemer)
+                ->set([
+                    'gemetenOp' => now()->toDateString(),
+                    'teller' => $teller,
+                    'noemer' => $noemer,
+                ])
                 ->call('slaMeetpuntOp');
         }
 
@@ -729,9 +749,11 @@ class MeetaanpakTest extends TestCase
         Livewire::actingAs($this->ciso())
             ->test(MeetaanpakOverzicht::class)
             ->call('nieuwMeetpunt', $kpi->id)
-            ->set('gemetenOp', now()->addMonth()->toDateString())
-            ->set('teller', '7')
-            ->set('noemer', '140')
+            ->set([
+                'gemetenOp' => now()->addMonth()->toDateString(),
+                'teller' => '7',
+                'noemer' => '140',
+            ])
             ->call('slaMeetpuntOp')
             ->assertHasErrors('gemetenOp');
 
@@ -744,9 +766,11 @@ class MeetaanpakTest extends TestCase
         $component = Livewire::actingAs($this->ciso())->test(MeetaanpakOverzicht::class);
 
         $component->call('nieuwMeetpunt', $kpi->id)
-            ->set('gemetenOp', now()->toDateString())
-            ->set('teller', '0')
-            ->set('noemer', '0')
+            ->set([
+                'gemetenOp' => now()->toDateString(),
+                'teller' => '0',
+                'noemer' => '0',
+            ])
             ->call('slaMeetpuntOp')
             ->assertHasErrors('noemer');
 

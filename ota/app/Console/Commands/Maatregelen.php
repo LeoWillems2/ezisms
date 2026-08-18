@@ -30,8 +30,14 @@ class Maatregelen extends Command
 
     protected $description = 'Leest het maatregelbestand van dit normprofiel opnieuw in';
 
-    /** Hoeveel maatregelen elk profiel hoort te hebben. */
-    private const AANTALLEN = ['iso27001' => 93, 'nen7510' => 101];
+    /**
+     * Hoeveel maatregelen elk profiel hoort te hebben.
+     *
+     * `bio2` staat hier op 93 en niet op 211, en dat is geen slordigheid: de BIO
+     * laat Bijlage A ongemoeid. De 118 overheidsmaatregelen hangen er een niveau
+     * onder en hebben hun eigen controle in `isms:overheidsmaatregelen`.
+     */
+    private const AANTALLEN = ['iso27001' => 93, 'nen7510' => 101, 'bio2' => 93];
 
     /** @var list<string> */
     private const VERPLICHT = ['annex_a_referentie', 'thema', 'naam', 'omschrijving', 'zorgaanvulling'];

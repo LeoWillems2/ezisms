@@ -48,7 +48,7 @@ statusovergangen tellen, doen dat om die reden ook niet.
 
 ## Alle entiteiten die een regel opleveren
 
-Vierenveertig entiteiten schrijven naar de trail. Per blok:
+Vijfenveertig entiteiten schrijven naar de trail. Per blok:
 
 | Blok | Entiteit | Waarover de regels gaan |
 | --- | --- | --- |
@@ -65,6 +65,7 @@ Vierenveertig entiteiten schrijven naar de trail. Per blok:
 | Risicomanagement & SoA | `risicocriteria_versie` | Het vastgestelde kader: de drempelwaarden, de risk appetite, indienen en activeren |
 | Risicomanagement & SoA | `beoordelingsniveau` | Wat een niveau van kans of impact betekent, per criteriaversie |
 | Risicomanagement & SoA | `restrisico_snapshot` | De jaarlijkse vastlegging per control en de toelichting erop |
+| Risicomanagement & SoA | `overheidsmaatregel_beoordeling` | Alleen in het BIO-profiel: per overheidsmaatregel de status, de onderbouwing en de verwijzing naar de risicoanalyse |
 | Bewijsrepository & Audit Trail | `bewijsstuk` | Upload, metadata, archiveren, bewaartermijn |
 | Bewijsrepository & Audit Trail | `bewijs_koppeling` | Bewijs aan een record hangen of loskoppelen |
 | Taken & Workflow | `taak` | Aanmaken, toewijzen, afronden, verlopen |
@@ -103,7 +104,7 @@ dus onder Risicomanagement & SoA te staan, waar de auditor het zoekt.
 
 ## Drie soorten regels die er anders uitzien
 
-**Koppelingen.** Sinds 3 augustus 2026 komt ook het wijzigen van een koppeling in
+**Koppelingen.** Het wijzigen van een koppeling komt in
 de trail: welk beleid welke maatregel dekt, wie in welke doelgroep zit, welke
 clausules binnen een auditronde vallen. Eén regel per handeling met de delta
 erin, niet één per gekoppelde rij — de normatieve scope van een auditronde
@@ -143,10 +144,6 @@ niet dekt.
   beveiligingscontrole en geen opmaakkeuze: zonder uitsluiting zou een
   wachtwoordhash leesbaar belanden in een tabel die de Auditor mag inzien én
   exporteren.
-- **Koppelingen van vóór 3 augustus 2026.** Die dragen geen datum en geen naam,
-  en van koppelingen die daarvóór zijn weggehaald bestaat geen enkel spoor. Het
-  is niet met terugwerkende kracht te maken; doen alsof van wel is erger dan de
-  beperking noemen.
 - **Wijzigingen buiten de applicatie om.** Wie rechtstreeks in de database
   schrijft, komt niet in de trail. Zie hieronder.
 

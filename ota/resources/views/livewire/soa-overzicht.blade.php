@@ -31,19 +31,30 @@
         </flux:callout>
     @endif
 
-    {{-- Voortgang: het gap-signaal in één oogopslag. --}}
-    <div class="grid gap-4 sm:grid-cols-3">
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
-            <flux:text>Beoordeeld</flux:text>
-            <flux:heading size="lg">{{ $totaal - $onbeslist }} / {{ $totaal }}</flux:heading>
-        </div>
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
-            <flux:text>Van toepassing</flux:text>
-            <flux:heading size="lg">{{ $vanToepassingJa }}</flux:heading>
-        </div>
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
-            <flux:text>Geïmplementeerd</flux:text>
-            <flux:heading size="lg">{{ $geimplementeerd }} / {{ $vanToepassingJa }}</flux:heading>
+    {{-- Voortgang: het gap-signaal in één oogopslag.
+
+         Elk niveau draagt zijn eigen kop met zijn eigen aantal. Tot 17-08-2026
+         stonden hier twee losse blokken tellers die allebei over "maatregelen"
+         spraken — het ene over 93, het andere over 118. Het woord "maatregelen"
+         zonder bijvoeglijk naamwoord komt op dit scherm niet meer voor. --}}
+    <div>
+        <flux:heading size="sm">
+            {{ $norm->bijlage }} — {{ $totaal }} beheersmaatregelen
+        </flux:heading>
+
+        <div class="mt-2 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                <flux:text>Beoordeeld</flux:text>
+                <flux:heading size="lg">{{ $totaal - $onbeslist }} / {{ $totaal }}</flux:heading>
+            </div>
+            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                <flux:text>Van toepassing</flux:text>
+                <flux:heading size="lg">{{ $vanToepassingJa }}</flux:heading>
+            </div>
+            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                <flux:text>Geïmplementeerd</flux:text>
+                <flux:heading size="lg">{{ $geimplementeerd }} / {{ $vanToepassingJa }}</flux:heading>
+            </div>
         </div>
     </div>
 
@@ -56,6 +67,93 @@
                 eindstand voor een audit.
             </flux:callout.text>
         </flux:callout>
+    @endif
+
+    {{-- De BIO-laag (deelproducten/04b §6). Het eerste cijfer dat de RDI vraagt, en
+         dus niet weggestopt in de modal. Verschijnt alleen in een BIO-installatie:
+         `$biodekking->totaal` is elders nul omdat de tabel dan leeg is. --}}
+    @if ($biodekking->totaal > 0)
+        <div>
+            <flux:heading size="sm">
+                Deel 2 — {{ $biodekking->totaal }} overheidsmaatregelen ({{ $norm->naam_kort }})
+            </flux:heading>
+            <flux:text class="text-xs">
+                De verplichte minimale invulling per beheersmaatregel. Beoordelen doe je per
+                verplichting, in de maatregel zelf.
+            </flux:text>
+
+            <div class="mt-2 grid gap-4 sm:grid-cols-4">
+                <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                    {{-- De noemer is het aantal dat van toepassing is, niet het
+                         totaal. Daarom staat "Uitzonderingen" ernaast: samen tellen
+                         ze op tot het aantal in de kop, en pas dan is dit cijfer te
+                         herleiden. Zonder dat leest "3 / 115" als volledig. --}}
+                    <flux:text class="text-xs">Belegd</flux:text>
+                    <flux:heading size="lg">
+                        {{ $biodekking->belegd }} / {{ $biodekking->totaal - $biodekking->nietVanToepassing }}
+                        @if ($biodekking->percentageBelegd() !== null)
+                            <span class="text-sm font-normal">({{ $biodekking->percentageBelegd() }}%)</span>
+                        @endif
+                    </flux:heading>
+                </div>
+                <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                    <flux:text class="text-xs">Nog niet beoordeeld</flux:text>
+                    <flux:heading size="lg">{{ $biodekking->onbeoordeeld }}</flux:heading>
+                </div>
+                <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                    <flux:text class="text-xs">Uitzonderingen</flux:text>
+                    <flux:heading size="lg">{{ $biodekking->nietVanToepassing }}</flux:heading>
+                </div>
+                <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                    {{-- Verplichtende zelfregulering in plaats van de wet; zie de
+                         kennisbank. Apart getoond omdat het bepaalt wát de RDI kan
+                         handhaven. --}}
+                    <flux:text class="text-xs">Buiten Cbw-reikwijdte</flux:text>
+                    <flux:heading size="lg">{{ $biodekking->buitenCbw }}</flux:heading>
+                </div>
+            </div>
+
+            @if ($biodekking->signalen() !== [])
+                <div class="mt-3 flex flex-wrap gap-1.5">
+                    @foreach ($biodekking->signalen() as $signaal => $aantal)
+                        <flux:badge size="sm" color="amber">{{ $aantal }} × {{ $signaal }}</flux:badge>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+        {{-- Deel 1 §15 vraagt balans over precies deze drie dimensies. Dat is de
+             enige plek waar de BIO iets vraagt wat ISO niet noemt en waar dit ISMS
+             de gegevens al had. --}}
+        @if ($balans && $balans->verdeling !== [])
+            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                <flux:heading size="sm">Balans in de maatregelenset</flux:heading>
+                <flux:text class="mt-1 text-xs">
+                    Over de {{ $balans->totaal }} maatregelen die van toepassing zijn of nog onbeslist.
+                    Eén maatregel kan meerdere waarden dragen, dus een reeks telt hoger op dan het
+                    aantal maatregelen — de vraag is of een aspect achterblijft.
+                </flux:text>
+
+                <div class="mt-3 grid gap-4 sm:grid-cols-3">
+                    @foreach ($balans->verdeling as $dimensie => $waarden)
+                        <div>
+                            <flux:text class="text-xs font-medium">{{ $balans->label($dimensie) }}</flux:text>
+                            <div class="mt-1.5 space-y-1">
+                                @php $piek = max(1, $balans->piek($dimensie)); @endphp
+                                @foreach ($waarden as $waarde => $aantal)
+                                    <div class="flex items-center gap-2">
+                                        <span class="w-32 shrink-0 truncate text-xs" title="{{ $waarde }}">{{ $waarde }}</span>
+                                        <span class="h-2 rounded bg-zinc-300 dark:bg-zinc-600"
+                                            style="width: {{ max(2, (int) round($aantal / $piek * 100)) }}%"></span>
+                                        <span class="text-xs tabular-nums">{{ $aantal }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     @endif
 
     {{-- Filters --}}
@@ -93,6 +191,11 @@
                     <flux:table.column>Implementatiestatus</flux:table.column>
                     <flux:table.column>Restrisico</flux:table.column>
                     <flux:table.column>Beleid</flux:table.column>
+                    {{-- Alleen in een BIO-installatie: elders is er niets om te
+                         tellen en zou een lege kolom de lezer laten zoeken. --}}
+                    @if ($toontVerplichtingen)
+                        <flux:table.column>Verplichtingen</flux:table.column>
+                    @endif
                     <flux:table.column>Laatst beoordeeld</flux:table.column>
                     <flux:table.column align="end">Acties</flux:table.column>
                 </flux:table.columns>
@@ -163,6 +266,23 @@
                                     <flux:text>—</flux:text>
                                 @endif
                             </flux:table.cell>
+                            @if ($toontVerplichtingen)
+                                @php $heeftVerplichtingen = (bool) $regel?->overheidsmaatregelBeoordelingen->isNotEmpty(); @endphp
+                                <flux:table.cell>
+                                    @if ($heeftVerplichtingen)
+                                        {{-- Een knop en geen tekst: de dekking is het
+                                             cijfer én de ingang naar de nummers. --}}
+                                        <flux:button size="sm" variant="ghost"
+                                            :icon="$this->isUitgeklapt($regel->id) ? 'chevron-down' : 'chevron-right'"
+                                            wire:click="klapUit({{ $regel->id }})"
+                                            title="{{ $this->bioTitel($regel) }}">
+                                            {{ $this->bioLabel($regel) }}
+                                        </flux:button>
+                                    @else
+                                        <flux:text title="{{ $this->bioTitel($regel) }}">—</flux:text>
+                                    @endif
+                                </flux:table.cell>
+                            @endif
                             <flux:table.cell>
                                 {{ $regel?->laatst_beoordeeld_op?->format('d-m-Y') ?? '—' }}
                             </flux:table.cell>
@@ -177,6 +297,20 @@
                                 @endif
                             </flux:table.cell>
                         </flux:table.row>
+
+                        {{-- De tweede regellaag (deelproducten/04c §3.2). Eén cel over
+                             de volle breedte en niet de kolommen hierboven hergebruikt:
+                             "Van toepassing", "Restrisico" en "Beleid" betekenen op dit
+                             niveau niets, en een lege cel onder een kop is een vraag die
+                             niemand kan beantwoorden. Leesweergave — beoordelen blijft
+                             in de modal. --}}
+                        @if ($toontVerplichtingen && $regel && $this->isUitgeklapt($regel->id))
+                            <flux:table.row wire:key="verplichtingen-{{ $regel->id }}">
+                                <flux:table.cell colspan="9" class="bg-zinc-50 dark:bg-zinc-900">
+                                    @include('partials.overheidsmaatregelen-regellaag', ['regel' => $regel])
+                                </flux:table.cell>
+                            </flux:table.row>
+                        @endif
                     @endforeach
                 </flux:table.rows>
             </flux:table>
@@ -243,6 +377,178 @@
                                         @endforeach
                                     </div>
                                 @endif
+                            @endforeach
+                        </div>
+                    @endif
+
+                    {{-- De BIO-verplichtingen onder deze beheersmaatregel
+                         (deelproducten/04b §5.4). Een eigen blok en geen aanhangsel
+                         aan de omschrijving: bron, verplichtend karakter en
+                         licentiestatus verschillen, en dat moet zichtbaar blijven.
+                         Twee dingen die de zorgvariant hierboven niet kent: het
+                         nummer per verplichting — daar verwijst een auditrapport
+                         naar — en de Cbw-reikwijdte. --}}
+                    @if ($this->bewerkteRegel->overheidsmaatregelBeoordelingen->isNotEmpty())
+                        <div class="mt-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                            <flux:heading size="sm">Overheidsmaatregelen ({{ $norm->naam_kort }})</flux:heading>
+                            <flux:text class="mt-1 text-xs">
+                                De verplichte minimale invulling van deze beheersmaatregel. Deze
+                                verplichtingen kunnen niet op grond van een risico-inschatting worden
+                                geaccepteerd — alleen als ze niet van toepassing kúnnen zijn, en dan
+                                met een risicoanalyse erbij.
+                            </flux:text>
+
+                            <div class="mt-3 space-y-4">
+                                @foreach ($this->bewerkteRegel->overheidsmaatregelBeoordelingen as $beoordeling)
+                                    @php $om = $beoordeling->overheidsmaatregel; @endphp
+                                    <div class="border-t border-zinc-100 pt-3 first:border-0 first:pt-0 dark:border-zinc-800">
+                                        <div class="flex flex-wrap items-center gap-1.5">
+                                            <flux:badge size="sm" color="zinc">{{ $om->nummer }}</flux:badge>
+                                            @unless ($om->cbw_reikwijdte)
+                                                <flux:badge size="sm" color="amber"
+                                                    title="Verplichtende zelfregulering in plaats van de Cyberbeveiligingswet">
+                                                    Buiten Cbw-reikwijdte
+                                                </flux:badge>
+                                            @endunless
+                                            @if ($beoordeling->mistRisicoanalyse())
+                                                <flux:badge size="sm" color="amber">Risicoanalyse ontbreekt</flux:badge>
+                                            @endif
+                                            @if ($beoordeling->laatst_beoordeeld_op)
+                                                <flux:text class="text-xs">
+                                                    beoordeeld {{ $beoordeling->laatst_beoordeeld_op->format('d-m-Y') }}
+                                                </flux:text>
+                                            @endif
+                                        </div>
+
+                                        {{-- Twee toestanden, net als bij de omschrijving hierboven:
+                                             óf de installatie heeft de BIO-tekst zelf ingelezen, óf
+                                             er staat een mededeling met de reden. Die reden is hier
+                                             een andere — een licentie, geen keuze. --}}
+                                        {{-- `whitespace-pre-line`: 40 van de 118 teksten zijn
+                                             meerregelig met opsommingstekens, en HTML vouwt die
+                                             regelovergangen anders weg tot één lange zin. --}}
+                                        @if ($om->toontTekst())
+                                            <flux:text class="mt-1 whitespace-pre-line text-sm">{{ $om->tekst }}</flux:text>
+                                        @else
+                                            <flux:text class="mt-1 text-sm">
+                                                {{ \App\Models\Overheidsmaatregel::GEEN_TEKST_AANHEF }}
+                                                <a href="{{ route('kennisbank', \App\Models\Maatregel::DISCLAIMER_SLUG) }}"
+                                                   wire:navigate class="underline">{{ \App\Models\Maatregel::DISCLAIMER_LABEL }}</a>.
+                                            </flux:text>
+                                        @endif
+
+                                        @if ($this->magMuteren())
+                                            <div class="mt-2 space-y-2">
+                                                <flux:select size="sm"
+                                                    wire:model.live="beoordelingen.{{ $beoordeling->id }}.status"
+                                                    label="Status">
+                                                    @foreach ($beoordelingStatussen as $waarde => $label)
+                                                        <flux:select.option value="{{ $waarde }}">{{ $label }}</flux:select.option>
+                                                    @endforeach
+                                                </flux:select>
+
+                                                @php $gekozen = $beoordelingen[$beoordeling->id]['status'] ?? ''; @endphp
+
+                                                @if (in_array($gekozen, \App\Models\OverheidsmaatregelBeoordeling::MOTIVATIE_VERPLICHT, true))
+                                                    <flux:textarea rows="2"
+                                                        wire:model="beoordelingen.{{ $beoordeling->id }}.motivatie"
+                                                        label="Onderbouwing"
+                                                        placeholder="Waarom is deze verplichting niet belegd, of waarom kán ze niet van toepassing zijn?" />
+                                                @endif
+
+                                                {{-- Altijd zichtbaar en nooit verplicht: dezelfde twee
+                                                     velden als op de SoA-regel zelf, één niveau lager.
+                                                     Wat hier verschilt van het beleid bij de
+                                                     beheersmaatregel is de vindplaats — een hoofdstuk,
+                                                     een processtap. --}}
+                                                <div class="grid gap-2 sm:grid-cols-2">
+                                                    <flux:input size="sm"
+                                                        wire:model="beoordelingen.{{ $beoordeling->id }}.beleidreferentie"
+                                                        label="Beleidreferentie"
+                                                        placeholder="bijv. Wachtwoordbeleid §4.2" />
+                                                    <flux:input size="sm"
+                                                        wire:model="beoordelingen.{{ $beoordeling->id }}.procesreferentie"
+                                                        label="Procesreferentie"
+                                                        placeholder="bijv. Incidentproces, stap 3" />
+                                                </div>
+
+                                                @if ($gekozen === 'niet_van_toepassing')
+                                                    {{-- Alleen behandelingen die aan déze control hangen.
+                                                         Een verwijzing naar een risicoanalyse over iets
+                                                         anders ziet eruit als een onderbouwing en is dat
+                                                         niet. --}}
+                                                    <flux:select size="sm"
+                                                        wire:model="beoordelingen.{{ $beoordeling->id }}.risicobehandeling_id"
+                                                        label="Onderbouwende risicoanalyse">
+                                                        <flux:select.option value="">— geen —</flux:select.option>
+                                                        @foreach ($this->bewerkteRegel->risicobehandelingen as $behandeling)
+                                                            <flux:select.option value="{{ $behandeling->id }}">
+                                                                {{ $behandeling->risico?->titel ?? 'Risico #'.$behandeling->risico_id }}
+                                                                ({{ $behandeling->behandeloptie }})
+                                                            </flux:select.option>
+                                                        @endforeach
+                                                    </flux:select>
+
+                                                    @if ($this->bewerkteRegel->risicobehandelingen->isEmpty())
+                                                        <flux:text class="text-xs">
+                                                            Er hangt nog geen risicobehandeling aan deze maatregel. De BIO vraagt
+                                                            in de bijlage Uitzonderingen om een verwijzing naar de risicoanalyse;
+                                                            leg die koppeling vanuit het risico en kom hier terug.
+                                                        </flux:text>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        @else
+                                            <flux:text class="mt-1 text-xs">
+                                                Status: {{ $beoordeling->statusLabel() }}
+                                                @if ($beoordeling->motivatie) — {{ $beoordeling->motivatie }} @endif
+                                            </flux:text>
+                                            @if ($beoordeling->beleidreferentie || $beoordeling->procesreferentie)
+                                                <flux:text class="text-xs">
+                                                    {{ collect([$beoordeling->beleidreferentie, $beoordeling->procesreferentie])
+                                                        ->filter()->implode(' · ') }}
+                                                </flux:text>
+                                            @endif
+                                        @endif
+
+                                        {{-- Bewijs per verplichting (04c §4.2): bij 5.24.03
+                                             en niet bij 5.24. Eén paneel tegelijk — zeven
+                                             Livewire-componenten in één modal is niet wat de
+                                             gebruiker vraagt en wel wat de browser merkt. --}}
+                                        <div class="mt-2">
+                                            <div class="flex flex-wrap items-center gap-1.5">
+                                                @if ($beoordeling->mistBewijs())
+                                                    <flux:badge size="sm" color="amber">Geen bewijs</flux:badge>
+                                                @else
+                                                    <flux:badge size="sm" color="zinc">
+                                                        {{ $beoordeling->bewijsKoppelingen->count() }} × bewijs
+                                                    </flux:badge>
+                                                @endif
+                                                <flux:button size="xs" variant="ghost"
+                                                    wire:click="toonBewijs({{ $beoordeling->id }})">
+                                                    {{ $bewijsVoor === $beoordeling->id ? 'Bewijs verbergen' : 'Bewijs beheren' }}
+                                                </flux:button>
+                                            </div>
+
+                                            @if ($bewijsVoor === $beoordeling->id)
+                                                <div class="mt-2">
+                                                    <livewire:bewijs-paneel blok-naam="risico-soa"
+                                                        entiteit-type="overheidsmaatregel_beoordeling"
+                                                        :entiteit-id="$beoordeling->id"
+                                                        :wire:key="'bewijs-om-'.$beoordeling->id" />
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            {{-- Alle meldingen en niet alleen de eerste: bij zeven
+                                 verplichtingen onder één maatregel kunnen er meerdere
+                                 tegelijk onderbouwing missen, en dan is één melding
+                                 een verstopte foutmelding. --}}
+                            @foreach ($errors->get('beoordelingen') as $melding)
+                                <flux:text class="mt-2 text-sm" variant="danger">{{ $melding }}</flux:text>
                             @endforeach
                         </div>
                     @endif

@@ -61,7 +61,7 @@ applicatie zich gedraagt. Alleen de eerste is onomkeerbaar.
 
 | Sleutel | Standaard | Wat het doet |
 |---|---|---|
-| `ISMS_NORM` | `iso27001` | Normprofiel: `iso27001` (93 maatregelen) of `nen7510` (101). |
+| `ISMS_NORM` | `iso27001` | Normprofiel: `iso27001` (93 maatregelen), `nen7510` (101) of `bio2` (93 + 118 overheidsmaatregelen). |
 | `ISMS_2FA_AFDWINGEN` | `true` | Tweefactor verplicht, met `ISMS_2FA_RESPIJT_DAGEN` (14) respijt na de eerste login. |
 | `ISMS_CBW_PLICHTIG` | `false` | Of de organisatie onder de Cyberbeveiligingswet valt; stuurt de meldtermijnen in blok 8. |
 | `ISMS_CAPACITEITEN` | `false` | De kenmerkdimensie "Capaciteiten". Zet hem **niet** met de hand aan — zie hieronder. |
@@ -383,9 +383,12 @@ Medewerkers hebben hier bewust géén toegang — er staat geen rij voor die rol
 in de rechtenmatrix, en dat betekent "geen toegang".
 
 - **Eén maatregelbestand per normprofiel** (plan 04f).
-  `database/seeders/data/maatregelen-iso27001.json` (93) en
-  `maatregelen-nen7510.json` (101); `MaatregelSeeder` kiest op het profiel en
-  beslist verder niets. Beide staan **wél in versiebeheer**: ze dragen
+  `database/seeders/data/maatregelen-iso27001.json` (93),
+  `maatregelen-nen7510.json` (101) en `maatregelen-bio2.json` (dezelfde 93 als
+  ISO — de BIO laat Bijlage A ongemoeid); `MaatregelSeeder` kiest op het profiel
+  en beslist verder niets. Daarnaast `overheidsmaatregelen-bio2.json` met de 118
+  BIO-verplichtingen die een niveau lager hangen (plan 04h). Alle vier staan
+  **wél in versiebeheer**: ze dragen
   referenties, thema's en titels — openbaar bekend — plus een vaste markering op
   elke plek waar normtekst zou kunnen staan. Het ISMS levert bewust geen eigen
   maatregelomschrijvingen; dat zou een interpretatie van de norm zijn op de plek
@@ -1011,7 +1014,7 @@ gebouwd en niet in dit blok, anders zit hij vast aan één dossiersoort.
 
 Geen ISMS-blokken, wel deel van de applicatie.
 
-- **Normprofiel** (00h). ISO 27001 of NEN 7510 — een superset, geen fork, dus
+- **Normprofiel** (00h). ISO 27001, NEN 7510 of BIO2 — geen forks, dus
   een profielschakelaar. De labellaag loopt via een gedeelde `$norm`-variabele
   (`Normlabels`, via `View::share`) en niet via een Blade-directive: die
   compileert niet binnen component-attributen, want `label="…"` van een
@@ -1155,7 +1158,12 @@ afzonderlijk geregeld — zie `implementatie/00p-docker-logging.md`.
 php artisan test                          # alles, precies één keer
 php artisan test --testsuite=risico-soa   # tijdens iteratie: één domein
 php artisan test --group=nen7510          # de normprofiel-delta
+php artisan test --group=bio2              #   idem, voor het BIO-profiel
 ```
+
+Profielvastheid toets je door de hele suite één keer per profiel te draaien met
+`ISMS_NORM=<profiel> php artisan test`; dat hoort schoon te zijn, want elke test
+die een profiel nodig heeft zet dat zelf.
 
 PHPUnit (geen Pest — dat zit niet in de dependencies van de starter kit).
 **Ruim 1000 tests**, verdeeld over dertien suites: `Unit` plus twaalf

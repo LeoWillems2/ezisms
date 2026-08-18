@@ -31,7 +31,7 @@ Vul `.env` in. Minimaal nodig:
 | Sleutel | |
 |---|---|
 | `ISMS_BOOM` | de mapnaam van de uitgepakte tarbal |
-| `ISMS_NORM` | `iso27001` of `nen7510` — **onomkeerbaar**, zie §5 |
+| `ISMS_NORM` | `iso27001`, `nen7510` of `bio2` — **onomkeerbaar**, zie §5 |
 | `APP_URL` | de publieke URL, achter HAProxy dus `https://…` |
 | `MYSQL_ROOT_PASSWORD`, `MYSQL_WACHTWOORD` | twee sterke wachtwoorden |
 | `ISMS_CISO_EMAIL` | niet verplicht, maar dan staat het eerste account er meteen — zie §2 |
@@ -179,7 +179,7 @@ die normstempel en de database met elkaar vergeleken, en die drie moeten
 hetzelfde zeggen. Stilzwijgend doormigreren zou een ISMS opleveren dat een norm
 claimt die het niet volgt.
 
-Wilt u twee normen naast elkaar, dan zijn dat twee stacks in twee mappen, elk
+Wilt u meer dan één norm naast elkaar, dan is dat een stack per norm in een eigen map, elk
 met een eigen `.env` en een eigen `HTTP_POORT`. Ze botsen niet: de containernamen
 worden uit de mapnaam afgeleid.
 

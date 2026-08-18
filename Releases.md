@@ -8,10 +8,130 @@ blijven de bron, dit bestand is de leesbare vorm ervan.
 telt uitgaven met nieuwe functionaliteit, het derde is voor correcties op een
 uitgave die al buiten staat. Tot nu toe is er één zo'n correctie geweest: V2.2.1.
 
-Elke uitgave is een annotated tag; `git tag -l --format='%(contents)' V2.6.0`
+Elke uitgave is een annotated tag; `git tag -l --format='%(contents)' V2.8.0`
 geeft de oorspronkelijke tekst.
 
 ---
+
+## V2.8.0 — de BIO-verplichtingen komen in beeld
+
+*17-08-2026*
+
+V2.7.0 bouwde de 118 overheidsmaatregelen als eigen niveau onder Bijlage A, en dat
+datamodel klopt. De weergave niet. Uit "eigen entiteit" was stilzwijgend
+"ondergeschikt in beeld" afgeleid, en dat volgt er niet uit: het detailniveau waar
+de RDI naar vraagt was het minst zichtbare deel van de applicatie. De SoA-tabel
+toonde er niets over, en de Word-kopie die een auditor meekrijgt bevatte één kolom
+met "3 / 7" en geen enkel nummer. De vraag "laat 5.24.03 zien" was alleen te
+beantwoorden uit een markdownbestand dat uit een terminalcommando rolt.
+
+De maatstaf van deze uitgave is precies die vraag. In de SoA-tabel staat nu een
+kolom **Verplichtingen** waarvan het cijfer de verplichtingen onder de regel
+openklapt — nummer, status, tekst, onderbouwing, verwijzingen en het bewijs dat
+eronder hangt. Dat is een leesweergave; beoordelen blijft in de modal, want twee
+bewerkroutes naar hetzelfde veld is hoe een scherm en zijn kopie uit elkaar gaan
+lopen. De 39 beheersmaatregelen zonder verplichting houden hun streepje, maar met
+de reden erbij: daar schrijft de norm een andere route voor, en zwijgen leest als
+"hier is niets te doen".
+
+**De kopie voor de auditor draagt nu een bijlage.** `Schermkopie` kon één tabel;
+er kan er een tweede onder, met eigen kop, eigen kolommen en een eigen
+omvangregel. Dat is een bouwsteen van blok 12h en niet van dit ene scherm — een
+volgend register met een tweede detailniveau krijgt hem gratis. De SoA vult hem
+met de verplichtingen als eigen regels, en uitdrukkelijk ongeacht wat er
+openstond: een auditdocument dat afhangt van welke rijen iemand toevallig had
+opengeklikt is niet reproduceerbaar. Zonder normtekst, om drie redenen die
+dezelfde kant op wijzen — hij is er lang niet altijd, hij loopt op tot 1400 tekens
+en is in een tabelcel onleesbaar, en hij staat onder CC BY-NC-SA.
+
+**Twee getallen die als één werden gelezen.** De kop van `/soa` toonde twee
+blokken tellers die allebei over "maatregelen" spraken, het ene over 93 en het
+andere over 118. Elk niveau noemt nu zijn eigen aantal. En de dekking "3 / 7" telt
+niet zeven verplichtingen maar zeven niet-uitgezonderde; het aantal uitzonderingen
+staat er nu overal naast, zodat de noemer te herleiden is. Zonder dat leest een
+volledig ogende breuk over tien verplichtingen waarvan er drie zijn weggelaten.
+
+Per verplichting zijn er twee eigen referentievelden bijgekomen, met dezelfde
+namen en lengte als op de SoA-regel: waar het beleidsdocument bij de
+beheersmaatregel hangt, staat hier de vindplaats. Ze gaan mee de VvT-export in,
+want velden die je kunt invullen en die nooit in het auditdocument komen zijn half
+gebouwd. Bewijs koppelen kon al bij 5.24.03 in plaats van bij 5.24, maar er was
+geen route naartoe vanuit de SoA; die is er nu, met één paneel tegelijk.
+
+**En de teksten liepen in elkaar.** Veertig van de 118 verplichtingen hebben een
+opsomming in hun tekst. De exporthelper voor tabelcellen sloeg elke regelovergang
+plat naar een spatie — juist in een tabel, fout in een opsommingsregel — en HTML
+deed op het scherm hetzelfde. Beide behouden nu de structuur. Dat werd pas
+zichtbaar toen er voor het eerst echte normtekst in een installatie stond; het pad
+om die in te lezen was zelf ook nooit helemaal doorlopen, en de bewaking erop
+stopte op een zoeksleutel die nooit kon matchen.
+
+1105 tests groen, in alle normprofielen.
+
+## V2.7.0 — de BIO als derde normprofiel
+
+*17-08-2026*
+
+De Baseline Informatiebeveiliging Overheid 2 komt erbij, en ze past minder
+vanzelfsprekend dan NEN 7510 deed. Die was een superset op hetzelfde niveau:
+93 + 8 maatregelen in Bijlage A, plus een tekstveld per maatregel. De BIO laat
+Bijlage A volledig ongemoeid — geen enkele nieuwe maatregel, geen enkele
+hernummerd — en hangt er een niveau ónder: 118 genummerde overheidsmaatregelen,
+tot zeven onder één beheersmaatregel, elk met eigen status, onderbouwing en
+bewijs. Dus een derde *profiel* met een nieuw detailniveau, en geen derde
+maatregelenset. Waar ISO zegt "beheer je toegangsrechten", zegt de BIO hoe vaak je
+ze beoordeelt.
+
+Het profielmechanisme uit V2.1.0 hield stand: acht plekken in de code zijn op
+profiel gesleuteld en de labellaag hoefde nergens aangeraakt. Wat er wél bij moest,
+is een eigen impactschaal — `config/beoordelingsschaal.php` gooit bij een ontbrekend
+profiel, en dat is hier geen formaliteit. De BIO weegt politieke en diplomatieke
+schade, verlies van publiek vertrouwen en verlies van management control. Een
+gemeente die op de ISO-schaal scoort ("hinder binnen één team") onderschat dat
+stelselmatig; op het hoogste niveau is de schade politiek en niet financieel.
+
+**Geen normtekst in het repo, en deze keer om een andere reden.** Bij ISO en
+NEN 7510 is dat een licentie van ISO respectievelijk NEN. De BIO is kosteloos te
+downloaden, maar staat onder CC BY-NC-SA 4.0: niet-commercieel en gelijk delen. Of
+de aanwijzing in het Cyberbeveiligingsbesluit die beperking opheft — regelgeving
+van de openbare macht is vrij van auteursrecht — is een juridische vraag die
+openstaat. Tot ze beantwoord is levert het repo alleen openbaar bekende structuur:
+nummers, de koppeling aan de beheersmaatregel, de status en de reikwijdte van de
+Cyberbeveiligingswet. Wie de BIO zelf heeft, vult de teksten in een gitignored
+bestand ernaast.
+
+Drie beheersmaatregelen vallen buiten die reikwijdte: intellectueel eigendom,
+archivering en privacy hebben hun eigen wet. Daar geldt verplichtende
+zelfregulering in plaats van iets wat de RDI kan handhaven, en de SoA markeert dat
+— want het is precies het onderscheid waarop een gesprek vastloopt als niemand het
+benoemt.
+
+**Twee fouten die pas bij het uitrollen zichtbaar werden**, en beide van dezelfde
+soort: een aanname die klopte zolang er twee profielen waren.
+
+`profiel_uit_database()` in `deploy.sh` leidde het profiel af uit de controlset —
+101 maatregelen plus acht zorgmaatregelen was NEN, 93 zonder was ISO. De BIO heeft
+óók 93 zonder, dus een volkomen correcte BIO-installatie werd als `iso27001`
+gelezen en de uitrol brak af met de melding dat de seeders het verkeerde profiel
+hadden opgeleverd — terwijl in hetzelfde log stond dat `bio2` was vastgelegd. Het
+raadt nu niet meer maar leest de tabel `normprofiel`, die er sinds V2.1.0 is.
+Daarnaast stond de lijst geldige waarden voor `--profiel=` uitgeschreven in het
+script; die komt nu uit `config/norm.php` van de uitgave zelf.
+
+En `env_waarde()` las een `.env` anders dan de applicatie: het nam de láátste regel
+met een sleutel waar phpdotenv de eerste neemt, en het knipte geen comment achter
+een waarde af. Een dubbele `ISMS_NORM` en een `DB_PASSWORD='geheim'   # notitie`
+leverden daardoor storingen op waarbij de foutmelding de andere kant op wees. De
+functie volgt nu phpdotenv, en een sleutel die meer dan één keer voorkomt geeft een
+waarschuwing vóór het seeden in plaats van een verrassing erna.
+
+**Meegegroeid.** `KennisbankNormprofielTest` liep over een hardgecodeerde lijst van
+twee profielen en nu over `config('norm.profielen')` — een lijst die niet meegroeit
+bewaakt op den duur het verkeerde. `NormprofielSeeder` waarschuwt nu als hij op zijn
+standaard terugvalt: een ontbrekende `ISMS_NORM` was niet te onderscheiden van een
+bewuste keuze voor ISO, en die vastlegging is onomkeerbaar.
+
+1090 tests groen, in alle normprofielen.
 
 ## V2.6.0 — de bewaking merkt haar eigen stilstand
 

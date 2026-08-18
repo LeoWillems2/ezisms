@@ -178,6 +178,13 @@ De kopie van de audit trail draagt de kophash van de keten. Die kopie is de
 moeite van het bewaren waard: bij een volgende audit is één vergelijking genoeg
 om vast te stellen dat de historie niet is herschreven.
 
+Draagt de installatie een tweede detailniveau, dan komt dat als **bijlage** onder
+de tabel mee, met een eigen omvangregel. In een BIO-installatie staan daar de
+genummerde overheidsmaatregelen — dus met 5.24.03 als eigen regel en niet
+samengevat tot een cijfer bij 5.24. Wat er niet in staat is de normtekst zelf;
+die is auteursrechtelijk beschermd en hoort in het exemplaar van de norm dat je
+er zelf naast hebt liggen.
+
 ## Interne audits en dekking
 
 Onder **Audits** staat de opbouw programma → jaarplan → ronde. Een ronde heeft een
@@ -216,16 +223,36 @@ disclaimer](/kennisbank/verantwoording-en-disclaimer).
 
 ## Welke norm deze installatie volgt
 
-Bij installatie is gekozen tussen ISO 27001 en NEN 7510, en die keuze ligt daarna
-vast. Welk profiel geldt, staat bovenaan het menu: daar staat "ISMS" met de naam
-van de norm erachter.
+Bij installatie is gekozen tussen ISO 27001, NEN 7510 en de BIO2, en die keuze ligt
+daarna vast. Welk profiel geldt, staat bovenaan het menu: daar staat "ISMS" met de
+naam van de norm erachter.
 
-Is dat NEN 7510, dan verandert er minder dan het lijkt. De hoofdstukken 4 tot en
-met 10 zijn dezelfde Harmonized Structure; de bijlage bevat de ISO-maatregelen
-plus acht zorgspecifieke, die gewoon tussen de andere in de Verklaring van
-Toepasselijkheid staan. Waar een bestaande maatregel een zorgspecifieke aanvulling
-heeft, is dat als apart blok zichtbaar — zonder de tekst, maar mét de mededeling
-dát er een is, zodat duidelijk is waar de norm erbij nodig is.
+Bij alle drie zijn de hoofdstukken 4 tot en met 10 dezelfde Harmonized Structure.
+Wat verschilt, is de bijlage.
+
+Is het **NEN 7510**, dan bevat de bijlage de ISO-maatregelen plus acht
+zorgspecifieke, die gewoon tussen de andere in de Verklaring van Toepasselijkheid
+staan. Waar een bestaande maatregel een zorgspecifieke aanvulling heeft, is dat als
+apart blok zichtbaar — zonder de tekst, maar mét de mededeling dát er een is, zodat
+duidelijk is waar de norm erbij nodig is.
+
+Is het **BIO2**, dan is de bijlage ongewijzigd: dezelfde maatregelen als onder ISO.
+Het verschil zit een niveau lager. Onder een groot deel ervan hangen genummerde
+*overheidsmaatregelen* — de verplichte minimale invulling — elk met een eigen
+status, onderbouwing en bewijs. Dat is ook het niveau waarop u hier hoort te
+toetsen: "A.5.24 is geïmplementeerd" is geen antwoord als daar zeven genummerde
+verplichtingen onder hangen. Drie dingen om te weten:
+
+- **Een uitzondering is smal.** Een overheidsmaatregel mag alleen niet-van-toepassing
+  zijn als hij dat niet *kán* zijn, met een verwijzing naar de risicoanalyse. Die
+  verwijzingen staan gebundeld in de bijlage "Uitzonderingen op de VvT" in de
+  export, en waar er een mist staat dat er met zoveel woorden.
+- **Drie beheersmaatregelen vallen buiten de Cyberbeveiligingswet** (5.32, 5.33 en
+  5.34: intellectueel eigendom, archivering, privacy). Daar geldt verplichtende
+  zelfregulering; de SoA markeert ze.
+- **Er is geen BIO-certificaat.** De norm verplicht geen certificering; wat ervoor
+  in de plaats komt is verantwoording aan de RDI en een jaarlijkse In Control
+  Verklaring.
 
 ## Nog één ding
 

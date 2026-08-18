@@ -4,6 +4,13 @@ Deze installatie draait op het NEN 7510-profiel. Dit artikel legt uit wat dat
 verandert ten opzichte van een ISO 27001-ISMS, en — belangrijker — **waar de
 grens ligt tussen wat dit platform doet en wat je in je zorgsystemen regelt.**
 
+> **Dit is één van drie normprofielen.** Deze installatie draait NEN 7510; er zijn
+> ook uitvoeringen op ISO 27001 en op de BIO2. Die laatste breidt Bijlage A niet
+> uit in de breedte maar in de diepte — dezelfde 93 maatregelen, met daaronder 118
+> genummerde overheidsmaatregelen. Zie *Wat de BIO toevoegt* in een
+> BIO-installatie; hier is dat artikel niet zichtbaar, omdat het niet over uw norm
+> gaat.
+
 ## Een superset, geen andere norm
 
 NEN 7510 is geen alternatief voor ISO 27001 maar een uitbreiding erop, toegesneden

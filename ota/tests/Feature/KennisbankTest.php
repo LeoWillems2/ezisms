@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Models\Auditobject;
+use App\Models\Beleidsdocument;
 use App\Models\Concerns\Auditeerbaar;
 use App\Models\Gebruiker;
 use App\Models\KpiDefinitie;
 use App\Support\Kennisartikelen;
 use App\Support\Pandoc;
+use Database\Seeders\AuditobjectClausuleSeeder;
 use Database\Seeders\KpiDefinitieSeeder;
 use Database\Seeders\RolSeeder;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -167,6 +170,97 @@ class KennisbankTest extends TestCase
             ->assertSee('Gebruikers, rollen en rechten') // titel uit het register
             ->assertSee('Drie lagen toegang')            // markdown → gerenderde h2
             ->assertSee('isms:eerste-ciso');             // bootstrapcommando
+    }
+
+    public function test_communicatie_en_overleg_artikel_rendert(): void
+    {
+        $gebruiker = Gebruiker::factory()->create();
+
+        $this->actingAs($gebruiker)->get('/kennisbank/communicatie-en-overleg')
+            ->assertOk()
+            ->assertSee('Communicatie en overleg vastleggen (§7.4)') // titel uit het register
+            ->assertSee('Het ritme: terugkerende overleggen als taaksjabloon') // markdown → gerenderde h2
+            ->assertSee('Geen agendabeheer of notuleneditor');       // de afbakening
+    }
+
+    /**
+     * Het artikel doet twee toetsbare uitspraken over het systeem: dat je een
+     * interne audit op clausule 7.4 kunt plannen, en dat de bevestigingsplicht
+     * standaard aan staat bij beleid en niet bij een procedure. Allebei zijn ze
+     * elders te wijzigen zonder dat iemand aan dit artikel denkt.
+     */
+    public function test_communicatie_artikel_klopt_met_het_systeem(): void
+    {
+        $this->seed(AuditobjectClausuleSeeder::class);
+
+        $this->assertTrue(
+            Auditobject::where('soort', 'clausule')->where('clausule_nummer', '7.4')->exists(),
+            'Het artikel belooft een interne audit op clausule 7.4, maar dat auditobject bestaat niet.',
+        );
+
+        $this->assertTrue(
+            Beleidsdocument::standaardLeesbevestiging('beleid'),
+            'Het artikel zegt dat de bevestigingsplicht bij type beleid standaard aan staat.',
+        );
+
+        $this->assertFalse(
+            Beleidsdocument::standaardLeesbevestiging('procedure'),
+            'Het artikel zegt dat je de bevestigingsplicht bij een procedure zelf omzet.',
+        );
+    }
+
+    public function test_cyberbeveiligingswet_artikel_rendert(): void
+    {
+        $gebruiker = Gebruiker::factory()->create();
+
+        $this->actingAs($gebruiker)->get('/kennisbank/de-cyberbeveiligingswet-in-het-isms')
+            ->assertOk()
+            ->assertSee('De Cyberbeveiligingswet: waar hij dit systeem raakt') // titel uit het register
+            ->assertSee('ISMS_CBW_PLICHTIG')                                   // de instelling
+            ->assertSee('Waar de bewaking ophoudt');                           // markdown → gerenderde h2
+    }
+
+    /**
+     * De termijnentabel in het artikel, rij voor rij, tegen
+     * `config/meldplicht.php`. Uit de config en niet uit een lijst hier: die is
+     * de enige plek waar de wet staat, dus een wetswijziging hoort dit artikel
+     * te laten falen in plaats van het stilzwijgend te laten verouderen.
+     *
+     * Per tabelrij en niet "staat ergens in de tekst": beide getallen komen
+     * verderop in het artikel nog een keer voor (24 uur in de paragraaf over de
+     * nachtelijke sweeps, art. 29 in de uitleg over het eindverslag), en dan
+     * bewijst een zoektocht door het hele bestand niets over de tabel.
+     */
+    public function test_cyberbeveiligingswet_artikel_noemt_de_termijnen_uit_de_config(): void
+    {
+        $inhoud = Kennisartikelen::inhoud('de-cyberbeveiligingswet-in-het-isms') ?? '';
+
+        foreach (config('meldplicht.grondslagen.cbw.fasen') as $fase => $regel) {
+            $gevonden = preg_match(
+                '/^\|\s*'.preg_quote($regel['label'], '/').'\s*\|(.*)$/mu',
+                $inhoud,
+                $rij,
+            );
+
+            $this->assertSame(1, $gevonden, "Fase {$fase} ({$regel['label']}) heeft geen rij in de termijnentabel.");
+
+            $this->assertStringContainsString(
+                str_replace('Cbw ', '', $regel['grondslag_artikel']),
+                $rij[1],
+                "Fase {$fase}: de tabelrij noemt een ander artikel dan config/meldplicht.php.",
+            );
+
+            // Het eindverslag staat als "één maand" in de tabel en niet als 720
+            // uur; die vertaling is bewust, dus daar toetsen we alleen het
+            // artikelnummer hierboven.
+            if ($regel['uren'] !== null && $regel['uren'] < 100) {
+                $this->assertStringContainsString(
+                    "{$regel['uren']} uur",
+                    $rij[1],
+                    "Fase {$fase}: de tabelrij noemt een andere termijn dan config/meldplicht.php.",
+                );
+            }
+        }
     }
 
     public function test_audit_trail_artikel_rendert_de_volledige_entiteitentabel(): void

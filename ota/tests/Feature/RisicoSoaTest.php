@@ -318,8 +318,10 @@ class RisicoSoaTest extends TestCase
         Livewire::actingAs($this->ciso)
             ->test(SoaOverzicht::class)
             ->call('bewerk', $maatregel->soaRegel->id)
-            ->set('vanToepassing', '1')
-            ->set('motivatie', '')
+            ->set([
+                'vanToepassing' => '1',
+                'motivatie' => '',
+            ])
             ->call('opslaan')
             ->assertHasErrors(['motivatie' => 'required']);
 
@@ -333,9 +335,11 @@ class RisicoSoaTest extends TestCase
         Livewire::actingAs($this->ciso)
             ->test(SoaOverzicht::class)
             ->call('bewerk', $maatregel->soaRegel->id)
-            ->set('vanToepassing', '1')
-            ->set('motivatie', 'Volgt uit de risicobeoordeling.')
-            ->set('implementatiestatus', 'in_uitvoering')
+            ->set([
+                'vanToepassing' => '1',
+                'motivatie' => 'Volgt uit de risicobeoordeling.',
+                'implementatiestatus' => 'in_uitvoering',
+            ])
             ->call('opslaan')
             ->assertHasNoErrors();
 
@@ -352,8 +356,10 @@ class RisicoSoaTest extends TestCase
         $component = Livewire::actingAs($this->ciso)
             ->test(SoaOverzicht::class)
             ->call('bewerk', $maatregel->soaRegel->id)
-            ->set('vanToepassing', '0')
-            ->set('motivatie', 'Geen mobiele apparatuur in gebruik.')
+            ->set([
+                'vanToepassing' => '0',
+                'motivatie' => 'Geen mobiele apparatuur in gebruik.',
+            ])
             ->call('opslaan')
             ->assertHasNoErrors();
 
@@ -376,8 +382,10 @@ class RisicoSoaTest extends TestCase
         Livewire::actingAs($this->ciso)
             ->test(SoaOverzicht::class)
             ->call('bewerk', $maatregel->soaRegel->id)
-            ->set('beleidreferentie', 'Beleid §4.2')
-            ->set('procesreferentie', 'Werkinstructie WI-07')
+            ->set([
+                'beleidreferentie' => 'Beleid §4.2',
+                'procesreferentie' => 'Werkinstructie WI-07',
+            ])
             ->call('opslaan')
             ->assertHasNoErrors();
 
@@ -401,8 +409,10 @@ class RisicoSoaTest extends TestCase
         Livewire::actingAs($this->ciso)
             ->test(SoaOverzicht::class)
             ->call('bewerk', $maatregel->soaRegel->id)
-            ->set('beleidreferentie', '')
-            ->set('procesreferentie', '')
+            ->set([
+                'beleidreferentie' => '',
+                'procesreferentie' => '',
+            ])
             ->call('opslaan')
             ->assertHasNoErrors();
 
@@ -833,8 +843,10 @@ class RisicoSoaTest extends TestCase
 
         Livewire::actingAs($this->ciso)
             ->test(RisicoDetail::class, ['risico' => $risico])
-            ->set('kansNiveau', 4)
-            ->set('impactNiveau', 5)
+            ->set([
+                'kansNiveau' => 4,
+                'impactNiveau' => 5,
+            ])
             ->call('opslaanBeoordeling')
             ->assertHasNoErrors();
 
@@ -885,8 +897,10 @@ class RisicoSoaTest extends TestCase
 
         Livewire::actingAs($this->directeur)
             ->test(RisicoDetail::class, ['risico' => $risico])
-            ->set('geaccepteerdDoor', 'Directie')
-            ->set('geaccepteerdOp', now()->format('Y-m-d'))
+            ->set([
+                'geaccepteerdDoor' => 'Directie',
+                'geaccepteerdOp' => now()->format('Y-m-d'),
+            ])
             ->call('accepteerRestrisico', $behandeling->id)
             ->assertHasNoErrors();
 
@@ -932,8 +946,10 @@ class RisicoSoaTest extends TestCase
 
         Livewire::actingAs($this->ciso)
             ->test(RisicoDetail::class, ['risico' => $risico])
-            ->set('behandeloptie', 'accepteren')
-            ->set('geaccepteerdDoor', '')
+            ->set([
+                'behandeloptie' => 'accepteren',
+                'geaccepteerdDoor' => '',
+            ])
             ->call('opslaanBehandeling')
             ->assertHasNoErrors();
 
@@ -948,9 +964,11 @@ class RisicoSoaTest extends TestCase
 
         Livewire::actingAs($this->ciso)
             ->test(RisicoDetail::class, ['risico' => $risico])
-            ->set('behandeloptie', 'mitigeren')
-            ->set('restrisicoScore', 6)
-            ->set('geselecteerdeSoaRegels', [$maatregel->soaRegel->id])
+            ->set([
+                'behandeloptie' => 'mitigeren',
+                'restrisicoScore' => 6,
+                'geselecteerdeSoaRegels' => [$maatregel->soaRegel->id],
+            ])
             ->call('opslaanBehandeling')
             ->assertHasNoErrors();
 

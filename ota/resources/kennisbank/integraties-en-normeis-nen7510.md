@@ -93,12 +93,12 @@ platform en je zorgsystemen.
 
 Een kale lijst is zwakker bewijs dan een lijst die ergens aan hangt:
 
-- **Koppel de integratie aan een leverancier** (blok 9, `/leveranciers`). Dan is
+- **Koppel de integratie aan een leverancier**. Dan is
   een koppeling niet los, maar onderdeel van het leveranciersdossier — en versterkt
   hij A.5.19–A.5.22 in plaats van alleen A.5.9. *(Deze koppeling zit nog niet in de
   module; het is de logische volgende stap als je dit als serieus bewijs wilt
   inzetten.)*
-- **Koppel aan het asset-/systeemregister** (blok 3): welke koppeling raakt welk
+- **Koppel aan het asset-/systeemregister**: welke koppeling raakt welk
   systeem, en dus welke classificatie. Raakt een systeem persoonlijke
   gezondheidsinformatie, dan is dat op het asset vastgelegd en straalt het via de
   koppeling door naar de integratie.

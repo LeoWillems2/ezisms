@@ -155,7 +155,7 @@
             </div>
             <flux:subheading class="mb-4">
                 Niet de score maar de afwijking. Een terugval of een dip die zich herstelt is
-                bewijs dat er gemeten wordt — geen smet op het ISMS.
+                bewijs dat er gemeten wordt.
             </flux:subheading>
 
             @forelse ($signalen as $signaal)
@@ -211,7 +211,7 @@
                              gebroken exportbelofte. --}}
                         <flux:text class="text-sm text-zinc-500 dark:text-zinc-400">
                             Deze fase meet de bijsturing zelf: de corrigerende maatregelen uit §10.1,
-                            en sinds 12g ook wat er in een periode <em>gebeurde</em> — scoredalingen
+                            en ook wat er in een periode <em>gebeurde</em> — scoredalingen
                             zonder onderbouwing, afgeronde behandelplannen en nieuw geïdentificeerde
                             risico's. Die laatste drie meten een venster en geen momentopname; hun
                             meetpunten dragen daarom een periode.

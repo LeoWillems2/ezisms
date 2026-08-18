@@ -163,6 +163,70 @@ return [
                     ],
                 ],
             ],
+
+            /*
+             * De BIO2 noemt in deel 1 §17 eigen impactgebieden, en die zijn geen
+             * variant op de ISO-schaal maar een andere wereld: politieke schade aan
+             * een bestuurder, diplomatieke schade, verlies van publiek respect of
+             * vertrouwen, organisatiebrede negatieve publiciteit en verlies van
+             * management control. Een gemeente die op de ISO-schaal scoort
+             * ("hinder binnen één team") onderschat de politieke impact
+             * stelselmatig — een raadsvraag over een datalek is geen hinder.
+             *
+             * Twee dingen die deze schaal daarom anders doet dan de andere twee:
+             * de burger die van de dienst afhankelijk is, staat op elk niveau
+             * naast het gevolg voor de organisatie, en op de hoogste niveaus is
+             * het bestuurlijke gevolg leidend en niet het financiële. Een overheid
+             * gaat niet failliet; ze verliest haar mandaat.
+             */
+            'bio2' => [
+                'leidraad' => 'De BIO2 (deel 1 §17) vraagt naast bedrijfsvoering, wettelijke '
+                    .'plichten en persoonsgegevens ook de bestuurlijke gevolgen te wegen: '
+                    .'politieke en diplomatieke schade, verlies van publiek vertrouwen, '
+                    .'organisatiebrede negatieve publiciteit en verlies van management control. '
+                    .'Scoor de zwaarste van die gevolgen, niet het gemiddelde, en schrijf in de '
+                    .'motivatie op wélk gevolg de score bepaalde — bij een overheidsorganisatie '
+                    .'is dat vaak niet het financiële.',
+                'niveaus' => [
+                    1 => [
+                        'naam' => 'Verwaarloosbaar',
+                        'omschrijving' => 'Hinder binnen één team, dezelfde dag verholpen. Geen '
+                            .'burger of ketenpartner merkt er iets van, geen persoonsgegevens '
+                            .'betrokken, geen meldplicht.',
+                    ],
+                    2 => [
+                        'naam' => 'Klein',
+                        'omschrijving' => 'Eén dienst is korte tijd niet bereikbaar of levert '
+                            .'onbetrouwbare uitkomsten; burgers kunnen terecht via een andere weg. '
+                            .'Intern op te lossen, geen aandacht van buiten.',
+                    ],
+                    3 => [
+                        'naam' => 'Middelmatig',
+                        'omschrijving' => 'Meerdere processen zijn geraakt of een dienst aan burgers '
+                            .'ligt langer stil, of persoonsgegevens van een beperkte groep zijn '
+                            .'betrokken. Melden aan de toezichthouder komt in beeld; er komen vragen '
+                            .'uit de gemeenteraad, het bestuur of de pers.',
+                    ],
+                    4 => [
+                        'naam' => 'Groot',
+                        'omschrijving' => 'Een wettelijke taak kan langere tijd niet worden '
+                            .'uitgevoerd, of gegevens van een grote groep burgers zijn gelekt of '
+                            .'onbetrouwbaar geworden. Meldplicht aan de toezichthouder en aan de '
+                            .'betrokkenen, landelijke publiciteit, en een bestuurder moet zich '
+                            .'verantwoorden. Ketenpartners die op onze gegevens bouwen, ondervinden '
+                            .'gevolgen.',
+                    ],
+                    5 => [
+                        'naam' => 'Zeer groot',
+                        'omschrijving' => 'Onomkeerbaar verlies van overheidsinformatie, of uitval '
+                            .'van een vitale of wettelijk verplichte taak zolang dat burgers er '
+                            .'aantoonbaar door worden geschaad. Of: het vertrouwen in de organisatie '
+                            .'is zo beschadigd dat de bestuurlijke positie onhoudbaar wordt, of de '
+                            .'organisatie heeft de eigen bedrijfsvoering niet meer in de hand. Op '
+                            .'dit niveau is de schade politiek en niet financieel.',
+                    ],
+                ],
+            ],
         ],
     ],
 ];

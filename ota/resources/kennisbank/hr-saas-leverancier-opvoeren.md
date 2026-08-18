@@ -1,8 +1,7 @@
 Zo voer je een leverancier op in het ISMS, met een **HR-SaaS** (een clouddienst
 voor personeelsadministratie) als voorbeeld. Een HR-SaaS is leerzaam omdat er
 **persoonsgegevens** langs gaan én het een **clouddienst** is — de twee dingen
-die de eisen aanscherpen. De stappen volgen de leveranciersmodule (blok 9,
-`/leveranciers`).
+die de eisen aanscherpen.
 
 ## In het kort
 
@@ -19,21 +18,21 @@ niet in gebruik.
 
 **2. Leg de dienst vast en koppel het systeem.**
 Voeg onder de leverancier een **dienst** toe ("personeelsadministratie") en
-koppel het **systeem** (de HR-SaaS-applicatie uit het asset-/systeemregister,
-blok 3). Zo hangt de leverancier aan een concreet systeem in het register —
+koppel het **systeem** (de HR-SaaS-applicatie uit het asset-/systeemregister.
+Zo hangt de leverancier aan een concreet systeem in het register —
 nodig voor A.5.21 (ICT-toeleveringsketen) en voor de impactanalyse.
 
 **3. Classificeer wat er langs gaat.**
 HR-data is **persoonsgegevens** (vaak bijzondere/gevoelige categorie: BSN,
-salaris, verzuim). Die classificatie staat op het gekoppelde systeem/asset (blok
-3) en bepaalt de zwaarte van alle eisen hierna. Hoge vertrouwelijkheid → strengere
+salaris, verzuim). Die classificatie staat op het gekoppelde systeem/asset
+en bepaalt de zwaarte van alle eisen hierna. Hoge vertrouwelijkheid → strengere
 contract- en audit-eisen. Dit raakt A.5.34 (bescherming van persoonsgegevens).
 
 **4. Bepaal het risiconiveau — en maak zo nodig een écht risico.**
 Het veld `risiconiveau` (`laag/midden/hoog`) is een **grof registerlabel** om op
 te filteren, géén tweede risicomatrix. Is het serieus — en bij een HR-SaaS met
 persoonsgegevens in de cloud is dat al snel `hoog` — leg dan een echt **Risico**
-aan (blok 4) en koppel dat aan de leverancier. Daar gebeurt de eigenlijke
+aan en koppel dat aan de leverancier. Daar gebeurt de eigenlijke
 beoordeling en behandeling.
 
 **5. Leg de contractafspraken vast.**
@@ -46,7 +45,7 @@ Per leverancier registreer je of deze clausules **aanwezig** zijn:
   tonen.
 - **`sla`** — afspraken over beschikbaarheid/continuïteit.
 - **`incidentmeldplicht`** — de leverancier moet beveiligingsincidenten (waaronder
-  datalekken) melden; dit haakt aan incidentbeheer (blok 8).
+  datalekken) melden; dit haakt aan incidentbeheer.
 
 > **Gap-signaal.** Een leverancier op risiconiveau `hoog` **zonder** recht op
 > audit én zonder geldig eigen certificaat wordt door het systeem gemarkeerd
@@ -70,7 +69,7 @@ in de rapportages.
 
 - **Periodiek herbeoordelen** volgens de geplande datum (A.5.22).
 - **Incidenten** die de leverancier meldt (of die bij hem spelen) lopen via
-  incidentbeheer (blok 8); de `incidentmeldplicht`-clausule borgt dat je ze krijgt.
+  incidentbeheer; de `incidentmeldplicht`-clausule borgt dat je ze krijgt.
 - **Wijzigingen** in de dienst of het risicoprofiel: bijwerken en opnieuw
   beoordelen.
 

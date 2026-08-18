@@ -128,6 +128,25 @@ aangekomen. Idempotent, en het raakt uw SoA-beoordelingen niet aan.
 | --- | --- |
 | `--controleer` | Alleen controleren, niets naar de database schrijven. |
 
+**`isms:overheidsmaatregelen`**
+Alleen in het BIO-profiel. Leest de BIO-overheidsmaatregelen opnieuw in: de
+nummering, de koppeling aan de beheersmaatregel, de status (geldend, vervallen of
+verplaatst) en de reikwijdte van de Cyberbeveiligingswet. Net als bij de
+maatregelcatalogus controleert het het bestand eerst volledig, en achteraf meldt
+het hoeveel verplichtingen een eigen tekst dragen en hoeveel er nog niet
+beoordeeld zijn.
+
+Dit is ook het commando dat u draait nadat u de BIO-teksten in uw eigen
+installatie hebt gezet — het systeem levert die niet mee, want de BIO staat onder
+een licentie die dat niet toestaat. Zie [Verantwoording en
+disclaimer](/kennisbank/verantwoording-en-disclaimer). Verhuist bij een nieuwe
+BIO-uitgave de beoordeling van een verplaatst nummer mee naar zijn opvolger, en
+markeert beoordelingen die ouder zijn dan een gewijzigde verplichting.
+
+| Optie | Wat het doet |
+| --- | --- |
+| `--controleer` | Alleen controleren, niets naar de database schrijven. |
+
 **`isms:kenmerken`**
 Leest de meegeleverde uitgangsclassificatie opnieuw in. Draait vanzelf bij elke
 uitrol. Wijzigt daarbij een uitgangswaarde, dan maakt dit commando een taak aan

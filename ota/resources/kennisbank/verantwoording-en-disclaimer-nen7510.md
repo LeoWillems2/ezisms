@@ -16,7 +16,7 @@ punt is het eerste dat je moet weten.
 zorgspecifieke maatregelen, en ook niet bij de 93 die uit ISO 27001 komen. Je
 ziet nummer, titel en thema — de rest is leeg tot je hem zelf vult.
 
-Dat is een bewuste keuze en geen omissie, en ze geldt in beide uitvoeringen van
+Dat is een bewuste keuze en geen omissie, en ze geldt in elke uitvoering van
 dit systeem: een eigen omschrijving van wat een maatregel beoogt is een
 interpretatie van de norm, op precies de plek waar een auditor de toepasselijkheid
 beoordeelt. Elk verschil met de normtekst is een discussie die jouw organisatie

@@ -39,7 +39,17 @@ deploy.conf
 # activeert het met `php artisan isms:capaciteiten aan`. Nooit committen.
 /database/seeders/data/maatregel-capaciteiten.json
 
-# LET OP: maatregelen-iso27001.json en maatregelen-nen7510.json staan hier
+# De teksten van de BIO2-overheidsmaatregelen. De BIO staat onder
+# CC BY-NC-SA 4.0 (niet-commercieel, gelijk delen); of het Cyberbeveiligingsbesluit
+# die beperking opheft is een open vraag (implementatie/00q §8). Tot die is
+# beantwoord levert het repo alleen de structuur mee. Wie de BIO zelf heeft, maakt
+# dit bestand aan met:
+#   python3 ../scripts/genereer_overheidsmaatregelen_seed.py --bron=… --met-tekst
+# Nooit committen.
+/database/seeders/data/overheidsmaatregel-teksten.json
+
+# LET OP: maatregelen-iso27001.json, maatregelen-nen7510.json,
+# maatregelen-bio2.json en overheidsmaatregelen-bio2.json staan hier
 # bewust NIET bij — die horen juist wél in versiebeheer. Ze dragen referenties,
 # thema's en titels (openbaar bekend) plus een vaste markering op elke plek waar
 # normtekst zou kunnen staan. Zodra je ze regenereert met de gekochte norm

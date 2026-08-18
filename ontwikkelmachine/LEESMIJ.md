@@ -80,14 +80,15 @@ GRANT ALL PRIVILEGES ON isms27001.* TO 'admin_isms'@'localhost';
 `utf8mb4_unicode_ci` is geen smaakkwestie: de norm- en maatregelteksten bevatten
 diakrieten en aanhalingstekens die in `latin1` stilzwijgend sneuvelen.
 
-Een tweede database naast de eerste is bruikbaar om beide normprofielen naast
-elkaar te draaien, want `ISMS_NORM` wordt één keer gelezen en daarna in de
-tabel `normprofiel` vastgelegd — omzetten in `.env` verandert daarna niets meer.
-Dezelfde gebruiker mag erbij:
+Een database per normprofiel is bruikbaar om ze naast elkaar te draaien, want
+`ISMS_NORM` wordt één keer gelezen en daarna in de tabel `normprofiel`
+vastgelegd — omzetten in `.env` verandert daarna niets meer. Dezelfde gebruiker
+mag erbij:
 
 ```sql
 CREATE DATABASE isms7510 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 GRANT ALL PRIVILEGES ON isms7510.* TO 'admin_isms'@'localhost';
+-- en zo verder per profiel, bijvoorbeeld een database `bio2` voor de BIO2.
 ```
 
 Zet de naam en de aanmeldgegevens daarna in `DB_DATABASE`, `DB_USERNAME` en

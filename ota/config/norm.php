@@ -124,5 +124,67 @@ return [
                 'zorgterminologie',
             ],
         ],
+
+        /*
+         * De Baseline Informatiebeveiliging Overheid 2
+         * (deelproducten/04b-bio-overheidsmaatregelen.md).
+         *
+         * Anders van vorm dan NEN 7510, en dat is de kern van het onderzoek in
+         * implementatie/00q. NEN 7510 is een superset op hetzelfde niveau: 93 + 8
+         * rijen in `maatregelen`, plus een tekstveld per maatregel. De BIO laat
+         * Bijlage A volledig ongemoeid — geen enkele nieuwe maatregel, geen enkele
+         * hernummerd — en hangt er een niveau ónder: 118 individueel genummerde
+         * overheidsmaatregelen, tot zeven onder één beheersmaatregel. Vandaar één
+         * nieuwe entiteit en géén derde maatregelenset.
+         *
+         * De uitgave is BIO2 v1.3; de sleutel is `bio2` en niet `bio13`, want de
+         * norm heet BIO2 en 1.3 is de documentversie.
+         */
+        'bio2' => [
+            'labels' => [
+                'naam' => 'Baseline Informatiebeveiliging Overheid 2',
+                'naam_kort' => 'BIO2',
+                // De BIO2 verwijst voor de maatregelenbijlage naar NEN-EN-ISO/IEC
+                // 27002:2022 en noemt die zelf "Bijlage A".
+                'bijlage' => 'Bijlage A',
+                /*
+                 * Het enige label zonder certificaat om naar te wijzen: *"De BIO
+                 * verplicht geen NEN-EN-ISO/IEC 27001-certificering."* Wat ervoor
+                 * in de plaats komt is verantwoording — een jaarlijkse In Control
+                 * Verklaring (overheidsmaatregel 5.36.01) en toezicht door de RDI
+                 * onder de Cyberbeveiligingswet.
+                 */
+                'certificeringsdoel' => 'Verantwoording van de Cbw-zorgplicht aan de RDI',
+                /*
+                 * Blijft ISO 27001, om dezelfde reden als bij NEN 7510: je vraagt
+                 * je hostingpartij niet om de BIO omdat jíj die volgt. Een gemeente
+                 * vraagt haar leverancier eventueel wél om aansluiting bij de BIO
+                 * langs de inkoopeisen uit deel 1 §13, maar dat is een
+                 * contractclausule en geen certificaat — en `Contractclausule`
+                 * bestaat al.
+                 */
+                'leverancierscertificaat' => 'ISO 27001',
+            ],
+            /*
+             * Eén capaciteit en niet twee. Het onderzoek stelde ook
+             * `cbw-reikwijdte` voor, als aparte schakelaar voor de grijs
+             * gemarkeerde maatregelen. Die is er niet gekomen: hij kan niet
+             * onafhankelijk van deze aan of uit, want de reikwijdte is een
+             * uitspraak van de BIO en heeft buiten een BIO-installatie geen
+             * betekenis. Twee capaciteiten die altijd samen optreden zijn geen
+             * keuze maar ruis.
+             *
+             * Let op: dit is iets anders dan `ISMS_CBW_PLICHTIG` in
+             * `config/meldplicht.php`. Dat zegt of déze organisatie onder de
+             * Cyberbeveiligingswet valt (sector en omvang); `cbw_reikwijdte` zegt
+             * of de BIO een maatregel binnen die wet plaatst. Ze vermenigvuldigen
+             * elkaar en mogen niet in elkaar geschoven worden — deel 1 §11.1
+             * noemt de BIO-entiteit die buiten de Cbw valt expliciet, en dan geldt
+             * de BIO als verplichtende zelfregulering.
+             */
+            'capaciteiten' => [
+                'overheidsmaatregelen',
+            ],
+        ],
     ],
 ];

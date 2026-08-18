@@ -104,16 +104,31 @@ fout() {
 # Eén waarde uit een key=value-bestand. Bewust geen `source`: zo'n bestand is
 # data en geen shellscript, en `source` voert uit wat erin staat. Hier alleen
 # nog gebruikt voor de normstempel — de rest komt uit de omgeving (00n §9.1).
+# GEDEELD MET deploy.sh :: env_waarde() — houd deze twee identiek.
 env_waarde() { # <bestand> <sleutel> [standaard]
     local regel waarde
-    regel=$(grep -E "^[[:space:]]*$2[[:space:]]*=" "$1" 2>/dev/null | tail -n1) || true
+    regel=$(grep -E "^[[:space:]]*$2[[:space:]]*=" "$1" 2>/dev/null | head -n1) || true
     if [[ -z ${regel:-} ]]; then printf '%s' "${3-}"; return; fi
     waarde=${regel#*=}
     waarde=${waarde%$'\r'}
     waarde=$(printf '%s' "$waarde" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    if [[ ${#waarde} -ge 2 && ( $waarde == \"*\" || $waarde == \'*\' ) ]]; then
-        waarde=${waarde:1:${#waarde}-2}
+
+    # Alleen op het ópeningsteken toetsen, niet op begin én einde: met een comment
+    # erachter eindigt de regel niet op een quote, en dan viel de hele regel
+    # inclusief quotes en comment door als waarde.
+    if [[ $waarde == \"* || $waarde == \'* ]]; then
+        # Gequoteerd: knip op het sluitende teken, zodat een comment erná verdwijnt
+        # en een `#` erbinnen blijft staan.
+        local teken=${waarde:0:1} rest
+        rest=${waarde:1}
+        waarde=${rest%%"$teken"*}
+    else
+        # Niet gequoteerd: alles vanaf een `#` die door witruimte wordt voorafgegaan
+        # is comment. Een `#` middenin een woord (`geheim#1`) blijft dus staan.
+        waarde=$(printf '%s' "$waarde" | sed -E 's/[[:space:]]+#.*$//')
+        waarde=${waarde%"${waarde##*[![:space:]]}"}
     fi
+
     printf '%s' "$waarde"
 }
 
@@ -367,18 +382,23 @@ controleer_optioneel() {
 stempelbestand() { printf '%s' "$INSTALLATIE/normprofiel"; }
 
 # ── GEDEELD MET deploy.sh :: profiel_uit_database() ──────────────────────────
-# Het profiel zoals de database het laat zien. Onafhankelijk van de omgeving en
-# van de stempel, want beide zijn tekstregels die iemand kan wijzigen; de
-# database is het resultaat van wat er werkelijk is geseed.
+# Het profiel zoals de database het zelf vastlegt: de tabel `normprofiel`
+# (migratie 000048). Onafhankelijk van de omgeving en van de stempel, want dat
+# zijn tekstregels die iemand kan wijzigen.
+#
+# Tot 17-08-2026 werd het profiel afgeleid uit de controlset (101 + 8 zorg =
+# nen7510, 93 + 0 = iso27001). Dat brak bij het derde profiel: de BIO laat
+# Bijlage A ongemoeid en heeft dus óók 93 maatregelen zonder zorgmaatregelen, dus
+# een correcte BIO-installatie las als `iso27001`. Zie deploy.sh voor het volledige
+# verhaal; deze twee functies horen gelijk te blijven.
 profiel_uit_database() {
-    local aantal zorg
+    local profiel aantal
+    profiel=$(db_query "SELECT profiel FROM normprofiel LIMIT 1" 2>/dev/null) || profiel=""
+    if [[ -n $profiel ]]; then printf '%s' "$profiel"; return; fi
+
     aantal=$(db_query "SELECT COUNT(*) FROM maatregelen" 2>/dev/null) || { printf 'onbekend'; return; }
-    zorg=$(db_query "SELECT COUNT(*) FROM maatregelen WHERE annex_a_referentie IN
-        ('5.38','5.39','5.40','5.41','5.42','5.43','6.9','8.35')" 2>/dev/null)
-    if   [[ $aantal -eq 101 && $zorg -eq 8 ]]; then printf 'nen7510'
-    elif [[ $aantal -eq 93  && $zorg -eq 0 ]]; then printf 'iso27001'
-    elif [[ $aantal -eq 0 ]];                  then printf 'leeg'
-    else printf 'afwijkend(%s maatregelen, %s zorgmaatregelen)' "$aantal" "$zorg"
+    if [[ $aantal -eq 0 ]]; then printf 'leeg'; else
+        printf 'afwijkend(%s maatregelen, geen vastgelegd profiel)' "$aantal"
     fi
 }
 
@@ -515,25 +535,43 @@ neem_seeddata_over() {
 }
 
 # ── GEDEELD MET deploy.sh :: verwijder_andere_controlsets() ──────────────────
-# Eén controlset per installatie. Het pakket brengt ze allebei mee, want het
-# weet niet welke norm de ontvanger volgt; deze installatie weet dat wel.
+# Eén set profielgebonden seedbestanden per installatie. Het pakket brengt die van
+# álle profielen mee, want het weet niet welke norm de ontvanger volgt; deze
+# installatie weet dat wel.
 #
-# Het andere bestand is niet alleen overbodig, het is verwarrend: wie het
-# openslaat bewerkt een bestand dat nooit geseed wordt, en typt dus normtekst
-# over die nergens aankomt.
+# De andere bestanden zijn niet alleen overbodig, ze zijn verwarrend: wie er een
+# openslaat bewerkt een bestand dat nooit geseed wordt, en typt dus normtekst over
+# die nergens aankomt.
 #
-# Geen `case` op het profiel: het te behouden bestand heet altijd
-# `maatregelen-$NORM_ENV.json`, dus het overbodige is "alle andere". Zo hoeft
-# deze functie bij een derde profiel niet mee te veranderen.
+# Geen `case` op het profiel en geen lijst met bestandsnamen: elk profielgebonden
+# bestand heet `<voorvoegsel>-<profiel>.json`, dus het overbodige is "alle andere".
+# Sinds 17-08-2026 loopt dat over meer dan één voorvoegsel, omdat de BIO naast zijn
+# controlset ook een laag overheidsmaatregelen meebrengt.
+#
+# LET OP het verschil van één letter: `overheidsmaatregelen-<profiel>.json` komt uit
+# het pakket en valt hieronder, maar `overheidsmaatregel-teksten.json` is van de
+# installatie zelf — de BIO-teksten die de CISO heeft ingevoerd — en hoort te
+# blijven. Dat bestand draagt geen profielnaam en past dus op geen van de patronen.
+VOORVOEGSELS_PER_PROFIEL=(maatregelen overheidsmaatregelen)
 verwijder_andere_controlsets() {
-    local bestand
-    for bestand in "$SEEDDOEL"/maatregelen-*.json; do
-        [[ -f $bestand ]] || continue
-        [[ $(basename "$bestand") == "maatregelen-$NORM_ENV.json" ]] && continue
-        rm -f "$bestand"
-        meld "andere controlset verwijderd: $(basename "$bestand")"
+    local voorvoegsel bestand naam behouden=""
+    for voorvoegsel in "${VOORVOEGSELS_PER_PROFIEL[@]}"; do
+        for bestand in "$SEEDDOEL/$voorvoegsel"-*.json; do
+            [[ -f $bestand ]] || continue
+            naam=$(basename "$bestand")
+            if [[ $naam == "$voorvoegsel-$NORM_ENV.json" ]]; then
+                behouden+=" $naam"
+                continue
+            fi
+            rm -f "$bestand"
+            meld "niet van dit profiel, verwijderd: $naam"
+        done
     done
-    meld "deze installatie houdt: maatregelen-$NORM_ENV.json"
+
+    # Niets behouden is geen fout: alleen de BIO heeft een tweede voorvoegsel, dus
+    # in een ISO- of NEN-installatie bestaat overheidsmaatregelen-<profiel>.json
+    # helemaal niet.
+    meld "deze installatie houdt:${behouden:- niets profielgebonden}"
 }
 
 # ═════════════════════════════════════════════════════════════════════════════

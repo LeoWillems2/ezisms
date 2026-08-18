@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\Auditronde;
 use App\Models\Gebruiker;
 use App\Models\Leverancier;
+use App\Models\OverheidsmaatregelBeoordeling;
 use App\Models\Risico;
 use App\Models\ScopeVerklaring;
 use App\Models\SoaRegel;
@@ -25,11 +26,29 @@ use Illuminate\Support\Facades\Gate;
  */
 final class Koppelbaar
 {
-    /** @var array<string, array{label: string, model: class-string<Model>, blok: string}> */
+    /**
+     * `capaciteit` is optioneel en verwijst naar een capaciteit uit
+     * `config/norm.php`: een type dat alleen bestaat in een installatie die dat
+     * begrip kent. Zonder die filter zou de keuzelijst in elk profiel een lege
+     * categorie tonen — een type aanbieden waar nooit iets in kan zitten is
+     * verwarrender dan het weglaten.
+     *
+     * @var array<string, array{label: string, model: class-string<Model>, blok: string, capaciteit?: string}>
+     */
     public const TYPES = [
         'asset' => ['label' => 'Asset', 'model' => Asset::class, 'blok' => 'asset-classificatie'],
         'risico' => ['label' => 'Risico', 'model' => Risico::class, 'blok' => 'risico-soa'],
         'soa_regel' => ['label' => 'SoA-maatregel', 'model' => SoaRegel::class, 'blok' => 'risico-soa'],
+        // De BIO-verplichting onder een beheersmaatregel. Dit is waar het extra
+        // detailniveau zich uitbetaalt: bewijs bij 5.24.03 in plaats van bij 5.24,
+        // en dat is precies het niveau waarop deel 1 §4 om opzet, bestaan en
+        // werking vraagt.
+        'overheidsmaatregel_beoordeling' => [
+            'label' => 'BIO-overheidsmaatregel',
+            'model' => OverheidsmaatregelBeoordeling::class,
+            'blok' => 'risico-soa',
+            'capaciteit' => 'overheidsmaatregelen',
+        ],
         'scope_verklaring' => ['label' => 'Scope-verklaring', 'model' => ScopeVerklaring::class, 'blok' => 'context-scope'],
         'leverancier' => ['label' => 'Leverancier', 'model' => Leverancier::class, 'blok' => 'leveranciers-derdenrisico'],
         'auditronde' => ['label' => 'Auditronde', 'model' => Auditronde::class, 'blok' => 'auditmanagement'],
@@ -54,6 +73,10 @@ final class Koppelbaar
         $toegestaan = [];
 
         foreach (self::TYPES as $alias => $type) {
+            if (isset($type['capaciteit']) && ! Normprofiel::heeft($type['capaciteit'])) {
+                continue;
+            }
+
             if (Gate::allows('heeft-niveau', [$type['blok'], 'muteren'])) {
                 $toegestaan[$alias] = $type['label'];
             }
@@ -88,6 +111,7 @@ final class Koppelbaar
 
         return $model::query()
             ->when($alias === 'soa_regel', fn ($q) => $q->with('maatregel'))
+            ->when($alias === 'overheidsmaatregel_beoordeling', fn ($q) => $q->with('overheidsmaatregel'))
             ->get()
             ->mapWithKeys(fn (Model $rij) => [$rij->getKey() => $rij->auditOmschrijving()])
             ->sort()

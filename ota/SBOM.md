@@ -268,7 +268,8 @@ De enige uitzondering op "open source" is de **proprietary** `livewire/flux`.
 - **Gelicentieerde norm-inhoud** (NEN-EN-ISO/IEC-teksten) is *data*, geen
   software: `controls.json` en `maatregel-capaciteiten.json` zijn gitignored en
   worden nooit gedistribueerd (zie het maatregelseed-beleid). De twee
-  controlsets `maatregelen-iso27001.json` en `maatregelen-nen7510.json` zijn wél
+  controlsets `maatregelen-iso27001.json`, `maatregelen-nen7510.json` en
+  `maatregelen-bio2.json` (plus `overheidsmaatregelen-bio2.json`) zijn wél
   distribueerbaar: ze dragen referenties, thema's en titels plus vaste
   markeringen, geen normtekst. Idem `maatregel-kenmerken.json`.
 - **CISO-beheerde toets-HTML** (`public/toetsen/*.html`) is content op de

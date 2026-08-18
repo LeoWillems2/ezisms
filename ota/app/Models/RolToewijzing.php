@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditeerbaar;
+use App\Support\Autorisatiegeheugen;
 use App\Support\Rolregels;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -41,6 +42,11 @@ class RolToewijzing extends Model
                 throw new RuntimeException(Rolregels::melding());
             }
         });
+
+        // Een rolwijziging maakt de onthouden `heeft-niveau`-antwoorden ongeldig
+        // voor processen die langer leven dan één request (queue, tests).
+        static::saved(fn () => app(Autorisatiegeheugen::class)->vergeet());
+        static::deleted(fn () => app(Autorisatiegeheugen::class)->vergeet());
     }
 
     /** @return array<string, string> */

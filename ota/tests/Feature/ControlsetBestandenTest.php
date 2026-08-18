@@ -28,6 +28,18 @@ class ControlsetBestandenTest extends TestCase
     /** De acht die NEN 7510-1:2024 toevoegt aan Bijlage A. */
     private const EXTRA = ['5.38', '5.39', '5.40', '5.41', '5.42', '5.43', '6.9', '8.35'];
 
+    /**
+     * De controlsetbestanden in versiebeheer, één per normprofiel.
+     *
+     * `bio2` draagt dezelfde 93 als ISO — de BIO laat Bijlage A ongemoeid — maar
+     * is een eigen bestand omdat `MaatregelSeeder` op profiel kiest. Voor de
+     * bewaking hieronder maakt dat niets uit: er mag in geen van de drie
+     * normtekst staan.
+     *
+     * @var list<string>
+     */
+    private const CONTROLSETS = ['iso27001', 'nen7510', 'bio2'];
+
     /** @return array<string, mixed> */
     private function bestand(string $profiel): array
     {
@@ -93,7 +105,7 @@ class ControlsetBestandenTest extends TestCase
      */
     public function test_geen_bestand_draagt_normtekst(): void
     {
-        foreach (['iso27001', 'nen7510'] as $profiel) {
+        foreach (self::CONTROLSETS as $profiel) {
             foreach ($this->maatregelen($profiel) as $regel) {
                 $waar = "maatregelen-{$profiel}.json, A.{$regel['annex_a_referentie']}";
 
@@ -124,15 +136,22 @@ class ControlsetBestandenTest extends TestCase
         }
     }
 
-    /** Het kopblok is er voor de CISO die het bestand met een editor opent. */
-    public function test_beide_bestanden_leggen_zichzelf_uit(): void
+    /**
+     * Het kopblok is er voor de CISO die het bestand met een editor opent.
+     *
+     * Een insluitingstest en niet meer een gelijkheidstest op de sleutels: het
+     * BIO-bestand legt bovendien zijn herkomst en zijn generator vast, en dat is
+     * meer uitleg en niet minder. Wat bewaakt moet blijven is dat de vier
+     * verplichte velden er zijn en dat het bestand het juiste commando noemt.
+     */
+    public function test_elk_bestand_legt_zichzelf_uit(): void
     {
-        foreach (['iso27001', 'nen7510'] as $profiel) {
+        foreach (self::CONTROLSETS as $profiel) {
             $over = $this->bestand($profiel)['_over'] ?? [];
 
             $this->assertSame(
-                ['wat', 'tekst', 'toestanden', 'commando'],
-                array_keys($over),
+                [],
+                array_diff(['wat', 'tekst', 'toestanden', 'commando'], array_keys($over)),
                 "Het _over-blok van maatregelen-{$profiel}.json is niet compleet."
             );
             $this->assertSame('php artisan isms:maatregelen', $over['commando']);

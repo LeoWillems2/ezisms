@@ -36,6 +36,8 @@ final class Schermkopie
      *                           gebruikt het, zodat een scherm dat geen register
      *                           toont geen "alle 5 regels" hoeft te zeggen
      * @param  Schermafbeelding|null  $afbeelding  optionele illustratie boven de tabel (§7a)
+     * @param  Schermkopiebijlage|null  $bijlage  tweede tabel onder de hoofdtabel, voor een
+     *                                            scherm met een tweede detailniveau
      */
     public function __construct(
         public readonly string $scherm,
@@ -47,6 +49,7 @@ final class Schermkopie
         public readonly bool $metPersoonsgegevens = false,
         public readonly string $eenheid = 'regels',
         public readonly ?Schermafbeelding $afbeelding = null,
+        public readonly ?Schermkopiebijlage $bijlage = null,
     ) {}
 
     /**
@@ -120,20 +123,55 @@ final class Schermkopie
             $regels[] = '';
         }
 
-        $regels[] = '| '.implode(' | ', array_map($this->veilig(...), $this->kolommen)).' |';
-        $regels[] = '|'.str_repeat('---|', count($this->kolommen));
+        $regels = [...$regels, ...$this->tabel($this->kolommen, $this->rijen)];
 
-        foreach ($this->rijen as $rij) {
-            $regels[] = '| '.collect($rij)
+        if ($this->bijlage !== null) {
+            $regels[] = '';
+            $regels[] = '## '.$this->bijlage->titel;
+            $regels[] = '';
+
+            if ($this->bijlage->toelichting !== null) {
+                $regels[] = $this->bijlage->toelichting;
+                $regels[] = '';
+            }
+
+            if ($this->bijlage->omvangregel !== null) {
+                $regels[] = $this->veilig($this->bijlage->omvangregel);
+                $regels[] = '';
+            }
+
+            $regels = [...$regels, ...$this->tabel($this->bijlage->kolommen, $this->bijlage->rijen)];
+        }
+
+        return implode("\n", $regels)."\n";
+    }
+
+    /**
+     * Eén markdown-tabel. Een lege verzameling levert een rij streepjes op en
+     * niet niets: een kop zonder rijen leest als een fout in het document.
+     *
+     * @param  list<string>  $kolommen
+     * @param  list<array<int, string|int|float|null>>  $rijen
+     * @return list<string>
+     */
+    private function tabel(array $kolommen, array $rijen): array
+    {
+        $uit = [
+            '| '.implode(' | ', array_map($this->veilig(...), $kolommen)).' |',
+            '|'.str_repeat('---|', count($kolommen)),
+        ];
+
+        foreach ($rijen as $rij) {
+            $uit[] = '| '.collect($rij)
                 ->map(fn ($cel) => $this->veilig($cel === null || $cel === '' ? '—' : (string) $cel))
                 ->implode(' | ').' |';
         }
 
-        if ($this->rijen === []) {
-            $regels[] = '| '.implode(' | ', array_fill(0, count($this->kolommen), '—')).' |';
+        if ($rijen === []) {
+            $uit[] = '| '.implode(' | ', array_fill(0, count($kolommen), '—')).' |';
         }
 
-        return implode("\n", $regels)."\n";
+        return $uit;
     }
 
     /**

@@ -83,6 +83,7 @@ class SuiteDekkingTest extends TestCase
      * Groepen staan per constructie los van de suite-indeling:
      *
      *     php artisan test --group=nen7510
+     *     php artisan test --group=bio2
      *
      * Deze bewaking is grof en dat is bewust: ze kijkt per bestand, niet per
      * methode. Wie in `BeoordelingsschaalTest` een zorgtest bijzet zonder
@@ -90,26 +91,32 @@ class SuiteDekkingTest extends TestCase
      * praktijk gebeurt: een nieuw testbestand over het normprofiel dat de groep
      * helemaal vergeet, en dan stilzwijgend buiten `--group=nen7510` valt.
      */
-    public function test_elke_profieltest_draagt_de_groep_nen7510(): void
+    public function test_elke_profieltest_draagt_de_groep_van_zijn_profiel(): void
     {
+        // Sleutel = het profiel zoals een test het omzet, waarde = de groepsnaam.
+        // Zet je hier een profiel bij, dan is de bewaking er meteen voor alle
+        // bestaande bestanden.
+        $groepen = ['nen7510' => 'nen7510', 'bio2' => 'bio2'];
         $zonderGroep = [];
 
         foreach (glob($this->projectRoot().'/tests/Feature/*.php') as $pad) {
             $bron = file_get_contents($pad);
 
-            // Het profiel omzetten is het kenmerk; alleen "nen7510" noemen niet
-            // — dat staat ook in toelichtingen van tests die er niet over gaan.
-            if (! str_contains($bron, "norm.actief', 'nen7510'")) {
-                continue;
-            }
+            foreach ($groepen as $profiel => $groep) {
+                // Het profiel omzetten is het kenmerk; alleen de naam noemen niet
+                // — die staat ook in toelichtingen van tests die er niet over gaan.
+                if (! str_contains($bron, "norm.actief', '{$profiel}'")) {
+                    continue;
+                }
 
-            if (! str_contains($bron, "#[Group('nen7510')]")) {
-                $zonderGroep[] = basename($pad);
+                if (! str_contains($bron, "#[Group('{$groep}')]")) {
+                    $zonderGroep[] = basename($pad).' ('.$groep.')';
+                }
             }
         }
 
         $this->assertSame([], $zonderGroep,
-            'Deze tests zetten het normprofiel om maar dragen nergens #[Group(\'nen7510\')], '
-            .'en vallen dus buiten `--group=nen7510`: '.implode(', ', $zonderGroep));
+            'Deze tests zetten een normprofiel om maar dragen de bijbehorende groep niet, '
+            .'en vallen dus buiten `--group=<profiel>`: '.implode(', ', $zonderGroep));
     }
 }

@@ -24,6 +24,7 @@ volgt — die staat boven het menu in de zijbalk:
 | --- | --- | --- |
 | ISO/IEC 27001 | `maatregelen-iso27001.json` | 93 |
 | NEN 7510 | `maatregelen-nen7510.json` | 101 |
+| BIO2 | `maatregelen-bio2.json` | 93 |
 
 Er staat er maar één in uw installatie; de andere wordt bij de uitrol
 weggehaald, juist zodat u niet in het verkeerde bestand zit te werken. Beide
@@ -50,6 +51,11 @@ niet hebt aangeraakt blijft de mededeling tonen.
 
 **Maak eerst een kopie** van het bestand buiten die map. Dat is uw weg terug naar
 de meegeleverde staat.
+
+In het BIO-profiel staan er dezelfde 93 maatregelen in als onder ISO: de BIO laat
+Bijlage A ongemoeid. Wat de BIO daaraan toevoegt, staat een niveau lager en heeft
+zijn eigen bestand en zijn eigen commando; zie *De BIO-overheidsmaatregelen*
+onderaan deze pagina.
 
 Het veld `zorgaanvulling` gaat over NEN 7510 en niet over de maatregeltekst; laat
 het staan zoals het is. Zie [Wat NEN 7510 toevoegt bovenop ISO
@@ -115,6 +121,44 @@ php artisan config:cache
 Een uitrol doet dit zelf, dus na een gewone uitrol hoeft u hier niets mee. Voor
 het invoeren van normteksten maakt het niets uit: dit commando leest niets uit
 `.env`.
+
+## De BIO-overheidsmaatregelen
+
+Alleen in het BIO-profiel, en het werkt net anders dan hierboven. De 118
+overheidsmaatregelen zitten in `overheidsmaatregelen-bio2.json`, maar **hun tekst
+staat daar niet in** — dat bestand draagt alleen de nummering, de koppeling aan de
+beheersmaatregel, de status en de reikwijdte van de Cyberbeveiligingswet. De reden
+is een licentie en geen keuze: de BIO staat onder CC BY-NC-SA 4.0. Zie
+[Verantwoording en disclaimer](/kennisbank/verantwoording-en-disclaimer).
+
+U vult de teksten daarom niet in dat bestand in, maar in een tweede bestand ernaast
+dat bij een bijwerking niet wordt overschreven:
+
+```json
+{
+  "teksten": {
+    "5.01.01": "De entiteit heeft een informatiebeveiligingsbeleid opgesteld…",
+    "5.01.02": "…"
+  }
+}
+```
+
+Dat bestand heet `database/seeders/data/overheidsmaatregel-teksten.json`. Heeft u de
+BIO als spreadsheet, dan maakt de meegeleverde generator hem voor u:
+
+```
+python3 ../scripts/genereer_overheidsmaatregelen_seed.py --bron=<werkmap>.xlsx --met-tekst
+```
+
+Daarna inlezen, met dezelfde controleer-eerst-dan-schrijven-aanpak als hierboven:
+
+```
+php artisan isms:overheidsmaatregelen --controleer
+php artisan isms:overheidsmaatregelen
+```
+
+Het meldt achteraf hoeveel verplichtingen een eigen tekst dragen en hoeveel er nog
+niet beoordeeld zijn. Gedeeltelijk invullen mag, net als bij de maatregelteksten.
 
 ## De vijfde attribuutdimensie
 

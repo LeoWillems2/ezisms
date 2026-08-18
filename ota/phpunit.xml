@@ -12,13 +12,14 @@
         SuiteDekkingTest bewaakt dat (faalt bij een niet-ingedeeld bestand). NB:
         tests/Feature staat niet meer als losse directory-suite.
 
-        De normprofiel-delta (NEN 7510) is géén suite maar een GROEP, want die
-        ligt over vier domeinen verspreid en een bestand mag maar in één suite.
-        Draaien met `php artisan test` en daarachter de optie `group=nen7510`
-        (met twee streepjes ervoor; die mogen letterlijk niet in XML-commentaar).
+        De normprofiel-delta is géén suite maar een GROEP per profiel, want die
+        ligt over meerdere domeinen verspreid en een bestand mag maar in één suite.
+        Draaien met `php artisan test` en daarachter de optie `group=nen7510` of
+        `group=bio2` (met twee streepjes ervoor; die mogen letterlijk niet in
+        XML-commentaar).
 
         Wil je weten of de applicatie profielvast is, draai de hele suite dan één
-        keer met ISMS_NORM hieronder op nen7510. Dat hoort schoon te zijn: elke
+        keer met ISMS_NORM hieronder op nen7510 en één keer op bio2. Dat hoort schoon te zijn: elke
         test die een profiel nodig heeft, zet dat zelf. Zie implementatie/00k.
     -->
     <testsuites>
@@ -62,6 +63,9 @@
             <file>tests/Feature/ControlsetBestandenTest.php</file>
             <file>tests/Feature/MaatregelenCommandoTest.php</file>
             <file>tests/Feature/KenmerkenCommandoTest.php</file>
+            <!-- De BIO-laag hangt onder de SoA en hoort daarom bij dit blok
+                 (deelproducten/04b). -->
+            <file>tests/Feature/BioOverheidsmaatregelenTest.php</file>
         </testsuite>
         <testsuite name="beleid-bewustzijn">
             <file>tests/Feature/BeleidTest.php</file>

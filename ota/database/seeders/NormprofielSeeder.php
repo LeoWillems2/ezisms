@@ -38,8 +38,26 @@ class NormprofielSeeder extends Seeder
         // De uitgeleverde standaard staat hier en niet in config/norm.php: dáár
         // is het een doorgeefluik van .env, hier is het de beslissing wat een
         // installatie zonder uitgesproken keuze wordt.
-        $gekozen = (string) (config('norm.keuze') ?: 'iso27001');
+        //
+        // De terugval is er voor wie geen keuze uitspreekt, en die blijft. Maar hij
+        // moet zichtbaar zijn: een ontbrekende `ISMS_NORM` was tot 17-08-2026 niet
+        // te onderscheiden van een bewuste keuze voor ISO, en dan legt de seeder
+        // stilzwijgend het verkeerde profiel vast. Dat is onomkeerbaar — deze rij
+        // wordt nooit meer omgezet — en het kostte twee keer een halve
+        // BIO-installatie voordat iemand het opmerkte.
+        $keuze = config('norm.keuze');
+        $gekozen = (string) ($keuze ?: 'iso27001');
         $bekend = array_keys(config('norm.profielen', []));
+
+        if (blank($keuze)) {
+            $this->command?->warn(
+                "ISMS_NORM is leeg; deze installatie wordt vastgelegd op de standaard '{$gekozen}'. "
+                .'Is dat niet de bedoeling, breek dan nu af: een vastgelegd profiel wordt nooit '
+                .'omgezet en van norm wisselen betekent de database opnieuw opbouwen. Let op dat '
+                .'`artisan config:cache` vóór `db:seed` draait — staat ISMS_NORM alleen in .env en is '
+                .'de configuratie al gecached, dan komt hij hier niet aan.'
+            );
+        }
 
         // Weigeren en niet terugvallen: `ISMS_NORM=nen7501` (typefout) mag geen
         // ISO-installatie opleveren waar een zorginstelling om NEN 7510 vroeg.

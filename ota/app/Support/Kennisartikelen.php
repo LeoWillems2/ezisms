@@ -74,6 +74,16 @@ final class Kennisartikelen
             'categorie' => 'Meten & rapportage',
             'bestand' => 'de-audit-trail.md',
         ],
+        'communicatie-en-overleg' => [
+            'titel' => 'Communicatie en overleg vastleggen (§7.4)',
+            // Bij de audit trail en de KPI's, want het gaat over aantoonbaar
+            // maken dat het managementsysteem draait — en niet over één blok:
+            // het artikel leunt op beleid, taken, doelgroepen en bewijs.
+            'categorie' => 'Meten & rapportage',
+            // Norm-neutraal: clausule 7.4 staat in alle drie de profielen
+            // gelijk, en het artikel noemt geen maatregelnummers.
+            'bestand' => 'communicatie-en-overleg.md',
+        ],
         'issues-en-risicos' => [
             'titel' => "Issues (§4.1) en risico's (§6.1): wat hoort waar?",
             'categorie' => 'Risico & SoA',
@@ -116,6 +126,11 @@ final class Kennisartikelen
             'bestand' => [
                 'iso27001' => 'integraties-en-normeis.md',
                 'nen7510' => 'integraties-en-normeis-nen7510.md',
+                // Onder de BIO kantelt het antwoord opnieuw: koppelvlakken met
+                // ketenpartners en de verplichte beveiligingsstandaarden van het
+                // Forum Standaardisatie zijn hier de onderbouwing, en die bestaan
+                // in geen van de andere twee profielen.
+                'bio2' => 'integraties-en-normeis-bio2.md',
             ],
         ],
         'open-punten' => [
@@ -137,6 +152,11 @@ final class Kennisartikelen
             'bestand' => [
                 'iso27001' => 'externe-certificeringsaudit.md',
                 'nen7510' => 'externe-certificeringsaudit-nen7510.md',
+                // De BIO verplicht geen certificering; wat ervoor in de plaats
+                // komt is verantwoording aan de RDI. Dat is een ander gesprek met
+                // een andere partij en een andere uitkomst — geen certificaat maar
+                // een In Control Verklaring.
+                'bio2' => 'externe-certificeringsaudit-bio2.md',
             ],
         ],
         'gebruikers-rollen-en-rechten' => [
@@ -166,6 +186,19 @@ final class Kennisartikelen
             'categorie' => 'Naslag',
             'bestand' => 'sitestructuur.md',
         ],
+        'de-cyberbeveiligingswet-in-het-isms' => [
+            'titel' => 'De Cyberbeveiligingswet: waar hij dit systeem raakt',
+            'categorie' => 'Naslag',
+            // Bewust profielloos en bewust géén variant. Cbw-plichtigheid hangt
+            // af van sector en omvang en staat los van de norm die je volgt (zie
+            // `config/meldplicht.php` en `config/norm.php`): een ISO-installatie
+            // kan eronder vallen en een BIO-installatie niet. Een variant per
+            // profiel zou juist die verwarring bevestigen. De enige
+            // profielgebonden paragraaf — de reikwijdte-markering uit de BIO —
+            // staat als zodanig gemarkeerd in de tekst; hetzelfde patroon als de
+            // twee oriëntatieartikelen hierboven.
+            'bestand' => 'de-cyberbeveiligingswet-in-het-isms.md',
+        ],
         'wat-nen-7510-toevoegt' => [
             'titel' => 'Wat NEN 7510 toevoegt bovenop ISO 27001',
             'categorie' => 'Naslag',
@@ -183,7 +216,18 @@ final class Kennisartikelen
             'bestand' => [
                 'iso27001' => 'verantwoording-en-disclaimer.md',
                 'nen7510' => 'verantwoording-en-disclaimer-nen7510.md',
+                // In dit profiel heeft de pagina twee verhalen te vertellen in
+                // plaats van één: waarom de ISO-omschrijvingen ontbreken (zoals
+                // overal), én waarom de BIO-tekst ontbreekt — dat laatste om een
+                // andere reden, namelijk de CC BY-NC-SA-licentie.
+                'bio2' => 'verantwoording-en-disclaimer-bio2.md',
             ],
+        ],
+        'wat-de-bio-toevoegt' => [
+            'titel' => 'Wat de BIO toevoegt bovenop ISO 27001',
+            'categorie' => 'Naslag',
+            'bestand' => 'wat-de-bio-toevoegt.md',
+            'norm' => 'bio2',
         ],
     ];
 

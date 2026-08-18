@@ -119,9 +119,9 @@ Er staan **23 KPI's** in de catalogus, verdeeld over de vier PDCA-fasen:
 | **Check** | SoA-regels binnen termijn herbeoordeeld · risico's binnen termijn herbeoordeeld · beheerde taken op tijd afgerond · **gemiddelde overschrijding in dagen** · context binnen de herzieningstermijn · openstaande auditbevindingen · dagen sinds de laatste interne audit · externe meldingen binnen de wettelijke termijn · wijzigingen geslaagd · uitvoering met vastgelegd terugvalplan · spoedwijzigingen achteraf goedgekeurd |
 | **Act** | corrigerende maatregelen op tijd voltooid · gemiddelde doorlooptijd corrigerende maatregelen · scoredalingen zonder onderbouwing · statusovergangen naar gemitigeerd · nieuw geïdentificeerde risico's |
 
-Het zwaartepunt ligt op **Check**: dat meet of de cyclus dráái, niet of er ooit
+Het zwaartepunt ligt op **Check**: dat meet of de cyclus drááit, niet of er ooit
 iets is gepland. *Gemiddelde overschrijding in dagen* is waarschijnlijk het
-eerlijkste cijfer in het hele ISMS — blok 7 registreert zowel `deadline` als
+eerlijkste cijfer in het hele ISMS — het registreert zowel `deadline` als
 `voltooid_op`, dus het is gratis, moeilijk te masseren, en het meet **gedrag in
 plaats van intentie**.
 

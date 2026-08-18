@@ -52,6 +52,8 @@ PHP_EXTENSIES=(
 SEEDDATA_TOEGESTAAN=(
     maatregelen-iso27001.json
     maatregelen-nen7510.json
+    maatregelen-bio2.json
+    overheidsmaatregelen-bio2.json
     maatregel-kenmerken.json
 )
 
@@ -66,6 +68,17 @@ SEEDDATA_TOEGESTAAN=(
 OMSCHRIJVINGTEKST="Dit ISMS levert bij deze maatregel geen omschrijving mee."
 ZORGTEKST="Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee."
 ZORGLEEG="DO NOT TOUCH"
+
+# De BIO-laag heeft één veld en één toegestane waarde, en een eigen reden: hier is
+# het geen ISO- of NEN-licentie maar CC BY-NC-SA 4.0 (niet-commercieel, gelijk
+# delen). Gelijk aan Overheidsmaatregel::TEKST_NIET_MEEGELEVERD. Zie
+# implementatie/00q §8 voor de open vraag of het Cyberbeveiligingsbesluit die
+# beperking opheft; tot die beantwoord is, reist de tekst niet mee.
+#
+# Het lokale tekstbestand (overheidsmaatregel-teksten.json) valt structureel al af:
+# het is gitignored en `git archive` ziet het niet — zelfde constructie als
+# maatregel-capaciteiten.json.
+BIOTEKST="Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
 
 # ── Demofixtures ─────────────────────────────────────────────────────────────
 # Het FruitBV-scenario waarmee `isms:demo-vul` een gevuld ISMS opbouwt. Deze
