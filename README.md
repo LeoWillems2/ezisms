@@ -1,12 +1,11 @@
-# ezisms #
-<img width="400" height="300" alt="isms-logo" src="https://github.com/user-attachments/assets/39e7eaf8-0a71-4b81-999c-4453f7082e7c" />
+<img width="200" height="150" alt="isms-logo" src="https://github.com/user-attachments/assets/39e7eaf8-0a71-4b81-999c-4453f7082e7c" />
 
 # Introductie
 
-- Kijk op [link](https://www.ezisms.nl). Op de sitemap: klik op de items om de functies te bekijken.
+- Kijk op [ezisms.nl](https://www.ezisms.nl). Op de sitemap: klik op de items om de functies te bekijken.
 
 
-# VMHost of Bare metal requirements: #
+# VMhost of bare metal requirements: #
 
 - Ubuntu 26.04
 
@@ -37,7 +36,7 @@ GRANT ALL PRIVILEGES ON iso27001.* TO 'user'@'localhost';
 - Kopieer ota/.env.example naar /var/www/[sitedir]/.env en zet de gegevens.
 
 
-# VMHost of Bare metal EZISMS installatie: #
+# EZISMS Installatie #
 
 - Korte versie: voer uit:
 
@@ -45,9 +44,18 @@ GRANT ALL PRIVILEGES ON iso27001.* TO 'user'@'localhost';
 ota/scripts/builddistr.sh --uit=/var/tmp
 ```
 
-Volg de instructies die aan het einde getoond worden.
+Volg de instructies die aan het einde getoond worden. Voor het iso27001 profiel met APP_EN=local kun je een demonstratievulling maken, voeg dan de vlag --demo-vul toe achter --eerste.
+
 
 - Lange versie: lees ota/README.md.
+
+
+- Eerste gebruiker:
+```
+cd /var/www/[sitedir]/current
+sudo bash
+sudo -u www-data php artisan isms:eerste-ciso 'email-adres' 'wachtwoord' 'naam'
+```
 
 
 # Docker #
