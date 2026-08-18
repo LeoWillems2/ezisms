@@ -4,12 +4,21 @@
 
 - Kijk op [ezisms.nl](https://www.ezisms.nl). Op de sitemap: klik op de items om de functies te bekijken.
 
+- Met deze repo rol je de Test, Acceptatie en Produktie sites uit voor een ISO 27001, NEN 7510 en BIO2 ISMS.
+
+- Deze repo is de ontwikkelbasis, geheel ontwikkeld met Claude Code. De Architectuur, deelprojectplannen en bouwplannen staan hier niet. Wil je verder ontwikkelen, neem dan contact op: info @ ezisms.nl
+
 
 # VMhost of bare metal requirements: #
+
+
+Je zet altijd eerst een ontwikkelomgeving op. Dat staat hieronder.
 
 - Ubuntu 26.04
 
 - apt install nginx  composer php-cli php-zip unzip curl nodejs php php-cli php-common php-fpm php-mysql php-xml php-curl php-mbstring php-zip php-gd mysql-server ## pandoc
+
+Lees ontwikkelmachine/LEESMIJ.md voor details.
 
 Lees ota/README.md voor details over de installatie van Pandoc.
 
@@ -36,7 +45,7 @@ GRANT ALL PRIVILEGES ON iso27001.* TO 'user'@'localhost';
 - Kopieer ota/.env.example naar /var/www/[sitedir]/.env en zet de gegevens.
 
 
-# EZISMS Installatie #
+### EZISMS produktie of test Installatie ##
 
 - Korte versie: voer uit:
 
@@ -44,8 +53,7 @@ GRANT ALL PRIVILEGES ON iso27001.* TO 'user'@'localhost';
 ota/scripts/builddistr.sh --uit=/var/tmp
 ```
 
-Volg de instructies die aan het einde getoond worden. Voor het iso27001 profiel met APP_EN=local kun je een demonstratievulling maken, voeg dan de vlag --demo-vul toe achter --eerste.
-
+Volg de instructies die aan het einde getoond worden. Voor het iso27001 profiel met APP_ENV=local kun je een demonstratievulling maken, voeg dan de vlag --demo-vul toe achter --eerste.
 
 - Lange versie: lees ota/README.md.
 
@@ -60,4 +68,10 @@ sudo -u www-data php artisan isms:eerste-ciso 'email-adres' 'wachtwoord' 'naam'
 
 # Docker #
 
-- Lees docker/LEESMIJ.md
+- Lees docker/ezisms/LEESMIJ.md
+
+
+
+
+
+This work is licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
