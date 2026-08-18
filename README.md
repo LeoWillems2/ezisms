@@ -45,7 +45,7 @@ GRANT ALL PRIVILEGES ON iso27001.* TO 'user'@'localhost';
 - Kopieer ota/.env.example naar /var/www/[sitedir]/.env en zet de gegevens.
 
 
-### EZISMS produktie of test Installatie ##
+### EZISMS produktie of test installatie ##
 
 - Korte versie: voer uit:
 
