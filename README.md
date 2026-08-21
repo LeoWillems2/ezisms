@@ -19,13 +19,12 @@ Je zet altijd eerst een ontwikkelomgeving op. Dat staat hieronder.
 Gebruik ota/scripts/prephost.sh om een ``kale Ubuntu'' in te richten ter voorbereiding.
 
 Lees ontwikkelmachine/LEESMIJ.md voor details.
-Lees ota/README.md voor details over de installatie van Pandoc.
 
-# Nginx #
+### Nginx ###
 
 - Deze installatie gaat er van uit dat haproxy met SSL terminatie wordt gebruikt. Als dat niet zo is, lees dan ota/tls.md voor instructies.
 
-### EZISMS produktie of test installatie ##
+# EZISMS produktie of test installatie #
 
 - Korte versie: voer uit:
 
