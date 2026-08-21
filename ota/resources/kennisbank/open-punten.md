@@ -12,7 +12,7 @@ Drie soorten staan door elkaar in deze kennisbank, dus hier uit elkaar gehaald:
 - **Bedenkingen** — bewuste beperkingen. Ze gaan niet weg; u moet ze kennen.
 - **Ideeën** — bedacht, soms uitgewerkt, niet gebouwd.
 
-Bijgewerkt op **12 augustus 2026**. Deze pagina wordt met de hand onderhouden en
+Bijgewerkt op **20 augustus 2026**. Deze pagina wordt met de hand onderhouden en
 is dus geen live overzicht: wordt een punt beslist, dan hoort het hier weg.
 
 ## Beslissingen die nog aan u zijn
@@ -31,6 +31,33 @@ krijgt de rol `uitvoeren`? Het tweede is één regel in de rechtenmatrix en raak
 elke bestaande installatie. Zie [Gebruikers, rollen en
 rechten](/kennisbank/gebruikers-rollen-en-rechten).
 
+**Een nieuwe medewerker komt er niet vanzelf in.** Het systeem kent geen
+indiensttreding; het kent alleen een account dat op actief staat. De nachtelijke
+takengeneratie kijkt niet naar hoe oud een account is, dus wie in een doelgroep
+zit, heeft de volgende ochtend de hele stapel openstaande leesbevestigingen. Maar
+daar zitten drie randen aan:
+
+- **Afdeling is optioneel bij het uitnodigen.** Zonder afdeling valt iemand
+  buiten élke doelgroep: geen taak, geen knop om te bevestigen — en hij telt ook
+  niet mee in de noemer van de bevestigingsgraad. Het document blijft dan op 100%
+  staan terwijl er iemand buiten staat. Er is geen signaal op "actief, geen
+  afdeling", en dat maakt dit het vervelendste van de drie: een beheersmaatregel
+  die niet werkt en er groen bij staat.
+- **De leestermijn loopt vanaf publicatie**, dertig dagen. Voor zittend personeel
+  klopt dat — anders zou een taak die elke nacht opnieuw wordt aangeboden nooit
+  verlopen. Voor wie later binnenkomt betekent het dat zijn eerste taak vaak al
+  over de deadline is op de dag dat hij hem krijgt.
+- **Trainingsdoelgroepen gaan over expliciet lidmaatschap**, niet over afdeling.
+  Een nieuwkomer krijgt geen enkele trainingstaak tot iemand hem toevoegt.
+
+De keuze: laat u dit een **procesafspraak** zijn — uitnodigen mét afdeling, en
+meteen in de juiste trainingsdoelgroep, vastgelegd in uw onboardingprocedure — of
+hoort het systeem het te borgen? Voor A.6.1 en A.6.3 is de eerste route
+verdedigbaar, mits opgeschreven. De tweede is drie ingrepen: een signaal op
+actieve gebruikers zonder afdeling, een leestermijn die loopt vanaf toetreding
+tot de doelgroep in plaats van vanaf publicatie, en trainingsdoelgroepen die de
+afdelingsindeling volgen.
+
 **Wie is onafhankelijk genoeg om intern te auditen?** Het systeem heeft de
 technische kant opgelost: de CISO verliest zijn schrijfrecht op de bevindingen
 van een toegewezen interne auditor. Wie de organisatie daadwerkelijk als
@@ -44,7 +71,10 @@ geen vrijbrief voor de AVG**: trainingscertificaten met namen, incidentmeldingen
 met betrokkenen en leesbevestigingen zijn persoonsgegevens met een eigen
 grondslag en een eigen bewaartermijn. Gearchiveerd bewijs wordt in dit model
 bovendien nooit hard verwijderd. Of dat zo mag blijven, vraagt een AVG-toets die
-buiten dit systeem is gebleven.
+buiten dit systeem is gebleven. Wat het systeem hier wél doet: documenten die het
+pand verlaten — de schermkopie en `isms:exporteer` — dragen initialen plus rol in
+plaats van namen. Dat beperkt de verspreiding; het beantwoordt de vraag over de
+bewaring niet.
 
 **De databasegrant op de audit trail.** De trail is append-only in de
 applicatie — het model weigert elke wijziging — maar dat is een vangnet tegen
@@ -84,11 +114,15 @@ terugmeld-URL staat in de taak van de deelnemer zelf. Wie die link gebruikt
 zonder de toets te openen, staat op geslaagd. Het toont aan *dát* het programma
 loopt en wie eraan deelnam, niet dat iemand de stof beheerst. Manipulatievast
 maken vraagt nakijken op de server, met de vragen en antwoorden in de
-ISMS-database — dat is een ander en groter blok.
+ISMS-database — dat is een ander en groter blok. Wat sinds 19 augustus 2026 wél
+dicht is, is de andere kant: een toets kan niets meer bij derden ophalen (zie de
+tabel onderaan).
 
 **De vijfde attribuutdimensie van ISO 27002 ontbreekt.** Beveiligingscapaciteiten
-staan alleen in de norm zelf; ze zijn niet meegeleverd. De andere vier zijn een
-eigen uitgangspunt dat u hoort te overschrijven. Zie
+staan alleen in de norm zelf; ze zijn niet meegeleverd. Bezit u de norm, dan mag
+u ze in uw eigen installatie invullen — `php artisan isms:capaciteiten aan` is
+daarvoor de ondersteunde weg. De andere vier dimensies zijn een eigen
+uitgangspunt dat u hoort te overschrijven. Zie
 [Maatregelclassificatie](/kennisbank/maatregelclassificatie) en
 [Verantwoording en disclaimer](/kennisbank/verantwoording-en-disclaimer).
 
@@ -98,9 +132,11 @@ wegvalt tegen welke goede. De vraag *waar schort het* wordt per KPI beantwoord,
 tegen een norm die u zelf heeft vastgesteld.
 
 **Meethistorie begint bij de ingebruikname.** Er is geen reconstructie van het
-verleden. Voor koppelingen die vóór 3 augustus 2026 zijn gelegd is er bovendien
-geen datum en geen naam. Zie [KPI's en
-meetwaarden](/kennisbank/kpis-en-meetwaarden) voor wat dat wel en niet betekent.
+verleden: de eerste maandmeting is de eerste maand dat het systeem draait. Draait
+uw installatie al van vóór 3 augustus 2026, dan missen de koppelingen van
+daarvóór bovendien een datum en een naam — de vastlegging daarvan is toen pas
+toegevoegd. Zie [KPI's en meetwaarden](/kennisbank/kpis-en-meetwaarden) voor wat
+dat wel en niet betekent.
 
 **Geen delegatie, geen vier-ogen op persoonsniveau, geen rollenbeheer in de UI.**
 De rechtenmatrix is referentiedata: een rol wijzigen is een codewijziging plus
@@ -109,8 +145,9 @@ rollen heeft, stelt op én stelt vast. Het gebruikersoverzicht toont alle rollen
 per persoon, zodat een auditor die combinatie zelf kan wegen.
 
 **Eén organisatie, eigen accounts.** Er is geen scheiding tussen organisaties in
-het rechtenmodel en geen SSO. Beide zijn uitbreidingen van de integratielaag en
-staan nu niet gepland.
+het rechtenmodel en geen SSO. Eén installatie bedient één organisatie; wilt u er
+twee bedienen, dan zijn dat twee installaties. Beide zijn uitbreidingen van de
+integratielaag en staan nu niet gepland.
 
 **Anoniem melden kan niet.** Een incident wordt op naam gemeld. Als daar behoefte
 aan blijkt, is het een eigen uitbreiding — anoniem melden raakt de hele
@@ -127,9 +164,9 @@ uit het risicoregister te hergebruiken is nooit bevestigd, en zo is het ook niet
 gebouwd. Wilt u een leveranciersrisico op die matrix beoordelen, dan legt u een
 risico aan en koppelt u de leverancier eraan.
 
-**De schermkopie zit op vijf schermen.** De knop *Kopie voor de auditor* staat op
-de SoA, de audit trail, het risicoregister, de tolerantiematrix en de
-afwijkingen. Andere schermen volgen; tot die tijd is
+**De schermkopie zit op zes schermen.** De knop *Kopie voor de auditor* staat op
+de SoA, de audit trail, het risicoregister, de tolerantiematrix, de afwijkingen
+en het bevindingenregister. Andere schermen volgen; tot die tijd is
 [`isms:exporteer`](/kennisbank/beheer) het alternatief als de auditor meer wil
 meenemen.
 
@@ -146,14 +183,28 @@ browser of in de mail) kan het getal daarom leeg blijven. Openen in Word of
 afdrukken lost het op. Een vast getal invullen was het alternatief, maar dat zou
 op elke pagina behalve één onwaar zijn.
 
+**De uitlevering gaat uit van een proxy die TLS termineert.** De applicatie
+serveert zelf geen HTTPS: het certificaat hangt in een reverse proxy ervóór, en
+de applicatie leidt uit een kop van die proxy af dat de verbinding beveiligd was.
+Dat is een aanname en geen instelling, en hij staat in dezelfde categorie als de
+databasegrant hierboven: een inrichtingsstap waar de applicatie zelf niets over
+kan afdwingen. Zet u het ISMS op één machine zonder zo'n proxy, dan moet die kop
+weg — zonder proxy die hem overschrijft is hij door de bezoeker te sturen, en
+denkt de applicatie dat een kale HTTP-verbinding beveiligd is. Het plan om dit
+een keuze te maken ligt klaar (zie hieronder).
+
 ## Ideeën die klaarliggen
 
 Bedacht en soms uitgewerkt, niet gebouwd. Ze staan hier zodat ze niet twee keer
 bedacht hoeven te worden.
 
-- **De schermkopie op de overige schermen.** Het mechanisme staat; per scherm is
-  het bepalen welke kolommen erin horen en of de kopie dezelfde
-  record-beperking krijgt als het scherm.
+- **De schermkopie op de overige schermen.** Het mechanisme staat en groeit per
+  scherm mee; per scherm is het bepalen welke kolommen erin horen en of de kopie
+  dezelfde record-beperking krijgt als het scherm.
+- **TLS als instelling in plaats van als aanname.** Uitgewerkt: één sleutel met
+  drie standen — een proxy ervóór (wat het nu is), een certificaat in de
+  applicatie zelf, of kaal HTTP voor een afgeschermd netwerk. Niet gebouwd, omdat
+  elke bestaande opstelling de eerste stand draait.
 - **Toetsherhaling via een taaksjabloon.** Voor modules loopt herhaling al via de
   geldigheidsduur; losse toetsen zet de CISO nu met de hand uit. Jaarlijkse
   herhaling raakt de takengenerator en is daarom apart te beslissen. A.6.3
@@ -180,13 +231,15 @@ Om te voorkomen dat ze telkens terugkomen als "moeten we daar nog iets mee?":
 
 | Punt | Besluit |
 | --- | --- |
-| Externe assets in het toetssjabloon | Blijft. De toets is losstaand lesmateriaal, geen onderdeel van de applicatie zelf. |
+| Externe bronnen in een toetsbestand | **Herzien op 19 augustus 2026.** Het besluit van 30 juli — toetsen mogen bij een CDN laden — gold toen ze alleen intern werden gebruikt. Van elke deelnemer gingen IP-adres en browsergegevens naar die partijen. Sindsdien staat er een bronbeperking op de plek waar een toets het systeem uit gaat: alleen wat in het bestand zelf zit. Nieuwe toetsen krijgen platte opmaak en systeemlettertypen; het bestaande OWASP-materiaal is eenmalig omgezet en ziet er hetzelfde uit. |
+| Externe bronnen in de applicatie zelf | Idem: lettertypen en scripts komen sinds 18 augustus 2026 van de eigen server. Er is geen scherm meer dat bij het openen iets bij een derde partij ophaalt. |
 | Meetfrequentie van de KPI's | Maandelijks, met de meting onveranderlijk vastgelegd. Geen dagelijkse snapshot. |
 | Bewaartermijn bewijs | Drie jaar, één certificeringscyclus — met de AVG-kanttekening hierboven. |
 | Readiness-score | Ingetrokken, zie hierboven. |
 | Toetsbestanden zijn publiek bereikbaar | Bewust, en dat blijft: de token doet het beveiligingswerk, niet de onvindbaarheid van het bestand. Sinds 11 augustus 2026 staan de bestanden niet meer in de webmap maar worden ze door de applicatie uitgeserveerd, in een afgeschermde omgeving. Dat verandert niets aan wie erbij kan, wel aan wat een toets kan. |
 | Tweefactor bij de uitnodiging | Een nieuwe gebruiker koppelt zijn app meteen bij het instellen van zijn wachtwoord (3 augustus 2026). De respijtperiode is er voor de accounts die er al wáren. |
 | Keten-hashing van de audit trail | Gebouwd op 3 augustus 2026. Wat er nog niet is, staat hierboven bij *Wie bewaart de kophash?* |
+| Routes voor alle soorten wijzigingen | Geleverd op 12 augustus 2026: elk van de vijf soorten (leveranciersrelease, configuratie, infrastructuur, ingebruikname, afvoer) heeft een sjabloon, zodat geen soort meer alleen via de spoedroute te kiezen is. |
 
 ## Wat hier níét op hoort
 

@@ -127,7 +127,21 @@ RUN find /opt/ezisms -type d -exec chmod 0755 {} + && \
 # De integriteitscontrole van deploy.sh, maar op bouwtijd. Een halve overdracht
 # van de tarbal faalt hier, met een leesbare melding, in plaats van straks als
 # een HTTP 500 bij de klant.
-RUN sha256sum -c --quiet SHA256SUMS
+#
+# En meteen daarna, in dezelfde laag: scripts/prephost.sh eruit. Dat script
+# maakt een kale Ubuntu-host klaar voor de bare-metal route — het installeert
+# pakketten, maakt een databasegebruiker aan en schrijft een nginx-vhost. In een
+# container is daar niets van waar en niets van gewenst; wat het zou aanrichten
+# als iemand het er tóch aanroept, is precies wat een image niet hoort te
+# kunnen. Het reist wel in de tarbal mee, want de bare-metal route heeft het
+# nodig.
+#
+# Ná de controle en niet vóór de COPY: het bestand staat in SHA256SUMS, dus een
+# tarbal waar het uit gesloopt is hoort hierboven te falen. En in dezelfde RUN,
+# zodat de applicatieboom vanaf dat punt in de build vastligt — waar
+# deploy-docker.sh :: lees_manifest op steunt als hij de controle overslaat.
+RUN sha256sum -c --quiet SHA256SUMS && \
+    rm -f /opt/ezisms/scripts/prephost.sh
 
 # Een tarbal van `builddistr.sh --geen-bouw` draagt geen vendor/ en geen
 # public/build. Voor de bare-metal route is dat opgelost — deploy.sh bouwt ze

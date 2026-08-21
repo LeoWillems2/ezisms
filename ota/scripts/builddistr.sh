@@ -359,6 +359,13 @@ meld "pakket:   $TARBAL ($(du -h "$TARBAL" | cut -f1))"
 meld "checksum: $TARBAL.sha256"
 meld "commit:   $COMMIT"
 printf '\nUitrollen op de doelhost:\n'
+# Op een kale host komt prephost.sh eerst: nginx, mysql, php, composer, npm,
+# pandoc, de fpm-pool, de vhost, de database en het doelpad met een .env erin.
+# deploy.sh doet dat allemaal niet en verwacht het wél. Op een host waar al een
+# ISMS draait is deze regel overbodig.
+printf '   tar xzf %s -O %s/scripts/prephost.sh > prephost.sh   # alleen op een kale host\n' \
+       "$(basename "$TARBAL")" "$MAPNAAM"
+printf '   sudo bash prephost.sh --hostnaam=<naam> --haproxy=<ip>\n'
 printf '   tar xzf %s -O %s/scripts/deploy.sh > deploy.sh\n' "$(basename "$TARBAL")" "$MAPNAAM"
 printf '   sudo bash deploy.sh %s /var/www/isms --eerste\n' "$(basename "$TARBAL")"
 

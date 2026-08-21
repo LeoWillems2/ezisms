@@ -10,6 +10,7 @@ use App\Models\Gebruiker;
 use App\Models\Rol;
 use App\Models\Taak;
 use App\Models\Toetsopdracht;
+use App\Support\ExterneBronnen;
 use App\Support\Navigatie;
 use App\Support\Rolregels;
 use App\Support\ToetsBestanden;
@@ -228,6 +229,63 @@ class AdministratorTest extends TestCase
             ))
             ->call('uploaden')
             ->assertDontSee('meldt de uitslag waarschijnlijk niet terug');
+    }
+
+    public function test_een_toets_met_externe_bronnen_levert_een_waarschuwing_op(): void
+    {
+        // De CSP blokkeert ze al; deze melding zorgt dat de Administrator het
+        // merkt vóór hij de toets uitzet, en niet via een klagende deelnemer.
+        Livewire::actingAs($this->administrator)
+            ->test(ToetsbestandenBeheer::class)
+            ->set('bestand', UploadedFile::fake()->createWithContent(
+                'extern.html',
+                '<html><head>'
+                .'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/x.css">'
+                .'<script src="https://cdn.tailwindcss.com"></script>'
+                .'</head><body><script>function onQuizVoltooid(s,t,p){}</script></body></html>',
+            ))
+            ->call('uploaden')
+            ->assertSee('cdn.tailwindcss.com')
+            ->assertSee('cdnjs.cloudflare.com');
+
+        // Wel geplaatst: het is een waarschuwing, geen blokkade.
+        Storage::disk(ToetsBestanden::DISK)->assertExists('extern.html');
+    }
+
+    public function test_een_hyperlink_naar_buiten_is_geen_externe_bron(): void
+    {
+        // <a href> laadt niets — die volgt pas als iemand klikt. Een scan die
+        // elke verwijzing aanstreept, wordt weggeklikt.
+        Livewire::actingAs($this->administrator)
+            ->test(ToetsbestandenBeheer::class)
+            ->set('bestand', UploadedFile::fake()->createWithContent(
+                'link.html',
+                '<html><body><a href="https://www.ncsc.nl">meer lezen</a>'
+                .'<script>function onQuizVoltooid(s,t,p){}</script></body></html>',
+            ))
+            ->call('uploaden')
+            ->assertDontSee('worden bij het uitserveren geblokkeerd');
+    }
+
+    public function test_het_meegeleverde_skelet_haalt_zelf_niets_op(): void
+    {
+        // Het skelet is het vertrekpunt dat de bouwhulp uitdeelt. Zit hier ooit
+        // een CDN in, dan verspreidt die zich over elke toets die ermee begint.
+        $skelet = file_get_contents(resource_path('toetsen/skelet.html'));
+
+        $this->assertSame([], ExterneBronnen::hosts($skelet));
+        $this->assertStringContainsString('onQuizVoltooid(', $skelet);
+    }
+
+    public function test_de_helper_in_het_skelet_loopt_niet_uit_de_pas(): void
+    {
+        // Het skelet draagt een kopie van onQuizVoltooid.js, zodat het meteen
+        // werkt. Deze test is de prijs daarvoor: wijzigt de helper, dan moet de
+        // kopie mee.
+        $skelet = file_get_contents(resource_path('toetsen/skelet.html'));
+        $helper = trim(file_get_contents(resource_path('toetsen/onQuizVoltooid.js')));
+
+        $this->assertStringContainsString($helper, $skelet);
     }
 
     public function test_alleen_html_komt_binnen(): void

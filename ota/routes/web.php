@@ -253,6 +253,18 @@ Route::middleware(['auth'])->group(function () {
         ->middleware("can:heeft-niveau,'bewustzijn-training','muteren'")
         ->name('toetsen.bouwhulp.download');
 
+    // Het skelet: een werkende toets zonder één externe bron, als vertrekpunt
+    // (implementatie/10b §4). Zelfde autorisatie als de helper hierboven.
+    Route::get('toetsen/bouwhulp/skelet.html', function () {
+        return response()->download(
+            resource_path('toetsen/skelet.html'),
+            'toets-skelet.html',
+            ['Content-Type' => 'text/html'],
+        );
+    })
+        ->middleware("can:heeft-niveau,'bewustzijn-training','muteren'")
+        ->name('toetsen.bouwhulp.skelet');
+
     // Programmabeheer, doelgroepen en het resultatenoverzicht staan op 'lezen'
     // maar sluiten de Medewerker in het component uit via `magAllesZien`
     // (uitvoeren impliceert lezen). Zo is de Auditor read-only welkom en blijft

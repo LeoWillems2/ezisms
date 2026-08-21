@@ -51,6 +51,24 @@ De applicatie luistert op **poort 81** van de host (`HTTP_POORT`). Zet uw HAProx
 daarnaartoe; die termineert de TLS en stuurt `X-Forwarded-Proto: https` mee.
 Zonder die header bouwt de applicatie `http://`-links op.
 
+`APP_URL` bepaalt daarnaast of het sessiecookie `secure` krijgt: bij `https://`
+gaat het cookie alleen over een beveiligde verbinding, bij `http://` niet — en
+dan zegt de container dat bij elke start in het log. Zet `APP_URL` dus op de URL
+die de gebruiker in de browser heeft staan, niet op de poort erachter.
+`SESSION_SECURE_COOKIE` in `.env` overrulet dit, maar hoort leeg te blijven.
+
+> **Bij een upgrade van V2.8.0 of eerder.** Twee sleutels uit `env.voorbeeld`
+> werden niet aan de container doorgegeven en deden daar dus niets.
+> `SESSION_SECURE_COOKIE` was niet instelbaar — het cookie was achter HAProxy wél
+> `secure`, want Laravel liet het bij een lege waarde de verbinding volgen — en
+> `SESSION_ENCRYPT` stond ondanks de `true` in het voorbeeldbestand uit, waardoor
+> de sessiegegevens onversleuteld in de database stonden. Kopieer `compose.yml`
+> opnieuw uit de nieuwe boom, anders blijft het eerste zo. Het tweede gaat bij de
+> volgende start vanzelf aan; iedereen wordt daardoor één keer uitgelogd.
+
+Wilt u geen HAProxy en nginx zelf de TLS laten dragen, dan staat in `tls.md` in
+de wortel van de boom wat daarvoor moet veranderen.
+
 ## 2. Het eerste account
 
 Zet `ISMS_CISO_EMAIL` (en eventueel `ISMS_CISO_NAAM`) in `.env` vóór de eerste

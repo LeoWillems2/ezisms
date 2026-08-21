@@ -70,15 +70,53 @@
                 Het ISMS serveert je toets uit in een <em>afgeschermde omgeving</em>: de pagina heeft
                 geen toegang tot de gegevens, de sessie of de opslag van het ISMS. Voor een gewone
                 toets merk je daar niets van — scripts, formulieren, meldingen en het doorlinken na
-                afloop werken normaal, en externe afbeeldingen of lettertypen mogen ook. Eén ding
-                werkt er niet: <code>localStorage</code>, <code>sessionStorage</code> en cookies.
-                Wil je tussentijds iets bewaren, doe dat dan in het geheugen van de pagina zelf.
+                afloop werken normaal. Twee dingen werken niet:
+                <code>localStorage</code>, <code>sessionStorage</code> en cookies (bewaar wat je
+                nodig hebt in het geheugen van de pagina zelf), en alles wat de pagina bij een
+                andere website zou ophalen — zie hieronder.
             </flux:text>
 
             <div>
                 <flux:button icon="arrow-down-tray" variant="primary"
                     :href="route('toetsen.bouwhulp.download')">
                     Download onQuizVoltooid.js
+                </flux:button>
+            </div>
+        </div>
+
+        <div class="space-y-3">
+            <flux:heading size="lg">De toets moet één bestand zijn</flux:heading>
+            <flux:text>
+                Geen externe scripts, stylesheets, lettertypen of afbeeldingen. Alle CSS en
+                JavaScript staan <em>in</em> het bestand; afbeeldingen neem je op als
+                <code>data:</code>-URI. Dus geen Tailwind-CDN en geen Google Fonts, maar platte
+                CSS en systeemlettertypen.
+            </flux:text>
+            <flux:text>
+                De reden is niet netheid. De deelnemers zijn medewerkers van deze organisatie;
+                haalt de pagina iets bij een andere partij op, dan gaat hun IP-adres daarheen.
+                Het ISMS blokkeert die verzoeken, dus een toets met externe bronnen ziet er bij
+                de deelnemer kapot uit. Bij het plaatsen waarschuwt het ISMS de Administrator
+                als het er toch in staat.
+            </flux:text>
+            <flux:text>
+                Begin met het skelet hieronder: een werkende toets met drie vragen, zonder één
+                externe bron. Laat je je toets door een AI schrijven, geef deze opdracht dan mee:
+            </flux:text>
+
+            <flux:callout>
+                <flux:text>
+                    Maak één zelfstandig HTML-bestand. Geen externe scripts, stylesheets,
+                    lettertypen of afbeeldingen: alle CSS en JavaScript inline in het bestand,
+                    afbeeldingen als data:-URI. Geen Tailwind-CDN en geen Google Fonts; gebruik
+                    platte CSS en systeemlettertypen.
+                </flux:text>
+            </flux:callout>
+
+            <div>
+                <flux:button icon="arrow-down-tray"
+                    :href="route('toetsen.bouwhulp.skelet')">
+                    Download het skelet
                 </flux:button>
             </div>
         </div>

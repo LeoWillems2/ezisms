@@ -10,6 +10,8 @@
 #   2. eigendom      chown, idempotent, ongeacht welke uid de host gebruikt
 #   3. wachten op db PDO-lus (depends_on is niet genoeg)
 #   4. APP_KEY       lezen uit installatie/app_key, of eenmalig genereren
+#   4b. versie       APP_VERSION uit het manifest als .env hem leeg laat
+#   4c. sessiecookie SESSION_SECURE_COOKIE volgt het schema van APP_URL
 #   5. config:cache  HIER, ná stap 4 — config/app.php leest APP_KEY
 #   6. uitrol        scripts/deploy-docker.sh, met de pogingenteller eromheen
 #   7. exec "$@"     supervisord wordt PID 1
@@ -305,6 +307,75 @@ elif [[ -n $(manifest_waarde tag) && $APP_VERSION != $(manifest_waarde tag) ]]; 
     # is een bewuste invoer van de beheerder — maar wél zeggen, want dit is
     # precies het geval waarin het scherm gaat liegen.
     waarschuw "APP_VERSION in .env ($APP_VERSION) is niet de tag van deze boom ($(manifest_waarde tag)); de zijbalk toont uw eigen waarde."
+fi
+
+# ═════════════════════════════════════════════════════════════════════════════
+#  4c. Het sessiecookie
+# ═════════════════════════════════════════════════════════════════════════════
+# `secure` op het sessiecookie mag precies dán aan als de gebruiker het ISMS over
+# https benadert. Dat is af te lezen aan APP_URL — daar bouwt Laravel zijn links
+# mee op — en daarom wordt het afgeleid en niet gevraagd: het is geen losse
+# keuze, de twee kloppen alleen in combinatie. Dezelfde redenering als bij
+# ISMS_DEMO, dat APP_ENV en de 2FA in één keer zet.
+#
+# Hier en niet in docker/env.statisch, want dit verschilt per installatie. En
+# hier en niet in deploy-docker.sh, om dezelfde reden als APP_VERSION hierboven:
+# de waarde moet in de omgeving staan vóór stap 5, anders bakt config:cache de
+# oude in.
+#
+# VOORGESCHIEDENIS (gerepareerd 19-08-2026). SESSION_SECURE_COOKIE stond wél in
+# env.voorbeeld, op `true`, maar niet in de `environment:` van compose.yml — en
+# die lijst is uitputtend, er is geen env_file. De sleutel bereikte de container
+# dus nooit.
+#
+# Het gevolg viel mee, maar niet weg. config/session.php las `null`, en dan laat
+# Laravel het cookie de aard van het verzoek volgen: Symfony's Cookie::isSecure()
+# valt terug op secureDefault, en Response::prepare() zet die op true zodra
+# $request->isSecure(). Achter HAProxy wás het cookie dus secure. Wat niet werkte
+# was de sleutel zélf — wie hem bewust invulde kreeg daar niets van terug — en de
+# afleiding hing aan $my_https, dus aan een kop die op de open containerpoort door
+# de client te sturen is. APP_URL is dat niet, en daarom staat de afleiding hier
+# en niet in de webserver.
+
+if [[ -z ${SESSION_SECURE_COOKIE:-} ]]; then
+    if [[ ${APP_URL:-} == https://* ]]; then
+        export SESSION_SECURE_COOKIE=true
+        meld "sessiecookie: secure — APP_URL is https"
+    else
+        export SESSION_SECURE_COOKIE=false
+        waarschuw "APP_URL is geen https:// ($APP_URL) — het sessiecookie gaat ook over een
+             onbeveiligde verbinding mee. Bruikbaar om te toetsen, geen opstelling
+             voor echte gegevens."
+    fi
+else
+    # Wel ingevuld. Niet stilzwijgend overschrijven — het is een bewuste invoer —
+    # maar de spelling wordt genormaliseerd en de onmogelijke combinatie
+    # tegengehouden.
+    case "${SESSION_SECURE_COOKIE,,}" in
+        true|false) export SESSION_SECURE_COOKIE="${SESSION_SECURE_COOKIE,,}" ;;
+        *) blokkeer_en_wacht "             SESSION_SECURE_COOKIE moet 'true' of 'false' zijn, of leeg blijven.
+             Er staat: '${SESSION_SECURE_COOKIE}'.
+
+             Leeg laten is het advies; de waarde volgt dan het schema van
+             APP_URL." ;;
+    esac
+
+    if [[ $SESSION_SECURE_COOKIE == true && ${APP_URL:-} != https://* ]]; then
+        # Deze combinatie is niet zwak maar stuk: de browser stuurt een
+        # secure-only cookie over http niet terug, dus de aanmeldpagina blijft
+        # zichzelf tonen en niemand komt binnen. Beter hier stilvallen met een
+        # leesbare melding dan een draaiend ISMS waar niet in te loggen is.
+        blokkeer_en_wacht "             SESSION_SECURE_COOKIE=true gaat niet samen met APP_URL=$APP_URL.
+
+             Een secure-only sessiecookie stuurt de browser over kaal http niet
+             terug: er kan dan niemand inloggen.
+
+             Kies er één: APP_URL op https://, of SESSION_SECURE_COOKIE leeg laten."
+    elif [[ $SESSION_SECURE_COOKIE == false && ${APP_URL:-} == https://* ]]; then
+        waarschuw "SESSION_SECURE_COOKIE=false terwijl APP_URL https:// is — het sessiecookie
+             mag dan ook over een onbeveiligde verbinding mee. Laat de sleutel leeg
+             om dat aan APP_URL over te laten."
+    fi
 fi
 
 # ═════════════════════════════════════════════════════════════════════════════

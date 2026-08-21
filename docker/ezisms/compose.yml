@@ -75,6 +75,14 @@ services:
     # voor elk PHP-proces in die container. Het root-wachtwoord blijft bij db.
     environment:
       APP_URL:                ${APP_URL:?ontbreekt in .env}
+      # Hoort normaal leeg te blijven: de entrypoint leidt hem af uit het schema
+      # van APP_URL (https ⇒ true, http ⇒ false met een waarschuwing). Tóch
+      # doorgegeven, want zonder deze regel bereikt een invulling in .env de
+      # container niet — deze lijst is uitputtend, er is geen env_file. Precies
+      # dát was de fout: de sleutel stond sinds de eerste versie in env.voorbeeld
+      # op `true` en kwam hier nooit langs, dus was hij in het geheel niet
+      # instelbaar. Zie tls.md.
+      SESSION_SECURE_COOKIE:  ${SESSION_SECURE_COOKIE:-}
       ORGANISATIE:            ${ORGANISATIE:-}
       # Het versienummer in de zijbalk. Zonder deze regel blijft de vermelding
       # weg — en waarschuwt de uitrol dat een sleutel uit .env.example niet

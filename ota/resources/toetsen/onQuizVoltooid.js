@@ -36,10 +36,12 @@
  *
  * WAAR JE TOETS IN DRAAIT. Het ISMS serveert je toets uit in een afgeschermde
  * omgeving: de pagina kan niet bij de gegevens, de sessie of de opslag van het
- * ISMS. Scripts, formulieren, meldingen (`alert`), het doorlinken na afloop en
- * externe afbeeldingen of lettertypen werken gewoon. Eén ding werkt niet:
- * `localStorage`, `sessionStorage` en cookies. Wil je tussentijds iets
- * bewaren, houd dat dan in het geheugen van de pagina zelf.
+ * ISMS. Scripts, formulieren, meldingen (`alert`) en het doorlinken na afloop
+ * werken gewoon. Twee dingen niet: `localStorage`, `sessionStorage` en cookies
+ * (houd wat je nodig hebt in het geheugen van de pagina), en alles wat de pagina
+ * bij een ándere website zou ophalen. Je toets moet één zelfstandig bestand
+ * zijn: CSS en JavaScript erin, plaatjes als data:-URI, geen CDN en geen Google
+ * Fonts. De bouwhulp heeft een skelet dat dat al goed doet.
  */
 
 // Optionele helper: roept onQuizVoltooid aan als die bestaat. Handig als je de

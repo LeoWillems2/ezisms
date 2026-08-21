@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voorbeeldtoets — vervang deze titel</title>
+
+<!--
+    SKELET VOOR EEN TOETS. Vervang de lesstof en de vragen; laat de opbouw staan.
+
+    EEN REGEL, EN DIE IS HARD: dit bestand moet zelfstandig blijven.
+    Geen externe scripts, stylesheets, lettertypen of afbeeldingen. Alle CSS en
+    JavaScript staan in dit bestand; afbeeldingen neem je op als data:-URI.
+    Geen Tailwind-CDN en geen Google Fonts — platte CSS en systeemlettertypen.
+
+    Waarom: de deelnemers zijn medewerkers van de organisatie. Laadt de pagina
+    iets bij een derde partij, dan gaat hun IP-adres daarheen. Het ISMS
+    blokkeert die verzoeken, dus een toets met externe bronnen ziet er bij de
+    deelnemer kapot uit.
+
+    Laat je deze toets door een AI schrijven, geef die regel dan mee.
+-->
+
+<style>
+    :root {
+        --achtergrond: #0f172a;
+        --vlak: #1e293b;
+        --rand: #334155;
+        --tekst: #f8fafc;
+        --gedempt: #94a3b8;
+        --accent: #6366f1;
+        --goed: #34d399;
+        --fout: #fb7185;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        padding: 2rem 1rem 4rem;
+        background: var(--achtergrond);
+        color: var(--tekst);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.6;
+    }
+
+    main { max-width: 46rem; margin: 0 auto; }
+
+    h1 { font-size: 1.75rem; margin: 0 0 .25rem; }
+    h2 { font-size: 1.25rem; margin: 2rem 0 .5rem; }
+    p.inleiding { color: var(--gedempt); margin: 0 0 2rem; }
+
+    section.lesstof {
+        background: var(--vlak);
+        border: 1px solid var(--rand);
+        border-radius: .75rem;
+        padding: 1rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        background: #0b1220;
+        border-radius: .25rem;
+        padding: .1rem .35rem;
+        font-size: .9em;
+    }
+
+    fieldset {
+        background: var(--vlak);
+        border: 1px solid var(--rand);
+        border-radius: .75rem;
+        padding: 1rem 1.5rem;
+        margin: 0 0 1rem;
+    }
+
+    legend { font-weight: 600; padding: 0 .4rem; }
+
+    label { display: block; padding: .3rem 0; cursor: pointer; }
+    input[type="radio"] { margin-right: .5rem; }
+
+    .terugkoppeling {
+        display: none;
+        margin-top: .75rem;
+        padding: .6rem .8rem;
+        border-radius: .5rem;
+        font-size: .9rem;
+    }
+    .terugkoppeling.goed { display: block; background: #064e3b; color: #d1fae5; }
+    .terugkoppeling.fout { display: block; background: #4c0519; color: #ffe4e6; }
+
+    button {
+        background: var(--accent);
+        color: #fff;
+        border: 0;
+        border-radius: .5rem;
+        padding: .7rem 1.4rem;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    button:hover { filter: brightness(1.1); }
+
+    #uitslag {
+        display: none;
+        margin-top: 1.5rem;
+        padding: 1.25rem 1.5rem;
+        border-radius: .75rem;
+        border: 2px solid var(--rand);
+        background: var(--vlak);
+        text-align: center;
+    }
+    #uitslag.geslaagd { border-color: var(--goed); }
+    #uitslag.gezakt { border-color: var(--fout); }
+    #score { font-size: 2.5rem; font-weight: 800; margin: .25rem 0; }
+</style>
+</head>
+<body>
+<main>
+
+    <h1>Voorbeeldtoets</h1>
+    <p class="inleiding">Vervang deze titel, de lesstof en de drie vragen door je eigen materiaal.</p>
+
+    <h2>Lesstof</h2>
+
+    <section class="lesstof">
+        <h3>Onderwerp 1</h3>
+        <p>Beschrijf hier het eerste onderwerp. Gebruik gerust <code>code</code>,
+           lijsten en tussenkopjes — alles wat gewone HTML kan.</p>
+    </section>
+
+    <section class="lesstof">
+        <h3>Onderwerp 2</h3>
+        <p>En hier het tweede. Houd het kort: wie de toets maakt, leest dit vlak
+           voor de vragen.</p>
+    </section>
+
+    <h2>Toets</h2>
+
+    <form id="toets"></form>
+
+    <button type="button" id="nakijken">Nakijken</button>
+
+    <div id="uitslag">
+        <div id="score"></div>
+        <p id="oordeel"></p>
+    </div>
+
+</main>
+
+<script>
+    // De vragen. Voeg er gerust meer toe; de rest van het script past zich aan.
+    const VRAGEN = [
+        {
+            vraag: 'Eerste vraag?',
+            opties: ['Fout antwoord', 'Goed antwoord', 'Ook fout'],
+            goed: 1,
+            uitleg: 'Leg hier uit waarom dat het goede antwoord is.'
+        },
+        {
+            vraag: 'Tweede vraag?',
+            opties: ['Goed antwoord', 'Fout antwoord'],
+            goed: 0,
+            uitleg: 'Korte toelichting.'
+        },
+        {
+            vraag: 'Derde vraag?',
+            opties: ['Fout', 'Ook fout', 'Goed antwoord'],
+            goed: 2,
+            uitleg: 'Korte toelichting.'
+        },
+    ];
+
+    // Vanaf dit percentage geslaagd.
+    const NORM = 0.8;
+
+    const formulier = document.getElementById('toets');
+
+    VRAGEN.forEach((v, i) => {
+        const veld = document.createElement('fieldset');
+        const kop = document.createElement('legend');
+        kop.textContent = (i + 1) + '. ' + v.vraag;
+        veld.appendChild(kop);
+
+        v.opties.forEach((optie, j) => {
+            const label = document.createElement('label');
+            const keuze = document.createElement('input');
+            keuze.type = 'radio';
+            keuze.name = 'vraag' + i;
+            keuze.value = j;
+            label.appendChild(keuze);
+            label.appendChild(document.createTextNode(optie));
+            veld.appendChild(label);
+        });
+
+        const terugkoppeling = document.createElement('div');
+        terugkoppeling.className = 'terugkoppeling';
+        terugkoppeling.id = 'terugkoppeling' + i;
+        veld.appendChild(terugkoppeling);
+
+        formulier.appendChild(veld);
+    });
+
+    document.getElementById('nakijken').addEventListener('click', () => {
+        let goed = 0;
+
+        VRAGEN.forEach((v, i) => {
+            const gekozen = formulier.querySelector('input[name="vraag' + i + '"]:checked');
+            const terugkoppeling = document.getElementById('terugkoppeling' + i);
+            const juist = gekozen && Number(gekozen.value) === v.goed;
+
+            if (juist) {
+                goed++;
+                terugkoppeling.className = 'terugkoppeling goed';
+                terugkoppeling.textContent = 'Goed. ' + v.uitleg;
+            } else {
+                terugkoppeling.className = 'terugkoppeling fout';
+                terugkoppeling.textContent = 'Onjuist. Het juiste antwoord is "'
+                    + v.opties[v.goed] + '". ' + v.uitleg;
+            }
+        });
+
+        const geslaagd = goed / VRAGEN.length >= NORM;
+
+        const uitslag = document.getElementById('uitslag');
+        uitslag.className = geslaagd ? 'geslaagd' : 'gezakt';
+        uitslag.style.display = 'block';
+        document.getElementById('score').textContent = goed + ' / ' + VRAGEN.length;
+        document.getElementById('oordeel').textContent = geslaagd
+            ? 'Geslaagd. Je uitslag wordt naar het ISMS gestuurd.'
+            : 'Nog niet geslaagd. Je mag het opnieuw proberen.';
+
+        // Altijd aanroepen, ook bij zakken: het ISMS registreert de poging.
+        onQuizVoltooid(goed, VRAGEN.length, geslaagd);
+    });
+</script>
+
+<!-- begin onQuizVoltooid.js — gelijk aan de download in de bouwhulp -->
+<script>
+/**
+ * onQuizVoltooid — koppeling tussen een toets en het ISMS.
+ *
+ * TWEE STAPPEN. De tweede wordt het vaakst vergeten, en dan lijkt alles te
+ * werken: de deelnemer maakt de toets, ziet zijn uitslag, krijgt geen enkele
+ * foutmelding — en er komt niets binnen. Zijn taak blijft openstaan.
+ *
+ *   1. Plak dit hele blok onderin je toets-HTML, binnen een <script>-tag.
+ *   2. ROEP ONQUIZVOLTOOID AAN op de plek waar je zelf de uitslag berekent:
+ *
+ *          const geslaagd = score / total >= 0.8;
+ *
+ *          if (geslaagd) {
+ *              toonGeslaagdScherm();
+ *              onQuizVoltooid(score, total, true);
+ *          } else {
+ *              toonGezaktScherm();
+ *              onQuizVoltooid(score, total, false);   // ← ook deze!
+ *          }
+ *
+ * Ook bij zakken aanroepen, want het ISMS registreert dát er geoefend is en
+ * niet alleen wie geslaagd is. Een gezakte poging telt als poging; de deelnemer
+ * mag het opnieuw proberen.
+ *
+ *     score  = aantal goede antwoorden (getal)
+ *     total  = totaal aantal vragen (getal)
+ *     passed = geslaagd? (true / false)
+ *
+ * De functie die je aanroept heet `onQuizVoltooid`. `triggerQuizVoltooid`
+ * hieronder is optioneel en doet hetzelfde; kies er één en verzin er geen derde.
+ * Een aanroep van een naam die niet bestaat, valt nergens op.
+ *
+ * Het ISMS reikt de deelnemer een URL uit met ?callback=<token>. Zonder die
+ * token is de toets vrijblijvend en wordt er niets geregistreerd — zo kun je de
+ * toets ook los, zonder ISMS, gebruiken of testen.
+ *
+ * WAAR JE TOETS IN DRAAIT. Het ISMS serveert je toets uit in een afgeschermde
+ * omgeving: de pagina kan niet bij de gegevens, de sessie of de opslag van het
+ * ISMS. Scripts, formulieren, meldingen (`alert`) en het doorlinken na afloop
+ * werken gewoon. Twee dingen niet: `localStorage`, `sessionStorage` en cookies
+ * (houd wat je nodig hebt in het geheugen van de pagina), en alles wat de pagina
+ * bij een ándere website zou ophalen. Je toets moet één zelfstandig bestand
+ * zijn: CSS en JavaScript erin, plaatjes als data:-URI, geen CDN en geen Google
+ * Fonts. De bouwhulp heeft een skelet dat dat al goed doet.
+ */
+
+// Optionele helper: roept onQuizVoltooid aan als die bestaat. Handig als je de
+// koppeling los wilt kunnen laten (bijv. lokaal testen zonder ISMS).
+function triggerQuizVoltooid(score, total, passed) {
+    if (typeof window.onQuizVoltooid === 'function') {
+        window.onQuizVoltooid(score, total, passed);
+    } else if (typeof onQuizVoltooid === 'function') {
+        onQuizVoltooid(score, total, passed);
+    }
+}
+
+function onQuizVoltooid(score, total, passed) {
+    const token = new URLSearchParams(window.location.search).get('callback');
+
+    // Zonder ?callback=<token> is de toets vrijblijvend: niets registreren.
+    if (!token) {
+        return;
+    }
+
+    // De terugmeld-URL wordt hier zelf samengesteld: de querystring bevat alleen
+    // de token, geen volledige URL. Zo kan deze pagina nooit als doorgeefluik
+    // naar een willekeurige host dienen; de callback blijft op dezelfde host.
+    const callbackUrl = '/toetsen/callback/' + encodeURIComponent(token);
+
+    fetch(callbackUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            score: score,
+            total: total,
+            passed: passed
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (passed) {
+            alert('Je uitslag is opgeslagen in het ISMS.');
+            if (data.redirect_url) {
+                window.location.href = data.redirect_url;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Fout bij verzenden uitslag:', error);
+        // Zichtbaar voor de deelnemer: anders denkt iemand dat de uitslag is
+        // opgeslagen terwijl dat niet zo is.
+        alert('Let op: je uitslag kon niet worden opgeslagen in het ISMS. '
+            + 'Probeer het later opnieuw of neem contact op met de beheerder.');
+    });
+}
+</script>
+<!-- einde onQuizVoltooid.js -->
+
+</body>
+</html>

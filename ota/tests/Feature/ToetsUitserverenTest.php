@@ -68,7 +68,7 @@ class ToetsUitserverenTest extends TestCase
 
         $csp = $respons->headers->get('Content-Security-Policy');
 
-        $this->assertSame(Toetsrespons::SANDBOX, $csp);
+        $this->assertStringStartsWith(Toetsrespons::SANDBOX, $csp);
         $this->assertStringStartsWith('sandbox', $csp);
         $this->assertStringNotContainsString('allow-same-origin', $csp);
 
@@ -77,6 +77,43 @@ class ToetsUitserverenTest extends TestCase
         }
 
         $this->assertSame('nosniff', $respons->headers->get('X-Content-Type-Options'));
+    }
+
+    /**
+     * De bronbeperking (10b §2). Staat op beide toonroutes, want een toets die
+     * je als voorbeeld bekijkt hoort zich net zo te gedragen als de echte.
+     */
+    public function test_een_toets_mag_niets_bij_derden_ophalen(): void
+    {
+        $routes = [
+            route('toetsen.tonen', $this->opdracht()->token),
+            route('toetsen.voorbeeld', self::FIXTURE),
+        ];
+
+        $this->actingAs(Gebruiker::factory()->metRol('CISO')->create());
+
+        foreach ($routes as $url) {
+            $csp = $this->get($url)->headers->get('Content-Security-Policy');
+
+            $this->assertStringContainsString("default-src 'self'", $csp);
+            $this->assertStringContainsString("connect-src 'self'", $csp);
+            $this->assertStringContainsString('img-src \'self\' data:', $csp);
+        }
+    }
+
+    /**
+     * `'unsafe-inline'` is hier geen slordigheid maar een voorwaarde: een toets
+     * is één bestand met inline <script> en <style>. Wie dit "voor de veiligheid"
+     * weghaalt, breekt elke toets in één keer — de sandbox doet het XSS-werk al.
+     * Vandaar deze test, die er dus bewust op staat.
+     */
+    public function test_inline_script_en_style_blijven_toegestaan(): void
+    {
+        $csp = $this->get(route('toetsen.tonen', $this->opdracht()->token))
+            ->headers->get('Content-Security-Policy');
+
+        $this->assertStringContainsString("script-src 'self' 'unsafe-inline'", $csp);
+        $this->assertStringContainsString("style-src 'self' 'unsafe-inline'", $csp);
     }
 
     public function test_een_onbekende_token_geeft_404(): void
@@ -111,7 +148,7 @@ class ToetsUitserverenTest extends TestCase
         $this->actingAs(Gebruiker::factory()->metRol('CISO')->create())
             ->get(route('toetsen.voorbeeld', self::FIXTURE))
             ->assertOk()
-            ->assertHeader('Content-Security-Policy', Toetsrespons::SANDBOX);
+            ->assertHeader('Content-Security-Policy', Toetsrespons::SANDBOX.'; '.Toetsrespons::BRONNEN);
     }
 
     public function test_een_medewerker_komt_niet_bij_de_voorbeeldroute(): void

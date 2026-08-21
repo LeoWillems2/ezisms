@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Toetsopdracht;
+use App\Support\ExterneBronnen;
 use App\Support\ToetsBestanden;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -94,6 +95,9 @@ class ToetsbestandenBeheer extends Component
         $this->sluitFormulier();
         session()->flash('melding', "Toets '{$naam}' geplaatst.");
 
+        /** @var list<string> $meldingen */
+        $meldingen = [];
+
         // Een toets die de terugmeldfunctie niet aanroept, werkt voor de
         // deelnemer volledig normaal en registreert niets — er is geen fout, geen
         // logregel, en de taak blijft openstaan. Dat is op 11-08-2026 precies
@@ -101,10 +105,27 @@ class ToetsbestandenBeheer extends Component
         // aanriepen. Een blokkade is te streng (iemand kan zelf een fetch
         // schrijven), maar stil blijven is te laf.
         if (! str_contains($inhoud, 'onQuizVoltooid')) {
-            session()->flash('fout', "In '{$naam}' komt onQuizVoltooid niet voor. "
+            $meldingen[] = "In '{$naam}' komt onQuizVoltooid niet voor. "
                 .'Deze toets meldt de uitslag waarschijnlijk niet terug aan het ISMS: '
                 .'de deelnemer maakt hem, ziet geen fout, en zijn taak blijft openstaan. '
-                .'Laat de maker de functie uit de bouwhulp toevoegen én aanroepen.');
+                .'Laat de maker de functie uit de bouwhulp toevoegen én aanroepen.';
+        }
+
+        // Tweede controle, zelfde vorm en zelfde afweging (10b §6). Hier is de
+        // blokkade er al — de CSP van `Toetsrespons` laat geen externe bronnen
+        // door — dus deze melding voorkomt alleen dat de Administrator er via een
+        // klagende deelnemer achter komt.
+        $hosts = ExterneBronnen::hosts($inhoud);
+
+        if ($hosts !== []) {
+            $meldingen[] = "In '{$naam}' staan verwijzingen naar ".implode(', ', $hosts).'. '
+                .'Die worden bij het uitserveren geblokkeerd: de deelnemer krijgt een pagina '
+                .'zonder opmaak. Laat de maker ze in het bestand zelf opnemen — de bouwhulp '
+                .'heeft een skelet dat dat al goed doet.';
+        }
+
+        if ($meldingen !== []) {
+            session()->flash('fout', implode(' ', $meldingen));
         }
     }
 

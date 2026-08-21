@@ -263,6 +263,7 @@ class AutorisatieTest extends TestCase
         '/taken' => [200, 403, 200, 200, 403],
         '/toetsen/bouwhulp' => [200, 403, 403, 403, 403],
         '/toetsen/bouwhulp/onquizvoltooid.js' => [200, 403, 403, 403, 403],
+        '/toetsen/bouwhulp/skelet.html' => [200, 403, 403, 403, 403],
         '/toetsen/resultaten' => [200, 200, 403, 403, 403],
         '/toetsen/uitzetten' => [200, 403, 403, 403, 403],
         '/trainingen' => [200, 200, 403, 403, 403],
