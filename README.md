@@ -16,34 +16,14 @@ Je zet altijd eerst een ontwikkelomgeving op. Dat staat hieronder.
 
 - Ubuntu 26.04
 
-- apt install nginx  composer php-cli php-zip unzip curl nodejs php php-cli php-common php-fpm php-mysql php-xml php-curl php-mbstring php-zip php-gd mysql-server ## pandoc
+Gebruik ota/scripts/prephost.sh om een ``kale Ubuntu'' in te richten ter voorbereiding.
 
 Lees ontwikkelmachine/LEESMIJ.md voor details.
-
 Lees ota/README.md voor details over de installatie van Pandoc.
-
 
 # Nginx #
 
 - Deze installatie gaat er van uit dat haproxy met SSL terminatie wordt gebruikt. Als dat niet zo is, lees dan ota/tls.md voor instructies.
-
-- Mkdir /var/www/[sitedir]
-
-
-# Mysql #
-
-- Maak de database en de database-user.
-
-```
-CREATE DATABASE iso27001 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'User'@'localhost' IDENTIFIED BY 'Password';
-GRANT ALL PRIVILEGES ON iso27001.* TO 'user'@'localhost';
-```
-
-# Env #
-
-- Kopieer ota/.env.example naar /var/www/[sitedir]/.env en zet de gegevens.
-
 
 ### EZISMS produktie of test installatie ##
 
@@ -64,7 +44,6 @@ cd /var/www/[sitedir]/current
 sudo bash
 sudo -u www-data php artisan isms:eerste-ciso 'email-adres' 'wachtwoord' 'naam'
 ```
-
 
 # Docker #
 
