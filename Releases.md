@@ -13,6 +13,62 @@ geeft de oorspronkelijke tekst.
 
 ---
 
+## V3.0.0 — een ander fundament
+
+*23-08-2026*
+
+Het eerste cijfer springt omdat de bodem onder het product verschoven is. De
+ontwikkel- en doelomgeving draaien nu Ubuntu 26.04 met **PHP 8.5**, en
+`config/database.php` gebruikt `Pdo\Mysql::ATTR_SSL_CA` — een constante die pas
+vanaf 8.4 bestaat. Wie op 8.2 of 8.3 draait, draait deze uitgave niet.
+Functioneel verandert er voor de gebruiker weinig; wat verandert is waar het op
+staat en hoe betrouwbaar het zichzelf uitrolt.
+
+**PHP 8.5 keurde de PDO-constanten af, en dat maakte de testsuite onleesbaar.**
+`PDO::MYSQL_ATTR_SSL_CA` stond twee keer in de configuratie, en omdat config bij
+het opstarten wordt gelezen meldde élke test die de database aanraakt een
+deprecation: 1102 van de 1118. De suite las als "1102 deprecated, 16 passed", en
+in die ruis is een échte deprecation niet meer te zien. De vervanging is die van
+Collision zelf, met een ternary op `PHP_VERSION_ID` zodat de regel op een oudere
+PHP niet fataal is. Geen gedragswijziging: beide constanten zijn 1008.
+
+**Drie fouten in het uitrolmechanisme, alle drie sinds 13-08-2026 open.** Ze
+raken elkaar niet, maar komen op hetzelfde neer: de uitrol meldde iets anders dan
+er aan de hand was. De `db`-healthcheck had geen `start_period`, dus MySQL kreeg
+twee minuten voor zijn eerste initialisatie — op een tragere schijf brak de
+allereerste `docker compose up -d --build` daarop af met "db-1 is unhealthy",
+terwijl er niets kapot was. Het blokkadescherm adviseerde `docker compose restart
+app`, wat bij een blokkade op de normcontrole niet werkt: een `restart` behoudt
+de omgeving van aanmaak, dus een gecorrigeerde `.env` doet niets. En `reden:` in
+het BLOKKADE-bestand zei bij élke blokkade hetzelfde — "gaf exitcode 1" — waar
+het opstartlog de stap en de foutmelding gewoon kent. Nu staat er bijvoorbeeld
+`Normcontrole — ISMS_NORM in uw .env (nen7510) wijkt af van de normstempel`.
+
+Het volledige toetsprotocol van veertien paragrafen is opnieuw afgelopen, met
+twee stacks naast elkaar. De healthcheck liet zich op de nieuwe host niet
+vanzelf betrappen — de database is er in 46 seconden — dus is die met een
+A/B-proef afgedwongen: dezelfde tarbal, de database geknepen tot 5% van een
+kern, als enige verschil die ene regel. Zonder: exit 1. Met: exit 0.
+
+**De machineconfiguratie is bijgewerkt naar wat een verhuizing werkelijk kost.**
+`ontwikkelmachine/LEESMIJ.md` gaat uit van 26.04, waar PHP 8.5 en node 22 uit de
+distributie zelf komen — de PPA en NodeSource zijn eruit. Drie afhankelijkheden
+stonden nergens en kwamen bij het verhuizen pas boven water: `php-sqlite3` (de
+suite draait op sqlite `:memory:`, zonder dat pakket zakt de halve suite op "could
+not find driver"), `php-intl` (kost stilzwijgend één assertie) en `python3-pypdf`
+(voor `scripts/pdf2md`). Plus de doorloopbit: een thuismap is sinds Ubuntu 21.04
+0750, dus nginx komt de werkboom niet in en geeft 404 — met de fout in nginx en
+niet in php-fpm, want de fpm-pool draait wél als de eigenaar.
+
+**Verder.** Een kennisartikel dat één KPI van aanmaken tot afsluiten doorloopt aan
+de hand van een casus, met twee keuzes die het expliciet uitlegt: de streefwaarde
+is een planlijn die per kwartaal herijkt wordt in plaats van het einddoel, en de
+telling meet risicoblootstelling en niet gedrag. Daarbij volgt de uitleg onder
+Teller en Noemer nu de eenheid; hij stond er onvoorwaardelijk als uitleg over
+ratio's, ook boven een telling waar de noemer juist niet meetelt.
+
+1118 tests groen, in alle normprofielen.
+
 ## V2.9.0 — niets meer bij derden
 
 *21-08-2026*

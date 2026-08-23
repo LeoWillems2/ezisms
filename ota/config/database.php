@@ -58,7 +58,14 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                // PHP 8.5 keurt de klasseconstanten PDO::MYSQL_* af ten gunste
+                // van Pdo\Mysql::*. Die laatste bestaat pas vanaf 8.4, dus de
+                // ternary — anders zou deze regel op een oudere PHP fataal
+                // zijn. Zonder deze constructie meldt élke test die de database
+                // raakt een deprecation, waarna een echte deprecation tussen
+                // duizend regels ruis verdwijnt. Vorm overgenomen uit
+                // vendor/nunomaduro/collision/scripts/fix-pdo-constant.php.
+                (PHP_VERSION_ID >= 80500 ? Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
 
@@ -78,7 +85,14 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                // PHP 8.5 keurt de klasseconstanten PDO::MYSQL_* af ten gunste
+                // van Pdo\Mysql::*. Die laatste bestaat pas vanaf 8.4, dus de
+                // ternary — anders zou deze regel op een oudere PHP fataal
+                // zijn. Zonder deze constructie meldt élke test die de database
+                // raakt een deprecation, waarna een echte deprecation tussen
+                // duizend regels ruis verdwijnt. Vorm overgenomen uit
+                // vendor/nunomaduro/collision/scripts/fix-pdo-constant.php.
+                (PHP_VERSION_ID >= 80500 ? Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
             ]) : [],
         ],
 

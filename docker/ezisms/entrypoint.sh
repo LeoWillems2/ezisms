@@ -109,7 +109,7 @@ if [[ -f $BLOKKADE ]]; then
              Opheffen na herstel — met sudo, want het bestand is van de
              gebruiker uit de container en niet van uw eigen account:
                  sudo rm ./data/app/installatie/BLOKKADE
-                 docker compose restart app
+                 docker compose up -d
 
 EOF
     exec sleep infinity
@@ -432,15 +432,55 @@ else
         exit "$UITROLCODE"
     fi
 
+    # De reden uit het opstartlog halen in plaats van de exitcode herhalen.
+    # "scripts/deploy-docker.sh gaf exitcode 1" zei niets: dat is bij elke
+    # blokkade hetzelfde en stuurt niemand naar de oorzaak (00n §16.3). Het log
+    # weet het wel — de laatste `== <stap>` zegt waar het misging en de laatste
+    # `FOUT:`-regel waarom. Samen levert dat bijvoorbeeld:
+    #
+    #     reden:  Normcontrole — ISMS_NORM in uw .env (nen7510) wijkt af van
+    #             de normstempel (iso27001).
+    #     reden:  Migreren — onverwachte fout op regel 187
+    #
+    # De tweede is de ERR-trap en blijft vaag, maar de stapnaam ervoor maakt hem
+    # bruikbaar. De ANSI-codes moeten eruit: `stap()` en `fout()` schrijven in
+    # kleur, en die codes horen niet in een bestand dat met `cat` gelezen wordt.
+    REDEN=""
+    if [[ -n ${LAATSTE_LOG:-} && -r ${LAATSTE_LOG:-} ]]; then
+        SCHOON=$(sed 's/\x1b\[[0-9;]*m//g' "$LAATSTE_LOG")
+        LAATSTE_STAP=$(printf '%s\n' "$SCHOON" | sed -n 's/^== \(.*[^ ]\) *$/\1/p' | tail -1)
+        LAATSTE_FOUT=$(printf '%s\n' "$SCHOON" | sed -n 's/^FOUT: *//p'          | tail -1)
+        # Elk van de twee kan ontbreken: een `fout()` vóór de eerste `stap()`
+        # laat de stapnaam leeg, en de ERR-trap kan toeslaan zonder dat er een
+        # FOUT-regel is weggeschreven. Plak ze daarom pas aan elkaar als ze er
+        # allebei zijn, anders blijft er een los liggend streepje staan.
+        if [[ -n $LAATSTE_STAP && -n $LAATSTE_FOUT ]]; then
+            REDEN="$LAATSTE_STAP — $LAATSTE_FOUT"
+        elif [[ -n $LAATSTE_FOUT ]]; then
+            REDEN="$LAATSTE_FOUT"
+        elif [[ -n $LAATSTE_STAP ]]; then
+            REDEN="afgebroken tijdens: $LAATSTE_STAP"
+        fi
+    fi
+    # Valt er niets uit het log te halen, dan is de exitcode nog altijd beter
+    # dan een lege regel.
+    REDEN=${REDEN:-scripts/deploy-docker.sh gaf exitcode $UITROLCODE}
+
     cat >"$BLOKKADE" <<EOF
 De uitrol is ${POGING}× mislukt en wordt niet opnieuw geprobeerd.
 geblokkeerd op: $(date -Iseconds)
-reden:  scripts/deploy-docker.sh gaf exitcode $UITROLCODE
+reden:  $REDEN
 dump:   ${LAATSTE_DUMP:-<geen dump gemaakt>}
 log:    ${LAATSTE_LOG:-<geen log>}
 EOF
     chown ezisms:ezisms "$BLOKKADE"; chmod 0640 "$BLOKKADE"
 
+    # `docker compose up -d` en niet `restart app`. Een `restart` start hetzelfde
+    # containerproces opnieuw MET de omgeving die het bij aanmaak meekreeg, dus
+    # een gecorrigeerde .env doet dan niets — en dat is nu juist de oorzaak bij
+    # een blokkade op de normcontrole. `up -d` is in beide gevallen goed: is er
+    # niets aan .env of compose.yml veranderd, dan laat compose de container met
+    # rust. Zie 00n §16.2.
     printf '\n\033[31m[entrypoint] GEBLOKKEERD\033[0m\n' >&2
     sed 's/^/             /' "$BLOKKADE" >&2
     cat >&2 <<EOF
@@ -451,7 +491,7 @@ EOF
              Opheffen na herstel — met sudo, want het bestand is van de
              gebruiker uit de container en niet van uw eigen account:
                  sudo rm ./data/app/installatie/BLOKKADE
-                 docker compose restart app
+                 docker compose up -d
 
 EOF
     exec sleep infinity

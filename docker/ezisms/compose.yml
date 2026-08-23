@@ -61,6 +61,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 12
+      # Zonder dit heeft MySQL twee minuten (interval x retries) om gezond te
+      # worden, en dat haalt zijn allereerste initialisatie op een tragere
+      # schijf niet. De allereerste `up -d --build` brak dan af met
+      # "dependency failed to start: ... db-1 is unhealthy" — precies het
+      # commando uit LEESMIJ.md §1, op de enige plek waar het niet mag
+      # misgaan. Er was niets kapot: een tweede `up -d` slaagde gewoon.
+      # Dezelfde motivering als bij `app` hieronder, waar de start_period er
+      # wel meteen stond; `db` was bij het schrijven van de logdriver-sectie
+      # overgeslagen. Vijf minuten dekt de initialisatie af zonder een echt
+      # kapotte database langer te verbergen dan de twee minuten hiervoor.
+      start_period: 300s
 
   app:
     build:

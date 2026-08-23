@@ -44,7 +44,7 @@ sudo mysql_secure_installation               # interactief
 # vendor/composer/platform_check.php eist >= 8.4.1.
 sudo apt install -y php8.5 php8.5-cli php8.5-common php8.5-fpm php8.5-mysql \
                     php8.5-xml php8.5-curl php8.5-mbstring php8.5-zip php8.5-gd \
-                    php8.5-sqlite3
+                    php8.5-sqlite3 php8.5-intl
 
 # Node is alleen op deze machine nodig: het Docker-image bevat geen nodejs en
 # geen npm, dat krijgt de assets kant-en-klaar mee (docker/ezisms/Dockerfile).
@@ -60,24 +60,55 @@ sudo apt install -y nodejs npm
 # docker/ezisms/Dockerfile, en PANDOC_BIN in .env.example.
 wget https://github.com/jgm/pandoc/releases/download/3.10.2/pandoc-3.10.2-1-amd64.deb
 sudo dpkg -i pandoc-3.10.2-1-amd64.deb
+
+# Alleen voor scripts/pdf2md, waarmee de norm-.md-bestanden uit hun PDF zijn
+# gehaald. Niet uit pip: 26.04 weigert installeren in de systeem-Python
+# (PEP 668, "externally-managed-environment").
+sudo apt install -y python3-pypdf
 ```
 
-De extensielijst is op één na dezelfde als die van het Docker-image, dus de twee
-omgevingen blijven gelijk. `php8.5-gd` moet FreeType hebben, anders verschijnt
-de tolerantiematrix als tabel zonder plaatje.
+De extensielijst is op twee na dezelfde als die van het Docker-image, dus de
+twee omgevingen blijven gelijk. `php8.5-gd` moet FreeType hebben, anders
+verschijnt de tolerantiematrix als tabel zonder plaatje.
 
-Die ene extra is **`php8.5-sqlite3`, en die is niet optioneel**: `phpunit.xml`
-draait de hele suite op `DB_CONNECTION=sqlite` met `DB_DATABASE=:memory:`.
-Ontbreekt hij, dan zakt élke test die de database raakt op "could not find
-driver" — ruim elfhonderd stuks, terwijl de zestien tests die niets opslaan
-gewoon slagen. Dat leest als een kapotte applicatie en niet als een ontbrekend
-pakket. Het image heeft hem niet nodig, want daar draait geen testsuite; om
-dezelfde reden installeert `prephost.sh` hem ook niet.
+Die twee extra's zijn er **voor de testsuite**, en daarom staan ze niet in het
+image en installeert `prephost.sh` ze ook niet: daar draait geen suite.
+
+**`php8.5-sqlite3` is niet optioneel.** `phpunit.xml` draait de hele suite op
+`DB_CONNECTION=sqlite` met `DB_DATABASE=:memory:`. Ontbreekt hij, dan zakt élke
+test die de database raakt op "could not find driver" — ruim elfhonderd stuks,
+terwijl de zestien tests die niets opslaan gewoon slagen. Dat leest als een
+kapotte applicatie en niet als een ontbrekend pakket.
+
+**`php8.5-intl` kost één assertie.** `KennisbankTest` schrijft met
+`NumberFormatter` een aantal in woorden uit om het tegen de artikeltekst te
+houden, en slaat die controle over als de extensie er niet is. De test slaagt
+dan, alleen minder grondig — dus dit valt niet op tenzij u op het woord
+"skipped" let. De applicatie zelf gebruikt `intl` nergens.
 
 Composer installeert u erbij op de manier die u gewend bent; het image heeft hem
 niet, want daar gaat `vendor/` al gebouwd in mee. `mysqldump` komt hier met
 `mysql-server` mee — `deploy.sh` en de container eisen hem apart, want daar staat
 de database elders.
+
+`python3-pypdf` staat los van de applicatie: het is de motor onder
+`scripts/pdf2md`, de eerste schakel van de keten die van een norm-PDF een
+seedbestand maakt:
+
+    norm.pdf  --pdf2md-->  ../<norm>-normen/*.md
+              --scripts/genereer_*_seed.py-->  ota/database/seeders/data/*.json
+              --MaatregelSeeder-->  de database
+
+De seeders lezen dus JSON en raken die `.md` nooit aan; die is alleen invoer
+voor de generatoren. Beide tussenproducten liggen er al, dus u hebt pypdf pas
+nodig als er een nieuwe uitgave van een norm binnenkomt. Om diezelfde reden zit
+het niet in de uitlevering en niet in het image.
+
+Twee dingen die het script niet doet: het leest geen argumenten en het heeft
+geen shebang. De in- en uitvoerpaden staan onderin in `__main__`, en dat is
+`iso27001.pdf` → `iso27001.md`. Wie het onveranderd aanroept krijgt dus "Error:
+The file 'iso27001.pdf' does not exist" — pas de paden aan, of importeer
+`pdf_to_markdown()` en roep hem zelf aan.
 
 ## De database
 
