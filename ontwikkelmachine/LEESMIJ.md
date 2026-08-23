@@ -14,15 +14,22 @@ hebben.
 
 | Bestand | Hoort te staan in |
 |---|---|
-| `php-fpm-pool-ota-isms.conf` | `/etc/php/8.4/fpm/pool.d/ota-isms.conf` |
+| `php-fpm-pool-ota-isms.conf` | `/etc/php/8.5/fpm/pool.d/ota-isms.conf` |
 | `nginx-ota-isms.conf` | `/etc/nginx/sites-available/ota-isms`, met een symlink vanuit `sites-enabled/` |
+
+Voor een **doelmachine** is er `ota/scripts/prephost.sh`; die legt een
+productie-opstelling neer (vhost en pool als `www-data`, eigen database, een
+doelpad voor `deploy.sh`). Dit document gaat over het andere geval: een
+ontwikkelmachine die de werkboom zelf serveert. De twee kunnen naast elkaar op
+één host staan — dan draaien er twee vhosts en twee pools met verschillende
+namen.
 
 ## Pakketten op een kale machine
 
 Deze stappen komen uit `ota/INSTALL.md`, dat op 13-08-2026 is verwijderd omdat
 het verder alleen dingen herhaalde die inmiddels in `ota/.env.example` en
 `ota/README.md` staan. Dit deel stond nergens anders en is daarom hierheen
-gehaald. Uitgangspunt is Ubuntu 24.04 LTS.
+gehaald. Uitgangspunt is Ubuntu 26.04 LTS.
 
 ```bash
 sudo apt update && sudo apt -y upgrade
@@ -32,19 +39,17 @@ sudo apt install -y mysql-server
 sudo systemctl start mysql
 sudo mysql_secure_installation               # interactief
 
-# PHP 8.4 komt niet uit 24.04 zelf; composer.json eist ^8.2, het Docker-image
-# draait 8.4 en vendor/composer/platform_check.php eist >= 8.4.1.
-sudo apt install -y software-properties-common
-sudo add-apt-repository -y ppa:ondrej/php
-sudo apt update
-sudo apt install -y php8.4 php8.4-cli php8.4-common php8.4-fpm php8.4-mysql \
-                    php8.4-xml php8.4-curl php8.4-mbstring php8.4-zip php8.4-gd
-sudo update-alternatives --set php /usr/bin/php8.4
+# 26.04 levert PHP 8.5 uit de distributie zelf; de ppa:ondrej/php die hier tot
+# 24.04 voor nodig was, is dus verleden tijd. composer.json eist ^8.2 en
+# vendor/composer/platform_check.php eist >= 8.4.1.
+sudo apt install -y php8.5 php8.5-cli php8.5-common php8.5-fpm php8.5-mysql \
+                    php8.5-xml php8.5-curl php8.5-mbstring php8.5-zip php8.5-gd \
+                    php8.5-sqlite3
 
 # Node is alleen op deze machine nodig: het Docker-image bevat geen nodejs en
 # geen npm, dat krijgt de assets kant-en-klaar mee (docker/ezisms/Dockerfile).
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
+# 26.04 levert node 22; een aparte NodeSource-bron hoeft niet meer.
+sudo apt install -y nodejs npm
 
 # Pandoc, voor de RTF-preview van beleidsdocumenten en de Word-versie van een
 # schermkopie. Minimaal 3.1.7 — dat is de eerste versie met een RTF-lezer.
@@ -53,21 +58,26 @@ sudo apt install -y nodejs
 # de applicatie doet) leest pandoc alleen de in de binary ingebakken versie.
 # Zo'n build schrijft dus helemaal geen .docx. Zie de pandoc-laag in
 # docker/ezisms/Dockerfile, en PANDOC_BIN in .env.example.
-wget https://github.com/jgm/pandoc/releases/download/3.10.1/pandoc-3.10.1-1-amd64.deb
-sudo dpkg -i pandoc-3.10.1-1-amd64.deb
+wget https://github.com/jgm/pandoc/releases/download/3.10.2/pandoc-3.10.2-1-amd64.deb
+sudo dpkg -i pandoc-3.10.2-1-amd64.deb
 ```
 
-De extensielijst is dezelfde als die van het Docker-image, dus de twee
-omgevingen blijven gelijk. `php8.4-gd` moet FreeType hebben, anders verschijnt
-de tolerantiematrix als tabel zonder plaatje. Composer installeert u erbij op de
-manier die u gewend bent; het image heeft hem niet, want daar gaat `vendor/` al
-gebouwd in mee. `mysqldump` komt hier met `mysql-server` mee — `deploy.sh` en de
-container eisen hem apart, want daar staat de database elders.
+De extensielijst is op één na dezelfde als die van het Docker-image, dus de twee
+omgevingen blijven gelijk. `php8.5-gd` moet FreeType hebben, anders verschijnt
+de tolerantiematrix als tabel zonder plaatje.
 
-Het origineel installeerde vóór de PPA ook nog `php-mysql` en `php-fpm` uit
-24.04 zelf, en daarna nog eens `php-curl`, `php-dom`, `php-gd`, `php-mbstring`,
-`php-xml` en `php-zip`. Dat zijn de 8.3-pakketten; ze zijn overbodig naast de
-lijst hierboven en hier weggelaten.
+Die ene extra is **`php8.5-sqlite3`, en die is niet optioneel**: `phpunit.xml`
+draait de hele suite op `DB_CONNECTION=sqlite` met `DB_DATABASE=:memory:`.
+Ontbreekt hij, dan zakt élke test die de database raakt op "could not find
+driver" — ruim elfhonderd stuks, terwijl de zestien tests die niets opslaan
+gewoon slagen. Dat leest als een kapotte applicatie en niet als een ontbrekend
+pakket. Het image heeft hem niet nodig, want daar draait geen testsuite; om
+dezelfde reden installeert `prephost.sh` hem ook niet.
+
+Composer installeert u erbij op de manier die u gewend bent; het image heeft hem
+niet, want daar gaat `vendor/` al gebouwd in mee. `mysqldump` komt hier met
+`mysql-server` mee — `deploy.sh` en de container eisen hem apart, want daar staat
+de database elders.
 
 ## De database
 
@@ -80,6 +90,11 @@ GRANT ALL PRIVILEGES ON isms27001.* TO 'admin_isms'@'localhost';
 `utf8mb4_unicode_ci` is geen smaakkwestie: de norm- en maatregelteksten bevatten
 diakrieten en aanhalingstekens die in `latin1` stilzwijgend sneuvelen.
 
+Staat `DB_HOST` op `127.0.0.1` en niet op `localhost`, dan verbindt de
+mysql-client over TCP en niet over de socket. MySQL ziet dat als een ándere
+host, dus dan is er ook een `'admin_isms'@'127.0.0.1'` nodig met dezelfde
+rechten — anders is het "Access denied" terwijl het wachtwoord klopt.
+
 Een database per normprofiel is bruikbaar om ze naast elkaar te draaien, want
 `ISMS_NORM` wordt één keer gelezen en daarna in de tabel `normprofiel`
 vastgelegd — omzetten in `.env` verandert daarna niets meer. Dezelfde gebruiker
@@ -87,8 +102,9 @@ mag erbij:
 
 ```sql
 CREATE DATABASE isms7510 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE bio2      CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 GRANT ALL PRIVILEGES ON isms7510.* TO 'admin_isms'@'localhost';
--- en zo verder per profiel, bijvoorbeeld een database `bio2` voor de BIO2.
+GRANT ALL PRIVILEGES ON bio2.*     TO 'admin_isms'@'localhost';
 ```
 
 Zet de naam en de aanmeldgegevens daarna in `DB_DATABASE`, `DB_USERNAME` en
@@ -99,7 +115,7 @@ moeten staan — `ISMS_NORM` is er daar één van.
 
 ## Waarom een eigen fpm-pool
 
-Op deze machine draaien acht nginx-sites op de gedeelde pool `www` als
+De overige sites op deze machine draaien op de gedeelde pool `www` als
 `www-data`. Dit project is de enige waarin óók artisan en de testsuite in
 `storage/` schrijven, en wel als `leo`.
 
@@ -113,22 +129,48 @@ De oplossing is dezelfde als die productie en de container al gebruikten: **éé
 schrijvend account**. Daar is dat `www-data`, hier `leo`. Zie
 `ota/README.md`, sectie "Schrijfrechten op storage/".
 
+## De doorloopbit op de thuismap
+
+De vhost serveert rechtstreeks uit de werkboom, en die ligt onder `/home/leo`.
+Sinds Ubuntu 21.04 maakt `adduser` een thuismap op **0750**, en op een
+cloud-image is dat ook zo. Nginx draait als `www-data` en zit niet in de groep
+`leo`, dus die komt de map niet ín — ook niet als alles eronder wereldleesbaar
+is. Het resultaat is een HTTP 404 met dit in `error.log`:
+
+```
+realpath() "/home/leo/claude/isms/ota/public" failed (13: Permission denied)
+```
+
+Let op dat de fout in nginx zit en niet in php-fpm: de pool draait immers wél
+als `leo`. Wie alleen naar de fpm-kant kijkt, zoekt eindeloos.
+
+```bash
+chmod 0751 /home/leo        # x voor 'other' = doorlopen, r blijft dicht
+```
+
+`ls /home/leo` blijft daarmee geweigerd voor anderen; alleen doorlopen naar een
+pad dat je al kent, is toegestaan. Een ACL (`setfacl -m u:www-data:x`) zou nog
+krapper zijn, maar dan staat er weer een ACL op de machine terwijl de vorige
+paragraaf er juist vanaf is gestapt.
+
 ## Installeren op een nieuwe machine
 
 ```bash
 sudo install -o root -g root -m 0644 \
-    ontwikkelmachine/php-fpm-pool-ota-isms.conf /etc/php/8.4/fpm/pool.d/ota-isms.conf
+    ontwikkelmachine/php-fpm-pool-ota-isms.conf /etc/php/8.5/fpm/pool.d/ota-isms.conf
 sudo install -o root -g root -m 0644 \
     ontwikkelmachine/nginx-ota-isms.conf /etc/nginx/sites-available/ota-isms
 sudo ln -sfn ../sites-available/ota-isms /etc/nginx/sites-enabled/ota-isms
 
-sudo php-fpm8.4 -t && sudo nginx -t          # eerst toetsen, dan pas herladen
-sudo systemctl reload php8.4-fpm
+sudo php-fpm8.5 -t && sudo nginx -t          # eerst toetsen, dan pas herladen
+sudo systemctl reload php8.5-fpm
 sudo systemctl reload nginx
 ```
 
 Pas daarna `user`/`group` in het poolbestand en `root`/`server_name` in de vhost
-aan als de nieuwe machine een ander account of een andere hostnaam gebruikt.
+aan als de nieuwe machine een ander account of een andere hostnaam gebruikt. De
+vhost laat alleen HAProxy en localhost toe; staat de TLS-terminatie op een ander
+adres, dan moet het `allow`-regeltje mee.
 
 Zet een back-up van de vhost **nooit** in `sites-enabled/`: nginx laadt die map
 met een glob, en een kopie levert een tweede serverblok voor dezelfde
@@ -137,7 +179,15 @@ met een glob, en een kopie levert een tweede serverblok voor dezelfde
 ## Controleren dat het klopt
 
 ```bash
-ps -o user,args -C php-fpm8.4 | grep 'pool ota-isms'   # moet de juiste user zijn
+ps -o user,args -C php-fpm8.5 | grep 'pool ota-isms'   # moet de juiste user zijn
 find ota/storage ota/bootstrap/cache ! -user "$USER"   # moet leeg zijn
 getfacl -Rsp ota/storage ota/bootstrap/cache           # moet leeg zijn
+
+# De vhost, zonder browser en zonder DNS. Verwacht: 302 naar /dashboard op https.
+curl -sS -o /dev/null -w '%{http_code} %{redirect_url}\n' \
+     -H 'Host: ismsota.lewi.nl' -H 'X-Forwarded-Proto: https' http://127.0.0.1/
+
+# Pandoc: dit is precies wat App\Support\Pandoc draait. Een build zonder
+# ingebakken datafiles zakt hier, en nergens anders.
+printf '{\\rtf1 test}' > /tmp/t.rtf && pandoc --sandbox -f rtf -t docx -o /tmp/t.docx /tmp/t.rtf
 ```

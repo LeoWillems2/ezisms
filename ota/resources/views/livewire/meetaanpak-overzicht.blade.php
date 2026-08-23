@@ -365,9 +365,22 @@
                 <flux:input type="number" wire:model="teller" label="Teller" min="0" />
                 <flux:input type="number" wire:model="noemer" label="Noemer" min="1" />
             </div>
+            {{-- De eenheid bepaalt wat teller en noemer betekenen. Eén vaste tekst over
+                 "61 van 90" stond ook boven een telling, waar de noemer juist niet meetelt —
+                 precies het veld waar een beginnende CISO dan het aantal invult. --}}
             <flux:text class="-mt-2 text-sm text-zinc-500">
-                Teller en noemer, nooit het percentage: "61 van 90" is te reconstrueren en te
-                verantwoorden, "68%" niet — en de noemer beweegt mee.
+                @if ($meetKpi?->eenheid === 'aantal')
+                    Bij een telling is de uitkomst de teller zelf; de noemer telt niet mee.
+                    Hij blijft wel verplicht — vul <strong>1</strong> in. Een noemer van 0
+                    betekent "geen populatie", en dat is iets anders dan "nul deze periode".
+                @elseif ($meetKpi?->eenheid === 'dagen')
+                    Bij een gemiddelde is de teller de som over alle gevallen en de noemer het
+                    aantal gevallen: "84 over 12" is te reconstrueren en te verantwoorden,
+                    "7 dagen" niet — en het aantal gevallen beweegt mee.
+                @else
+                    Teller en noemer, nooit het percentage: "61 van 90" is te reconstrueren en te
+                    verantwoorden, "68%" niet — en de noemer beweegt mee.
+                @endif
             </flux:text>
 
             <flux:textarea wire:model="meettoelichting" label="Toelichting (optioneel)" rows="2" />

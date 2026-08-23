@@ -8,10 +8,107 @@ blijven de bron, dit bestand is de leesbare vorm ervan.
 telt uitgaven met nieuwe functionaliteit, het derde is voor correcties op een
 uitgave die al buiten staat. Tot nu toe is er één zo'n correctie geweest: V2.2.1.
 
-Elke uitgave is een annotated tag; `git tag -l --format='%(contents)' V2.8.0`
+Elke uitgave is een annotated tag; `git tag -l --format='%(contents)' V2.9.0`
 geeft de oorspronkelijke tekst.
 
 ---
+
+## V2.9.0 — niets meer bij derden
+
+*21-08-2026*
+
+V2.8.0 ging over wat een auditor te zien krijgt. Deze uitgave gaat over wat een
+installatie doet terwijl niemand kijkt: welke verbindingen ze naar buiten maakt,
+wat er in de sessietabel staat, en wat er nodig is om haar op een kale machine
+neer te zetten. Er is één maatstaf: een ISMS dat achter een firewall zonder
+uitgaand verkeer draait, hoort er hetzelfde uit te zien en hetzelfde te doen als
+een ISMS met internet.
+
+**Elke paginaweergave ging bij twee vreemde hosts langs.** Het schermlettertype
+kwam van fonts.bunny.net en de CC-iconen van mirrors.creativecommons.org. Dat is
+niet alleen een afhankelijkheid maar ook een lek: die hosts zien het IP-adres van
+elke medewerker die het ISMS opent. Instrument Sans (alleen woff2, met een preload
+voor latin-400) en de vier iconen staan nu in `public/`. De licentievermelding
+zelf staat in één component onderaan elke pagina, ingehangen in de app-layout en
+de drie inloglayouts, en `SBOM.md` heeft een paragraaf voor meegeleverde statische
+bestanden van derden — anders was die tabel bij de volgende regeneratie weg.
+
+**Bij de toetsen woog het zwaarder.** Het voorbeeldbestand `owasp1.html` laadde
+Tailwind, Font Awesome, Google Fonts en jsDelivr, dus het IP-adres en de
+User-Agent van elke deelnemer gingen daarheen — de enige plek in de applicatie
+waar persoonsgegevens naar derden liepen. De klant levert die bestanden zelf aan
+en plaatst ze zelf, dus keuren aan de deur kan niet en een instructie is geen
+maatregel. Wat overblijft is de laag die de leverancier wél beheert:
+`Toetsrespons` draagt nu een bronbeperking (`default-src 'self'`, `data:` voor
+plaatjes en lettertypen), waarmee een toets alleen laadt wat in het bestand zelf
+zit. Dat herziet het besluit van 30-07-2026 uitdrukkelijk; dat gold toen toetsen
+alleen intern werden gebruikt. Daarnaast: een werkend skelet van drie vragen
+zonder één externe bron, uitgedeeld door de bouwhulp met een kopieerbare opdracht
+voor wie zijn toets door een AI laat schrijven, een waarschuwing bij het uploaden
+over externe verwijzingen, en `owasp1.html` zelfstandig gemaakt — 82 KB, nul
+externe hosts. Of de browser de bronbeperking ook werkelijk handhaaft, staat als
+§16 in het dockertoetsprotocol en moet vóór de eerste klantinstallatie gedraaid
+worden.
+
+**Twee sessiesleutels bereikten de container nooit.** `SESSION_ENCRYPT` en
+`SESSION_SECURE_COOKIE` stonden wel in `env.voorbeeld` maar niet in de
+`environment:` van `compose.yml`, en die lijst is uitputtend. Bij de eerste was
+het gevolg echt: de sessie-payload stond onversleuteld in de database, ondanks de
+`true` in het voorbeeldbestand. Die sleutel verschilt niet per installatie en
+staat nu vast in `env.statisch`. De tweede wordt door de entrypoint afgeleid uit
+het schema van `APP_URL` — https ⇒ `true`, anders `false` met een waarschuwing —
+want `APP_URL` is niet door een bezoeker te sturen en de kop waar het gedrag
+eerder aan hing wél. `true` bij een http-`APP_URL` blokkeert de start: zo'n cookie
+stuurt de browser nooit terug en dan kan er niemand inloggen.
+
+**Twee dingen om te weten bij het bijwerken.** `compose.yml` moet opnieuw uit de
+nieuwe boom gekopieerd worden, anders geeft hij die sleutels nog steeds niet door.
+En iedereen wordt precies één keer uitgelogd zodra de versleuteling aangaat: de
+bestaande sessies zijn dan onleesbaar en leveren een lege sessie op.
+
+**Een kale machine is nu in één script klaar te maken.** `deploy.sh` zegt in zijn
+kop wat hij níét doet — een database aanmaken, een vhost schrijven,
+systeempakketten installeren — en dat stond verspreid over drie documenten
+beschreven, maar nergens als iets dat je kunt draaien. `ota/scripts/prephost.sh`
+is dat: nginx, mysql, php met de extensielijst uit het manifest, composer,
+node/npm, pandoc uit de vastgepinde release met dezelfde twee sommen als de
+Dockerfile, een eigen fpm-pool met de uploadgrenzen van de container, een vhost,
+een lege database met eigen gebruiker. Hij stopt precies waar `deploy.sh` begint:
+bij een doelpad met alléén een `.env` erin. De Dockerfile gooit hem uit het image,
+want een script dat pakketten installeert en een databasegebruiker aanmaakt hoort
+niet in een container.
+
+**De leverancier is verwerker, en dat is nu opgeschreven.** Wie het ISMS als
+gehoste dienst afneemt, heeft een verwerkersovereenkomst nodig in de zin van
+art. 28 AVG. In `./compliance` staat de set die daarbij hoort: een documentenplan
+met de volgorde, een intakelijst met de vragen die alleen de leverancier kan
+beantwoorden, een dienstbeschrijving met rolbepaling, en drie bijlagen — de
+gegevensinventarisatie (afgeleid uit het datamodel zelf: de audit trail bewaart
+oude en nieuwe waarden en houdt de naam vast nadat het account weg is), de
+beveiligingsmaatregelen met in §10 uitdrukkelijk wat er níet is, en het
+subverwerkersregister. Dat register kan kort blijven, want de servercode maakt
+geen enkele uitgaande verbinding; alleen e-mail gaat naar buiten. Het is een
+voorstel, geen ingevulde set.
+
+**De testsuite ging van 4m52 naar 2m22**, met ongewijzigde HTML-uitvoer. De
+profilering wees naar de renderkant en niet naar migraties of seeders: `blaze`
+vouwt de flux-componenten bij compilatie plat, de autorisatiecheck onthoudt per
+verzoek het antwoord per (gebruiker, blok, niveau) — van ~226 permissiequery's per
+SoA-render naar een handvol — en de traagste Livewire-tests sturen hun
+`->set()`-aanroepen als één batch. De SoA-render zelf: 0,67 s naar 0,084 s.
+
+**Verder.** Twee kennisartikelen: over de Cyberbeveiligingswet, en over
+communicatie en overleg — clausule 7.4 bestond alleen als auditobject, dus je kon
+hem auditeren maar nergens invullen. `isms:demo-vul` weigert nu elk profiel dat
+niet `iso27001` is in plaats van te kijken naar capaciteiten; de BIO brengt geen
+eigen controlset mee en was daar dus niet aan te herkennen, terwijl het commando
+begint met het wissen van de hele database. De open punten zijn tegen de code
+herzien. En er liggen twee analyses op de plank die nog niets veranderen: plan 00r
+maakt TLS instelbaar voor de dag dat er geen proxy vóór staat, en `docksec.md`
+legt de hardening van een host naast de containerstack — met één gat erin, want
+een gepubliceerde containerpoort trekt zich niets aan van `ufw`.
+
+1116 tests groen, in alle normprofielen.
 
 ## V2.8.0 — de BIO-verplichtingen komen in beeld
 

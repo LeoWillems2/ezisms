@@ -69,6 +69,14 @@ final class Kennisartikelen
             'categorie' => 'Meten & rapportage',
             'bestand' => 'kpis-en-meetwaarden.md',
         ],
+        'kpi-opzetten-voorbeeld' => [
+            'titel' => 'Een KPI opzetten: een uitgewerkt voorbeeld',
+            'categorie' => 'Meten & rapportage',
+            // Direct achter het KPI-artikel: dat legt het model uit, dit loopt
+            // één KPI van aanmaken tot afsluiten door. Profielloos — de casus
+            // draait om §9.1 en noemt geen maatregelnummers.
+            'bestand' => 'kpi-opzetten-voorbeeld.md',
+        ],
         'de-audit-trail' => [
             'titel' => 'De audit trail: wat er in staat, en wat niet',
             'categorie' => 'Meten & rapportage',

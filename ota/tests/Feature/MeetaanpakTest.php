@@ -708,6 +708,39 @@ class MeetaanpakTest extends TestCase
         $this->assertSame($ciso->naam, $meting->herkomst());
     }
 
+    /**
+     * De uitleg onder teller en noemer hangt aan de eenheid, niet aan de
+     * herkomst van de KPI. Eén vaste tekst over "61 van 90" stond ook boven een
+     * telling, waar de noemer juist niet meetelt — en dat is precies het veld
+     * waar iemand dan het aantal invult.
+     */
+    public function test_de_uitleg_bij_teller_en_noemer_volgt_de_eenheid(): void
+    {
+        $ratio = $this->handmatigeKpi();
+
+        $telling = KpiDefinitie::create([
+            'sleutel' => 'verloren_usb_sticks_per_maand',
+            'meetbron' => null,
+            'naam' => 'Verloren USB-sticks per maand',
+            'fase' => 'check',
+            'eenheid' => 'aantal',
+            'richting' => 'omlaag',
+            'berekeningswijze' => 'Meldingen van stickverlies in de kalendermaand.',
+            'definitie_versie' => 1,
+            'actief' => true,
+        ]);
+
+        $component = Livewire::actingAs($this->ciso())->test(MeetaanpakOverzicht::class);
+
+        $component->call('nieuwMeetpunt', $telling->id)
+            ->assertSee('de noemer telt niet mee')
+            ->assertDontSee('61 van 90');
+
+        $component->call('nieuwMeetpunt', $ratio->id)
+            ->assertSee('61 van 90')
+            ->assertDontSee('de noemer telt niet mee');
+    }
+
     public function test_een_tweede_meetpunt_in_dezelfde_maand_wordt_geweigerd(): void
     {
         $kpi = $this->handmatigeKpi();

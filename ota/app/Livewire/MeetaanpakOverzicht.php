@@ -520,6 +520,11 @@ class MeetaanpakOverzicht extends Component
             'streefwaardeKpi' => $this->streefwaardeKpiId === null
                 ? null
                 : $definities->firstWhere('id', $this->streefwaardeKpiId),
+            // De eenheid bepaalt wát teller en noemer betekenen, dus ook welke
+            // uitleg eronder hoort te staan.
+            'meetKpi' => $this->meetKpiId === null
+                ? null
+                : $definities->firstWhere('id', $this->meetKpiId),
         ]);
     }
 }

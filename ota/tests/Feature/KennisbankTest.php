@@ -325,6 +325,16 @@ class KennisbankTest extends TestCase
      * uit de tabel eronder. Uit de seeder en niet uit een lijst hier: een
      * nieuwe KPI hoort dit te laten falen, want de lezer telt dat getal na.
      */
+    public function test_kpi_voorbeeldartikel_rendert(): void
+    {
+        $gebruiker = Gebruiker::factory()->create();
+
+        $this->actingAs($gebruiker)->get('/kennisbank/kpi-opzetten-voorbeeld')
+            ->assertOk()
+            ->assertSee('Verloren USB-sticks per maand')
+            ->assertSee('De streefwaarde als planlijn');
+    }
+
     public function test_kpi_artikel_noemt_het_juiste_aantal_kpis(): void
     {
         $this->seed(KpiDefinitieSeeder::class);
