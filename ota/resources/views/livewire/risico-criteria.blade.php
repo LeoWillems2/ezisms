@@ -26,7 +26,7 @@
     {{-- 1. De actieve versie: alleen-lezen, ook voor de CISO. Wijzigen loopt
          altijd via een nieuwe versie — dat is het hele punt van 04g. --}}
     @if ($actief)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <div class="flex flex-wrap items-center gap-3">
                 <flux:badge color="green">Actief — versie {{ $actief->versienummer }}</flux:badge>
                 <flux:text>Geldig sinds {{ $actief->geldig_vanaf?->format('d-m-Y') ?? '—' }}</flux:text>
@@ -129,7 +129,7 @@
 
     {{-- 2. De werkversie: bewerkbaar zolang zij concept is. --}}
     @if ($werk)
-        <div class="rounded-xl border-2 border-dashed border-zinc-300 p-5 dark:border-zinc-600">
+        <div class="rounded-xl border-2 border-dashed border-zinc-300 p-5">
             <div class="mb-4 flex items-center gap-3">
                 <flux:badge :color="$werk->status === 'concept' ? 'amber' : 'blue'">
                     {{ $werk->status === 'concept' ? 'Concept' : 'Ter goedkeuring' }} — versie {{ $werk->versienummer }}
@@ -162,7 +162,7 @@
                          het veld waar een op cijfers sturende auditor naar kijkt;
                          het ISMS levert er niets in mee. --}}
                     @foreach (['kans' => 'Kans', 'impact' => 'Impact'] as $as => $label)
-                        <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                        <div class="rounded-lg border border-zinc-200 p-4">
                             <flux:heading size="sm" class="mb-2">Beoordelingsschaal — {{ $label }}</flux:heading>
 
                             <flux:textarea :wire:model="$as === 'kans' ? 'leidraadKans' : 'leidraadImpact'"

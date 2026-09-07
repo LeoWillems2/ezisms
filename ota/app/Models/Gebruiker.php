@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Listeners\RegistreerMislukteLoginpoging;
 use App\Models\Concerns\Auditeerbaar;
+use App\Models\Concerns\Waardenbewaking;
 use App\Support\Adreswijziging;
 use App\Support\Uitnodiging;
 use Database\Factories\GebruikerFactory;
@@ -22,7 +23,7 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 class Gebruiker extends Authenticatable
 {
     /** @use HasFactory<GebruikerFactory> */
-    use Auditeerbaar, HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use Auditeerbaar, HasFactory, Notifiable, TwoFactorAuthenticatable, Waardenbewaking;
 
     protected $table = 'gebruikers';
 
@@ -43,6 +44,7 @@ class Gebruiker extends Authenticatable
         'accounts_ingetrokken_op',
         'email_geverifieerd_op',
         'uitnodiging_verstuurd_op',
+        'uitnodiging_kanaal',
         'nieuw_email',
         'nieuw_email_aangevraagd_op',
     ];
@@ -56,6 +58,18 @@ class Gebruiker extends Authenticatable
     public const SCREENING_TYPES = [
         'vog' => 'VOG',
         'referentiecheck' => 'Referentiecheck',
+    ];
+
+    /**
+     * Hoe een uitnodiging is uitgereikt, met het label dat de lijst toont
+     * (implementatie/01i §2). Zonder mailkanaal reikt de CISO de link met de
+     * hand uit, en dan is "Verstuurd op" onwaar.
+     *
+     * @var array<string, string>
+     */
+    public const UITNODIGING_KANALEN = [
+        'mail' => 'Verstuurd op',
+        'bestand' => 'Handmatig uitgereikt op',
     ];
 
     /** @var list<string> */
@@ -291,6 +305,15 @@ class Gebruiker extends Authenticatable
             'email' => $email,
             'wachtwoord' => Str::random(32),
         ]);
+    }
+
+    /**
+     * "Verstuurd op" of "Handmatig uitgereikt op" (01i §7). Terugval op het
+     * mail-label voor rijen van vóór de kolom die de terugvulling niet raakte.
+     */
+    public function uitreikingLabel(): string
+    {
+        return self::UITNODIGING_KANALEN[$this->uitnodiging_kanaal] ?? self::UITNODIGING_KANALEN['mail'];
     }
 
     /**

@@ -1,4 +1,4 @@
-<div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+<div class="blueprint p-5">
     <div class="mb-4 flex flex-wrap items-start justify-between gap-4">
         <div>
             <flux:heading size="lg">Bewijsstukken</flux:heading>
@@ -20,7 +20,7 @@
 
     @forelse ($bewijsstukken as $bewijsstuk)
         <div wire:key="bewijs-{{ $bewijsstuk->id }}"
-            class="flex items-center justify-between gap-3 border-t border-zinc-100 py-2 first:border-t-0 dark:border-zinc-800">
+            class="flex items-center justify-between gap-3 border-t border-zinc-100 py-2 first:border-t-0">
             <div class="min-w-0">
                 <flux:link :href="route('bewijsstukken.download', $bewijsstuk)" class="truncate">
                     {{ $bewijsstuk->naam }}
@@ -79,7 +79,7 @@
             <flux:input wire:model.live.debounce.300ms="zoekterm" icon="magnifying-glass"
                 placeholder="Zoek op naam of bestandsnaam" />
 
-            <div class="max-h-80 divide-y divide-zinc-100 overflow-y-auto dark:divide-zinc-800">
+            <div class="max-h-80 divide-y divide-zinc-100 overflow-y-auto">
                 @forelse ($kandidaten as $kandidaat)
                     <div wire:key="kandidaat-{{ $kandidaat->id }}" class="flex items-center justify-between gap-3 py-2">
                         <div class="min-w-0">
@@ -87,7 +87,7 @@
                             <flux:text class="text-xs">
                                 {{ $kandidaat->bestandsnaam }} · {{ $kandidaat->leesbareGrootte() }}
                                 @if ($kandidaat->koppelingen->isEmpty())
-                                    · <span class="text-amber-600 dark:text-amber-500">nog ongekoppeld</span>
+                                    · <span class="text-amber-600">nog ongekoppeld</span>
                                 @else
                                     · {{ $kandidaat->koppelingen->count() }}x gekoppeld
                                 @endif

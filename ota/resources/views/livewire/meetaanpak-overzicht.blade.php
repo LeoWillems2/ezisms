@@ -57,7 +57,7 @@
             <div class="grid gap-3">
                 @foreach ($definities as $definitie)
                     <div wire:key="kpi-{{ $definitie->id }}"
-                        class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700 {{ $definitie->actief ? '' : 'opacity-60' }}">
+                        class="rounded-lg border border-zinc-200 p-4 {{ $definitie->actief ? '' : 'opacity-60' }}">
                         <div class="flex flex-wrap items-start justify-between gap-2">
                             <div>
                                 <flux:heading size="sm">{{ $definitie->naam }}</flux:heading>
@@ -185,7 +185,7 @@
                                 @php $ouder = $definitie->metingen->count() - 1; @endphp
                                 <button type="button" x-on:click="open = ! open"
                                     :aria-expanded="open ? 'true' : 'false'"
-                                    class="mt-2 flex cursor-pointer items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-300">
+                                    class="mt-2 flex cursor-pointer items-center gap-1.5 text-xs text-zinc-600">
                                     <span class="transition-transform" :class="open && 'rotate-90'"
                                         aria-hidden="true">&#9656;</span>
                                     <span x-show="! open">
@@ -316,7 +316,7 @@
                     <flux:subheading>{{ $streefwaardeKpi->naam }}</flux:subheading>
                 </div>
 
-                <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                <div class="rounded-lg border border-zinc-200 p-4">
                     <flux:text>
                         Streefwaarde <strong>{{ $metEenheid($streefwaardeKpi->streefwaarde, $streefwaardeKpi->eenheid) }}</strong>@if ($streefwaardeKpi->signaalwaarde !== null),
                         signaalwaarde <strong>{{ $metEenheid($streefwaardeKpi->signaalwaarde, $streefwaardeKpi->eenheid) }}</strong>@endif.

@@ -19,7 +19,7 @@
             'red' => 'bg-red-500 text-white',
             'amber' => 'bg-amber-400 text-zinc-900',
             'green' => 'bg-green-500 text-white',
-            default => 'bg-zinc-300 text-zinc-900 dark:bg-zinc-600 dark:text-white',
+            default => 'bg-zinc-300 text-zinc-900',
         };
     @endphp
 
@@ -53,7 +53,13 @@
                             'focus:outline-none focus:ring-2 focus:ring-offset-1',
                             $celKlasse($kleur),
                             'opacity-40' => $aantal === 0 && ! $geselecteerd,
-                            'ring-2 ring-offset-2 ring-blue-600 dark:ring-offset-zinc-900' => $geselecteerd,
+                            {{-- De aanwijsring was blauw en dat is de enige kleur
+                                 buiten het accent die nog rondliep. Steel-700 en
+                                 niet het accent zelf: deze ring moet het opnemen
+                                 tegen verzadigde cellen, en #416180 haalt 5.78:1
+                                 tegen de grond waar #5980a6 op 3.71:1 blijft
+                                 steken — het blauw dat het verving zat op 5.2. --}}
+                            'ring-2 ring-offset-2 ring-steel-700' => $geselecteerd,
                         ])>
                         <span class="text-lg font-semibold">{{ $aantal }}</span>
                         <span class="text-xs opacity-80">{{ $kans * $impact }}</span>
@@ -78,13 +84,13 @@
     </div>
 
     {{-- Legenda (§6), met de actuele drempel ingevuld. --}}
-    <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+    <div class="blueprint p-4">
         <flux:heading size="sm" class="mb-2">Legenda</flux:heading>
         <div class="flex flex-wrap gap-x-6 gap-y-2 text-sm">
             <span class="flex items-center gap-2"><span class="inline-block h-3 w-3 rounded bg-red-500"></span> Score &gt; {{ $drempel }} — boven de acceptatiedrempel</span>
             <span class="flex items-center gap-2"><span class="inline-block h-3 w-3 rounded bg-amber-400"></span> Score {{ $waarschuwing }}–{{ $drempel }} — aandacht</span>
             <span class="flex items-center gap-2"><span class="inline-block h-3 w-3 rounded bg-green-500"></span> Score &lt; {{ $waarschuwing }} — aanvaardbaar</span>
-            <span class="flex items-center gap-2"><span class="inline-block h-3 w-3 rounded bg-zinc-300 dark:bg-zinc-600"></span> Niet beoordeeld (kans of impact ontbreekt)</span>
+            <span class="flex items-center gap-2"><span class="inline-block h-3 w-3 rounded bg-zinc-300"></span> Niet beoordeeld (kans of impact ontbreekt)</span>
         </div>
     </div>
 

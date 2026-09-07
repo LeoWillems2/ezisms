@@ -18,7 +18,7 @@
         <flux:callout variant="success" icon="check-circle" heading="{{ session('melding') }}" />
     @endif
 
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         @if ($wortels->isEmpty())
             <flux:text>Nog geen organisatie-eenheden vastgelegd.</flux:text>
         @else

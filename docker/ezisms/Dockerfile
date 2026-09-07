@@ -30,13 +30,18 @@ ARG PHP_REEKS=8.5
 # mysql-client — mysqldump vóór elke migratie op een bestaande database. Dat is
 #           verplicht en heeft geen ontsnapping (00n §9.5), dus zonder dit
 #           pakket start een bestaande installatie niet meer.
+# php-sqlite3 — de tweede databasevariant (00s). Beide drivers zitten in hetzelfde
+#           image, en dat is een keuze: een tweede image zou zes bestanden
+#           dupliceren die niets met de database te maken hebben, en een fix die
+#           je in het ene doet en in het andere vergeet valt nergens om (00s §0).
+#           De sqlite3-CLI zit er bewust NIET in — de dump gaat via PDO.
 # curl    — de healthcheck van compose.yml roept hem in de container aan, en de
 #           pandoc-RUN hieronder haalt er zijn pakket mee op.
 RUN apt-get update && apt-get install -y --no-install-recommends \
         nginx supervisor \
         "php${PHP_REEKS}-fpm" "php${PHP_REEKS}-cli" "php${PHP_REEKS}-mysql" \
         "php${PHP_REEKS}-mbstring" "php${PHP_REEKS}-xml" "php${PHP_REEKS}-curl" \
-        "php${PHP_REEKS}-zip" "php${PHP_REEKS}-gd" \
+        "php${PHP_REEKS}-zip" "php${PHP_REEKS}-gd" "php${PHP_REEKS}-sqlite3" \
         mysql-client curl ca-certificates tzdata \
     && rm -rf /var/lib/apt/lists/*
 

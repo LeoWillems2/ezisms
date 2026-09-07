@@ -20,7 +20,7 @@
 
     {{-- Rapportagesignalen (§11). --}}
     <div class="grid gap-4 sm:grid-cols-2">
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+        <div class="blueprint p-4">
             <flux:text>Open bevindingen</flux:text>
             {{-- Het getal en elke badge leiden naar het bevindingenregister met
                  het bijbehorende filter al gezet: een telling waar je niet op
@@ -41,7 +41,7 @@
                 </div>
             @endif
         </div>
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+        <div class="blueprint p-4">
             <flux:text>Sinds laatste interne audit</flux:text>
             <flux:heading size="lg">
                 {{ $dagenSindsInterneAudit === null ? 'nog geen' : $dagenSindsInterneAudit.' dagen' }}

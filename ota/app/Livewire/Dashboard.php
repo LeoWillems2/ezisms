@@ -9,7 +9,9 @@ use App\Models\KpiDefinitie;
 use App\Models\Taak;
 use App\Support\Dashboardsignalen;
 use App\Support\Kpitrend;
+use App\Support\Leesbevestigingsstand;
 use App\Support\Maatregelverdeling;
+use App\Support\Recordscope;
 use App\Support\Risicoverdeling;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
@@ -17,8 +19,9 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 /**
- * Het dashboard (implementatie/12c). Vijf panelen boven de eigen takenlijst:
- * KPI-strip, signalen, PDCA-trend, risico's + maatregelen, aantallen.
+ * Het dashboard (implementatie/12c, uitgebreid in 12i). Zes panelen boven de
+ * eigen takenlijst: KPI-strip, signalen, PDCA-trend, risico's + maatregelen,
+ * leesbevestiging, aantallen.
  *
  * **Elk paneel hangt achter de autorisatiecheck van het scherm waar het naar
  * verwijst** (12c §2 en §8, besluit 30-07-2026). Niet één check voor het geheel:
@@ -81,6 +84,19 @@ class Dashboard extends Component
         return Gate::allows('heeft-niveau', ['beleid-maatregelbeheer', 'lezen']);
     }
 
+    /**
+     * Anders dan het aantallenpaneel niet op `lezen` maar op de recordscope
+     * (12i §2). `uitvoeren` impliceert `lezen`, dus een Medewerker haalt
+     * `magBeleid()` — en zou hier zien hoeveel collega's een document nog niet
+     * bevestigd hebben. `/beleid` verbergt de bevestigingsgraad om precies die
+     * reden al achter `Recordscope`; een dashboardpaneel dat hetzelfde cijfer
+     * ruimer toont, ondermijnt die keuze zonder dat het opvalt.
+     */
+    public function magLeesbevestigingsstand(): bool
+    {
+        return Recordscope::magAllesZien('beleid-maatregelbeheer');
+    }
+
     public function magTaken(): bool
     {
         return Gate::allows('heeft-niveau', ['taken-workflow-engine', 'uitvoeren']);
@@ -88,14 +104,20 @@ class Dashboard extends Component
 
     public function render()
     {
+        // Eén keer bepalen, twee lezers: het paneel zelf en het signalenpaneel
+        // erboven (12i §4). Twee aanroepen zouden dezelfde tellingen dubbel
+        // doen en, erger, op een randgeval uit elkaar kunnen lopen.
+        $stand = $this->magLeesbevestigingsstand() ? Leesbevestigingsstand::huidige() : null;
+
         return view('livewire.dashboard', [
             'mijnTaken' => $this->magTaken() ? $this->mijnTaken() : null,
             'strip' => $this->magMeten() ? $this->strip() : null,
-            'signalen' => $this->magMeten() ? $this->signalen() : null,
+            'signalen' => $this->magMeten() ? $this->signalen($stand) : null,
             'perFase' => $this->magMeten() ? $this->perFase() : null,
             'faseLabels' => self::FASE_LABELS,
             'verdeling' => $this->magRisicoSoa() ? Risicoverdeling::huidige() : null,
             'maatregelen' => $this->magRisicoSoa() ? Maatregelverdeling::huidige() : null,
+            'leesbevestiging' => $stand,
             'aantallen' => $this->magBeleid() ? $this->aantallen() : null,
         ]);
     }
@@ -162,12 +184,16 @@ class Dashboard extends Component
     }
 
     /** @return list<array{vlag: string, tekst: string, uitleg: string, getal: string}> */
-    private function signalen(): array
+    private function signalen(?Leesbevestigingsstand $stand): array
     {
         return Dashboardsignalen::stel(
             $this->trends()->all(),
             magRisicoLezen: $this->magRisicoSoa(),
             magSoaLezen: $this->magRisicoSoa(),
+            // `null` betekent hier "deze kijker mag de stand niet zien".
+            // Dezelfde lijn als de twee vlaggen hierboven: de check staat in het
+            // component, niet nog eens in de signaalbouwer.
+            leesbevestiging: $stand,
         )->alle();
     }
 

@@ -18,6 +18,16 @@
         <flux:callout variant="success" icon="check-circle" heading="{{ session('melding') }}" />
     @endif
 
+    {{-- De reden waarom het bronblok deze taak tegenhoudt (implementatie/15 §6).
+         `TakenOverzicht` ving de uitzondering al af, maar toonde hem nergens:
+         de knop leek dan niets te doen. Dezelfde melding als op het
+         dossierscherm van blok 15. --}}
+    @if (session('belemmering'))
+        <flux:callout variant="warning" icon="exclamation-triangle" heading="Nog niet af te ronden">
+            <flux:callout.text>{{ session('belemmering') }}</flux:callout.text>
+        </flux:callout>
+    @endif
+
     @if ($metNietActieveEigenaar > 0)
         <flux:callout variant="warning" icon="exclamation-triangle"
             heading="{{ $metNietActieveEigenaar }} openstaande taak/taken bij een niet-actieve eigenaar">
@@ -106,8 +116,8 @@
                             $verlopen = $taak->isFeitelijkVerlopen();
                             $bijna = ! $verlopen && $taak->status !== 'voltooid'
                                 && $taak->deadline->isBefore(now()->addDays(7));
-                            $kleur = $verlopen ? 'text-red-600 dark:text-red-500'
-                                : ($bijna ? 'text-amber-600 dark:text-amber-500' : '');
+                            $kleur = $verlopen ? 'text-red-600'
+                                : ($bijna ? 'text-amber-600' : '');
                         @endphp
                         <span class="{{ $kleur }}">{{ $taak->deadline->format('d-m-Y') }}</span>
                         @if ($taak->escalatie_niveau === 2)

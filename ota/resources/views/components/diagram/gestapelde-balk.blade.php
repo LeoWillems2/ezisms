@@ -21,6 +21,6 @@
             style="background: {{ $segment['kleur'] }}; flex: {{ $segment['aantal'] }} 0 0"
             title="{{ $segment['label'] }}: {{ $segment['aantal'] }} van {{ $totaal }}"></div>
     @empty
-        <div class="w-full rounded-sm border border-dashed border-zinc-300 dark:border-zinc-600"></div>
+        <div class="w-full rounded-sm border border-dashed border-zinc-300"></div>
     @endforelse
 </div>

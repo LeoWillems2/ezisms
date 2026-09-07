@@ -10,6 +10,7 @@ use App\Models\SoaRegel;
 use App\Models\Taak;
 use App\Models\Taaksjabloon;
 use App\Models\Trainingsmodule;
+use App\Support\Beleidsgoedkeuring;
 use App\Support\NotificatieDispatcher;
 use App\Support\TaakPlanner;
 use Illuminate\Console\Command;
@@ -39,19 +40,13 @@ class GenereerTaken extends Command
     /** Reactietijd op een achterstallig signaal; ook een eigen keuze. */
     private const REACTIETERMIJN_DAGEN = 14;
 
-    /**
-     * Termijn waarbinnen een gepubliceerd beleid gelezen en bevestigd hoort te
-     * zijn. Staat NIET in de norm — gekozen omdat een leestermijn zonder einde
-     * geen termijn is (implementatie/05 §8).
-     */
-    private const LEESTERMIJN_DAGEN = 30;
-
     public function handle(): int
     {
         $aantal = $this->uitSjablonen()
             + $this->achterstalligeRetouren()
             + $this->achterstalligeSoaBeoordelingen()
             + $this->openstaandeLeesbevestigingen()
+            + $this->openstaandeGoedkeuringen()
             + $this->trainingHerinneringen();
 
         $this->info("{$aantal} taak/taken aangemaakt.");
@@ -187,10 +182,10 @@ class GenereerTaken extends Command
             }
 
             // De leestermijn loopt vanaf publicatie, niet vanaf vandaag: een
-            // taak die elke nacht opnieuw 30 dagen krijgt verloopt nooit.
-            $deadline = ($versie->gepubliceerd_op ?? Carbon::today())
-                ->copy()
-                ->addDays(self::LEESTERMIJN_DAGEN);
+            // taak die elke nacht opnieuw 30 dagen krijgt verloopt nooit. De
+            // termijn staat op het model, zodat het dashboard dezelfde grens
+            // leest als deze generatie hem zet (12i §3).
+            $deadline = $versie->leesdeadline();
 
             $bevestigd = $versie->bevestigingen()->pluck('gebruiker_id')->all();
 
@@ -210,6 +205,31 @@ class GenereerTaken extends Command
                 );
                 $aantal++;
             }
+        }
+
+        return $aantal;
+    }
+
+    /**
+     * De versies die op vaststelling wachten (implementatie/05b §4).
+     *
+     * De taak zelf wordt door `BeleidsversieObserver` gepland op het moment van
+     * aanbieden — daar hoort hij, want wachten tot de nacht is precies de
+     * vertraging die dit signaal moet wegnemen. Deze sweep is de reparatie
+     * eromheen: wie goedkeurder is, staat in de rollenmatrix en niet op de
+     * versie, dus een toegekende of ingetrokken rol komt nooit als save van een
+     * versie langs. Zonder deze ronde blijft een taak staan bij iemand die de
+     * knop niet meer heeft, of ontbreekt hij bij wie hem net kreeg.
+     */
+    private function openstaandeGoedkeuringen(): int
+    {
+        $aantal = 0;
+
+        // Ook versies van een ingetrokken document: `synchroniseerTaken()`
+        // besluit dat daar niets meer op wacht en ruimt op. Ze hier uitfilteren
+        // zou juist die opruiming overslaan.
+        foreach (Beleidsversie::with('document')->where('status', 'ter_goedkeuring')->get() as $versie) {
+            $aantal += Beleidsgoedkeuring::synchroniseerTaken($versie);
         }
 
         return $aantal;

@@ -1,6 +1,7 @@
 @php
     use App\Models\Risico;
     use App\Support\Kpitrend;
+    use App\Support\Leesbevestigingsstand;
     use App\Support\Maatregelverdeling;
     use App\Support\Risicoverdeling;
 
@@ -39,7 +40,7 @@
          paneel dat de Medewerker heeft, en het is waar hij het dashboard voor
          gebruikt. --}}
     @if ($mijnTaken !== null)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <div class="mb-3 flex items-center justify-between gap-4">
                 <flux:heading size="lg">Mijn openstaande taken</flux:heading>
                 <flux:button size="sm" variant="ghost" :href="route('taken.index')" wire:navigate>
@@ -48,9 +49,9 @@
             </div>
 
             @forelse ($mijnTaken as $taak)
-                <div class="flex items-center justify-between gap-3 border-t border-zinc-100 py-2 first:border-t-0 dark:border-zinc-800">
+                <div class="flex items-center justify-between gap-3 border-t border-zinc-100 py-2 first:border-t-0">
                     <flux:text class="truncate">{{ $taak->titel }}</flux:text>
-                    <flux:text class="shrink-0 text-sm {{ $taak->isFeitelijkVerlopen() ? 'text-red-600 dark:text-red-500' : '' }}">
+                    <flux:text class="shrink-0 text-sm {{ $taak->isFeitelijkVerlopen() ? 'text-red-600' : '' }}">
                         {{ $taak->deadline->format('d-m-Y') }}
                     </flux:text>
                 </div>
@@ -85,18 +86,18 @@
                         $streef = $laatste?->streefwaarde;
                     @endphp
 
-                    <div class="flex flex-col rounded-xl border border-zinc-200 p-4 dark:border-zinc-700"
+                    <div class="flex flex-col blueprint p-4"
                         wire:key="kpi-{{ $trend->definitie->id }}">
-                        <div class="font-mono text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                        <div class="font-mono text-[10px] uppercase tracking-wider text-zinc-500">
                             {{ $faseLabels[$trend->definitie->fase] ?? $trend->definitie->fase }}
                         </div>
-                        <div class="mt-0.5 min-h-[2.9em] text-sm text-zinc-600 dark:text-zinc-300">
+                        <div class="mt-0.5 min-h-[2.9em] text-sm text-zinc-600">
                             {{ $trend->definitie->naam }}
                         </div>
 
                         @if ($uitkomst === null)
-                            <div class="mt-1 text-2xl font-semibold text-zinc-400 dark:text-zinc-500">—</div>
-                            <div class="font-mono text-[11px] text-zinc-500 dark:text-zinc-400">nog niet gemeten</div>
+                            <div class="mt-1 text-2xl font-semibold text-zinc-400">—</div>
+                            <div class="font-mono text-[11px] text-zinc-500">nog niet gemeten</div>
                         @else
                             <div class="mt-1 text-3xl font-semibold leading-tight tracking-tight">
                                 {{ $trend->waardeLabel($uitkomst) }}
@@ -105,14 +106,14 @@
                                  uit te leggen, 41% niet, en de noemer beweegt mee.
                                  De streefwaarde staat ernaast, want een kleur zonder
                                  maatstaf is een oordeel zonder maatstaf (12d §6). --}}
-                            <div class="font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
+                            <div class="font-mono text-[11px] text-zinc-500">
                                 @if ($trend->inAantal()){{ $trend->periodeLabel($laatste) }}@elseif ($trend->inDagen()){{ $laatste->teller }} dagen / {{ $laatste->noemer }} taken@else{{ $laatste->teller }} van {{ $laatste->noemer }}@endif@if ($streef !== null) · streef {{ $trend->waardeLabel($streef) }}@endif
                             </div>
                         @endif
 
                         {{-- Kleur draagt nooit alleen de betekenis: naast de stip
                              staat het oordeel in woorden. --}}
-                        <div class="mt-2 flex items-center gap-1.5 text-[11px] text-zinc-600 dark:text-zinc-300">
+                        <div class="mt-2 flex items-center gap-1.5 text-[11px] text-zinc-600">
                             <span class="size-2 shrink-0 rounded-full"
                                 style="background: {{ $bandToken[$statusKleur] }}" aria-hidden="true"></span>
                             <span>{{ Kpitrend::statusLabel($status) }}</span>
@@ -122,15 +123,15 @@
                             @php
                                 $maanden = $basis->gemeten_op->diffInMonths($laatste->gemeten_op);
                                 $kleur = match ($richting) {
-                                    'op' => 'text-green-700 dark:text-green-500',
-                                    'neer' => 'text-red-600 dark:text-red-500',
-                                    default => 'text-zinc-500 dark:text-zinc-400',
+                                    'op' => 'text-green-700',
+                                    'neer' => 'text-red-600',
+                                    default => 'text-zinc-500',
                                 };
                                 $pijl = $richting === 'vlak' ? '→' : ($delta > 0 ? '↑' : '↓');
                             @endphp
                             <div class="mt-2 flex items-center gap-1.5 text-xs {{ $kleur }}">
                                 <span>{{ $pijl }} {{ $trend->deltaLabel(abs($delta)) }}</span>
-                                <span class="text-zinc-500 dark:text-zinc-400">
+                                <span class="text-zinc-500">
                                     vs. {{ $maanden > 0 ? $maanden.' mnd' : 'vorige meting' }}
                                 </span>
                             </div>
@@ -146,10 +147,10 @@
 
     {{-- 3. Signalen (12c §3.2). Boven de trends: wat aandacht vraagt eerst. --}}
     @if ($signalen !== null)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <div class="mb-1 flex flex-wrap items-baseline justify-between gap-2">
                 <flux:heading size="lg">Signalen</flux:heading>
-                <flux:text class="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                <flux:text class="font-mono text-xs text-zinc-500">
                     wat aandacht vraagt
                 </flux:text>
             </div>
@@ -160,7 +161,7 @@
 
             @forelse ($signalen as $signaal)
                 @php $stijl = $vlagStijl[$signaal['vlag']] ?? $vlagStijl['neutraal']; @endphp
-                <div class="grid grid-cols-[18px_1fr_auto] items-start gap-3 border-t border-zinc-100 py-2.5 first:border-t-0 dark:border-zinc-800">
+                <div class="grid grid-cols-[18px_1fr_auto] items-start gap-3 border-t border-zinc-100 py-2.5 first:border-t-0">
                     {{-- Kleur draagt nooit alleen de betekenis: elke vlag heeft een
                          glyph, en de regel ernaast zegt het in woorden. --}}
                     <span class="mt-1 grid size-[18px] place-items-center rounded-full text-[11px] font-bold"
@@ -182,10 +183,10 @@
          vlak is voorbij de grens waar kleur nog identiteit draagt, en de
          dagen-KPI zou een tweede y-as vragen. Nergens twee assen. --}}
     @if ($perFase !== null)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <div class="mb-4 flex flex-wrap items-baseline justify-between gap-2">
                 <flux:heading size="lg">PDCA-trend</flux:heading>
-                <flux:text class="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                <flux:text class="font-mono text-xs text-zinc-500">
                     maandelijkse meetpunten
                 </flux:text>
             </div>
@@ -196,8 +197,8 @@
                         <flux:heading size="sm" class="font-mono uppercase tracking-wider">
                             {{ $faseLabels[$fase] }}
                         </flux:heading>
-                        <div class="h-px flex-1 bg-zinc-200 dark:bg-zinc-700"></div>
-                        <flux:text class="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                        <div class="h-px flex-1 bg-zinc-200"></div>
+                        <flux:text class="font-mono text-xs text-zinc-500">
                             {{ $trends->count() }} {{ $trends->count() === 1 ? 'KPI' : "KPI's" }}
                         </flux:text>
                     </div>
@@ -209,7 +210,7 @@
                              ingehaald door 12d §4 en 12g. Een toelichting die blijft
                              staan nadat hij onwaar is geworden, is dezelfde fout als een
                              gebroken exportbelofte. --}}
-                        <flux:text class="text-sm text-zinc-500 dark:text-zinc-400">
+                        <flux:text class="text-sm text-zinc-500">
                             Deze fase meet de bijsturing zelf: de corrigerende maatregelen uit §10.1,
                             en ook wat er in een periode <em>gebeurde</em> — scoredalingen
                             zonder onderbouwing, afgeronde behandelplannen en nieuw geïdentificeerde
@@ -222,7 +223,7 @@
                         {{-- Anders dan /meetaanpak blijft een lege fase hier staan: op
                              een trendpaneel is dat informatie. Het ISMS meet zijn eigen
                              bijsturing dan nog niet. --}}
-                        <div class="rounded-lg border border-dashed border-zinc-300 p-4 dark:border-zinc-600">
+                        <div class="rounded-lg border border-dashed border-zinc-300 p-4">
                             <flux:text class="font-medium">Nog geen {{ $faseLabels[$fase] }}-metingen</flux:text>
                             <flux:text class="mt-0.5 block text-sm">
                                 Zolang deze fase leeg is, meet het ISMS deze stap van de cyclus niet.
@@ -257,12 +258,12 @@
                                         : 100;
                                 @endphp
 
-                                <div class="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700"
+                                <div class="rounded-lg border border-zinc-200 p-3"
                                     wire:key="trend-{{ $trend->definitie->id }}">
                                     <flux:text class="block min-h-[2.7em] text-sm font-medium leading-snug">
                                         {{ $trend->definitie->naam }}
                                     </flux:text>
-                                    <flux:text class="mb-1.5 block font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
+                                    <flux:text class="mb-1.5 block font-mono text-[11px] text-zinc-500">
                                         @if ($laatste)
                                             @if ($trend->inAantal()){{ $trend->periodeLabel($laatste) }}@elseif ($trend->inDagen()){{ $laatste->teller }} / {{ $laatste->noemer }}@else{{ $laatste->teller }} van {{ $laatste->noemer }}@endif
                                         @else
@@ -280,7 +281,7 @@
                                          te lezen is. --}}
                                     @if (count($reeks) > 0)
                                         <details class="group mt-2">
-                                            <summary class="flex cursor-pointer list-none items-center gap-1.5 text-xs text-zinc-600 dark:text-zinc-300 [&::-webkit-details-marker]:hidden">
+                                            <summary class="flex cursor-pointer list-none items-center gap-1.5 text-xs text-zinc-600 [&::-webkit-details-marker]:hidden">
                                                 <span class="transition-transform group-open:rotate-90">&#9656;</span>
                                                 Tabel
                                             </summary>
@@ -288,11 +289,11 @@
                                                 <table class="w-full text-xs tabular-nums">
                                                     <tbody>
                                                         @foreach ($trend->metingen as $i => $meting)
-                                                            <tr class="border-b border-zinc-100 last:border-b-0 dark:border-zinc-800">
-                                                                <td class="py-1 pr-2 font-mono text-zinc-500 dark:text-zinc-400">
+                                                            <tr class="border-b border-zinc-100 last:border-b-0">
+                                                                <td class="py-1 pr-2 font-mono text-zinc-500">
                                                                     {{ $meting->gemeten_op->format('m-Y') }}
                                                                 </td>
-                                                                <td class="py-1 pr-2 text-right text-zinc-500 dark:text-zinc-400">
+                                                                <td class="py-1 pr-2 text-right text-zinc-500">
                                                                     {{ $meting->teller }}/{{ $meting->noemer }}
                                                                 </td>
                                                                 <td class="py-1 text-right font-medium">
@@ -318,7 +319,7 @@
     @if ($verdeling !== null && $maatregelen !== null)
         <div class="grid gap-6 lg:grid-cols-2">
 
-            <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+            <div class="blueprint p-5">
                 <div class="mb-1 flex flex-wrap items-baseline justify-between gap-2">
                     <flux:heading size="lg">Risico's</flux:heading>
                     <flux:button size="sm" variant="ghost" :href="route('risicos.matrix')" wire:navigate>
@@ -334,13 +335,13 @@
 
                 <div class="overflow-x-auto">
                     <table class="mx-auto border-separate border-spacing-[3px]">
-                        <caption class="caption-bottom pt-2 font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
+                        <caption class="caption-bottom pt-2 font-mono text-[11px] text-zinc-500">
                             kans 1–5 horizontaal · impact 1–5 verticaal
                         </caption>
                         <tbody>
                             @for ($impact = Risicoverdeling::SCHAAL; $impact >= 1; $impact--)
                                 <tr>
-                                    <th scope="row" class="px-1 font-mono text-[10px] font-normal text-zinc-600 dark:text-zinc-300">
+                                    <th scope="row" class="px-1 font-mono text-[10px] font-normal text-zinc-600">
                                         {{ $impact }}
                                     </th>
                                     @for ($kans = 1; $kans <= Risicoverdeling::SCHAAL; $kans++)
@@ -359,7 +360,7 @@
                                                 {{ $aantal }}
                                             </td>
                                         @else
-                                            <td class="h-10 w-11 rounded-md bg-zinc-50 text-center text-xs text-zinc-400 dark:bg-zinc-900 dark:text-zinc-600">
+                                            <td class="h-10 w-11 rounded-md bg-zinc-50 text-center text-xs text-zinc-400">
                                                 ·
                                             </td>
                                         @endif
@@ -369,14 +370,14 @@
                             <tr>
                                 <th></th>
                                 @for ($kans = 1; $kans <= Risicoverdeling::SCHAAL; $kans++)
-                                    <th class="font-mono text-[10px] font-normal text-zinc-600 dark:text-zinc-300">{{ $kans }}</th>
+                                    <th class="font-mono text-[10px] font-normal text-zinc-600">{{ $kans }}</th>
                                 @endfor
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div class="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-zinc-600 dark:text-zinc-300">
+                <div class="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-zinc-600">
                     <span class="inline-flex items-center gap-1.5">
                         <i class="inline-block size-2.5 rounded-sm" style="background: var(--sig-goed)"></i>
                         Aanvaardbaar &lt; {{ Risico::waarschuwingsdrempel() }}
@@ -392,7 +393,7 @@
                 </div>
             </div>
 
-            <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+            <div class="blueprint p-5">
                 <div class="mb-1 flex flex-wrap items-baseline justify-between gap-2">
                     <flux:heading size="lg">Maatregelen per thema</flux:heading>
                     <flux:button size="sm" variant="ghost" :href="route('soa.index')" wire:navigate>
@@ -432,7 +433,7 @@
                     </div>
                 @endforeach
 
-                <div class="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-zinc-600 dark:text-zinc-300">
+                <div class="mt-4 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-zinc-600">
                     @foreach (Maatregelverdeling::statussen() as $status)
                         <span class="inline-flex items-center gap-1.5">
                             <i class="inline-block size-2.5 rounded-sm" style="background: {{ $rampToken[$status] }}"></i>
@@ -445,18 +446,129 @@
         </div>
     @endif
 
-    {{-- 6. Aantallen (12c §3.5). Geen diagram: vier ongerelateerde getallen zijn
+    {{-- 6. Leesbevestiging (implementatie/12i). Alleen wat aandacht vraagt (12c
+         §4): een lijst met twintig groene vinkjes is een reclamefolder. Wat
+         volledig bevestigd is, staat als één regel onder de lijst. --}}
+    @if ($leesbevestiging !== null)
+        <div class="blueprint p-5">
+            <div class="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+                <flux:heading size="lg">Leesbevestiging</flux:heading>
+                <flux:text class="font-mono text-xs text-zinc-500">
+                    wat aandacht vraagt
+                </flux:text>
+            </div>
+            <flux:subheading class="mb-4">
+                Teller én noemer, geen kaal percentage: 100% zegt niets zolang de doelgroep
+                leeg kan zijn.
+            </flux:subheading>
+
+            @forelse ($leesbevestiging->aandacht as $regel)
+                @php
+                    $kapot = $regel['reden'] === Leesbevestigingsstand::REDEN_GEEN_DOELGROEP;
+                    $stijl = $vlagStijl[$kapot || $regel['verstreken'] ? 'kritiek' : 'let-op'];
+                @endphp
+                <div class="grid grid-cols-[18px_1fr_auto] items-start gap-3 border-t border-zinc-100 py-2.5 first:border-t-0"
+                    wire:key="lb-{{ $regel['document']->id }}">
+                    {{-- Zelfde vlagmarkering als het signalenpaneel: kleur draagt
+                         nooit alleen de betekenis, er staat een glyph in en de
+                         regel ernaast zegt het in woorden. --}}
+                    <span class="mt-1 grid size-[18px] place-items-center rounded-full text-[11px] font-bold"
+                        style="background: {{ $stijl['bg'] }}; color: {{ $stijl['ink'] }}"
+                        aria-hidden="true">{{ $stijl['glyph'] }}</span>
+
+                    <div>
+                        <flux:link :href="route('beleid.detail', $regel['document'])" wire:navigate
+                            class="font-medium">
+                            {{ $regel['document']->titel }}
+                        </flux:link>
+                        <flux:text class="ml-1.5 font-mono text-xs">v{{ $regel['versienummer'] }}</flux:text>
+
+                        @if ($kapot)
+                            {{-- De reden dat dit paneel bestaat: dit document ziet er
+                                 in het register net zo rustig uit als een document dat
+                                 iedereen gelezen heeft. --}}
+                            <flux:text class="mt-0.5 block text-xs">
+                                Geen afdeling gekoppeld: niemand krijgt de taak en niemand kan
+                                bevestigen. De plicht staat aan, maar raakt niemand.
+                            </flux:text>
+                        @elseif ($regel['verstreken'])
+                            <flux:text class="mt-0.5 block text-xs text-red-600">
+                                Leestermijn verstreken op {{ $regel['deadline']->format('d-m-Y') }}.
+                            </flux:text>
+                        @else
+                            <flux:text class="mt-0.5 block text-xs">
+                                Te bevestigen vóór {{ $regel['deadline']->format('d-m-Y') }}.
+                            </flux:text>
+                        @endif
+                    </div>
+
+                    <div class="text-right">
+                        {{-- Teller en noemer, nooit alleen het percentage: het getal dat
+                             hier misleidt is de noemer (blok 12 §2a). --}}
+                        <flux:text class="whitespace-nowrap font-mono text-xs">
+                            @if ($kapot)
+                                geen doelgroep
+                            @else
+                                {{ $regel['bevestigd'] }} van {{ $regel['doelgroep'] }}
+                            @endif
+                        </flux:text>
+                        <flux:text class="mt-0.5 block whitespace-nowrap font-mono text-[11px] text-zinc-500">
+                            @if ($kapot)
+                                n.v.t.
+                            @else
+                                {{ $regel['openstaand'] }} openstaand · {{ $regel['graad'] }}%
+                            @endif
+                        </flux:text>
+                    </div>
+                </div>
+            @empty
+                <flux:text>
+                    @if ($leesbevestiging->volledig === 0)
+                        Geen enkel document vraagt op dit moment een leesbevestiging.
+                    @else
+                        Elk document met bevestigingsplicht is volledig bevestigd.
+                    @endif
+                </flux:text>
+            @endforelse
+
+            @if ($leesbevestiging->volledig > 0 && count($leesbevestiging->aandacht) > 0)
+                <flux:text class="mt-3 block text-xs text-zinc-500">
+                    {{ $leesbevestiging->volledig === 1
+                        ? '1 document is volledig bevestigd en staat hier niet.'
+                        : $leesbevestiging->volledig.' documenten zijn volledig bevestigd en staan hier niet.' }}
+                </flux:text>
+            @endif
+
+            @if ($leesbevestiging->zonderAfdeling > 0)
+                {{-- Het voorbehoud bij élk percentage hierboven, en daarom een
+                     voetregel bij dit paneel en geen eigen paneel: wie geen
+                     afdeling heeft, valt buiten elke doelgroep en dus buiten elke
+                     noemer. Zie de kennisbank, "Een nieuwe medewerker komt er niet
+                     vanzelf in". --}}
+                <div class="mt-3 rounded-lg border border-amber-300 bg-amber-50 p-3">
+                    <flux:text class="text-xs">
+                        {{ $leesbevestiging->zonderAfdeling === 1
+                            ? '1 actieve gebruiker heeft geen afdeling en valt'
+                            : $leesbevestiging->zonderAfdeling.' actieve gebruikers hebben geen afdeling en vallen' }}
+                        daarmee buiten élke doelgroep — ook buiten de noemers hierboven.
+                    </flux:text>
+                </div>
+            @endif
+        </div>
+    @endif
+
+    {{-- 7. Aantallen (12c §3.5). Geen diagram: vier ongerelateerde getallen zijn
          geen verdeling en geen reeks. --}}
     @if ($aantallen !== null)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <flux:heading size="lg" class="mb-4">Documenten en bewijzen</flux:heading>
 
-            <div class="grid gap-px overflow-hidden rounded-lg bg-zinc-200 sm:grid-cols-2 lg:grid-cols-4 dark:bg-zinc-700">
+            <div class="grid gap-px overflow-hidden rounded-lg bg-zinc-200 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach ($aantallen as $sleutel => $tel)
-                    <div class="bg-white p-4 dark:bg-zinc-800" wire:key="tel-{{ $sleutel }}">
+                    <div class="bg-white p-4" wire:key="tel-{{ $sleutel }}">
                         <div class="text-2xl font-semibold leading-tight tracking-tight">{{ $tel['getal'] }}</div>
                         <flux:text class="text-sm">{{ $tel['label'] }}</flux:text>
-                        <flux:text class="mt-0.5 block font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
+                        <flux:text class="mt-0.5 block font-mono text-[11px] text-zinc-500">
                             {{ $tel['bij'] }}
                         </flux:text>
                     </div>

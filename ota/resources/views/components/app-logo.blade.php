@@ -13,13 +13,13 @@
     <span class="flex items-baseline gap-1.5 truncate leading-none">
         <span class="font-semibold">{{ config('app.name', 'EzISMS') }}</span>
         @if (config('app.versie'))
-            <span class="text-xs font-normal text-zinc-500 dark:text-zinc-400">{{ config('app.versie') }}</span>
+            <span class="text-xs font-normal text-zinc-500">{{ config('app.versie') }}</span>
         @endif
     </span>
     {{-- Alleen tonen als ORGANISATIE gevuld is; leeg laat de regel weg in
          plaats van lege ruimte achter te laten. --}}
     @if (config('app.organisatie'))
-        <span class="truncate text-xs leading-none text-zinc-500 dark:text-zinc-400">
+        <span class="truncate text-xs leading-none text-zinc-500">
             {{ config('app.organisatie') }}
         </span>
     @endif

@@ -17,14 +17,23 @@ iets anders zegt, een mislukte migratie — dan start de webserver niet. Zie §8
 
 ## 1. Installeren
 
+Er zijn twee varianten, en ze verschillen alleen in de database. Hieronder staat
+de eenvoudigste: één container, met het ISMS in één bestand. Wilt u MySQL, sla
+dan §1b erbij op.
+
 ```bash
 mkdir -p ~/ezisms/mijn-isms && cd ~/ezisms/mijn-isms
 tar xzf /pad/naar/ezisms-2026.08.09-abc123.tar.gz
 
-cp ezisms-2026.08.09-abc123/docker/compose.yml   .
-cp ezisms-2026.08.09-abc123/docker/env.voorbeeld .env
+cp ezisms-2026.08.09-abc123/docker/compose-sqlite.yml   compose.yml
+cp ezisms-2026.08.09-abc123/docker/env.voorbeeld-sqlite .env
 chmod 0600 .env
 ```
+
+> Het bronbestand heet `compose-sqlite.yml` en komt hier als `compose.yml` te
+> staan. Dat is met opzet: `compose.yml` in de boom is de MySQL-variant, en die
+> naam is nooit van betekenis veranderd — anders zou een bestaande installatie
+> bij een upgrade (§4) ongemerkt het verkeerde bestand overnemen.
 
 Vul `.env` in. Minimaal nodig:
 
@@ -33,7 +42,6 @@ Vul `.env` in. Minimaal nodig:
 | `ISMS_BOOM` | de mapnaam van de uitgepakte tarbal |
 | `ISMS_NORM` | `iso27001`, `nen7510` of `bio2` — **onomkeerbaar**, zie §5 |
 | `APP_URL` | de publieke URL, achter HAProxy dus `https://…` |
-| `MYSQL_ROOT_PASSWORD`, `MYSQL_WACHTWOORD` | twee sterke wachtwoorden |
 | `ISMS_CISO_EMAIL` | niet verplicht, maar dan staat het eerste account er meteen — zie §2 |
 
 Dan:
@@ -68,6 +76,43 @@ die de gebruiker in de browser heeft staan, niet op de poort erachter.
 
 Wilt u geen HAProxy en nginx zelf de TLS laten dragen, dan staat in `tls.md` in
 de wortel van de boom wat daarvoor moet veranderen.
+
+### 1b. Met een MySQL-database (twee containers)
+
+De variant hierboven draait op SQLite: het hele ISMS staat in één bestand op uw
+eigen schijf, er is geen databasecontainer, en er zijn geen databasewachtwoorden
+te verzinnen of te bewaren. Voor een organisatie van enkele tientallen mensen is
+dat genoeg, en het is de eenvoudigste opstelling om te beheren en te back-uppen.
+
+Kies MySQL als u daar een reden voor heeft: een bestaande back-up- of
+monitoringroutine die op MySQL leunt, een beheerder die er thuis in is, of een
+omvang waarbij u meerdere gelijktijdige schrijvers verwacht. Het kost een tweede
+container, twee wachtwoorden en meer geheugen.
+
+Het verschil zit in twee regels bij het installeren:
+
+```bash
+cp ezisms-2026.08.09-abc123/docker/compose.yml   .
+cp ezisms-2026.08.09-abc123/docker/env.voorbeeld .env
+chmod 0600 .env
+```
+
+Vul dan óók `MYSQL_ROOT_PASSWORD` en `MYSQL_WACHTWOORD` in: twee sterke
+wachtwoorden. Ze hoeven niet onthouden te worden — poort 3306 wordt niet op de
+host gepubliceerd — maar ze moeten wel sterk zijn en in `.env` blijven staan.
+
+De rest van deze handleiding geldt onverkort; alleen komt de database dan in
+`data/db/` te staan in plaats van in `data/app/database/` (zie §3).
+
+**Kies één keer, in beide richtingen.** Na de eerste geslaagde start legt de
+installatie de variant vast in `data/app/installatie/db-variant`. Richt u daarna
+per ongeluk het andere compose-bestand op dezelfde `data/`-map, dan **start de
+container niet** en zegt hij welke variant erbij hoort. Dat is met opzet: doorstarten zou naast uw ISMS
+een tweede, lege database opbouwen.
+
+Wisselen van variant is dan ook geen upgrade maar een verhuizing: er is geen
+commando dat een MySQL-database naar SQLite omzet. Wat er wél is, is
+`isms:exporteer` (§7) — en anders begint u opnieuw (§6).
 
 ## 2. Het eerste account
 
@@ -114,12 +159,14 @@ host, standaard `./data` naast `compose.yml`:
 
 ```
 data/
-├── db/                  de MySQL-datadirectory
 ├── isms_export/         wat `isms:exporteer` oplevert
-└── app/
-    ├── storage/         bewijsstukken, toetsbestanden, logs, audit trail
-    ├── seeddata/        eigen, gelicentieerde normtekst
-    └── installatie/     de APP_KEY, de normstempel, de dumps, de opstartlogs
+├── app/
+│   ├── storage/         bewijsstukken, toetsbestanden, logs, audit trail
+│   ├── database/        ezisms.sqlite — het ISMS zelf
+│   ├── seeddata/        eigen, gelicentieerde normtekst
+│   └── installatie/     de APP_KEY, de normstempel, de dumps, de opstartlogs
+└── db/                  alleen bij de MySQL-variant (§1b): de datadirectory
+                         van MySQL. Dan is app/database/ er niet.
 ```
 
 **`seeddata/` is van u.** Wat u daar neerzet wint bij elke start van wat het
@@ -142,8 +189,9 @@ niet aan — met opzet: de `APP_KEY` in `installatie/app_key` versleutelt de
 De keerzijde: er is geen commando dat schoon schip maakt. Zie §6.
 
 **Een back-up vraagt `sudo`.** De bestanden zijn eigendom van de gebruikers uit
-de container (`www-data`, `mysql`), niet van uw eigen account. Het meeste is voor
-u wel leesbaar, maar juist het onmisbare deel niet: de MySQL-datadirectory en
+de container (`www-data`, en bij de MySQL-variant ook `mysql`), niet van uw
+eigen account. Het meeste is voor
+u wel leesbaar, maar juist het onmisbare deel niet: de database en
 `installatie/app_key`. Zonder `sudo` krijgt u dus een archief dat er compleet
 uitziet en het niet is:
 
@@ -153,6 +201,13 @@ sudo tar czf isms-backup-$(date +%F).tar.gz data/
 docker compose up -d
 ```
 
+**En een back-up vraagt een stilstaande database.** Dat geldt in beide
+varianten, maar bij SQLite is de verleiding groter omdat het maar één bestand
+is: een `cp` van `data/app/database/ezisms.sqlite` terwijl er in geschreven
+wordt, levert een kopie op die er compleet uitziet en het niet is — precies
+zoals hierboven. Stop de container, of gebruik een dump die de container zelf
+maakte (§4): die wordt binnen één transactie geschreven en is wél consistent.
+
 ## 4. Bijwerken
 
 Pak de nieuwe tarbal **naast** de bestaande uit en zet één regel om:
@@ -160,10 +215,16 @@ Pak de nieuwe tarbal **naast** de bestaande uit en zet één regel om:
 ```bash
 cd ~/ezisms/mijn-isms
 tar xzf /pad/ezisms-2026.09.15-7d4e1a.tar.gz
-cp ezisms-2026.09.15-7d4e1a/docker/compose.yml .     # kan nieuwe sleutels bevatten
+cp ezisms-2026.09.15-7d4e1a/docker/compose-sqlite.yml compose.yml   # kan nieuwe sleutels bevatten
 sed -i 's/^ISMS_BOOM=.*/ISMS_BOOM=ezisms-2026.09.15-7d4e1a/' .env
 docker compose up -d --build
 ```
+
+**Neem het compose-bestand van uw eigen variant.** Draait u op MySQL (§1b), dan
+is die derde regel `cp …/docker/compose.yml .` — zonder `-sqlite`. Pakt u het
+verkeerde, dan start de container niet en zegt hij welke variant bij deze
+gegevens hoort; er gaat niets verloren, maar u staat wel stil. Weet u het niet
+meer: `sudo cat data/app/installatie/db-variant`.
 
 Die tweede regel niet overslaan: een nieuwe versie kan instellingen toevoegen
 die de container uit `compose.yml` verwacht. Vergeet u hem, dan komen die niet
@@ -181,6 +242,12 @@ niet en wordt er geen dump gemaakt; ook dat zegt het log.
 > Terugrollen draait een **migratie niet terug**. Is de nieuwe versie
 > gemigreerd, dan is die dump de weg terug: `docker compose down`, database
 > terugzetten, `ISMS_BOOM` terug, `up -d --build`.
+>
+> Terugzetten verschilt per variant. Bij SQLite is het een bestand:
+> `sudo gunzip -c data/app/installatie/dump-….sqlite.gz > data/app/database/ezisms.sqlite`
+> met de container gestopt, en daarna het eigendom herstellen (`sudo chown 33:33`
+> — de container zet het bij de volgende start zelf goed). Bij MySQL gaat de
+> `.sql.gz` via `mysql` de draaiende db-container in.
 
 Oude mappen en oude dumps opruimen doet u zelf; het systeem gooit uw weg terug
 niet weg. Vanaf tien dumps zegt het opstartlog hoeveel er staan en hoeveel ruimte
@@ -212,7 +279,8 @@ docker compose up -d --build
 **Dit wist alles**: bewijsstukken, audit trail, gebruikers, en de `APP_KEY`
 waarmee de 2FA-geheimen zijn versleuteld. Verwijder de twee nooit los van
 elkaar — dan start de container op een lege database met een bestaande sleutel,
-of andersom.
+of andersom. In de standaardvariant staan ze allebei onder `data/app/`; draait u
+op MySQL (§1b), dan hoort `data/db/` er ook bij.
 
 ## 7. Beheer
 
@@ -292,9 +360,12 @@ De container start de webserver pas als de uitrol geslaagd is. Er zijn twee
 manieren waarop hij blijft staan, en beide zijn te zien aan `docker compose ps`:
 de container draait, maar is `unhealthy`. Het log zegt waarom.
 
-**Een instelling die niet kan.** Een `APP_KEY` die afwijkt van de bewaarde,
-`ISMS_DEMO=ja` op een `nen7510`-installatie: de container meldt het en blijft
-wachten in plaats van eindeloos te herstarten. Herstel `.env` en doe
+**Een instelling die niet kan.** Een `APP_KEY` die afwijkt van de bewaarde, een
+`ISMS_NORM` die de normstempel tegenspreekt, `ISMS_DEMO=ja` op een
+`nen7510`-installatie, of een compose-bestand van de andere databasevariant
+(§1): de container meldt het en blijft wachten in plaats van eindeloos te
+herstarten. Bij deze fouten wordt niet drie keer opnieuw geprobeerd — opnieuw
+proberen kan er niets aan veranderen. Herstel `.env` en doe
 `docker compose up -d` — géén `restart`, zie §7.
 
 **Een mislukte uitrol.** Na drie mislukte pogingen (`ISMS_MIGRATIE_POGINGEN`)
@@ -313,10 +384,17 @@ Opheffen na herstel:
 
 ```bash
 sudo rm data/app/installatie/BLOKKADE
-docker compose restart app
+docker compose up -d --force-recreate
 ```
 
 Slaagt de uitrol, dan gaat de teller vanzelf op nul.
+
+**Waarom `--force-recreate` en niet gewoon `restart` of `up -d`.** Lag de oorzaak
+in `.env`, dan helpt `restart` niet: die start hetzelfde containerproces opnieuw
+met de omgeving van toen (zie §7). Lag de oorzaak *binnen* de installatie, dan
+helpt `up -d` niet: er is aan `.env` en `compose.yml` niets veranderd, dus laat
+Compose de container met rust en gebeurt er niets — zonder foutmelding.
+`--force-recreate` vervangt hem altijd en pakt de actuele instellingen mee.
 
 Die `sudo`'s zijn geen slordigheid: alles onder `data/` is eigendom van de
 gebruikers uit de container, en op de host valt hun uid bijna altijd op een

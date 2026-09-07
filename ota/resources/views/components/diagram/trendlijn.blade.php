@@ -65,7 +65,7 @@
 
         <text x="{{ $breedte - $marge['rechts'] + 5 }}" y="{{ round($y($bovengrens) + 3.5, 2) }}"
             fill="currentColor" font-size="8.5"
-            class="fill-zinc-500 font-mono dark:fill-zinc-400">{{ $schrijf($bovengrens) }}</text>
+            class="fill-zinc-500 font-mono">{{ $schrijf($bovengrens) }}</text>
 
         <path d="{{ $vlak }}" fill="var(--dia-lijn)" fill-opacity="0.10" stroke="none" />
         <path d="{{ $lijn }}" fill="none" stroke="var(--dia-lijn)" stroke-width="2"
@@ -85,7 +85,7 @@
             @if (abs($y($streefwaarde) - $y($bovengrens)) >= 9)
                 <text x="{{ $breedte - $marge['rechts'] + 5 }}" y="{{ round($y($streefwaarde) + 3.5, 2) }}"
                     font-size="8.5"
-                    class="fill-zinc-500 font-mono dark:fill-zinc-400">{{ $schrijf($streefwaarde) }}</text>
+                    class="fill-zinc-500 font-mono">{{ $schrijf($streefwaarde) }}</text>
             @endif
         @endif
 
@@ -98,17 +98,17 @@
              chaos en wordt niet gelezen; de tabelweergave heeft de rest. --}}
         <text x="{{ round($x($laatste) + 8, 2) }}" y="{{ round($y($punten[$laatste]) + 3.5, 2) }}"
             font-size="9.5" font-weight="600"
-            class="fill-zinc-900 dark:fill-white">{{ $eindwaarde }}</text>
+            class="fill-zinc-900">{{ $eindwaarde }}</text>
 
         @if (count($labels) === count($punten))
             <text x="{{ $marge['links'] }}" y="{{ $hoogte - 4 }}" font-size="8.5" text-anchor="start"
-                class="fill-zinc-500 font-mono dark:fill-zinc-400">{{ $labels[0] }}</text>
+                class="fill-zinc-500 font-mono">{{ $labels[0] }}</text>
             <text x="{{ round($x($laatste), 2) }}" y="{{ $hoogte - 4 }}" font-size="8.5" text-anchor="end"
-                class="fill-zinc-500 font-mono dark:fill-zinc-400">{{ $labels[$laatste] }}</text>
+                class="fill-zinc-500 font-mono">{{ $labels[$laatste] }}</text>
         @endif
     </svg>
 @else
-    <div class="py-6 text-center text-xs text-zinc-500 dark:text-zinc-400">
+    <div class="py-6 text-center text-xs text-zinc-500">
         {{ count($punten) === 1 ? 'Eén meetpunt — een trend ontstaat vanaf het tweede.' : 'Nog niet gemeten.' }}
     </div>
 @endif

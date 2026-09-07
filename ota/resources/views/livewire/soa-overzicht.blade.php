@@ -43,15 +43,15 @@
         </flux:heading>
 
         <div class="mt-2 grid gap-4 sm:grid-cols-3">
-            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+            <div class="blueprint p-4">
                 <flux:text>Beoordeeld</flux:text>
                 <flux:heading size="lg">{{ $totaal - $onbeslist }} / {{ $totaal }}</flux:heading>
             </div>
-            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+            <div class="blueprint p-4">
                 <flux:text>Van toepassing</flux:text>
                 <flux:heading size="lg">{{ $vanToepassingJa }}</flux:heading>
             </div>
-            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+            <div class="blueprint p-4">
                 <flux:text>Geïmplementeerd</flux:text>
                 <flux:heading size="lg">{{ $geimplementeerd }} / {{ $vanToepassingJa }}</flux:heading>
             </div>
@@ -83,7 +83,7 @@
             </flux:text>
 
             <div class="mt-2 grid gap-4 sm:grid-cols-4">
-                <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                <div class="blueprint p-4">
                     {{-- De noemer is het aantal dat van toepassing is, niet het
                          totaal. Daarom staat "Uitzonderingen" ernaast: samen tellen
                          ze op tot het aantal in de kop, en pas dan is dit cijfer te
@@ -96,15 +96,15 @@
                         @endif
                     </flux:heading>
                 </div>
-                <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                <div class="blueprint p-4">
                     <flux:text class="text-xs">Nog niet beoordeeld</flux:text>
                     <flux:heading size="lg">{{ $biodekking->onbeoordeeld }}</flux:heading>
                 </div>
-                <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                <div class="blueprint p-4">
                     <flux:text class="text-xs">Uitzonderingen</flux:text>
                     <flux:heading size="lg">{{ $biodekking->nietVanToepassing }}</flux:heading>
                 </div>
-                <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                <div class="blueprint p-4">
                     {{-- Verplichtende zelfregulering in plaats van de wet; zie de
                          kennisbank. Apart getoond omdat het bepaalt wát de RDI kan
                          handhaven. --}}
@@ -126,7 +126,7 @@
              enige plek waar de BIO iets vraagt wat ISO niet noemt en waar dit ISMS
              de gegevens al had. --}}
         @if ($balans && $balans->verdeling !== [])
-            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+            <div class="blueprint p-4">
                 <flux:heading size="sm">Balans in de maatregelenset</flux:heading>
                 <flux:text class="mt-1 text-xs">
                     Over de {{ $balans->totaal }} maatregelen die van toepassing zijn of nog onbeslist.
@@ -143,7 +143,7 @@
                                 @foreach ($waarden as $waarde => $aantal)
                                     <div class="flex items-center gap-2">
                                         <span class="w-32 shrink-0 truncate text-xs" title="{{ $waarde }}">{{ $waarde }}</span>
-                                        <span class="h-2 rounded bg-zinc-300 dark:bg-zinc-600"
+                                        <span class="h-2 rounded bg-zinc-300"
                                             style="width: {{ max(2, (int) round($aantal / $piek * 100)) }}%"></span>
                                         <span class="text-xs tabular-nums">{{ $aantal }}</span>
                                     </div>
@@ -306,7 +306,7 @@
                              in de modal. --}}
                         @if ($toontVerplichtingen && $regel && $this->isUitgeklapt($regel->id))
                             <flux:table.row wire:key="verplichtingen-{{ $regel->id }}">
-                                <flux:table.cell colspan="9" class="bg-zinc-50 dark:bg-zinc-900">
+                                <flux:table.cell colspan="9" class="bg-zinc-50">
                                     @include('partials.overheidsmaatregelen-regellaag', ['regel' => $regel])
                                 </flux:table.cell>
                             </flux:table.row>
@@ -353,7 +353,7 @@
                          en niet bij maatregelen waarvan is ingelezen dát ze geen
                          aanvulling hebben. --}}
                     @if ($this->bewerkteRegel->maatregel->toontZorgaanvulling())
-                        <div class="mt-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                        <div class="mt-3 rounded-lg border border-zinc-200 p-3">
                             <flux:heading size="sm">Zorgspecifieke aanvulling ({{ $norm->naam_kort }})</flux:heading>
                             <flux:text class="mt-1 text-sm">
                                 {{ $this->bewerkteRegel->maatregel->zorgaanvullingTekst() }}
@@ -389,7 +389,7 @@
                          nummer per verplichting — daar verwijst een auditrapport
                          naar — en de Cbw-reikwijdte. --}}
                     @if ($this->bewerkteRegel->overheidsmaatregelBeoordelingen->isNotEmpty())
-                        <div class="mt-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                        <div class="mt-3 rounded-lg border border-zinc-200 p-3">
                             <flux:heading size="sm">Overheidsmaatregelen ({{ $norm->naam_kort }})</flux:heading>
                             <flux:text class="mt-1 text-xs">
                                 De verplichte minimale invulling van deze beheersmaatregel. Deze
@@ -401,7 +401,7 @@
                             <div class="mt-3 space-y-4">
                                 @foreach ($this->bewerkteRegel->overheidsmaatregelBeoordelingen as $beoordeling)
                                     @php $om = $beoordeling->overheidsmaatregel; @endphp
-                                    <div class="border-t border-zinc-100 pt-3 first:border-0 first:pt-0 dark:border-zinc-800">
+                                    <div class="border-t border-zinc-100 pt-3 first:border-0 first:pt-0">
                                         <div class="flex flex-wrap items-center gap-1.5">
                                             <flux:badge size="sm" color="zinc">{{ $om->nummer }}</flux:badge>
                                             @unless ($om->cbw_reikwijdte)
@@ -596,7 +596,7 @@
                      dat het meegeleverde uitgangspunt. Voorvullen is geen
                      vaststellen — pas na opslaan staat hier iets van deze
                      organisatie. --}}
-                <details class="group border-t border-zinc-200 pt-4 dark:border-zinc-700"
+                <details class="group border-t border-zinc-200 pt-4"
                     wire:ignore.self
                     @if ($errors->has('kenmerken') || $errors->has('kenmerken.*')) open @endif>
                     {{-- Eigen pijl in plaats van de standaardmarkering van
@@ -604,7 +604,7 @@
                          flexbox is, en ziet er per browser anders uit. --}}
                     <summary class="flex cursor-pointer list-none items-center gap-2 [&::-webkit-details-marker]:hidden">
                         <flux:icon.chevron-right
-                            class="size-4 shrink-0 text-zinc-500 transition-transform group-open:rotate-90 dark:text-zinc-400" />
+                            class="size-4 shrink-0 text-zinc-500 transition-transform group-open:rotate-90" />
                         <flux:heading size="sm">Classificatie</flux:heading>
                         @if ($this->bewerkteRegel->heeftEigenClassificatie())
                             <flux:badge size="sm" color="zinc">vastgesteld</flux:badge>
@@ -629,13 +629,13 @@
                                 </flux:checkbox.group>
 
                                 @error('kenmerken.'.$sleutel)
-                                    <flux:text class="mt-1 text-sm text-red-600 dark:text-red-500">{{ $message }}</flux:text>
+                                    <flux:text class="mt-1 text-sm text-red-600">{{ $message }}</flux:text>
                                 @enderror
                             </div>
                         @endforeach
 
                         @error('kenmerken')
-                            <flux:text class="text-sm text-red-600 dark:text-red-500">{{ $message }}</flux:text>
+                            <flux:text class="text-sm text-red-600">{{ $message }}</flux:text>
                         @enderror
                     </div>
                 </details>

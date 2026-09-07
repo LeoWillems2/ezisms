@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Console\Commands\SchoonRaadplegingen;
 use App\Livewire\BeleidsdocumentDetail;
 use App\Livewire\BeleidsdocumentenOverzicht;
+use App\Livewire\TakenOverzicht;
 use App\Models\AuditLogregel;
 use App\Models\Beleidsdocument;
 use App\Models\Beleidsversie;
@@ -529,6 +530,231 @@ class BeleidTest extends TestCase
         // Vervangen versie: de openstaande herzieningstaak verdwijnt.
         $versie->update(['status' => 'vervangen']);
         $this->assertSame(0, Taak::where('soort', 'beleid-herziening')->count());
+    }
+
+    // --- Goedkeuringstaak (05b) --------------------------------------------
+
+    public function test_aanbieden_levert_de_goedkeurders_meteen_een_taak_op(): void
+    {
+        // De kern van 05b: tot dan was dit het enige moment in blok 5 zonder
+        // signaal. Meteen bij het aanbieden, niet pas na de nachtelijke run —
+        // wachten tot morgen is precies de vertraging die dit weg moet nemen.
+        $directeur = Gebruiker::factory()->metRol('Management')->create();
+        Gebruiker::factory()->metRol('Medewerker')->create();
+
+        $document = Beleidsdocument::factory()->create(['titel' => 'Toegangsbeleid']);
+        $versie = Beleidsversie::factory()->for($document, 'document')->metBestand()->create([
+            'status' => 'concept',
+        ]);
+
+        Livewire::actingAs($this->ciso)
+            ->test(BeleidsdocumentDetail::class, ['beleidsdocument' => $document])
+            ->call('terGoedkeuring', $versie->id)
+            ->assertHasNoErrors();
+
+        $taken = Taak::where('soort', 'beleid-goedkeuring')->get();
+
+        // Eén taak, en wel bij de enige gebruiker met `goedkeuren`: niet bij de
+        // opsteller en niet bij de medewerker.
+        $this->assertCount(1, $taken);
+        $this->assertSame($directeur->id, $taken->first()->eigenaar_id);
+        $this->assertSame('Beleid vaststellen: Toegangsbeleid v1', $taken->first()->titel);
+        $this->assertSame('beleid-maatregelbeheer', $taken->first()->gekoppeld_blok_naam);
+
+        // De deadline hangt aan het moment van aanbieden, niet aan vandaag.
+        $versie->refresh();
+        $this->assertNotNull($versie->aangeboden_op);
+        $this->assertTrue(
+            $versie->aangeboden_op->copy()->addDays(Beleidsversie::GOEDKEURTERMIJN_DAGEN)
+                ->isSameDay($taken->first()->deadline),
+        );
+    }
+
+    public function test_publiceren_sluit_de_goedkeuringstaken_van_iedereen(): void
+    {
+        // Eén goedkeurder klikt; de taak van de ander gaat óók dicht. Voltooid
+        // en niet verwijderd: dat het gebeurd is, is historie.
+        $eerste = Gebruiker::factory()->metRol('Management')->create();
+        $tweede = Gebruiker::factory()->metRol('Management')->create();
+
+        $document = Beleidsdocument::factory()->create();
+        $versie = Beleidsversie::factory()->terGoedkeuring()->for($document, 'document')->create();
+
+        $this->assertSame(2, Taak::where('soort', 'beleid-goedkeuring')->whereIn('status', Taak::OPENSTAAND)->count());
+
+        Livewire::actingAs($eerste)
+            ->test(BeleidsdocumentDetail::class, ['beleidsdocument' => $document->fresh()])
+            ->call('publiceren', $versie->id)
+            ->assertHasNoErrors();
+
+        $this->assertSame(0, Taak::where('soort', 'beleid-goedkeuring')->whereIn('status', Taak::OPENSTAAND)->count());
+
+        $vanTweede = Taak::where('soort', 'beleid-goedkeuring')->where('eigenaar_id', $tweede->id)->firstOrFail();
+        $this->assertSame('voltooid', $vanTweede->status);
+    }
+
+    public function test_zonder_goedkeurder_komt_de_taak_zonder_eigenaar_op_de_lijst(): void
+    {
+        // Een verse installatie zonder Management-account. De versie zou anders
+        // stilstaan zonder dat iemand het ziet; de eigenaarloze taak krijgt de
+        // amber badge uit blok 7 en is voor de CISO zichtbaar.
+        $document = Beleidsdocument::factory()->create();
+        $versie = Beleidsversie::factory()->terGoedkeuring()->for($document, 'document')->create();
+
+        $taak = Taak::where('soort', 'beleid-goedkeuring')->firstOrFail();
+        $this->assertNull($taak->eigenaar_id);
+
+        // Komt er alsnog een goedkeurder, dan neemt die de taak over en
+        // verdwijnt de noodtaak — anders staat er straks één te veel.
+        $directeur = Gebruiker::factory()->metRol('Management')->create();
+        $this->artisan('isms:genereer-taken')->assertSuccessful();
+
+        $taken = Taak::where('soort', 'beleid-goedkeuring')->whereIn('status', Taak::OPENSTAAND)->get();
+        $this->assertCount(1, $taken);
+        $this->assertSame($directeur->id, $taken->first()->eigenaar_id);
+        $this->assertSame($versie->id, $taken->first()->gekoppeld_entiteit_id);
+    }
+
+    public function test_nachtelijke_ronde_volgt_de_rollenmatrix_en_is_idempotent(): void
+    {
+        // Wie goedkeurder is, staat niet op de versie: een ingetrokken rol komt
+        // hier nooit als save langs. Daarom herstelt de sweep het.
+        $directeur = Gebruiker::factory()->metRol('Management')->create();
+        $document = Beleidsdocument::factory()->create();
+        Beleidsversie::factory()->terGoedkeuring()->for($document, 'document')->create();
+
+        $this->artisan('isms:genereer-taken')->assertSuccessful();
+        $this->assertSame(1, Taak::where('soort', 'beleid-goedkeuring')->whereIn('status', Taak::OPENSTAAND)->count());
+
+        $directeur->update(['status' => 'gedeactiveerd']);
+        $this->artisan('isms:genereer-taken')->assertSuccessful();
+
+        $taken = Taak::where('soort', 'beleid-goedkeuring')->whereIn('status', Taak::OPENSTAAND)->get();
+        $this->assertCount(1, $taken);
+        $this->assertNull($taken->first()->eigenaar_id, 'de taak van de gedeactiveerde directeur hoort opgeruimd');
+    }
+
+    public function test_intrekken_haalt_de_goedkeuringstaak_weg(): void
+    {
+        // `intrekken()` trekt alleen de actieve versie mee; de aangeboden versie
+        // blijft staan. De taak eromheen vraagt dan iets wat niemand meer moet
+        // doen.
+        Gebruiker::factory()->metRol('Management')->create();
+        $document = Beleidsdocument::factory()->create();
+        Beleidsversie::factory()->terGoedkeuring()->for($document, 'document')->create();
+
+        $this->assertSame(1, Taak::where('soort', 'beleid-goedkeuring')->whereIn('status', Taak::OPENSTAAND)->count());
+
+        Livewire::actingAs($this->ciso)
+            ->test(BeleidsdocumentDetail::class, ['beleidsdocument' => $document])
+            ->call('intrekken');
+
+        $this->assertSame(0, Taak::where('soort', 'beleid-goedkeuring')->whereIn('status', Taak::OPENSTAAND)->count());
+
+        // En een nachtelijke ronde zet hem niet terug.
+        $this->artisan('isms:genereer-taken')->assertSuccessful();
+        $this->assertSame(0, Taak::where('soort', 'beleid-goedkeuring')->whereIn('status', Taak::OPENSTAAND)->count());
+    }
+
+    public function test_wachtende_versie_is_zichtbaar_naast_een_actief_document(): void
+    {
+        // Het tweede gat uit 05b §1: de documentstatus blijft 'actief' (die wint
+        // in de afleiding), dus zonder badge en zonder verbreed filter is aan
+        // /beleid niets te zien.
+        $directeur = Gebruiker::factory()->metRol('Management')->create();
+        $document = Beleidsdocument::factory()->create(['titel' => 'Clean desk']);
+        Beleidsversie::factory()->actief()->for($document, 'document')->create(['versienummer' => 1]);
+        Beleidsversie::factory()->terGoedkeuring()->for($document, 'document')->create(['versienummer' => 2]);
+
+        $this->assertSame('actief', $document->fresh()->status);
+
+        Livewire::actingAs($directeur)
+            ->test(BeleidsdocumentenOverzicht::class)
+            ->assertSee('v2 wacht op goedkeuring')
+            ->set('filterStatus', 'ter_goedkeuring')
+            ->assertSee('Clean desk');
+    }
+
+    public function test_medewerker_ziet_de_wachtende_versie_niet(): void
+    {
+        // Een aangeboden versie is nog geen beleid (05 §9). Noch de badge, noch
+        // het verbrede filter mag dat verklappen.
+        $medewerker = Gebruiker::factory()->metRol('Medewerker')->create();
+        $document = Beleidsdocument::factory()->create(['titel' => 'Clean desk']);
+        $this->richtOpDoelgroep($document, $medewerker);
+        Beleidsversie::factory()->actief()->for($document, 'document')->create(['versienummer' => 1]);
+        Beleidsversie::factory()->terGoedkeuring()->for($document, 'document')->create(['versienummer' => 2]);
+
+        Livewire::actingAs($medewerker)
+            ->test(BeleidsdocumentenOverzicht::class)
+            ->assertSee('Clean desk')
+            ->assertDontSee('wacht op goedkeuring')
+            ->set('filterStatus', 'ter_goedkeuring')
+            ->assertDontSee('Clean desk');
+    }
+
+    public function test_goedkeuringstaak_is_niet_met_de_hand_af_te_vinken(): void
+    {
+        // De knop deed niets: de versie bleef liggen en de nachtelijke ronde
+        // zette de taak terug. Nu zegt hij waar de handeling wél zit.
+        $directeur = Gebruiker::factory()->metRol('Management')->create();
+        $document = Beleidsdocument::factory()->create();
+        $versie = Beleidsversie::factory()->terGoedkeuring()->for($document, 'document')->create();
+
+        $taak = Taak::where('soort', 'beleid-goedkeuring')->firstOrFail();
+
+        // De melding hoort op het scherm te komen en niet alleen in de sessie:
+        // `TakenOverzicht` ving de uitzondering al af, maar de blade toonde hem
+        // nergens — en dan lijkt de knop stuk (05b §8).
+        Livewire::actingAs($directeur)
+            ->test(TakenOverzicht::class)
+            ->call('voltooien', $taak->id)
+            ->assertHasNoErrors()
+            ->assertSee('Publiceren');
+
+        $this->assertSame('open', $taak->fresh()->status);
+
+        // Ook niet langs de CISO, die op de takenengine `muteren` heeft en dus
+        // andermans taken mag afronden.
+        Livewire::actingAs($this->ciso)
+            ->test(TakenOverzicht::class)
+            ->call('voltooien', $taak->id);
+
+        $this->assertSame('open', $taak->fresh()->status);
+
+        // En na het publiceren sluit hij wél — via de bron, niet via de knop.
+        Beleidspublicatie::publiceer($versie, $directeur);
+        $this->assertSame('voltooid', $taak->fresh()->status);
+    }
+
+    public function test_leesbevestigingstaak_is_niet_met_de_hand_af_te_vinken(): void
+    {
+        // Dezelfde rem, dezelfde reden: afvinken zonder te bevestigen laat de
+        // bevestigingsgraad op zijn plaats en de taak komt vannacht terug.
+        $medewerker = Gebruiker::factory()->metRol('Medewerker')->create();
+        $document = Beleidsdocument::factory()->create();
+        $this->richtOpDoelgroep($document, $medewerker);
+        $versie = Beleidsversie::factory()->actief()->for($document, 'document')->create();
+
+        $this->artisan('isms:genereer-taken')->assertSuccessful();
+        $taak = Taak::where('soort', 'beleid-leesbevestiging')->firstOrFail();
+
+        Livewire::actingAs($medewerker)
+            ->test(TakenOverzicht::class)
+            ->call('voltooien', $taak->id)
+            ->assertHasNoErrors()
+            ->assertSee('leesbevestiging geeft');
+
+        $this->assertSame('open', $taak->fresh()->status);
+
+        // De echte handeling sluit hem wel.
+        Leesbevestiging::create([
+            'beleidsversie_id' => $versie->id,
+            'gebruiker_id' => $medewerker->id,
+            'bevestigd_op' => now(),
+        ]);
+
+        $this->assertSame('voltooid', $taak->fresh()->status);
     }
 
     // --- SoA-koppeling (§7) ------------------------------------------------

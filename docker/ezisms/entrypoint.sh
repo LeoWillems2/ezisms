@@ -26,6 +26,12 @@ STATE=/var/lib/ezisms
 EXPORT=/var/tmp/isms_export
 PHP=/usr/bin/php
 
+# De databasevariant (implementatie/00s). `mysql` blijft de standaard: een
+# compose.yml van vóór 00s geeft DB_CONNECTION niet door, en die installatie
+# draait op MySQL.
+VARIANT=${DB_CONNECTION:-mysql}
+SQLITE_PAD=${DB_DATABASE:-$STATE/database/ezisms.sqlite}
+
 meld()      { printf '\033[1m[entrypoint]\033[0m %s\n' "$*"; }
 goed()      { printf '\033[32m[entrypoint]\033[0m %s\n' "$*"; }
 waarschuw() { printf '\033[33m[entrypoint] let op:\033[0m %s\n' "$*" >&2; }
@@ -99,7 +105,10 @@ POGINGEN="$STATE/installatie/init-pogingen"
 # alleen met de hand weer af (00n §9.7).
 
 if [[ -f $BLOKKADE ]]; then
-    printf '\n\033[31m[entrypoint] GEBLOKKEERD\033[0m — de vorige uitrol is herhaald mislukt.\n' >&2
+    # Niet meer "herhaald mislukt": sinds de fatale klasse (00s §16.3) kan een
+    # blokkade ook na één poging vallen. Welk van de twee het was, zegt de
+    # eerste regel van het bestand hieronder.
+    printf '\n\033[31m[entrypoint] GEBLOKKEERD\033[0m — de vorige uitrol is geblokkeerd.\n' >&2
     sed 's/^/             /' "$BLOKKADE" >&2
     cat >&2 <<EOF
 
@@ -109,7 +118,7 @@ if [[ -f $BLOKKADE ]]; then
              Opheffen na herstel — met sudo, want het bestand is van de
              gebruiker uit de container en niet van uw eigen account:
                  sudo rm ./data/app/installatie/BLOKKADE
-                 docker compose up -d
+                 docker compose up -d --force-recreate
 
 EOF
     exec sleep infinity
@@ -154,6 +163,19 @@ fi
 # GEDEELD MET deploy.sh :: maak_shared (:763).
 
 mkdir -p "$STATE/seeddata" "$STATE/installatie"
+
+# Alleen op de sqlite-tak: een lege database/-map bij een MySQL-installatie zou
+# onverklaard in LEESMIJ.md §3 staan (00s §6.1).
+#
+# Een `if` en geen `[[ … ]] && mkdir`. Die tweede vorm is hier op zichzelf veilig:
+# onder `set -e` telt een falende test vóór een `&&` niet als fout. Maar dát geldt
+# alleen zolang de regel niet de laatste van een functie of van het script is —
+# dan wordt de exitcode van de regel die van de functie, en breekt de aanroeper
+# er wél op af. Een `if` is dat onderscheid niet waard om te onthouden.
+if [[ $VARIANT == sqlite ]]; then
+    mkdir -p "$(dirname "$SQLITE_PAD")"
+fi
+
 while read -r map; do
     [[ -z $map ]] && continue
     mkdir -p "$STATE/$map"
@@ -189,6 +211,16 @@ chown -R www-data:www-data "$STATE/storage"
 chown -R ezisms:ezisms     "$STATE/seeddata" "$STATE/installatie"
 chmod 0755 "$STATE/storage" "$STATE/seeddata" "$STATE/installatie"
 
+# De databasemap is van www-data, want daar schrijft de applicatie in. Het gaat
+# nadrukkelijk om de MAP en niet alleen om het bestand: SQLite legt er
+# `-wal` en `-shm` naast en moet die kunnen aanmaken. Een schrijfbaar bestand in
+# een niet-schrijfbare map levert `database is locked` op een plek waar niemand
+# hem zoekt (00s §1). 0750: hier staat het volledige ISMS in.
+if [[ $VARIANT == sqlite ]]; then
+    chown -R www-data:www-data "$(dirname "$SQLITE_PAD")"
+    chmod 0750 "$(dirname "$SQLITE_PAD")"
+fi
+
 # De exportmap: wél chown, géén -R. Docker maakt een ontbrekend aanhechtpunt aan
 # als root, en dan faalt de eerste export op ensureDirectoryExists() — alleen dit
 # aanhechtpunt telt voor het schrijven. De boom eronder blijft met rust: een
@@ -222,7 +254,30 @@ wacht_op_db() {
     done
     goed "database bereikbaar: ${DB_DATABASE:-ezisms} op ${DB_HOST:-db}"
 }
-wacht_op_db
+
+# Op de sqlite-tak valt er niets te wachten — dat is de winst van die variant.
+# Wat er wél moet gebeuren is controleren of de applicatie er straks in kán
+# schrijven, want dat is hier de enige manier waarop het misgaat. `runuser` en
+# niet `test -w` als root: root kan overal schrijven en zou dus altijd "ja"
+# zeggen (00s §6.3).
+controleer_databasemap() {
+    local map; map=$(dirname "$SQLITE_PAD")
+
+    runuser -u www-data -- test -w "$map" \
+        || fout "www-data kan niet schrijven in $map — controleer de rechten op de hostmap achter data/app/database"
+
+    if [[ -e $SQLITE_PAD ]]; then
+        goed "database: $SQLITE_PAD ($(du -h "$SQLITE_PAD" | cut -f1))"
+    else
+        meld "database: $SQLITE_PAD (bestaat nog niet; dit wordt een verse installatie)"
+    fi
+}
+
+if [[ $VARIANT == sqlite ]]; then
+    controleer_databasemap
+else
+    wacht_op_db
+fi
 
 # ═════════════════════════════════════════════════════════════════════════════
 #  4. APP_KEY
@@ -271,6 +326,42 @@ else
     fi
     chown ezisms:ezisms "$SLEUTELPAD"
     chmod 0600 "$SLEUTELPAD"
+fi
+
+# ── De databasevariant (implementatie/00s §6.4) ──────────────────────────────
+# Geschreven door deploy-docker.sh na de eerste geslaagde uitrol; hier alleen
+# gelezen. Wijkt hij af, dan is er de verkeerde compose op deze ISMS_DATA
+# gericht en staan de gegevens in de ándere variant. Doorstarten neemt ze niet
+# mee: de installatie zou zichzelf als vers beschouwen en naast de bestaande
+# gegevens een lege database opbouwen.
+#
+# Dezelfde vorm als de APP_KEY-controle hierboven, en om dezelfde reden: opnieuw
+# proberen kan dit niet oplossen, en er valt niets met de hand op te ruimen.
+#
+# Bewust een markerbestand, terwijl 00n §0.1 vers-of-bestaand juist NIET uit een
+# marker afleidt. Dat is een andere vraag: die gaat over de inhoud van een
+# database die je al kent, deze over wélke database erbij hoort — en dat kan per
+# definitie niet in die database staan.
+
+VARIANTBESTAND="$STATE/installatie/db-variant"
+
+if [[ -s $VARIANTBESTAND ]]; then
+    BEWAARDE_VARIANT=$(<"$VARIANTBESTAND")
+    if [[ $BEWAARDE_VARIANT != "$VARIANT" ]]; then
+        blokkeer_en_wacht "             Deze installatie draait op $BEWAARDE_VARIANT, maar deze stack start met
+             DB_CONNECTION=$VARIANT.
+
+             De gegevens in data/app staan in de $BEWAARDE_VARIANT-variant. Doorstarten
+             neemt ze niet mee: er zou naast uw ISMS een tweede, lege database
+             worden opgebouwd.
+
+             U heeft waarschijnlijk het verkeerde compose-bestand gekopieerd.
+             Voor $BEWAARDE_VARIANT is dat:
+                 $( [[ $BEWAARDE_VARIANT == sqlite ]] && printf 'compose-sqlite.yml' || printf 'compose.yml' )
+
+             Zet dat terug en daarna:  docker compose up -d"
+    fi
+    meld "databasevariant: $VARIANT (bevestigd door installatie/db-variant)"
 fi
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -419,14 +510,29 @@ if "$APP/scripts/deploy-docker.sh"; then
     rm -f "$POGINGEN"
 else
     UITROLCODE=$?
-    POGING=$(( $(cat "$POGINGEN" 2>/dev/null || echo 0) + 1 ))
-    printf '%s' "$POGING" >"$POGINGEN"
-    chown ezisms:ezisms "$POGINGEN"; chmod 0640 "$POGINGEN"
+
+    # 78 (EX_CONFIG) betekent: een instelling of een pakket dat niet kan, en
+    # opnieuw proberen verandert daar niets aan (00s §16.3). Dan niet tellen en
+    # niet nog twee keer herstarten — meteen blokkeren, net als bij een
+    # afwijkende APP_KEY of databasevariant. De teller blijft staan zoals hij
+    # stond: deze poging zegt niets over de gezondheid van de installatie.
+    if (( UITROLCODE == 78 )); then
+        FATAAL=ja
+        POGING=$(cat "$POGINGEN" 2>/dev/null || echo 0)
+    else
+        FATAAL=nee
+        POGING=$(( $(cat "$POGINGEN" 2>/dev/null || echo 0) + 1 ))
+        printf '%s' "$POGING" >"$POGINGEN"
+        chown ezisms:ezisms "$POGINGEN"; chmod 0640 "$POGINGEN"
+    fi
 
     LAATSTE_LOG=$(ls -1t "$STATE/installatie"/deploy-*.log 2>/dev/null | head -1 || true)
-    LAATSTE_DUMP=$(ls -1t "$STATE/installatie"/dump-*.sql.gz 2>/dev/null | head -1 || true)
+    # `dump-*.gz` en niet `dump-*.sql.gz`: de sqlite-dump heet `.sqlite.gz`
+    # (00s §7). Met de oude glob meldt de blokkade "geen dump gemaakt" terwijl
+    # hij er wel staat — precies op het moment dat iemand hem nodig heeft.
+    LAATSTE_DUMP=$(ls -1t "$STATE/installatie"/dump-*.gz 2>/dev/null | head -1 || true)
 
-    if (( POGING < MAXPOGINGEN )); then
+    if [[ $FATAAL == nee ]] && (( POGING < MAXPOGINGEN )); then
         waarschuw "de uitrol mislukte (poging $POGING van $MAXPOGINGEN, exitcode $UITROLCODE)"
         waarschuw "de container sluit af en wordt door Docker opnieuw gestart"
         exit "$UITROLCODE"
@@ -466,8 +572,14 @@ else
     # dan een lege regel.
     REDEN=${REDEN:-scripts/deploy-docker.sh gaf exitcode $UITROLCODE}
 
+    if [[ $FATAAL == ja ]]; then
+        EERSTE_REGEL="De uitrol kan met deze instellingen niet slagen; opnieuw proberen verandert daar niets aan."
+    else
+        EERSTE_REGEL="De uitrol is ${POGING}× mislukt en wordt niet opnieuw geprobeerd."
+    fi
+
     cat >"$BLOKKADE" <<EOF
-De uitrol is ${POGING}× mislukt en wordt niet opnieuw geprobeerd.
+$EERSTE_REGEL
 geblokkeerd op: $(date -Iseconds)
 reden:  $REDEN
 dump:   ${LAATSTE_DUMP:-<geen dump gemaakt>}
@@ -475,12 +587,23 @@ log:    ${LAATSTE_LOG:-<geen log>}
 EOF
     chown ezisms:ezisms "$BLOKKADE"; chmod 0640 "$BLOKKADE"
 
-    # `docker compose up -d` en niet `restart app`. Een `restart` start hetzelfde
-    # containerproces opnieuw MET de omgeving die het bij aanmaak meekreeg, dus
-    # een gecorrigeerde .env doet dan niets — en dat is nu juist de oorzaak bij
-    # een blokkade op de normcontrole. `up -d` is in beide gevallen goed: is er
-    # niets aan .env of compose.yml veranderd, dan laat compose de container met
-    # rust. Zie 00n §16.2.
+    # `up -d --force-recreate`, en dat is de derde poging op dit advies. Geen van
+    # de twee voor de hand liggende commando's dekt beide gevallen (00s §16.1):
+    #
+    #   - `restart app` start hetzelfde containerproces opnieuw MET de omgeving
+    #     die het bij aanmaak meekreeg. Een gecorrigeerde .env doet dan niets —
+    #     precies de oorzaak bij een blokkade op de normcontrole (00n §16.2).
+    #   - `up -d` pikt een gewijzigde .env wél op, maar doet HELEMAAL NIETS als
+    #     er aan .env en compose.yml niets veranderd is. En dat is het geval
+    #     zodra de oorzaak binnen de installatie lag: een teruggetrokken
+    #     migratie, een hersteld bestand op de mount. De container blijft dan in
+    #     zijn `sleep infinity` staan en de beheerder krijgt geen enkel signaal.
+    #     Gemeten in de toetsronde van 29-08-2026.
+    #
+    # `--force-recreate` vervangt de container altijd, met de actuele omgeving.
+    # Duurder dan nodig als er wél iets in .env veranderde, maar dat is één
+    # containerstart — en dit advies wordt gelezen op het moment dat er al iets
+    # mis is.
     printf '\n\033[31m[entrypoint] GEBLOKKEERD\033[0m\n' >&2
     sed 's/^/             /' "$BLOKKADE" >&2
     cat >&2 <<EOF
@@ -491,7 +614,7 @@ EOF
              Opheffen na herstel — met sudo, want het bestand is van de
              gebruiker uit de container en niet van uw eigen account:
                  sudo rm ./data/app/installatie/BLOKKADE
-                 docker compose up -d
+                 docker compose up -d --force-recreate
 
 EOF
     exec sleep infinity

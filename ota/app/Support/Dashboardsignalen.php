@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Beleidsversie;
 use App\Models\Risico;
 use App\Models\Systeemhartslag;
 use App\Models\Taak;
@@ -33,6 +34,7 @@ final class Dashboardsignalen
         array $trends,
         bool $magRisicoLezen,
         bool $magSoaLezen,
+        ?Leesbevestigingsstand $leesbevestiging = null,
     ): self {
         $bouwer = new self;
 
@@ -42,6 +44,13 @@ final class Dashboardsignalen
 
         if ($magSoaLezen) {
             $bouwer->maatregelsignalen();
+        }
+
+        // Meegegeven en niet zelf opgehaald: het paneel eronder rekent met
+        // exact deze stand (12i §4). `null` = de kijker mag het beleidsregister
+        // niet lezen.
+        if ($leesbevestiging !== null) {
+            $bouwer->leesbevestigingssignalen($leesbevestiging);
         }
 
         $bouwer->kpisignalen($trends);
@@ -65,6 +74,45 @@ final class Dashboardsignalen
     private function voegToe(string $vlag, string $tekst, string $uitleg, string $getal): void
     {
         $this->signalen[] = compact('vlag', 'tekst', 'uitleg', 'getal');
+    }
+
+    /**
+     * Twee signalen uit de leesbevestigingsketen (implementatie/12i §4).
+     *
+     * De eerste is de belangrijkste van het hele paneel en tegelijk de enige
+     * die vandaag nergens zichtbaar is: een document met bevestigingsplicht
+     * waaraan geen afdeling hangt, levert geen taak, geen bevestigknop en geen
+     * noemer. De bevestigingsgraad staat dan op "n.v.t." — niet op nul — en het
+     * document ziet er in het register net zo rustig uit als een document dat
+     * iedereen heeft gelezen. Daarom `kritiek` en niet `let-op`: dit is geen
+     * achterstand maar een beheersmaatregel die niet aan staat.
+     */
+    private function leesbevestigingssignalen(Leesbevestigingsstand $stand): void
+    {
+        if (($kapot = $stand->zonderDoelgroep()) > 0) {
+            $this->voegToe(
+                'kritiek',
+                $kapot === 1
+                    ? '1 document met bevestigingsplicht heeft geen doelgroep'
+                    : "{$kapot} documenten met bevestigingsplicht hebben geen doelgroep",
+                'Er is geen afdeling gekoppeld, dus niemand krijgt de taak en niemand kan '
+                    .'bevestigen. De bevestigingsgraad staat op "n.v.t." en niet op 0% — de '
+                    .'maatregel staat niet uit, hij raakt alleen niemand.',
+                (string) $kapot,
+            );
+        }
+
+        if (($laat = $stand->overDeTermijn()) > 0) {
+            $this->voegToe(
+                'let-op',
+                $laat === 1
+                    ? '1 document staat over de leestermijn'
+                    : "{$laat} documenten staan over de leestermijn",
+                'De leestermijn van '.Beleidsversie::LEESTERMIJN_DAGEN.' dagen na publicatie is '
+                    .'verstreken terwijl er nog bevestigingen openstaan.',
+                (string) $laat,
+            );
+        }
     }
 
     private function risicosignalen(): void

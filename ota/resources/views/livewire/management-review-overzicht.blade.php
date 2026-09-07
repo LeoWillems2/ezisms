@@ -31,14 +31,14 @@
     @endif
 
     <div class="grid gap-4 sm:grid-cols-2">
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+        <div class="blueprint p-4">
             <flux:text>Open verbeteracties</flux:text>
             <flux:heading size="lg">{{ $openVerbeteracties }}</flux:heading>
             @if ($verstrekenVerbeteracties > 0)
                 <flux:badge size="sm" color="red">{{ $verstrekenVerbeteracties }} over de deadline</flux:badge>
             @endif
         </div>
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+        <div class="blueprint p-4">
             <flux:text>Laatste gehouden review</flux:text>
             <flux:heading size="lg">{{ $laatsteGehouden?->datum->format('d-m-Y') ?? 'nog geen' }}</flux:heading>
         </div>

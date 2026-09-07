@@ -69,6 +69,21 @@ class Beleidsdocument extends Model
         return $this->hasOne(Beleidsversie::class)->where('status', 'actief');
     }
 
+    /**
+     * De versie die op vaststelling wacht, indien die er is (05b §5). Er kan er
+     * hooguit één zijn: `terGoedkeuring()` gaat alleen vanuit `concept`, en een
+     * tweede aanbieding naast een lopende zou de vraag "welke wordt het" laten
+     * ontstaan.
+     *
+     * Bestaat naast `actieveVersie()` omdat de documentstatus dit niet kán
+     * tonen: staat er al een actieve versie, dan wint `actief` in de afleiding
+     * van `BeleidsversieObserver` en is aan het document niets te zien.
+     */
+    public function versieTerGoedkeuring(): HasOne
+    {
+        return $this->hasOne(Beleidsversie::class)->where('status', 'ter_goedkeuring');
+    }
+
     public function eigenaar(): BelongsTo
     {
         return $this->belongsTo(Gebruiker::class, 'eigenaar_id');

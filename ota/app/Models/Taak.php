@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditeerbaar;
+use App\Models\Concerns\Waardenbewaking;
 use App\Observers\TaakObserver;
 use App\Support\Koppelbaar;
 use App\Support\Recordscope;
@@ -20,7 +21,7 @@ use Illuminate\Support\Facades\Auth;
 class Taak extends Model
 {
     /** @use HasFactory<TaakFactory> */
-    use Auditeerbaar, HasFactory;
+    use Auditeerbaar, HasFactory, Waardenbewaking;
 
     protected $table = 'taken';
 

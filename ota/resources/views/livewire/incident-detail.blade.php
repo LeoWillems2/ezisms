@@ -10,7 +10,7 @@
     @endif
 
     {{-- 1. Kop. --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="xl">{{ $incident->titel }}</flux:heading>
         <flux:subheading>
             Gemeld door {{ $incident->melder?->naam ?? 'onbekend' }} op
@@ -78,7 +78,7 @@
     </div>
 
     {{-- 2. Externe meldplicht (implementatie/08b). --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-1">Externe meldplicht</flux:heading>
         <flux:text class="mb-4">
             Eerst de vraag of dit incident de meldplicht raakt. Raakt het geen persoonsgegevens
@@ -94,7 +94,7 @@
                         leeg="— nog niet beoordeeld —" :opties="['1' => 'Ja', '0' => 'Nee']" />
 
                     @if ($assetsignaal)
-                        <div class="mt-2 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-700 dark:bg-amber-950/40">
+                        <div class="mt-2 rounded-lg border border-amber-300 bg-amber-50 p-3">
                             <flux:text>{{ $assetsignaal }}</flux:text>
                         </div>
                     @endif
@@ -110,7 +110,7 @@
                 @endif
 
                 @if ($this->heeftDocumentatieplicht())
-                    <div class="flex flex-col gap-4 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+                    <div class="flex flex-col gap-4 border-t border-zinc-200 pt-4">
                         <flux:text>
                             <span class="font-medium">Onverwijld melden</span> staat in beide wetten
                             voorop; het aantal uren is de buitengrens, geen wachttijd. De termijnen
@@ -168,11 +168,11 @@
         @endif
 
         @if ($meldingen->isNotEmpty())
-            <div class="mt-5 border-t border-zinc-200 pt-4 dark:border-zinc-700">
+            <div class="mt-5 border-t border-zinc-200 pt-4">
                 <flux:heading size="sm" class="mb-3">Verplichtingen</flux:heading>
 
                 @foreach ($meldingen as $melding)
-                    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 py-3 first:border-t-0 dark:border-zinc-800">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-zinc-100 py-3 first:border-t-0">
                         <div>
                             <flux:text class="font-medium">
                                 {{ strtoupper($melding->grondslag) }} — {{ $melding->label() }}
@@ -213,11 +213,11 @@
 
     {{-- 3. Afwijkingen die hieruit voortkwamen. --}}
     @if ($afwijkingen->isNotEmpty())
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <flux:heading size="lg" class="mb-4">Afwijkingen uit dit incident</flux:heading>
 
             @foreach ($afwijkingen as $afwijking)
-                <div class="flex items-center justify-between gap-3 border-t border-zinc-100 py-2 first:border-t-0 dark:border-zinc-800">
+                <div class="flex items-center justify-between gap-3 border-t border-zinc-100 py-2 first:border-t-0">
                     @if ($this->magMuteren())
                         <flux:link :href="route('afwijkingen.detail', $afwijking)" wire:navigate>
                             {{ $afwijking->auditOmschrijving() }}

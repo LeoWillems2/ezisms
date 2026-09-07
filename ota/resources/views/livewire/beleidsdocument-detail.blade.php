@@ -14,7 +14,7 @@
     @enderror
 
     {{-- 1. Kop met de geldende versie prominent. --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <div class="flex items-start justify-between gap-4">
             <div>
                 <flux:heading size="xl">{{ $beleidsdocument->titel }}</flux:heading>
@@ -84,7 +84,7 @@
                         @endif
 
                         @error('afdelingIds')
-                            <flux:text class="mt-1 text-sm text-red-600 dark:text-red-500">{{ $message }}</flux:text>
+                            <flux:text class="mt-1 text-sm text-red-600">{{ $message }}</flux:text>
                         @enderror
                     </div>
                 @endif
@@ -104,7 +104,7 @@
     </div>
 
     {{-- 2. Versies. --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <div class="mb-4 flex items-center justify-between gap-4">
             <flux:heading size="lg">Versies</flux:heading>
             @if ($this->magMuteren())
@@ -113,7 +113,7 @@
         </div>
 
         @if ($toontVersieFormulier)
-            <div class="mb-5 rounded-lg bg-zinc-50 p-4 dark:bg-zinc-800">
+            <div class="mb-5 rounded-lg bg-zinc-50 p-4">
                 <div class="grid gap-4 md:grid-cols-2">
                     <flux:textarea wire:model="wijzigingsreden" label="Wijzigingsreden" class="md:col-span-2" />
                     <flux:input wire:model="volgendeHerzieningGepland" type="date"
@@ -171,9 +171,20 @@
                                     default => 'zinc',
                                 };
                             @endphp
-                            <flux:badge size="sm" :color="$kleur">
+                            <flux:badge size="sm" :color="$versie->goedkeurtermijnVerstreken() ? 'amber' : $kleur">
                                 {{ ucfirst(str_replace('_', ' ', $versie->status)) }}
                             </flux:badge>
+
+                            {{-- Sinds wanneer ligt dit er: de vraag die een
+                                 auditor bij een trage vaststelling stelt, en de
+                                 datum waar de deadline van de goedkeuringstaak
+                                 vanaf loopt (05b §3). --}}
+                            @if ($versie->wachtOpGoedkeuring() && $versie->aangeboden_op)
+                                <flux:text class="text-xs">
+                                    aangeboden {{ $versie->aangeboden_op->lokaal()->format('d-m-Y') }},
+                                    vaststellen vóór {{ $versie->goedkeurdeadline()->format('d-m-Y') }}
+                                </flux:text>
+                            @endif
                         </flux:table.cell>
                         <flux:table.cell>{{ $versie->gepubliceerd_op?->format('d-m-Y') ?? '—' }}</flux:table.cell>
                         <flux:table.cell>
@@ -215,7 +226,7 @@
     </div>
 
     {{-- 3. SoA-koppelingen: het koppelvlak dat blok 4 openliet. --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-2">Onderbouwt SoA-maatregelen</flux:heading>
         <flux:subheading class="mb-4">
             Een SoA-regel die van toepassing is zonder onderbouwend actief beleid is een gap.
@@ -244,7 +255,7 @@
     </div>
 
     {{-- 4. Leesbevestigingen. --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-4">Leesbevestiging</flux:heading>
 
         @if (! $beleidsdocument->leesbevestiging_vereist)
@@ -311,7 +322,7 @@
                             Bevestigd ({{ $bevestigingen->count() }})
                         </flux:heading>
                         @forelse ($bevestigingen as $bevestiging)
-                            <div class="flex items-center justify-between gap-3 border-t border-zinc-100 py-1 first:border-t-0 dark:border-zinc-800">
+                            <div class="flex items-center justify-between gap-3 border-t border-zinc-100 py-1 first:border-t-0">
                                 <flux:text>
                                     {{ $bevestiging->gebruiker?->naam ?? '—' }}
                                     @if ($zonderRaadpleging[$bevestiging->gebruiker_id] ?? false)
@@ -330,7 +341,7 @@
                             Nog niet bevestigd ({{ $nietBevestigd->count() }})
                         </flux:heading>
                         @forelse ($nietBevestigd as $gebruiker)
-                            <div class="border-t border-zinc-100 py-1 first:border-t-0 dark:border-zinc-800">
+                            <div class="border-t border-zinc-100 py-1 first:border-t-0">
                                 <flux:text>{{ $gebruiker->naam }}</flux:text>
                             </div>
                         @empty

@@ -181,6 +181,16 @@ final class Kennisartikelen
             // dat is het enige wat per profiel zou verschillen.
             'bestand' => 'ezisms-voor-de-ciso.md',
         ],
+        // Direct achter het oriëntatiestuk: dat beantwoordt "past dit bij je?",
+        // dit beantwoordt de vraag die er meteen op volgt — waar begin je. Ook
+        // profielloos, en om dezelfde reden: de vulvolgorde loopt over de
+        // registers van het managementsysteem (H4 t/m H10) en die zijn in alle
+        // drie de profielen gelijk; er staat geen maatregelnummer in de tekst.
+        'van-lege-installatie-naar-draaiend-isms' => [
+            'titel' => 'Van lege installatie naar draaiend ISMS',
+            'categorie' => 'Naslag',
+            'bestand' => 'van-lege-installatie-naar-draaiend-isms.md',
+        ],
         'ezisms-voor-de-auditor' => [
             'titel' => 'EzISMS voor de externe auditor: een rondleiding',
             'categorie' => 'Naslag',

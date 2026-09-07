@@ -26,7 +26,7 @@
     </div>
 
     @if ($eenheid->subEenheden->isNotEmpty())
-        <ul class="ml-6 border-l border-zinc-200 pl-4 dark:border-zinc-700">
+        <ul class="ml-6 border-l border-zinc-200 pl-4">
             @foreach ($eenheid->subEenheden->sortBy('naam') as $subEenheid)
                 @include('partials.organisatie-eenheid-node', ['eenheid' => $subEenheid, 'magMuteren' => $magMuteren])
             @endforeach

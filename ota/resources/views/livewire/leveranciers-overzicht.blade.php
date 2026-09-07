@@ -93,7 +93,7 @@
                         @php $volgende = $leverancier->volgendeBeoordelingGepland(); @endphp
                         @if ($volgende)
                             <span @class([
-                                'text-red-600 dark:text-red-400 font-medium' => $volgende->isPast(),
+                                'text-red-600 font-medium' => $volgende->isPast(),
                             ])>{{ $volgende->format('d-m-Y') }}</span>
                         @else
                             <flux:text>&mdash;</flux:text>

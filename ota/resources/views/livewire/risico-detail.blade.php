@@ -32,7 +32,7 @@
     @php $readonly = ! $this->magMuteren(); @endphp
 
     {{-- Basisgegevens --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-4">Basisgegevens</flux:heading>
         <form wire:submit="opslaanBasis" class="flex flex-col gap-4">
             <flux:input wire:model="titel" label="Titel" :readonly="$readonly" required />
@@ -47,7 +47,7 @@
                     <x-keuzelijst wire:model="risicoEigenaarId" label="Risico-eigenaar" leeg="— geen —"
                         :disabled="$readonly" :opties="$gebruikers->pluck('naam', 'id')" />
                     @if ($eigenaarGebruiker && ! $eigenaarGebruiker->isActief())
-                        <flux:text class="mt-1 text-sm text-amber-600 dark:text-amber-500">
+                        <flux:text class="mt-1 text-sm text-amber-600">
                             {{ ucfirst($eigenaarGebruiker->status) }} — wijs een actief account aan.
                         </flux:text>
                     @endif
@@ -87,7 +87,7 @@
     </div>
 
     {{-- Beoordeling --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-1">Beoordeling</flux:heading>
         <flux:text class="mb-4">
             De risicoscore wordt berekend als kans x impact en is niet handmatig te zetten.
@@ -136,7 +136,7 @@
     </div>
 
     {{-- Behandelplan --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-1">Behandelplan</flux:heading>
         <flux:text class="mb-4">
             Koppel de maatregelen waarmee dit risico wordt behandeld. Alleen maatregelen die in de
@@ -262,7 +262,7 @@
 
     {{-- Status --}}
     @unless ($readonly)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <flux:heading size="lg" class="mb-1">Status</flux:heading>
             <flux:text class="mb-4">
                 De status volgt normaal automatisch uit beoordeling en behandelplan; hier zet je de

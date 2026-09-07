@@ -34,7 +34,7 @@
     @php $readonly = ! $this->magMuteren(); @endphp
 
     {{-- Basisgegevens --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-4">Basisgegevens</flux:heading>
         <form wire:submit="opslaanBasis" class="flex flex-col gap-4">
             <flux:input wire:model="naam" label="Naam" :readonly="$readonly" required />
@@ -57,7 +57,7 @@
                         :opties="$accountableGebruikers"
                         description="Eindverantwoordelijk (RACI). Puur informatief; geeft geen rechten in het platform." />
                     @if ($accountableGebruiker && ! $accountableGebruiker->isActief())
-                        <flux:text class="mt-1 text-sm text-amber-600 dark:text-amber-500">
+                        <flux:text class="mt-1 text-sm text-amber-600">
                             {{ ucfirst($accountableGebruiker->status) }} — wijs een actief account aan.
                         </flux:text>
                     @endif
@@ -68,7 +68,7 @@
                         :opties="$responsibleGebruikers"
                         description="Dagelijkse/uitvoerende verantwoordelijkheid (RACI)." />
                     @if ($responsibleGebruiker && ! $responsibleGebruiker->isActief())
-                        <flux:text class="mt-1 text-sm text-amber-600 dark:text-amber-500">
+                        <flux:text class="mt-1 text-sm text-amber-600">
                             {{ ucfirst($responsibleGebruiker->status) }} — wijs een actief account aan.
                         </flux:text>
                     @endif
@@ -84,7 +84,7 @@
     </div>
 
     {{-- Classificatie --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-1">Classificatie</flux:heading>
         <flux:text class="mb-4">De status wordt automatisch "Actief" zodra alle drie de dimensies zijn ingevuld.</flux:text>
 
@@ -100,7 +100,7 @@
                             $schema = $schemas->get($dimensie.':'.$this->$veld);
                             $niveauLabel = $niveauOpties[$dimensie][$this->$veld] ?? ucfirst($this->$veld);
                         @endphp
-                        <div class="mt-2 rounded-lg bg-zinc-50 p-3 text-sm dark:bg-zinc-800/50">
+                        <div class="mt-2 rounded-lg bg-zinc-50 p-3 text-sm">
                             @if ($schema && $schema->omgangsregels)
                                 <flux:text><span class="font-medium">Omgangsregels:</span> {{ $schema->omgangsregels }}</flux:text>
                             @else
@@ -113,7 +113,7 @@
 
             {{-- Persoonsgegevens: geen classificatiedimensie maar een eigen
                  beoordeling met een eigen, wettelijk vocabulaire (03b §3). --}}
-            <div class="border-t border-zinc-200 pt-5 dark:border-zinc-700">
+            <div class="border-t border-zinc-200 pt-5">
                 <x-keuzelijst wire:model.live="persoonsgegevens" label="Persoonsgegevens"
                     leeg="Nog niet beoordeeld" :disabled="$readonly"
                     :opties="$persoonsgegevensOpties" />
@@ -122,7 +122,7 @@
                      na een validatiefout staat de afgekeurde waarde nog in de
                      binding, en die heeft geen uitlegregel. --}}
                 @if ($uitleg = $persoonsgegevensUitleg[$this->persoonsgegevens] ?? null)
-                    <div class="mt-2 rounded-lg bg-zinc-50 p-3 text-sm dark:bg-zinc-800/50">
+                    <div class="mt-2 rounded-lg bg-zinc-50 p-3 text-sm">
                         <flux:text>{{ $uitleg }}</flux:text>
                     </div>
                 @endif
@@ -140,14 +140,14 @@
         </form>
 
         @if ($waarschuwing = $asset->privacywaarschuwing())
-            <div class="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 dark:border-amber-700 dark:bg-amber-950/40">
+            <div class="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3">
                 <flux:text>{{ $waarschuwing }}</flux:text>
             </div>
         @endif
     </div>
 
     {{-- Gekoppelde systemen --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-4">Gekoppelde systemen</flux:heading>
         <form wire:submit="systemenOpslaan" class="flex flex-col gap-4">
             <flux:checkbox.group wire:model="geselecteerdeSystemen" label="Systemen waarin dit asset wordt verwerkt">
@@ -167,7 +167,7 @@
     </div>
 
     {{-- Toewijzingen --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-1">Toewijzingen</flux:heading>
         <flux:text class="mb-4">Aan wie is dit bedrijfsmiddel uitgereikt? Een openstaande toewijzing blokkeert het afstoten ({{ $norm->bijlage }} 5.11).</flux:text>
 
@@ -224,7 +224,7 @@
 
     {{-- Status --}}
     @unless ($readonly)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <flux:heading size="lg" class="mb-4">Status</flux:heading>
             <div class="flex flex-wrap gap-2">
                 @if (in_array($asset->status, ['geregistreerd', 'actief'], true))

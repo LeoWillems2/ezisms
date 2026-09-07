@@ -20,7 +20,7 @@
     @endif
 
     {{-- Basisgegevens --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-4">Sessiegegevens</flux:heading>
 
         @if ($this->magMuteren())
@@ -76,7 +76,7 @@
         @if ($this->magMuteren())
             <form wire:submit="slaAgendaOp" class="space-y-4">
                 @foreach ($categorieen as $categorie)
-                    <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                    <div class="rounded-lg border border-zinc-200 p-4">
                         <flux:heading size="sm" class="mb-2">{{ ucfirst(str_replace('_', ' ', $categorie)) }}</flux:heading>
                         <flux:textarea wire:model="samenvattingen.{{ $categorie }}" rows="2"
                             placeholder="Samenvatting van dit onderwerp…" />
@@ -93,7 +93,7 @@
         @else
             <div class="space-y-3">
                 @foreach ($reviewsessie->agendapunten as $punt)
-                    <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                    <div class="rounded-lg border border-zinc-200 p-4">
                         <flux:heading size="sm">{{ ucfirst(str_replace('_', ' ', $punt->categorie)) }}</flux:heading>
                         <flux:text>{{ $punt->samenvatting }}</flux:text>
                     </div>
@@ -107,7 +107,7 @@
         <flux:heading size="lg" class="mb-3">Besluiten &amp; verbeteracties</flux:heading>
 
         @forelse ($besluiten as $besluit)
-            <div class="mb-4 rounded-xl border border-zinc-200 p-5 dark:border-zinc-700" wire:key="besluit-{{ $besluit->id }}">
+            <div class="mb-4 blueprint p-5" wire:key="besluit-{{ $besluit->id }}">
                 <div class="mb-3 flex items-start justify-between gap-4">
                     <flux:text variant="strong">{{ $besluit->omschrijving }}</flux:text>
                     @if ($this->magMuteren())
@@ -134,7 +134,7 @@
                                         @php
                                             $verlopen = $actie->status === 'open' && $actie->deadline && $actie->deadline->isPast();
                                         @endphp
-                                        <span class="{{ $verlopen ? 'text-red-600 dark:text-red-500' : '' }}">
+                                        <span class="{{ $verlopen ? 'text-red-600' : '' }}">
                                             {{ $actie->deadline?->format('d-m-Y') ?? '—' }}
                                         </span>
                                     </flux:table.cell>

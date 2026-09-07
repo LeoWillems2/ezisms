@@ -11,8 +11,8 @@ use App\Models\Systeem;
 use App\Models\Taak;
 use App\Models\Wijziging;
 use App\Models\Wijzigingssjabloon;
-use App\Support\StapGeblokkeerd;
 use App\Support\Stappenreeks;
+use App\Support\TaakGeblokkeerd;
 use App\Support\TaakPlanner;
 use Database\Seeders\BlokSeeder;
 use Database\Seeders\NotificatieregelSeeder;
@@ -360,7 +360,7 @@ class StappenreeksTest extends TestCase
         try {
             $stap->update(['status' => 'voltooid', 'voltooid_op' => now()]);
             $this->fail('De stap had geblokkeerd moeten worden.');
-        } catch (StapGeblokkeerd $e) {
+        } catch (TaakGeblokkeerd $e) {
             $this->assertStringContainsString('terugvalplan', $e->getMessage());
         }
 
@@ -394,7 +394,7 @@ class StappenreeksTest extends TestCase
 
     public function test_een_dossier_zonder_de_interface_blokkeert_niets(): void
     {
-        // Het `Systeem` uit de andere tests implementeert `Stapbelemmering` niet;
+        // Het `Systeem` uit de andere tests implementeert `Taakbelemmering` niet;
         // de engine hoort dat gewoon te negeren.
         $this->driestapsReeks();
 

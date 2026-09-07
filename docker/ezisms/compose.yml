@@ -1,5 +1,13 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# EzISMS — de stack
+# EzISMS — de stack met een MySQL-database (twee containers)
+#
+# Dit is de tweede variant. LEESMIJ.md §1 beschrijft de eerste: compose-sqlite.yml,
+# één container met het ISMS in één bestand. Kies deze als u een reden heeft om op
+# MySQL te draaien (LEESMIJ.md §1b).
+#
+# DE TWEE ZIJN ALTERNATIEVEN EN NOOIT ALLEBEI OP DEZELFDE ISMS_DATA. Na de eerste
+# uitrol staat de variant in data/app/installatie/db-variant en blokkeert de
+# container bij een afwijking.
 #
 # Kopieer dit bestand en env.voorbeeld naar de map waar de uitgepakte tarbal
 # staat, hernoem env.voorbeeld naar .env, vul hem in en draai:
@@ -124,6 +132,10 @@ services:
       # de HAProxy naartoe moet. Zonder deze regel viel dat terug op de
       # standaardwaarde en meldde een stack op poort 82 doodleuk poort 81.
       HTTP_POORT:             ${HTTP_POORT:-81}
+      # De variant. Stond tot 00s in env.statisch; hij verschilt nu per
+      # installatie, dus hoort hij hier. De sqlite-tegenhanger is
+      # compose-sqlite.yml — nooit allebei op dezelfde ISMS_DATA.
+      DB_CONNECTION:          mysql
       DB_HOST:                db
       DB_PORT:                3306
       DB_DATABASE:            ${MYSQL_DATABASE:-ezisms}

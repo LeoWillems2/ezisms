@@ -101,7 +101,10 @@
             </flux:text>
             <flux:text>
                 Begin met het skelet hieronder: een werkende toets met drie vragen, zonder één
-                externe bron. Laat je je toets door een AI schrijven, geef deze opdracht dan mee:
+                externe bron. Het draagt ook de huisstijl van het ISMS, met de kleuren en de
+                vier vormregels als commentaar erboven — zo valt een toets niet uit de toon bij
+                de rest van de applicatie. Laat je je toets door een AI schrijven, geef deze
+                opdracht dan mee:
             </flux:text>
 
             <flux:callout>
@@ -110,6 +113,15 @@
                     lettertypen of afbeeldingen: alle CSS en JavaScript inline in het bestand,
                     afbeeldingen als data:-URI. Geen Tailwind-CDN en geen Google Fonts; gebruik
                     platte CSS en systeemlettertypen.
+                </flux:text>
+                <flux:text class="mt-3">
+                    Houd de huisstijl aan: een blauwdrukstijl, lijnwerk op een lichte grond.
+                    Grond #f2f2f3, oppervlak #e9e9ea, tekst #1d1f20, gedempte tekst #5d5d60,
+                    accent #5980a6 (dieper #416180), scheidslijn zwart op 16%. Overal vierkante
+                    hoeken, dus nergens border-radius. Kaders in plaats van vlakken: een
+                    haarlijnrand zonder vulling. Eén gevuld object op de pagina: de knop. Eén
+                    kleur: het accent, verder alleen grijstinten — behalve goed (#0ca30c) en
+                    fout (#d03b3b), en die dragen altijd ook een woord.
                 </flux:text>
             </flux:callout>
 

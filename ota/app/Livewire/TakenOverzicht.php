@@ -6,8 +6,8 @@ use App\Models\Gebruiker;
 use App\Models\Taak;
 use App\Rules\KiesbareGebruiker;
 use App\Support\Recordscope;
-use App\Support\StapGeblokkeerd;
 use App\Support\Stappenreeks;
+use App\Support\TaakGeblokkeerd;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
@@ -186,7 +186,7 @@ class TakenOverzicht extends Component
 
         try {
             $taak->update(['status' => 'voltooid', 'voltooid_op' => now()]);
-        } catch (StapGeblokkeerd $e) {
+        } catch (TaakGeblokkeerd $e) {
             // Het dossier achter de reeks houdt deze stap tegen
             // (implementatie/15 §6). De reden is voor de gebruiker bedoeld.
             session()->flash('belemmering', $e->getMessage());
@@ -214,7 +214,7 @@ class TakenOverzicht extends Component
 
         try {
             Stappenreeks::legUitkomstVast($taak, $uitkomst);
-        } catch (StapGeblokkeerd $e) {
+        } catch (TaakGeblokkeerd $e) {
             session()->flash('belemmering', $e->getMessage());
 
             return;

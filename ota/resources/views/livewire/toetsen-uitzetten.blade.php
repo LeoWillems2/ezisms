@@ -70,7 +70,7 @@
                 </flux:select>
             </div>
 
-            <div class="mt-3 flex max-h-72 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+            <div class="mt-3 flex max-h-72 flex-col gap-2 overflow-y-auto rounded-lg border border-zinc-200 p-3">
                 @forelse ($gebruikers as $gebruiker)
                     <flux:checkbox wire:model="geselecteerdeGebruikers" value="{{ $gebruiker->id }}"
                         label="{{ $gebruiker->naam }}" />

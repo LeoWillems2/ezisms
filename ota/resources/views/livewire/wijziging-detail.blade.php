@@ -158,7 +158,7 @@
                                 @endif
                             </flux:table.cell>
                             <flux:table.cell>
-                                <span class="{{ $stap->isFeitelijkVerlopen() ? 'text-red-600 dark:text-red-500' : '' }}">
+                                <span class="{{ $stap->isFeitelijkVerlopen() ? 'text-red-600' : '' }}">
                                     {{ $stap->deadline->format('d-m-Y') }}
                                 </span>
                             </flux:table.cell>

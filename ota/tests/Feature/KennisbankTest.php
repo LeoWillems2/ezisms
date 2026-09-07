@@ -475,6 +475,100 @@ class KennisbankTest extends TestCase
             ->assertSee('Statement of Applicability');
     }
 
+    /**
+     * De vulvolgorde: één schema plus de uitleg eronder. De prozatekst moet de
+     * inhoud zelfstandig dragen, want dit artikel is wél te downloaden en
+     * pandoc laat de ruwe SVG bij de conversie naar docx vallen — vandaar dat
+     * de vier fasen als kop worden nagelopen en niet alleen als tekst in het
+     * diagram.
+     */
+    public function test_vulvolgorde_artikel_rendert_het_schema_en_de_vier_fasen(): void
+    {
+        $gebruiker = Gebruiker::factory()->create();
+
+        $this->actingAs($gebruiker)->get('/kennisbank/van-lege-installatie-naar-draaiend-isms')
+            ->assertOk()
+            ->assertSee('Van lege installatie naar draaiend ISMS') // titel uit het register
+            ->assertSee('<svg', false)                             // niet ge-escaped
+            ->assertSee('Fase 1 — Fundament')
+            ->assertSee('Fase 2 — Kader')
+            ->assertSee('Fase 3 — Inhoud')
+            ->assertSee('Fase 4 — Ritme')
+            ->assertSee('De drie momenten waarop je Management nodig hebt');
+    }
+
+    /**
+     * De valkuil bij een SVG in de kennisbank: de GFM-converter escapet een
+     * handvol ruwe tags — `title`, `script`, `style`, `iframe`, `textarea` — óók
+     * midden in een blok dat verder ongemoeid doorkomt. Een SVG met een
+     * `title`-element erin krijgt de openingstag dus als platte tekst boven het
+     * schema, en de naam waar `aria-labelledby` naar wijst bestaat niet meer.
+     * Vandaar `aria-label` op de svg zelf. Geen enkel `&lt;` in de uitvoer is
+     * het bewijs dat er niets is blijven hangen.
+     */
+    public function test_de_svg_van_de_vulvolgorde_komt_ongeescaped_door(): void
+    {
+        $html = Kennisartikelen::html('van-lege-installatie-naar-draaiend-isms') ?? '';
+
+        $this->assertStringNotContainsString(
+            '&lt;',
+            $html,
+            'Er is een tag ge-escaped; zie de lijst met niet-toegestane ruwe HTML in GFM.',
+        );
+        $this->assertStringContainsString('aria-label="Van lege installatie naar draaiend ISMS"', $html);
+        $this->assertStringContainsString('<desc id="vulvolgorde-d">', $html);
+    }
+
+    /**
+     * Het artikel is één en al doorverwijzing naar de vervolgstappen; dezelfde
+     * eis als bij de oriëntatiestukken.
+     */
+    public function test_vulvolgorde_artikel_verwijst_alleen_naar_bestaande_artikelen(): void
+    {
+        $slug = 'van-lege-installatie-naar-draaiend-isms';
+
+        preg_match_all('#/kennisbank/([a-z0-9-]+)#', Kennisartikelen::inhoud($slug) ?? '', $treffers);
+
+        $this->assertNotEmpty($treffers[1], "Het artikel {$slug} verwijst nergens heen.");
+
+        foreach (array_unique($treffers[1]) as $doel) {
+            $this->assertTrue(
+                Kennisartikelen::bestaat($doel),
+                "{$slug} verwijst naar /kennisbank/{$doel}, en dat artikel bestaat niet.",
+            );
+        }
+    }
+
+    /**
+     * Het schema en de tekst moeten dezelfde drie vaststellingen aanwijzen. De
+     * accentstippen zitten in de SVG en de namen in het proza; raakt er één
+     * kwijt, dan wijst het diagram iets anders aan dan de uitleg eronder. Dat de
+     * rechtenmatrix zelf klopt, bewaakt `AutorisatieTest` — hier gaat het puur
+     * om de samenhang binnen het artikel.
+     */
+    public function test_vulvolgorde_artikel_wijst_drie_keer_naar_management(): void
+    {
+        $inhoud = Kennisartikelen::inhoud('van-lege-installatie-naar-draaiend-isms') ?? '';
+
+        // De accentstippen bij de scope-verklaring, de risicocriteria en het
+        // beleid. Op coördinaat, want dát is wat ze aan een vakje bindt.
+        foreach (['cx="546" cy="262"', 'cx="763" cy="262"', 'cx="980" cy="392"'] as $stip) {
+            $this->assertStringContainsString(
+                '<circle '.$stip.' r="4"/>',
+                $inhoud,
+                "De accentstip op {$stip} staat niet meer in het schema.",
+            );
+        }
+
+        foreach (['**scope-verklaring**', '**risicocriteria**', '**beleid**'] as $stap) {
+            $this->assertStringContainsString(
+                $stap,
+                $inhoud,
+                "De slotparagraaf noemt {$stap} niet als vaststelling door Management.",
+            );
+        }
+    }
+
     public function test_verantwoording_artikel_rendert(): void
     {
         $gebruiker = Gebruiker::factory()->create();

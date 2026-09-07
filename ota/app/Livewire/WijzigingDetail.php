@@ -11,8 +11,8 @@ use App\Models\Wijzigingssjabloon;
 use App\Rules\KiesbareGebruiker;
 use App\Support\Koppeling;
 use App\Support\NotificatieDispatcher;
-use App\Support\StapGeblokkeerd;
 use App\Support\Stappenreeks;
+use App\Support\TaakGeblokkeerd;
 use App\Support\Wijzigingsdossier;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
@@ -232,7 +232,7 @@ class WijzigingDetail extends Component
 
         try {
             $stap->update(['status' => 'voltooid', 'voltooid_op' => now()]);
-        } catch (StapGeblokkeerd $e) {
+        } catch (TaakGeblokkeerd $e) {
             session()->flash('belemmering', $e->getMessage());
 
             return;
@@ -253,7 +253,7 @@ class WijzigingDetail extends Component
 
         try {
             Wijzigingsdossier::legUitkomstVast($this->wijziging, $stap, $uitkomst);
-        } catch (StapGeblokkeerd $e) {
+        } catch (TaakGeblokkeerd $e) {
             session()->flash('belemmering', $e->getMessage());
 
             return;

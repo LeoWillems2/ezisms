@@ -21,7 +21,7 @@
     <div class="flex flex-col gap-3">
         @forelse ($belanghebbenden as $belanghebbende)
             <details wire:key="belanghebbende-{{ $belanghebbende->id }}"
-                class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                class="blueprint p-4">
                 <summary class="flex cursor-pointer items-center gap-2">
                     <span class="font-medium">{{ $belanghebbende->naam }}</span>
                     <flux:badge size="sm" :color="$belanghebbende->aard === 'intern' ? 'sky' : 'amber'">
@@ -67,7 +67,7 @@
 
                         @if ($this->magMuteren())
                             @if ($eisVoorBelanghebbendeId === $belanghebbende->id)
-                                <form wire:submit="eisOpslaan" class="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                                <form wire:submit="eisOpslaan" class="flex flex-col gap-3 rounded-lg border border-zinc-200 p-4">
                                     <flux:textarea wire:model="eisOmschrijving" label="Omschrijving" required />
                                     <flux:select wire:model="eisBron" label="Bron" required>
                                         <flux:select.option value="contractueel">Contractueel</flux:select.option>

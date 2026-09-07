@@ -95,7 +95,7 @@
                     </flux:table.cell>
                     <flux:table.cell>
                         @if ($rij['verlopen'] > 0)
-                            <flux:text class="text-red-600 dark:text-red-400">{{ $rij['verlopen'] }}</flux:text>
+                            <flux:text class="text-red-600">{{ $rij['verlopen'] }}</flux:text>
                         @else
                             &mdash;
                         @endif

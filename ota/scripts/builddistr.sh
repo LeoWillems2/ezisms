@@ -313,6 +313,7 @@ COMMIT="$COMMIT" REF="$REF" MAPNAAM="$MAPNAAM" TAG="$TAG" \
 MIN_DEPLOY="$MINIMALE_DEPLOY_VERSIE" PHP_VERSIE="$PHP_VERSIE" \
 NODE_VERSIE="$NODE_VERSIE" GEBOUWD="$GEBOUWD" \
 EXTENSIES="$(printf '%s\n' "${PHP_EXTENSIES[@]}")" \
+VARIANTEN="$(printf '%s\n' "${DB_VARIANTEN[@]}")" \
 SKELET="$STORAGE_SKELET" \
 DEMOMAP="$DEMOFIXTURES_DOEL" DEMOAANTAL="$DEMOFIXTURES" \
 DOCKERMAP="$DOCKER_DOEL" DOCKERAANTAL="$DOCKERBESTANDEN" \
@@ -335,6 +336,10 @@ print(json.dumps({
     "bouwhost_node":          os.environ["NODE_VERSIE"],
     "minimale_deploy_versie": os.environ["MIN_DEPLOY"],
     "php_extensies":          os.environ["EXTENSIES"].split(),
+    # Welke databasevarianten deze boom kan draaien (implementatie/00s §8).
+    # deploy-docker.sh weigert een variant die hier niet in staat; ontbreekt de
+    # sleutel — een tarbal van vóór 00s — dan leest hij dat als alleen mysql.
+    "db_varianten":           os.environ["VARIANTEN"].split(),
     "storage_skelet":         os.environ["SKELET"].split(),
     "gebouwd":                json.loads(os.environ["GEBOUWD"]),
     # Waar de demofixtures in de boom staan, en hoeveel het er zijn. Nul betekent
@@ -376,11 +381,19 @@ elif (( DOCKERBESTANDEN )); then
     printf '\nUitrollen als Docker-stack:\n'
     printf '   mkdir -p ~/ezisms/<naam> && tar xzf %s -C ~/ezisms/<naam>\n' "$(basename "$TARBAL")"
     printf '   cd ~/ezisms/<naam>\n'
+    printf '   cp %s/docker/compose-sqlite.yml compose.yml   # één container, één bestand\n' "$MAPNAAM"
+    printf '   cp %s/docker/env.voorbeeld-sqlite .env         # invullen: ISMS_BOOM, ISMS_NORM, APP_URL\n' "$MAPNAAM"
+    printf '\n   of met een MySQL-database, in een tweede container:\n'
     printf '   cp %s/docker/compose.yml   .\n' "$MAPNAAM"
-    printf '   cp %s/docker/env.voorbeeld .env    # invullen: ISMS_BOOM, ISMS_NORM, APP_URL\n' "$MAPNAAM"
-    printf '   docker compose up -d --build\n'
+    printf '   cp %s/docker/env.voorbeeld .env\n' "$MAPNAAM"
+    printf '\n   docker compose up -d --build\n'
     printf '   (zie %s/docker/LEESMIJ.md)\n' "$MAPNAAM"
-    printf '\nBijwerken van een bestaande stack: kopieer compose.yml OPNIEUW uit deze boom.\n'
+    printf '\nOf als image-uitlevering, voor een doelhost zonder broncode:\n'
+    printf '   scripts/buildimage.sh --tarbal=%s\n' "$(basename "$TARBAL")"
+    printf '   (levert een image-tarbal plus een compose.yml met .env.voorbeeld; de\n'
+    printf '    doelhost heeft dan alleen docker nodig en bouwt niets)\n'
+    printf '\nBijwerken van een bestaande stack: kopieer het compose-bestand van UW variant\n'
+    printf '   OPNIEUW uit deze boom.\n'
     printf '   Er kunnen sleutels bij zijn gekomen die de container verwacht; een oude\n'
     printf '   compose.yml geeft die niet door, zonder foutmelding.\n'
 fi

@@ -27,7 +27,7 @@
     </div>
 
     @if ($toontFormulier)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <flux:heading size="lg" class="mb-4">Nieuwe afwijking</flux:heading>
 
             <div class="grid gap-4">

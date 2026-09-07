@@ -96,7 +96,7 @@
                 <flux:checkbox wire:model.live="dataTeruggaveBevestigd"
                     label="Data en toegang zijn teruggegeven of vernietigd" />
                 @error('dataTeruggaveBevestigd')
-                    <flux:text class="text-red-600 dark:text-red-400">{{ $message }}</flux:text>
+                    <flux:text class="text-red-600">{{ $message }}</flux:text>
                 @enderror
                 <div>
                     <flux:button variant="danger" wire:click="beeindig" :disabled="$belemmering !== null">
@@ -136,7 +136,7 @@
         <flux:heading size="lg">Diensten</flux:heading>
 
         @forelse ($diensten as $dienst)
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-3 dark:border-zinc-700"
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-3"
                 wire:key="dienst-{{ $dienst->id }}">
                 <div class="space-y-1">
                     <flux:text class="font-medium">{{ $dienst->omschrijving }}</flux:text>
@@ -156,7 +156,7 @@
                 </div>
                 @if ($magMuteren)
                     <div class="flex items-center gap-2">
-                        <select class="rounded-md border-zinc-300 text-sm dark:border-zinc-600 dark:bg-zinc-700"
+                        <select class="rounded-md border-zinc-300 text-sm"
                             wire:change="koppelSysteem({{ $dienst->id }}, $event.target.value)">
                             <option value="">Koppel systeem…</option>
                             @foreach ($systemen as $systeem)
@@ -212,7 +212,7 @@
         @endif
 
         @forelse ($beoordelingen as $beoordeling)
-            <div class="border-b border-zinc-100 pb-3 dark:border-zinc-700" wire:key="beoordeling-{{ $beoordeling->id }}">
+            <div class="border-b border-zinc-100 pb-3" wire:key="beoordeling-{{ $beoordeling->id }}">
                 <div class="flex flex-wrap items-center gap-2 text-sm">
                     <flux:text class="font-medium">{{ $beoordeling->uitgevoerd_op?->format('d-m-Y') }}</flux:text>
                     @if ($beoordeling->uitvoerder)

@@ -10,7 +10,7 @@
     @endif
 
     {{-- 1. Kop. --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <div class="flex items-start justify-between gap-4">
             <div>
                 <flux:heading size="xl">{{ $afwijking->auditOmschrijving() }}</flux:heading>
@@ -62,11 +62,11 @@
     </div>
 
     {{-- 2. Grondoorzaken. --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-4">Grondoorzaken ({{ $grondoorzaken->count() }})</flux:heading>
 
         @forelse ($grondoorzaken as $oorzaak)
-            <div class="border-t border-zinc-100 py-2 first:border-t-0 dark:border-zinc-800">
+            <div class="border-t border-zinc-100 py-2 first:border-t-0">
                 <flux:text>{{ $oorzaak->omschrijving }}</flux:text>
                 @if ($oorzaak->methodiek)
                     <flux:text class="text-sm">Methodiek: {{ $oorzaak->methodiek }}</flux:text>
@@ -89,11 +89,11 @@
     </div>
 
     {{-- 3. Corrigerende maatregelen met hun toetsen. --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-4">Corrigerende maatregelen ({{ $maatregelen->count() }})</flux:heading>
 
         @forelse ($maatregelen as $maatregel)
-            <div class="border-t border-zinc-100 py-3 first:border-t-0 dark:border-zinc-800"
+            <div class="border-t border-zinc-100 py-3 first:border-t-0"
                 wire:key="maatregel-{{ $maatregel->id }}">
                 <div class="flex items-start justify-between gap-3">
                     <div>
@@ -111,7 +111,7 @@
                 </div>
 
                 @foreach ($maatregel->toetsen as $toets)
-                    <div class="ms-4 mt-2 border-s-2 border-zinc-200 ps-3 dark:border-zinc-700">
+                    <div class="ms-4 mt-2 border-s-2 border-zinc-200 ps-3">
                         <flux:badge size="sm" :color="$toets->resultaat === 'effectief' ? 'green' : 'red'">
                             {{ str_replace('_', ' ', $toets->resultaat) }}
                         </flux:badge>
@@ -158,7 +158,7 @@
 
     {{-- 4. Effectiviteitstoets vastleggen. --}}
     @if ($this->magMuteren() && $maatregelen->where('status', 'voltooid')->isNotEmpty())
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <flux:heading size="lg" class="mb-1">Effectiviteitstoets vastleggen</flux:heading>
             <flux:subheading class="mb-4">
                 &sect;10.2 vraagt niet alleen om een maatregel, maar om de vaststelling dát hij werkt.

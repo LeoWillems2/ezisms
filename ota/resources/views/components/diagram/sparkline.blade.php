@@ -48,7 +48,7 @@
             stroke-linecap="round" vector-effect="non-scaling-stroke" />
     </svg>
 @else
-    <div class="mt-auto pt-2.5 text-xs text-zinc-500 dark:text-zinc-400">
+    <div class="mt-auto pt-2.5 text-xs text-zinc-500">
         Nog te weinig metingen voor een trend.
     </div>
 @endif

@@ -41,6 +41,17 @@ PHP_EXTENSIES=(
     openssl pdo pdo_mysql session tokenizer xml zip
 )
 
+# ── Databasevarianten die deze boom kan draaien ──────────────────────────────
+# Gaat via het manifest naar deploy-docker.sh, dat weigert als de container om
+# een variant vraagt die deze boom niet kent (implementatie/00s §8). Dat vangt
+# een nieuwe compose-sqlite.yml die naar een oudere ISMS_BOOM wijst; zonder deze
+# controle struikelt die combinatie halverwege.
+#
+# `sqlite` staat er niet bij in PHP_EXTENSIES hierboven: die lijst is de eis aan
+# een BARE-METAL host, en daar blijft MySQL de enige variant (00s §14). De
+# Docker-route leest hem niet en het image brengt pdo_sqlite zelf mee.
+DB_VARIANTEN=(mysql sqlite)
+
 # ── Seeddata: wat er in een uitlevering mag zitten ───────────────────────────
 # Alles onder database/seeders/data/ dat hier NIET in staat, is gelicentieerd of
 # installatiegebonden en hoort niet in een tarbal. De controle in builddistr.sh

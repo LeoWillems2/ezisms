@@ -20,7 +20,7 @@
 
     {{-- Actieve versie --}}
     @if ($actief)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <div class="flex items-center gap-3">
                 <flux:badge color="green">Actief — versie {{ $actief->versienummer }}</flux:badge>
                 <flux:text>Geldig sinds {{ $actief->geldig_vanaf?->format('d-m-Y') ?? '—' }}</flux:text>
@@ -76,7 +76,7 @@
 
     {{-- Werkversie: concept (bewerkbaar) of ter_goedkeuring (alleen-lezen + activeren) --}}
     @if ($werk)
-        <div class="rounded-xl border-2 border-dashed border-zinc-300 p-5 dark:border-zinc-600">
+        <div class="rounded-xl border-2 border-dashed border-zinc-300 p-5">
             <div class="mb-4 flex items-center gap-3">
                 <flux:badge :color="$werk->status === 'concept' ? 'amber' : 'blue'">
                     {{ $werk->status === 'concept' ? 'Concept' : 'Ter goedkeuring' }} — versie {{ $werk->versienummer }}
@@ -124,7 +124,7 @@
                 <flux:text class="mb-3">Elke uitsluiting vereist een motivatie — dat is een harde eis van §4.3.</flux:text>
 
                 @forelse ($werk->uitsluitingen as $uitsluiting)
-                    <div wire:key="uitsluiting-{{ $uitsluiting->id }}" class="mb-2 flex items-start justify-between gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                    <div wire:key="uitsluiting-{{ $uitsluiting->id }}" class="mb-2 flex items-start justify-between gap-3 rounded-lg border border-zinc-200 p-3">
                         <div>
                             <flux:text class="font-medium">{{ $uitsluiting->omschrijving }}</flux:text>
                             <flux:text>Motivatie: {{ $uitsluiting->motivatie }}</flux:text>
@@ -136,7 +136,7 @@
                     <flux:text class="mb-2">Geen uitsluitingen.</flux:text>
                 @endforelse
 
-                <form wire:submit="uitsluitingToevoegen" class="mt-3 flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                <form wire:submit="uitsluitingToevoegen" class="mt-3 flex flex-col gap-3 rounded-lg border border-zinc-200 p-4">
                     <flux:input wire:model="nieuweUitsluitingOmschrijving" label="Omschrijving uitsluiting" />
                     <flux:input wire:model="nieuweUitsluitingMotivatie" label="Motivatie" required />
                     <div><flux:button size="sm" type="submit" icon="plus">Uitsluiting toevoegen</flux:button></div>
@@ -147,7 +147,7 @@
                 <flux:heading size="sm">Interfaces naar buiten-scope onderdelen</flux:heading>
 
                 @forelse ($werk->interfaces as $interface)
-                    <div wire:key="interface-{{ $interface->id }}" class="mb-2 flex items-start justify-between gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                    <div wire:key="interface-{{ $interface->id }}" class="mb-2 flex items-start justify-between gap-3 rounded-lg border border-zinc-200 p-3">
                         <div>
                             <flux:text class="font-medium">{{ $interface->omschrijving }}</flux:text>
                             @if ($interface->risico_implicatie)
@@ -161,7 +161,7 @@
                     <flux:text class="mb-2">Geen interfaces.</flux:text>
                 @endforelse
 
-                <form wire:submit="interfaceToevoegen" class="mt-3 flex flex-col gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                <form wire:submit="interfaceToevoegen" class="mt-3 flex flex-col gap-3 rounded-lg border border-zinc-200 p-4">
                     <flux:input wire:model="nieuweInterfaceOmschrijving" label="Omschrijving interface"
                         description="Bijv. IT-beheer door een externe partij." />
                     <flux:input wire:model="nieuweInterfaceRisico" label="Risico-implicatie (optioneel)" />

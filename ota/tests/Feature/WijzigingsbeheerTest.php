@@ -16,8 +16,8 @@ use App\Models\Systeem;
 use App\Models\Taak;
 use App\Models\Wijziging;
 use App\Models\Wijzigingssjabloon;
-use App\Support\StapGeblokkeerd;
 use App\Support\Stappenreeks;
+use App\Support\TaakGeblokkeerd;
 use App\Support\Wijzigingsdossier;
 use App\Support\Wijzigingsroutes;
 use Database\Seeders\BlokSeeder;
@@ -187,7 +187,7 @@ class WijzigingsbeheerTest extends TestCase
 
         Wijzigingsdossier::neemInBehandeling($wijziging, $sjabloon->fresh('stappen'), now()->addDays(20));
 
-        $this->expectException(StapGeblokkeerd::class);
+        $this->expectException(TaakGeblokkeerd::class);
 
         $this->stap($wijziging, 'Beoordelen')->update(['status' => 'voltooid', 'voltooid_op' => now()]);
     }
@@ -728,7 +728,7 @@ class WijzigingsbeheerTest extends TestCase
         $this->assertSame('uitvoeren', $lopendeStap->staptype, 'Het staptype staat bevroren op de taak.');
 
         // En de controle die eraan hangt werkt nog steeds.
-        $this->assertNotNull($wijziging->belemmeringVoorStap($lopendeStap));
+        $this->assertNotNull($wijziging->belemmeringVoorTaak($lopendeStap));
     }
 
     /**
@@ -750,7 +750,7 @@ class WijzigingsbeheerTest extends TestCase
 
         $eerste = $this->stap($wijziging, 'Beoordelen');
         $this->assertTrue($eerste->bewijs_verplicht);
-        $this->assertNotNull($wijziging->belemmeringVoorStap($eerste), 'De bewijsplicht blijft gelden.');
+        $this->assertNotNull($wijziging->belemmeringVoorTaak($eerste), 'De bewijsplicht blijft gelden.');
 
         $this->assertSame('uitvoeren', $this->stap($wijziging, 'Uitvoeren')->staptype);
     }
@@ -848,7 +848,7 @@ class WijzigingsbeheerTest extends TestCase
         // Zonder terugvalplan blijft de bevroren eis gelden, ook al is de
         // sjabloonstap eronder vervangen.
         $wijziging->update(['terugvalplan' => null]);
-        $this->assertNotNull($wijziging->belemmeringVoorStap($stap), 'De bevroren eisen blijven gelden.');
+        $this->assertNotNull($wijziging->belemmeringVoorTaak($stap), 'De bevroren eisen blijven gelden.');
     }
 
     /**

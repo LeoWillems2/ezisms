@@ -39,7 +39,7 @@
 # regelnummer, alleen een exitcode waar de entrypoint een blokkade op zet.
 set -Eeuo pipefail
 
-DEPLOY_DOCKER_VERSIE="1.0"
+DEPLOY_DOCKER_VERSIE="1.1"
 
 # ── Vaste paden ──────────────────────────────────────────────────────────────
 # Geen instelbare varianten zoals in deploy.sh: het image bepaalt deze paden en
@@ -87,6 +87,30 @@ fout() {
     fi
     printf '\033[31m\nFOUT: %s\033[0m\n' "$*" >&2
     exit 1
+}
+
+# Zelfde melding, andere exitcode: een fout die met opnieuw proberen NOOIT
+# weggaat (implementatie/00s §16.3). Een instelling die niet kan, een pakket dat
+# niet bij deze stack past, een image dat verkeerd gebouwd is.
+#
+# De entrypoint blokkeert daarop meteen in plaats van de container nog twee keer
+# te laten herstarten. Dat scheelt niet alleen tijd: bij elke poging raast de
+# melding voorbij in het log, en juist bij deze klasse fouten is die melding het
+# enige wat de beheerder verder helpt.
+#
+# 78 is EX_CONFIG uit sysexits(3) — een afspraak en geen willekeurig getal. Wat
+# hier NIET onder valt is alles wat van veranderlijke toestand afhangt: een
+# database die nog niet antwoordt, een dump die niet lukte, een migratie die
+# struikelde. Daar is opnieuw proberen juist de goede reactie; dat is één keer
+# bewezen door een DNS-hapering die bij de tweede poging over was.
+FATALE_CODE=78
+fataal() {
+    if [[ -n ${FOUTVLAG:-} ]]; then
+        [[ -e $FOUTVLAG ]] && exit "$FATALE_CODE"
+        : >"$FOUTVLAG"
+    fi
+    printf '\033[31m\nFOUT: %s\033[0m\n' "$*" >&2
+    exit "$FATALE_CODE"
 }
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -148,10 +172,15 @@ manifest_waarde() { # <sleutel>
 # en niet via de commandoregel: argumenten zijn met `ps` voor iedereen leesbaar,
 # de omgeving van een proces alleen voor de eigenaar en root.
 db_query() { # <sql> → rijen, kolommen gescheiden door een tab
-    SQL="$1" DB_H="$DB_HOST" DB_P="$DB_PORT" DB_D="$DB_DATABASE" \
+    SQL="$1" DB_C="$VARIANT" DB_H="$DB_HOST" DB_P="$DB_PORT" DB_D="$DB_DATABASE" \
     DB_U="$DB_USERNAME" DB_W="$DB_PASSWORD" "$PHP" -r '
-        $dsn = sprintf("mysql:host=%s;port=%s;dbname=%s",
-            getenv("DB_H"), getenv("DB_P"), getenv("DB_D"));
+        // Twee varianten, één vorm eromheen (implementatie/00s §7): alle
+        // aanroepers — inclusief de slotschermen die tellingen doen — moeten
+        // ongewijzigd blijven werken.
+        $dsn = getenv("DB_C") === "sqlite"
+            ? "sqlite:" . getenv("DB_D")
+            : sprintf("mysql:host=%s;port=%s;dbname=%s",
+                getenv("DB_H"), getenv("DB_P"), getenv("DB_D"));
         try {
             $pdo = new PDO($dsn, getenv("DB_U"), getenv("DB_W"),
                 [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
@@ -225,7 +254,7 @@ opruimen() {
 # ═════════════════════════════════════════════════════════════════════════════
 
 controleer_root() {
-    [[ $EUID -eq 0 ]] || fout "dit script moet als root draaien (eigendom zetten, als www-data draaien)"
+    [[ $EUID -eq 0 ]] || fataal "dit script moet als root draaien (eigendom zetten, als www-data draaien)"
 }
 
 controleer_gereedschap() {
@@ -234,10 +263,17 @@ controleer_gereedschap() {
     # Uitgedund ten opzichte van deploy.sh: geen systemctl, crontab, useradd of
     # rsync. Systemd bestaat hier niet, de accounts komen uit de build en er
     # wordt niets gekopieerd — de code zit in het image (00n §9.1).
-    for cmd in runuser find mysqldump gzip zcat; do
+    for cmd in runuser find gzip; do
         command -v "$cmd" >/dev/null || ontbreekt+=("$cmd")
     done
-    [[ ${#ontbreekt[@]} -eq 0 ]] || fout "ontbrekende commando's in het image: ${ontbreekt[*]}
+    # Alleen de MySQL-tak dumpt met extern gereedschap; de sqlite-tak doet dat
+    # via PDO en heeft dus geen `sqlite3`-CLI nodig (00s §5).
+    if [[ $VARIANT != sqlite ]]; then
+        for cmd in mysqldump zcat; do
+            command -v "$cmd" >/dev/null || ontbreekt+=("$cmd")
+        done
+    fi
+    [[ ${#ontbreekt[@]} -eq 0 ]] || fataal "ontbrekende commando's in het image: ${ontbreekt[*]}
 Dit is een bouwfout, geen instelling: vul docker/Dockerfile aan."
     goed "alle benodigde commando's aanwezig"
 }
@@ -252,25 +288,49 @@ lees_omgeving() {
     APP_ENV_NU=${APP_ENV:-production}
     DEMO=${ISMS_DEMO:-nee}
 
+    # De databasevariant (implementatie/00s). `mysql` is de terugval: een
+    # compose.yml van vóór 00s geeft DB_CONNECTION niet door, en die installatie
+    # draait op MySQL.
+    VARIANT=${DB_CONNECTION:-mysql}
+# De normprofielen die deze uitrol kent. Gezaghebbend is ota/config/norm.php; komt
+# daar een vierde profiel bij, dan hoort hij hier ook.
+BEKENDE_PROFIELEN=(iso27001 nen7510 bio2)
     DB_HOST=${DB_HOST:-db}
     DB_PORT=${DB_PORT:-3306}
     DB_DATABASE=${DB_DATABASE:-}
     DB_USERNAME=${DB_USERNAME:-}
     DB_PASSWORD=${DB_PASSWORD:-}
 
-    [[ -n $DB_DATABASE ]] || fout "DB_DATABASE staat niet in de omgeving van deze container"
+    [[ $VARIANT == mysql || $VARIANT == sqlite ]] \
+        || fataal "DB_CONNECTION='$VARIANT' wordt niet ondersteund; gebruik 'mysql' of 'sqlite'"
+    [[ -n $DB_DATABASE ]] || fataal "DB_DATABASE staat niet in de omgeving van deze container"
     [[ -n $NORM_ENV ]] \
-        || fout "ISMS_NORM is leeg. Er is geen standaardwaarde: een stilzwijgende terugval
+        || fataal "ISMS_NORM is leeg. Er is geen standaardwaarde: een stilzwijgende terugval
 op ISO 27001 zou een zorginstelling de verkeerde controlset geven. Zet
-ISMS_NORM=iso27001 of ISMS_NORM=nen7510 in .env en doe: docker compose up -d"
-    [[ $NORM_ENV == iso27001 || $NORM_ENV == nen7510 ]] \
-        || fout "ISMS_NORM='$NORM_ENV' is geen bekend profiel (iso27001 of nen7510)"
+ISMS_NORM=${BEKENDE_PROFIELEN[0]} (of een van de andere: ${BEKENDE_PROFIELEN[*]}) in .env
+en doe: docker compose up -d"
+    # Een lijst en geen `||`-keten: bij het derde profiel is dit één keer
+    # vergeten, en toen weigerde de Docker-route bio2 terwijl compose.yml,
+    # LEESMIJ.md en deploy.sh hem alle drie aanboden. Gezaghebbend is
+    # config/norm.php; deze lijst is de vroege controle, zodat een typefout niet
+    # pas na zes minuten seeden opvalt.
+    local bekend=nee profiel
+    for profiel in "${BEKENDE_PROFIELEN[@]}"; do
+        [[ $NORM_ENV == "$profiel" ]] && bekend=ja
+    done
+
+    [[ $bekend == ja ]] \
+        || fataal "ISMS_NORM='$NORM_ENV' is geen bekend profiel (${BEKENDE_PROFIELEN[*]})"
     [[ $DEMO == ja || $DEMO == nee ]] \
-        || fout "ISMS_DEMO='$DEMO' wordt niet begrepen; gebruik 'ja' of 'nee'"
+        || fataal "ISMS_DEMO='$DEMO' wordt niet begrepen; gebruik 'ja' of 'nee'"
 
     meld "omgeving:    $APP_ENV_NU"
     meld "normprofiel: $NORM_ENV"
-    meld "database:    $DB_USERNAME@$DB_HOST:$DB_PORT/$DB_DATABASE"
+    if [[ $VARIANT == sqlite ]]; then
+        meld "database:    sqlite $DB_DATABASE"
+    else
+        meld "database:    mysql $DB_USERNAME@$DB_HOST:$DB_PORT/$DB_DATABASE"
+    fi
     meld "publieke URL: ${APP_URL:-<niet gezet>}"
     [[ $DEMO == ja ]] && waarschuw "ISMS_DEMO=ja — dit is een demo-opstelling, geen productie"
     return 0
@@ -278,7 +338,7 @@ ISMS_NORM=iso27001 of ISMS_NORM=nen7510 in .env en doe: docker compose up -d"
 
 controleer_php_basis() {
     stap "PHP"
-    [[ -x $PHP ]] || fout "php is niet uitvoerbaar: $PHP"
+    [[ -x $PHP ]] || fataal "php is niet uitvoerbaar: $PHP"
     meld "php: $PHP ($("$PHP" -r 'echo PHP_VERSION;'))"
     # Geen extensiecontrole en geen platform_check: die zijn bij de build al
     # gedraaid en falen daar, met een leesbare melding (00l §4). Wat in het image
@@ -288,7 +348,7 @@ controleer_php_basis() {
 
 controleer_manifest() {
     stap "Manifest"
-    [[ -f "$APP/MANIFEST.json" ]] || fout "MANIFEST.json ontbreekt; dit image is niet uit een tarbal van builddistr.sh gebouwd"
+    [[ -f "$APP/MANIFEST.json" ]] || fataal "MANIFEST.json ontbreekt; dit image is niet uit een tarbal van builddistr.sh gebouwd"
 
     PAKKET_VERSIE=$(manifest_waarde versie)
     PAKKET_COMMIT=$(manifest_waarde commit)
@@ -298,11 +358,22 @@ controleer_manifest() {
     # Docker kan dat alleen als iemand het script met de hand vervangen heeft:
     # normaal reizen script en pakket samen in hetzelfde image.
     if [[ $(printf '%s\n%s\n' "$minimaal" "$DEPLOY_DOCKER_VERSIE" | sort -V | head -1) != "$minimaal" ]]; then
-        fout "dit pakket vraagt deploy-docker.sh $minimaal of hoger (dit is $DEPLOY_DOCKER_VERSIE)"
+        fataal "dit pakket vraagt deploy-docker.sh $minimaal of hoger (dit is $DEPLOY_DOCKER_VERSIE)"
     fi
 
     meld "versie: $PAKKET_VERSIE   commit: ${PAKKET_COMMIT:0:12}"
     meld "gebouwd op: $(manifest_waarde gebouwd_op) met php $(manifest_waarde bouwhost_php)"
+    # Kent dit pakket de gevraagde databasevariant (00s §8)? Dit vangt het geval
+    # dat anders halverwege struikelt: een nieuwe compose-sqlite.yml die naar een
+    # oudere ISMS_BOOM wijst. Ontbreekt de sleutel volledig — een tarbal van vóór
+    # 00s — dan kan dat pakket alleen mysql.
+    local varianten; varianten=$(manifest_waarde db_varianten)
+    [[ -n $varianten ]] || varianten=mysql
+    if ! printf '%s\n' "$varianten" | grep -qx "$VARIANT"; then
+        fataal "dit pakket ($PAKKET_VERSIE) kent de databasevariant '$VARIANT' niet; het ondersteunt: $(printf '%s' "$varianten" | tr '\n' ' ')
+Wijs ISMS_BOOM naar een nieuwere boom, of gebruik het compose-bestand dat bij deze boom hoort."
+    fi
+
     # SHA256SUMS is bij de build gecontroleerd (00l §4) en hoeft hier niet
     # opnieuw: de laag met de applicatieboom is sindsdien niet gewijzigd.
     goed "manifest gelezen"
@@ -314,12 +385,35 @@ controleer_manifest() {
 # de initialisatie opnieuw over een gevulde database (00n §0.1).
 controleer_database() {
     stap "Database"
-    db_query "SELECT 1" >/dev/null \
-        || fout "geen verbinding met $DB_DATABASE op $DB_HOST — controleer MYSQL_* in .env"
+
+    # De variant als eerste regel, zodat elk opstartlog en elk slotscherm zegt
+    # welke van de twee er draaide — de eerste vraag bij elke storingsmelding
+    # (00s §7).
+    meld "variant: $VARIANT"
 
     local versie tabellen
-    versie=$(db_query "SELECT VERSION()")
-    tabellen=$(db_query "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE()")
+
+    if [[ $VARIANT == sqlite ]]; then
+        # Eerst het bestand, dan pas een query: PDO MAAKT een sqlite-bestand aan
+        # zodra je verbinding maakt. Een `SELECT 1` als toets zou hier dus het
+        # antwoord op de vraag zelf produceren.
+        if [[ ! -e $DB_DATABASE ]]; then
+            MODUS=eerste
+            goed "nog geen databasebestand; dit wordt een verse installatie"
+            return
+        fi
+        versie="sqlite $(db_query "select sqlite_version()")"
+        # `sqlite_%` is de eigen boekhouding van SQLite (sqlite_sequence e.d.) en
+        # telt niet als installatie.
+        tabellen=$(db_query "select count(*) from sqlite_master where type = 'table' and name not like 'sqlite\_%' escape '\\'")
+    else
+        db_query "SELECT 1" >/dev/null \
+            || fout "geen verbinding met $DB_DATABASE op $DB_HOST — controleer MYSQL_* in .env"
+
+        versie=$(db_query "SELECT VERSION()")
+        tabellen=$(db_query "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = DATABASE()")
+    fi
+
     meld "server: $versie"
     meld "tabellen: $tabellen"
 
@@ -414,13 +508,13 @@ normcontrole() {
     meld "database: $uit_db"
 
     if [[ -n $stempel && $stempel != "$NORM_ENV" ]]; then
-        fout "ISMS_NORM in uw .env ($NORM_ENV) wijkt af van de normstempel ($stempel).
+        fataal "ISMS_NORM in uw .env ($NORM_ENV) wijkt af van de normstempel ($stempel).
 Een profielwissel is geen bijwerking maar een herinstallatie: bestaande SoA-beoordelingen
 gelden voor de oude controlset. Stel eerst vast welke van de twee klopt.
 Zet ISMS_NORM terug op '$stempel' en doe: docker compose up -d"
     fi
     if [[ $uit_db != leeg && $uit_db != "$NORM_ENV" ]]; then
-        fout "de database vertelt een ander verhaal dan uw .env: $uit_db tegenover $NORM_ENV.
+        fataal "de database vertelt een ander verhaal dan uw .env: $uit_db tegenover $NORM_ENV.
 Ga niet verder; een bijwerking maakt dit niet beter."
     fi
     goed "profiel eenduidig: $NORM_ENV"
@@ -591,14 +685,80 @@ verwijder_andere_controlsets() {
 openstaande_migraties() { ! artisan migrate:status --pending=1 >/dev/null 2>&1; }
 
 # ── GEDEELD MET deploy.sh :: maak_dump() ─────────────────────────────────────
+# Let op bij het synchroniseren: `dump_mysql()` hieronder is de gedeelde helft en
+# hoort gelijk te blijven aan die van deploy.sh. `dump_sqlite()` en de keuze
+# ertussen zijn Docker-eigen (00s §14) — bare metal draait MySQL en kent die tak
+# niet.
+#
 # Verplicht zodra er werkelijk gemigreerd wordt, en dan zonder ontsnapping: er
 # is geen --geen-migraties in de Docker-route. In Docker is een upgrade één
 # regel in .env, dus de drempel is lager dan op bare metal — reden te meer om de
 # dump daar niet optioneel te maken (00n §9.5). Dit is de enige stap in de keten
 # die onomkeerbaar data kan kosten.
 maak_dump() {
-    local doel="$INSTALLATIE/dump-$(date +%Y%m%dT%H%M%S).sql.gz"
     stap "Databasedump vóór de migratie"
+
+    local doel
+    if [[ $VARIANT == sqlite ]]; then
+        dump_sqlite
+        doel=$DUMPDOEL
+    else
+        doel="$INSTALLATIE/dump-$(date +%Y%m%dT%H%M%S).sql.gz"
+        dump_mysql "$doel"
+    fi
+
+    chown "$GEBRUIKER:$GROEP" "$doel"; chmod 0600 "$doel"
+    DUMP="$doel"
+    goed "dump: ${doel#"$STATE"/} ($(du -h "$doel" | cut -f1))"
+
+    # Ze worden bewust niet opgeruimd — het zijn de wegen terug (00n §13). Maar
+    # er wordt er één per start gemaakt, en een herstart is in Docker goedkoop.
+    # Dus wel tellen, zodat het niet ongemerkt de schijf vult.
+    local aantal; aantal=$(find "$INSTALLATIE" -maxdepth 1 -name 'dump-*.gz' | wc -l)
+    if [[ $aantal -ge 10 ]]; then
+        waarschuw "er staan $aantal dumps in data/app/installatie/ ($(du -sh "$INSTALLATIE" | cut -f1))."
+        waarschuw "Ze worden nooit automatisch weggegooid; ruim zelf op wat u niet meer nodig heeft."
+    fi
+}
+
+# Een consistente kopie van een draaiende SQLite-database, zonder de applicatie
+# te bevriezen (00s §7). `VACUUM INTO` doet dat binnen één transactie; een `cp`
+# van een bestand waar op dat moment in geschreven wordt, levert een archief op
+# dat er compleet uitziet en het niet is.
+#
+# Via PDO en niet via een sqlite3-CLI: dat gereedschap zit niet in het image, en
+# PHP staat er per definitie wel.
+dump_sqlite() {
+    local kaal="$INSTALLATIE/dump-$(date +%Y%m%dT%H%M%S).sqlite"
+
+    # De integriteitscontrole zit in hetzelfde PHP-blok als de kopie. Op de
+    # exitcode alleen kun je hier niet varen — dezelfde les als bij mysqldump,
+    # dat bij een tablespace-fout op stderr klaagde en tóch 0 teruggaf — en dit
+    # bestand is de enige weg terug als de migratie hierna misgaat.
+    if ! DB_PAD="$DB_DATABASE" DOEL="$kaal" "$PHP" -r '
+        $opties = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+        $bron = new PDO("sqlite:" . getenv("DB_PAD"), null, null, $opties);
+        $bron->exec("VACUUM INTO " . $bron->quote(getenv("DOEL")));
+
+        $kopie = new PDO("sqlite:" . getenv("DOEL"), null, null, $opties);
+        $uitkomst = $kopie->query("PRAGMA integrity_check")->fetchColumn();
+        if ($uitkomst !== "ok") {
+            fwrite(STDERR, "integrity_check gaf: $uitkomst\n");
+            exit(2);
+        }
+    '; then
+        rm -f "$kaal"
+        fout "de databasedump is niet bruikbaar en is weggegooid.
+Zonder bruikbare dump wordt er niet gemigreerd. Controleer de vrije ruimte op de
+hostmap achter data/app/installatie en de rechten op $DB_DATABASE."
+    fi
+
+    gzip "$kaal"
+    DUMPDOEL="$kaal.gz"
+}
+
+dump_mysql() { # <doel>
+    local doel=$1
     # --no-tablespaces: vanaf MySQL 5.7.31/8.0.21 leest mysqldump standaard
     # INFORMATION_SCHEMA.FILES, en dat vraagt het serverbrede PROCESS-recht. Dat
     # recht laat een account álle draaiende queries van álle gebruikers zien;
@@ -622,18 +782,6 @@ Zonder bruikbare dump wordt er niet gemigreerd. Controleer de vrije ruimte op de
 hostmap achter data/app/installatie en de rechten van $DB_USERNAME op $DB_DATABASE."
     fi
 
-    chown "$GEBRUIKER:$GROEP" "$doel"; chmod 0600 "$doel"
-    DUMP="$doel"
-    goed "dump: ${doel#"$STATE"/} ($(du -h "$doel" | cut -f1))"
-
-    # Ze worden bewust niet opgeruimd — het zijn de wegen terug (00n §13). Maar
-    # er wordt er één per start gemaakt, en een herstart is in Docker goedkoop.
-    # Dus wel tellen, zodat het niet ongemerkt de schijf vult.
-    local aantal; aantal=$(find "$INSTALLATIE" -maxdepth 1 -name 'dump-*.sql.gz' | wc -l)
-    if [[ $aantal -ge 10 ]]; then
-        waarschuw "er staan $aantal dumps in data/app/installatie/ ($(du -sh "$INSTALLATIE" | cut -f1))."
-        waarschuw "Ze worden nooit automatisch weggegooid; ruim zelf op wat u niet meer nodig heeft."
-    fi
 }
 
 # ── GEDEELD MET deploy.sh :: migreer_en_seed() ───────────────────────────────
@@ -748,14 +896,14 @@ demo_vullen() {
     # af (00n §9.4); dit is de tweede grendel voor wie het script met de hand
     # start.
     [[ $NORM_ENV == iso27001 ]] \
-        || fout "ISMS_DEMO=ja kan niet op een $NORM_ENV-installatie.
+        || fataal "ISMS_DEMO=ja kan niet op een $NORM_ENV-installatie.
 Het FruitBV-scenario hoort bij de controlset van ISO 27001."
 
     local map fixtures
     map=$(manifest_waarde demofixtures)
     fixtures="$APP/$map"
     [[ -n $map && -d $fixtures ]] \
-        || fout "ISMS_DEMO=ja kan niet: dit pakket bevat geen demofixtures.
+        || fataal "ISMS_DEMO=ja kan niet: dit pakket bevat geen demofixtures.
 Bouw de tarbal opnieuw met een builddistr.sh die saasdemo/data meelevert."
 
     artisan isms:demo-vul --fixtures="$fixtures"
@@ -857,7 +1005,18 @@ bewaar_verantwoording() {
     # Het vierde is daar de releasemap; hier is dat de commit van het image.
     printf '%s\n' "$PAKKET_VERSIE $PAKKET_COMMIT $(date -Iseconds) docker" \
         >>"$INSTALLATIE/uitrolhistorie"
+
+    # Welke databasevariant bij deze data hoort (00s §6.4/§7). De entrypoint
+    # leest dit bij elke start en blokkeert als er een compose-bestand van de
+    # ándere variant op deze ISMS_DATA wordt gericht — het scenario dat naast een
+    # gevuld ISMS een tweede, lege database zou opbouwen.
+    #
+    # Hier en niet in de entrypoint: pas ná een geslaagde uitrol staat vast dát
+    # deze variant deze data draagt.
+    printf '%s' "$VARIANT" >"$INSTALLATIE/db-variant"
+
     chown -R "$GEBRUIKER:$GROEP" "$INSTALLATIE"
+    chmod 0640 "$INSTALLATIE/db-variant"
 
     if [[ -f "$APP/scripts/genereer-sbom.php" ]]; then
         ( cd "$APP" && als_app "$PHP" scripts/genereer-sbom.php >/dev/null 2>&1 ) \
@@ -1003,10 +1162,15 @@ werk_bij() {
 # `${…:-}`-vangnet, en niets raakt ze aan vóór dat moment.
 MODUS=""; PAKKET_VERSIE=""; PAKKET_COMMIT=""
 NORM_ENV=""; APP_ENV_NU=""; DEMO=nee
+# Hier al, en niet pas in lees_omgeving: controleer_gereedschap draait daarvóór
+# en kijkt naar de variant, en `set -u` maakt van een lege VARIANT anders een
+# afbreking (00s §7).
+VARIANT=${DB_CONNECTION:-mysql}
 EIGEN_SEEDDATA=nee
 DEMO_GEVULD=nee
 MIGRATIE_GEDRAAID=nee
 DUMP=""
+DUMPDOEL=""
 CISO_BESTAND=""
 HARTSLAG=""
 

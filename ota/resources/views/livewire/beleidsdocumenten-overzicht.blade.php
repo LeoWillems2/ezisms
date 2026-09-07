@@ -47,7 +47,7 @@
     </div>
 
     @if ($toontFormulier)
-        <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+        <div class="blueprint p-5">
             <flux:heading size="lg" class="mb-4">
                 {{ $bewerktId ? 'Document bewerken' : 'Nieuw beleidsdocument' }}
             </flux:heading>
@@ -87,7 +87,7 @@
                         @endif
 
                         @error('afdelingIds')
-                            <flux:text class="mt-1 text-sm text-red-600 dark:text-red-500">{{ $message }}</flux:text>
+                            <flux:text class="mt-1 text-sm text-red-600">{{ $message }}</flux:text>
                         @enderror
                     </div>
                 @endif
@@ -136,6 +136,19 @@
                         <flux:badge size="sm" :color="$statusKleur">
                             {{ ucfirst(str_replace('_', ' ', $document->status)) }}
                         </flux:badge>
+
+                        {{-- Een aangeboden versie onder een actief document is
+                             aan de documentstatus niet te zien: 'actief' wint in
+                             de afleiding (05b §1). Alleen voor wie die versie
+                             mag zien; een Medewerker leest hier geen beleid dat
+                             nog niet is vastgesteld. --}}
+                        @if ($this->magAllesZien() && ! $document->isIngetrokken() && $document->versieTerGoedkeuring)
+                            <flux:badge size="sm"
+                                :color="$document->versieTerGoedkeuring->goedkeurtermijnVerstreken() ? 'amber' : 'blue'"
+                                class="mt-1">
+                                v{{ $document->versieTerGoedkeuring->versienummer }} wacht op goedkeuring
+                            </flux:badge>
+                        @endif
                     </flux:table.cell>
                     <flux:table.cell>{{ $versie ? 'v'.$versie->versienummer : '—' }}</flux:table.cell>
                     <flux:table.cell>
@@ -144,8 +157,8 @@
                                 $verstreken = $versie->herzieningVerstreken();
                                 $bijna = ! $verstreken
                                     && $versie->volgende_herziening_gepland->isBefore(now()->addDays(30));
-                                $kleur = $verstreken ? 'text-red-600 dark:text-red-500'
-                                    : ($bijna ? 'text-amber-600 dark:text-amber-500' : '');
+                                $kleur = $verstreken ? 'text-red-600'
+                                    : ($bijna ? 'text-amber-600' : '');
                             @endphp
                             <span class="{{ $kleur }}">
                                 {{ $versie->volgende_herziening_gepland->format('d-m-Y') }}

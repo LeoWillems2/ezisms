@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditeerbaar;
-use App\Support\Stapbelemmering;
 use App\Support\Stappenreeks;
+use App\Support\Taakbelemmering;
 use Database\Factories\WijzigingFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,7 +23,7 @@ use Illuminate\Support\Collection;
  * De stappen staan in `taken` (implementatie/07b); dit model draagt alleen de
  * dossiervelden en de regels die het bronblok toebehoren.
  */
-class Wijziging extends Model implements Stapbelemmering
+class Wijziging extends Model implements Taakbelemmering
 {
     /** @use HasFactory<WijzigingFactory> */
     use Auditeerbaar, HasFactory;
@@ -100,9 +100,19 @@ class Wijziging extends Model implements Stapbelemmering
      * De inhoudelijke eisen die aan een stap vastzitten (§6). Wordt vanuit
      * `TaakObserver::updating()` gevraagd, dus deze regels gelden ook wanneer
      * de stap vanaf `/taken` wordt afgevinkt.
+     *
+     * Sinds 05b vraagt de observer dit bij élke gekoppelde taak. Aan een
+     * wijziging hangen alleen stappen, en beide controles hieronder toetsen een
+     * veld dat buiten een reeks leeg is — een losse taak op een wijziging zou
+     * dus vanzelf `null` opleveren. Dat is een toevalligheid en geen afspraak,
+     * dus staat de grens er expliciet.
      */
-    public function belemmeringVoorStap(Taak $stap): ?string
+    public function belemmeringVoorTaak(Taak $stap): ?string
     {
+        if (! $stap->isStap()) {
+            return null;
+        }
+
         // Van de taak zelf en niet van de sjabloonstap: de eisen liggen vast op
         // het moment dat de reeks start (§17). Een sjabloon dat later wordt
         // versoepeld mag een controle die al gold niet alsnog uitzetten.

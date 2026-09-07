@@ -4,9 +4,9 @@
             title="Adres bevestigd"
             description="Uw account gebruikt vanaf nu dit e-mailadres." />
 
-        <div class="rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-700">
+        <div class="rounded-lg border border-zinc-200 p-4 text-sm">
             <div class="font-medium">{{ $gebruiker->naam }}</div>
-            <div class="text-zinc-500 dark:text-zinc-400">{{ $nieuwEmail }}</div>
+            <div class="text-zinc-500">{{ $nieuwEmail }}</div>
         </div>
 
         {{-- Hier staat expliciet wat er níet is veranderd: de vraag "moet ik nu
@@ -30,10 +30,10 @@
             title="Bevestig uw nieuwe e-mailadres"
             description="Er verandert pas iets als u hieronder bevestigt." />
 
-        <div class="rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-700">
+        <div class="rounded-lg border border-zinc-200 p-4 text-sm">
             <div class="font-medium">{{ $gebruiker->naam }}</div>
-            <div class="text-zinc-500 line-through dark:text-zinc-400">{{ $gebruiker->email }}</div>
-            <div class="text-zinc-900 dark:text-zinc-100">{{ $nieuwEmail }}</div>
+            <div class="text-zinc-500 line-through">{{ $gebruiker->email }}</div>
+            <div class="text-zinc-900">{{ $nieuwEmail }}</div>
         </div>
 
         <flux:text class="text-sm">

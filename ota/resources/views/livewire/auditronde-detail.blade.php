@@ -50,7 +50,7 @@
     {{-- Dekkingsvlag (plan 11c). Bewust altijd zichtbaar, ook voor wie niet mag
          muteren: dat een ronde niet meetelt is informatie, geen instelling die
          je verstopt. Alleen omzetten is voorbehouden aan de CISO. --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <flux:heading size="lg">Dekking</flux:heading>
@@ -74,7 +74,7 @@
     </div>
 
     {{-- Planning (administratief, alleen zolang 'gepland'). --}}
-    <div class="rounded-xl border border-zinc-200 p-5 dark:border-zinc-700">
+    <div class="blueprint p-5">
         <flux:heading size="lg" class="mb-4">Planning</flux:heading>
 
         @if ($this->magPlannen())
@@ -125,8 +125,8 @@
                         @endif
 
                         @if (! empty($overigeObjecten))
-                            <details class="rounded-lg border border-zinc-200 dark:border-zinc-700">
-                                <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-300">
+                            <details class="rounded-lg border border-zinc-200">
+                                <summary class="cursor-pointer select-none px-3 py-2 text-sm font-medium text-zinc-600">
                                     {{ count($overigeObjecten) }} overige controls
                                 </summary>
                                 <flux:checkbox.group wire:model="scopeObjecten"

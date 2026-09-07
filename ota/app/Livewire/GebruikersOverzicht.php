@@ -10,7 +10,10 @@ use App\Models\Gebruiker;
 use App\Models\OrganisatieEenheid;
 use App\Models\Rol;
 use App\Support\Domeincontrole;
+use App\Support\Postkanaal;
 use App\Support\Rolregels;
+use App\Support\Uitnodiging;
+use App\Support\Uitnodigingsbrief;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +23,7 @@ use Illuminate\Validation\Rule;
 use Laravel\Fortify\Actions\DisableTwoFactorAuthentication;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 #[Layout('components.layouts.app')]
 class GebruikersOverzicht extends Component
@@ -76,6 +80,13 @@ class GebruikersOverzicht extends Component
     public ?int $adreswijzigingGebruikerId = null;
 
     public string $adreswijzigingEmail = '';
+
+    // Handmatig uitreiken zonder mailkanaal (01i §4). Geen invoervelden: de
+    // modal bestaat om te vertellen wat er *niet* gebeurd is en om het bestand
+    // aan te bieden.
+    public bool $toontHandmatigeUitnodiging = false;
+
+    public ?int $handmatigeUitnodigingId = null;
 
     /**
      * Elke actiemethode herhaalt deze check ondanks de route-middleware: de
@@ -637,8 +648,26 @@ class GebruikersOverzicht extends Component
         session()->flash('melding', "Personeelsdossier van {$gebruiker->naam} bijgewerkt.");
     }
 
+    /**
+     * Het enige punt waar een uitnodiging de deur uit gaat — aangeroepen door
+     * `uitnodigen()`, `uitnodigingOpnieuwVersturen()` en beide takken van
+     * `corrigeren()`. De handmatige weg uit 01i hangt daarom hier en niet bij
+     * elk van die drie apart.
+     */
     private function verstuurUitnodiging(Gebruiker $gebruiker): void
     {
+        // Vooraf vragen en niet achteraf opvangen: met `MAIL_MAILER=log`
+        // *slaagt* de verzending en verdwijnt de mail in een logbestand
+        // (01i §0). Een catch komt daar nooit aan te pas.
+        if (! Postkanaal::beschikbaar()) {
+            $this->handmatigeUitnodigingId = $gebruiker->id;
+            $this->toontHandmatigeUitnodiging = true;
+
+            // Bewust geen datum en geen kanaal: er is nu nog niets uitgereikt.
+            // Dat gebeurt pas bij de download (§6).
+            return;
+        }
+
         try {
             Mail::to($gebruiker->email)->send(new GebruikerUitgenodigd($gebruiker));
 
@@ -646,7 +675,7 @@ class GebruikersOverzicht extends Component
             // post uit is gegaan, niet dat er op een knop is gedrukt. Faalt de
             // mail, dan blijft de oude datum staan en blijft het signaal uit
             // 01g §4 de aandacht vragen — wat dan klopt.
-            $gebruiker->update(['uitnodiging_verstuurd_op' => now()]);
+            $gebruiker->update(['uitnodiging_verstuurd_op' => now(), 'uitnodiging_kanaal' => 'mail']);
 
             session()->flash('melding', "Uitnodiging verstuurd naar {$gebruiker->email}.");
         } catch (\Throwable $e) {
@@ -658,11 +687,59 @@ class GebruikersOverzicht extends Component
         }
     }
 
+    /**
+     * De uitnodiging als tekstbestand meegeven, op een installatie die geen
+     * post kan versturen (01i §5/§6).
+     *
+     * `muteren` en niet het lichtere `lezen` van de schermkopie: dit bestand
+     * bevat een werkende sleutel naar het account, geen weergave van een scherm.
+     */
+    public function downloadUitnodiging(): ?StreamedResponse
+    {
+        $this->vereisMuteren();
+
+        $gebruiker = $this->handmatigeUitnodigingId !== null
+            ? Gebruiker::find($this->handmatigeUitnodigingId)
+            : null;
+
+        // Tussen het openen van de modal en deze klik zit een tweede verzoek,
+        // en in die tijd kan de uitnodiging geaccepteerd zijn — dezelfde
+        // controle als bij `corrigeren()`. Een link uitreiken naar een account
+        // dat inmiddels van iemand is, hoort niet te kunnen.
+        if ($gebruiker === null || $gebruiker->status !== 'uitgenodigd') {
+            $this->toontHandmatigeUitnodiging = false;
+            session()->flash('fout', 'Deze uitnodiging is niet meer uit te reiken; het account is inmiddels in gebruik of verwijderd.');
+
+            return null;
+        }
+
+        $brief = Uitnodigingsbrief::voor($gebruiker);
+        $inhoud = $brief->tekst();
+
+        // Pas nadat de tekst er zonder fout staat, net als bij de schermkopie:
+        // een mislukte brief is niet uitgereikt.
+        $gebruiker->update(['uitnodiging_verstuurd_op' => now(), 'uitnodiging_kanaal' => 'bestand']);
+        $gebruiker->schrijfAuditregel('gewijzigd', oud: null, nieuw: ['uitnodiging' => 'als bestand uitgereikt']);
+
+        $this->toontHandmatigeUitnodiging = false;
+        session()->flash('melding', "Uitnodigingsbestand voor {$gebruiker->naam} klaargezet. Reik het uit via een kanaal dat bij een wachtwoord past.");
+
+        return response()->streamDownload(
+            fn () => print ($inhoud),
+            $brief->bestandsnaam(),
+            ['Content-Type' => 'text/plain; charset=UTF-8'],
+        );
+    }
+
     public function render()
     {
         // geblokkeerdDoor mee: de statuskolom noemt wie er geblokkeerd heeft, en
         // dat zou anders een query per rij zijn.
         $gebruikers = Gebruiker::with('rollen', 'afdeling', 'geblokkeerdDoor')->orderBy('naam')->get();
+
+        $handmatig = $this->toontHandmatigeUitnodiging && $this->handmatigeUitnodigingId !== null && $this->magMuteren()
+            ? Gebruiker::find($this->handmatigeUitnodigingId)
+            : null;
 
         // De domeinen die al in gebruik zijn, uit de collectie die hierboven
         // toch al volledig geladen is (01g §5). Geen extra query.
@@ -673,6 +750,18 @@ class GebruikersOverzicht extends Component
             'rollen' => Rol::orderBy('naam')->get(),
             'afdelingen' => OrganisatieEenheid::afdelingen()->orderBy('naam')->pluck('naam', 'id')->all(),
             'screeningTypes' => Gebruiker::SCREENING_TYPES,
+            // Bepaalt de woordkeus op dit scherm (01i §7): zonder kanaal wordt
+            // er niets verstuurd maar uitgereikt.
+            'postkanaal' => Postkanaal::beschikbaar(),
+            'geenPostkanaalReden' => Postkanaal::reden(),
+            // Het account waarvoor de handmatige modal openstaat, en de link
+            // erbij. Allebei achter `magMuteren()`: `handmatigeUitnodigingId` is
+            // vanaf de client te zetten, en zonder die grens zou een lezer een
+            // werkende uitnodigingslink naar een willekeurig account kunnen
+            // opvragen. Als rendergegeven en niet als publieke methode, want
+            // elke publieke methode is vanaf de client aan te roepen.
+            'handmatigeUitnodiging' => $handmatig,
+            'handmatigeUitnodigingslink' => $handmatig !== null ? Uitnodiging::link($handmatig) : null,
             // Rapportagesignalen (A.6): actieve accounts zonder afgeronde
             // pre-employment, en gedeactiveerde zonder bevestigde offboarding.
             'preEmploymentGaps' => $gebruikers->filter->preEmploymentGap()->count(),

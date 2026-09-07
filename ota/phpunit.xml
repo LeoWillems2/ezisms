@@ -30,6 +30,7 @@
             <file>tests/Feature/AutorisatieTest.php</file>
             <file>tests/Feature/GebruikersbeheerTest.php</file>
             <file>tests/Feature/UitnodigingscorrectieTest.php</file>
+            <file>tests/Feature/UitnodigingUitreikenTest.php</file>
             <file>tests/Feature/AdreswijzigingTest.php</file>
             <file>tests/Feature/TweefactorTest.php</file>
             <file>tests/Feature/LoginTest.php</file>
@@ -40,6 +41,9 @@
             <!-- Hoort bij geen enkel domein: het normprofiel is installatiebreed,
                  net als de andere onderwerpen in deze suite. -->
             <file>tests/Feature/NormprofielTest.php</file>
+            <!-- Ook installatiebreed: de enum-dekking gaat over het hele schema
+                 en over de vraag of MySQL en SQLite hetzelfde bewaken (00s §10). -->
+            <file>tests/Feature/EnumdekkingTest.php</file>
             <!-- De Administrator staat naast de ISMS-rollen en hoort daarom bij
                  de toegangssuite en niet bij blok 10, ook al gaat zijn enige
                  scherm over toetsbestanden (implementatie/01e). -->

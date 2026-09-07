@@ -4,9 +4,9 @@
             title="Wachtwoord instellen"
             description="Kies een wachtwoord om uw ISMS-account te activeren." />
 
-        <div class="rounded-lg border border-zinc-200 p-4 text-sm dark:border-zinc-700">
+        <div class="rounded-lg border border-zinc-200 p-4 text-sm">
             <div class="font-medium">{{ $gebruiker->naam }}</div>
-            <div class="text-zinc-500 dark:text-zinc-400">{{ $gebruiker->email }}</div>
+            <div class="text-zinc-500">{{ $gebruiker->email }}</div>
         </div>
 
         <form wire:submit="opslaan" class="flex flex-col gap-6">
@@ -33,7 +33,7 @@
             title="Tweede factor koppelen"
             description="Scan de code met een authenticator-app en voer de zes cijfers in die de app toont." />
 
-        <div class="rounded-lg bg-white p-4 dark:bg-zinc-100" style="width: max-content">
+        <div class="rounded-lg bg-white p-4" style="width: max-content">
             {!! $gebruiker->twoFactorQrCodeSvg() !!}
         </div>
 

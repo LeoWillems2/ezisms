@@ -25,7 +25,7 @@ class SchoonRaadplegingen extends Command
     /**
      * Bewaartermijn in dagen. Staat NIET in de norm — een eigen keuze, lang
      * genoeg om een leesbevestiging te onderbouwen (de leestermijn is 30 dagen,
-     * zie GenereerTaken::LEESTERMIJN_DAGEN) en kort genoeg om geen
+     * zie Beleidsversie::LEESTERMIJN_DAGEN) en kort genoeg om geen
      * leesgeschiedenis per medewerker op te bouwen.
      */
     public const BEWAARTERMIJN_DAGEN = 60;

@@ -20,7 +20,7 @@
 
     {{-- Programma-formulier --}}
     @if ($toontFormulier)
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+        <div class="blueprint p-4">
             <div class="grid gap-4 sm:grid-cols-3">
                 <flux:input wire:model="naam" label="Naam" placeholder="Interne auditcyclus 2026–2028" />
                 <flux:input type="date" wire:model="startDatum" label="Startdatum"
@@ -44,10 +44,12 @@
     {{-- Programmalijst --}}
     <div class="flex flex-col gap-2">
         @forelse ($programmas as $p)
+            {{-- Het geselecteerde programma werd met een indigo rand aangewezen;
+                 Industry is mono, dus de aanwijzing gaat naar het accent — rand
+                 én hoekkruisjes kleuren mee. --}}
             <div @class([
-                'rounded-xl border p-4',
-                'border-indigo-400 dark:border-indigo-500' => $p->id === $geselecteerdId,
-                'border-zinc-200 dark:border-zinc-700' => $p->id !== $geselecteerdId,
+                'blueprint p-4',
+                'blueprint-geselecteerd' => $p->id === $geselecteerdId,
             ])>
                 <div class="flex items-center justify-between gap-4">
                     <button type="button" wire:click="selecteer({{ $p->id }})" class="text-left">
@@ -81,7 +83,7 @@
 
     {{-- Planning voor het geselecteerde programma --}}
     @if ($programma)
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+        <div class="blueprint p-4">
             <flux:heading size="lg">Planning · {{ $programma->naam }}</flux:heading>
 
             {{-- Jaarplan-koppeling --}}
@@ -121,7 +123,7 @@
             <div class="mt-2 overflow-x-auto">
                 <table class="w-full text-sm">
                     <thead>
-                        <tr class="border-b border-zinc-200 text-left dark:border-zinc-700">
+                        <tr class="border-b border-zinc-200 text-left">
                             <th class="py-2 pr-3">Object</th>
                             <th class="py-2 pr-3">Groep</th>
                             <th class="py-2 pr-3">Interval (jaren)</th>
@@ -131,7 +133,7 @@
                     <tbody>
                         @foreach ($objecten as $object)
                             @php $dekking = $dekkingen->get($object->id); @endphp
-                            <tr class="border-b border-zinc-100 dark:border-zinc-800">
+                            <tr class="border-b border-zinc-100">
                                 <td class="py-2 pr-3">
                                     <span class="font-medium">{{ $object->refCode() }}</span>
                                     <span class="text-zinc-500">{{ $object->omschrijving() }}</span>
@@ -142,7 +144,7 @@
                                         @if ($this->magMuteren())
                                             <select
                                                 wire:change="stelInterval({{ $object->id }}, $event.target.value)"
-                                                class="rounded border border-zinc-300 bg-transparent px-2 py-1 dark:border-zinc-600"
+                                                class="rounded border border-zinc-300 bg-transparent px-2 py-1"
                                             >
                                                 @for ($i = 1; $i <= $programma->aantal_jaren; $i++)
                                                     <option value="{{ $i }}" @selected($dekking->interval_jaren === $i)>

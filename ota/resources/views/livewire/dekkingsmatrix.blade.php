@@ -23,17 +23,17 @@
     @else
         {{-- Coverage-KPI --}}
         <div class="grid gap-4 sm:grid-cols-3">
-            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+            <div class="blueprint p-4">
                 <flux:text>Cyclusdekking</flux:text>
                 <flux:heading size="lg">{{ $kpi['percentage'] }}%</flux:heading>
                 <flux:text class="text-xs">{{ $kpi['gedekt'] }} van {{ $kpi['totaal'] }} objecten ≥1× geaudit</flux:text>
             </div>
-            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+            <div class="blueprint p-4">
                 <flux:text>Nog nooit geaudit</flux:text>
                 <flux:heading size="lg">{{ $kpi['nooit'] }}</flux:heading>
                 <flux:text class="text-xs">objecten zonder afgeronde dekking in deze cyclus</flux:text>
             </div>
-            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+            <div class="blueprint p-4">
                 <flux:text>Venster</flux:text>
                 <flux:heading size="lg">{{ $programma->venster() }}</flux:heading>
                 <flux:text class="text-xs">{{ ucfirst($programma->status) }}</flux:text>
@@ -51,7 +51,7 @@
         <div class="overflow-x-auto">
             <table class="w-full border-collapse text-sm">
                 <thead>
-                    <tr class="border-b border-zinc-200 text-left dark:border-zinc-700">
+                    <tr class="border-b border-zinc-200 text-left">
                         <th class="py-2 pr-3">Object</th>
                         @foreach ($programmajaren as $jaar)
                             {{-- Nummer én venster: het kalenderjaar zegt bij een
@@ -67,11 +67,11 @@
                 </thead>
                 <tbody>
                     @foreach ($groepen as $groep => $objectenInGroep)
-                        <tr class="bg-zinc-50 dark:bg-zinc-800/50">
+                        <tr class="bg-zinc-50">
                             <td class="py-1 pr-3 font-medium text-zinc-500" colspan="{{ count($programmajaren) + 1 }}">{{ $groep }}</td>
                         </tr>
                         @foreach ($objectenInGroep as $object)
-                            <tr class="border-b border-zinc-100 dark:border-zinc-800">
+                            <tr class="border-b border-zinc-100">
                                 <td class="py-2 pr-3">
                                     <span class="font-medium">{{ $object->refCode() }}</span>
                                     <span class="text-zinc-500">{{ $object->omschrijving() }}</span>

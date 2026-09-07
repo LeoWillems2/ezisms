@@ -139,7 +139,7 @@ new #[Layout('components.layouts.app')] class extends Component {
                     die de app toont. Pas dan is de tweede factor actief.
                 </flux:text>
 
-                <div class="rounded-lg bg-white p-4 dark:bg-zinc-100" style="width: max-content">
+                <div class="rounded-lg bg-white p-4" style="width: max-content">
                     {!! $gebruiker->twoFactorQrCodeSvg() !!}
                 </div>
 

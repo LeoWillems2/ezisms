@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-white dark:bg-zinc-800">
-        <flux:sidebar sticky stashable class="border-r border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+    <body class="min-h-screen">
+        <flux:sidebar sticky stashable class="sidebar-industry">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
             {{-- Waarschuwing dat je niet in productie zit. Alleen op een
                  ontwikkel- of demomachine: in productie is de melding niet
                  alleen overbodig maar ronduit verwarrend. --}}
             @env(['local', 'demo'])
-                <div class="mb-1 px-1" style="color:#dc2626;font-weight:700;">OTA website!</div>
+                {{-- Lichter rood dan voorheen: op het donkere veld van de zijbalk haalt
+                     #dc2626 nog maar 2.8:1, en dit is kleine vette tekst. --}}
+                <div class="mb-1 px-1" style="color:#f87171;font-weight:700;">OTA website!</div>
             @endenv
 
             <a href="{{ route('dashboard') }}" class="mr-5 flex items-center space-x-2" wire:navigate>
@@ -24,7 +26,7 @@
                 {{-- De actieve norm staat boven het menu, op elk scherm. De
                      schakelaar mag nooit suggereren dat één installatie aan
                      beide normen voldoet (nen7510-opzet.md §4.6). --}}
-                <flux:navlist.group :heading="'ISMS '.$norm->naam_kort" class="grid">
+                <flux:navlist.group :heading="'ISMS '.$norm->naam_kort" class="grid sidebar-kicker">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>Dashboard</flux:navlist.item>
 
                     @foreach (\App\Support\Navigatie::zichtbareItems() as $item)
@@ -57,7 +59,7 @@
                             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
                                     <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
+                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black"
                                     >
                                         {{ auth()->user()->initials() }}
                                     </span>
@@ -107,7 +109,7 @@
                             <div class="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
                                     <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
+                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black"
                                     >
                                         {{ auth()->user()->initials() }}
                                     </span>

@@ -9,6 +9,7 @@ use App\Models\OrganisatieEenheid;
 use App\Models\Raadpleging;
 use App\Models\SoaRegel;
 use App\Rules\KiesbareGebruiker;
+use App\Support\Beleidsgoedkeuring;
 use App\Support\Beleidspublicatie;
 use App\Support\Bewijsopslag;
 use App\Support\Koppeling;
@@ -143,6 +144,15 @@ class BeleidsdocumentDetail extends Component
             ->each->update(['status' => 'vervangen']);
 
         $this->beleidsdocument->refresh();
+
+        // Een aangeboden versie blijft bewust op 'ter_goedkeuring' staan — dat
+        // is historie — maar de goedkeuringstaak eromheen vraagt iets wat
+        // niemand meer moet doen. De observer komt hier niet langs: het
+        // ingetrokken-vinkje staat op het document, niet op de versie.
+        foreach ($this->beleidsdocument->versies()->where('status', 'ter_goedkeuring')->get() as $versie) {
+            Beleidsgoedkeuring::synchroniseerTaken($versie);
+        }
+
         session()->flash('melding', 'Document ingetrokken.');
     }
 
@@ -204,7 +214,15 @@ class BeleidsdocumentDetail extends Component
 
         $versie->update(['status' => 'ter_goedkeuring']);
         $this->beleidsdocument->refresh();
-        session()->flash('melding', 'Versie ter goedkeuring aangeboden.');
+
+        // Zeggen wát er nu gebeurt, en bij wie. Zonder die zin is de knop een
+        // doodlopende weg: de opsteller mag zelf niet vaststellen (§9) en zag
+        // tot 05b nergens dat er iemand aan zet is.
+        $vervolg = Beleidsgoedkeuring::goedkeurderIds() === []
+            ? 'Let op: er is geen actieve gebruiker met goedkeurrecht — de taak staat zonder eigenaar op de takenlijst.'
+            : 'De goedkeurders hebben er een taak voor gekregen.';
+
+        session()->flash('melding', 'Versie ter goedkeuring aangeboden. '.$vervolg);
     }
 
     public function publiceren(int $versieId): void

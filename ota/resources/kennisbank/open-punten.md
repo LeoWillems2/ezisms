@@ -40,9 +40,11 @@ daar zitten drie randen aan:
 - **Afdeling is optioneel bij het uitnodigen.** Zonder afdeling valt iemand
   buiten élke doelgroep: geen taak, geen knop om te bevestigen — en hij telt ook
   niet mee in de noemer van de bevestigingsgraad. Het document blijft dan op 100%
-  staan terwijl er iemand buiten staat. Er is geen signaal op "actief, geen
-  afdeling", en dat maakt dit het vervelendste van de drie: een beheersmaatregel
-  die niet werkt en er groen bij staat.
+  staan terwijl er iemand buiten staat. Sinds 26-08-2026 ziet u dat wél: het
+  paneel **Leesbevestiging** op het dashboard zet documenten waarvan de
+  bevestigingsplicht geen enkele afdeling raakt bovenaan, en zet onder de lijst
+  hoeveel actieve gebruikers geen afdeling hebben. Zichtbaar is niet hetzelfde als
+  geborgd — bij het uitnodigen mag de afdeling nog steeds leeg blijven.
 - **De leestermijn loopt vanaf publicatie**, dertig dagen. Voor zittend personeel
   klopt dat — anders zou een taak die elke nacht opnieuw wordt aangeboden nooit
   verlopen. Voor wie later binnenkomt betekent het dat zijn eerste taak vaak al
@@ -53,10 +55,11 @@ daar zitten drie randen aan:
 De keuze: laat u dit een **procesafspraak** zijn — uitnodigen mét afdeling, en
 meteen in de juiste trainingsdoelgroep, vastgelegd in uw onboardingprocedure — of
 hoort het systeem het te borgen? Voor A.6.1 en A.6.3 is de eerste route
-verdedigbaar, mits opgeschreven. De tweede is drie ingrepen: een signaal op
-actieve gebruikers zonder afdeling, een leestermijn die loopt vanaf toetreding
-tot de doelgroep in plaats van vanaf publicatie, en trainingsdoelgroepen die de
-afdelingsindeling volgen.
+verdedigbaar, mits opgeschreven. De tweede is nog twee ingrepen — het signaal
+op actieve gebruikers zonder afdeling is er inmiddels: een leestermijn die loopt
+vanaf toetreding tot de doelgroep in plaats van vanaf publicatie, en
+trainingsdoelgroepen die de afdelingsindeling volgen. Dat eerste valt op het
+dashboard nu op als "over de leestermijn" zodra een nieuwkomer binnenkomt.
 
 **Wie is onafhankelijk genoeg om intern te auditen?** Het systeem heeft de
 technische kant opgelost: de CISO verliest zijn schrijfrecht op de bevindingen

@@ -9,4 +9,4 @@ use RuntimeException;
  * schermen gevangen en als melding getoond; de opslag is op dat moment al
  * afgebroken, want `TaakObserver` gooit vanuit `updating`.
  */
-class StapGeblokkeerd extends RuntimeException {}
+class TaakGeblokkeerd extends RuntimeException {}

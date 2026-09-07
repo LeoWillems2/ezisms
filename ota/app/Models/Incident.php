@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditeerbaar;
+use App\Models\Concerns\Waardenbewaking;
 use App\Support\Recordscope;
 use Database\Factories\IncidentFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Auth;
 class Incident extends Model
 {
     /** @use HasFactory<IncidentFactory> */
-    use Auditeerbaar, HasFactory;
+    use Auditeerbaar, HasFactory, Waardenbewaking;
 
     protected $table = 'incidenten';
 

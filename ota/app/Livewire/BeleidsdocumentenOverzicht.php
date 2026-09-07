@@ -160,6 +160,18 @@ class BeleidsdocumentenOverzicht extends Component
     }
 
     /**
+     * Verbreedt het statusfilter naar wachtende versies — maar alleen voor wie
+     * die versies sowieso mag zien. Zonder die grens zou een Medewerker via het
+     * filter kunnen afleiden dat er een nieuwe versie klaarligt, terwijl
+     * `scopeZichtbaar()` en de badge hem dat bewust niet vertellen: een concept
+     * of aangeboden versie is nog geen beleid (05 §9).
+     */
+    private function zoektOpAanbieding(): bool
+    {
+        return $this->filterStatus === 'ter_goedkeuring' && $this->magAllesZien();
+    }
+
+    /**
      * Actieve versies die de ingelogde gebruiker nog moet bevestigen.
      *
      * Dezelfde `zichtbaar()`-scope als de lijst zelf: een waarschuwing die
@@ -188,8 +200,15 @@ class BeleidsdocumentenOverzicht extends Component
     {
         $documenten = Beleidsdocument::query()
             ->zichtbaar()
-            ->with(['eigenaar', 'actieveVersie'])
-            ->when($this->filterStatus !== '', fn ($q) => $q->where('status', $this->filterStatus))
+            ->with(['eigenaar', 'actieveVersie', 'versieTerGoedkeuring'])
+            ->when($this->filterStatus !== '', fn ($q) => $this->zoektOpAanbieding()
+                // "Ter goedkeuring" hoort ook het document te vinden dat allang
+                // actief is en waarvan versie 2 klaarligt: dáár staat de
+                // documentstatus op 'actief' (05b §1) en anders vindt het filter
+                // juist het geval waarvoor je hem gebruikt niet.
+                ? $q->where(fn ($w) => $w->where('status', 'ter_goedkeuring')
+                    ->orWhereHas('versies', fn ($v) => $v->where('status', 'ter_goedkeuring')))
+                : $q->where('status', $this->filterStatus))
             ->when($this->filterType !== '', fn ($q) => $q->where('type', $this->filterType))
             ->orderBy('titel')
             ->get();

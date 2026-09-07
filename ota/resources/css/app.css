@@ -6,44 +6,167 @@
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 
+/* De donkere modus is uit (Industry-skin stap 2): `partials/head.blade.php`
+   laadt @fluxAppearance niet meer, dus er komt nergens nog een `.dark` op de
+   pagina. In de views van deze applicatie staat inmiddels geen enkele
+   `dark:`-variant meer.
+
+   Deze regel moet toch blijven staan, en dat blijft zo. Flux draagt zijn eigen
+   donkere modus: `flux.css` wordt hierboven ongewijzigd geïmporteerd en de
+   `@source`-regels hieronder lezen de Flux-stubs, die vol `dark:` staan. Na de
+   opruiming zitten er nog altijd ruim 1300 `.dark`-selectors in de gebouwde
+   bundel, geen enkele van ons. Zonder deze regel valt `dark:` terug op
+   Tailwinds ingebouwde variant, en die luistert naar `prefers-color-scheme` —
+   dan zou de donkere modus van Flux juist terugkomen voor iedereen met een
+   donker bureaublad. Weg mag hij pas als Flux zelf uit beeld is. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* --------------------------------------------------------------------------
+   Industry-skin, stap 1: de themalaag (design_handoff_industry_skin/README.md).
+
+   Industry is een blauwdruksysteem: staalblauw op een lichte technische grond,
+   Barlow Condensed koppen boven Barlow bodytekst, vierkante hoeken en
+   haarlijnranden. Mono-schema — één accent, geen tweede kleur.
+
+   Dit blok verzet alleen tokens. Geen enkele Blade-view is ervoor gewijzigd,
+   op `partials/head.blade.php` na, waar de lettertypen worden geladen: de 414
+   `zinc-*`-klassen die al in de views staan, nemen de nieuwe waarden vanzelf
+   aan doordat de zinc-ramp hier wordt herschreven.
+   -------------------------------------------------------------------------- */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Type — Barlow Condensed draagt de koppen, Barlow de lopende tekst. Beide
+       staan lokaal in public/fonts/barlow/ en worden geladen via
+       public/fonts/barlow.css; de app roept geen externe host aan. */
+    --font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-display: 'Barlow Condensed', 'Barlow', ui-sans-serif, system-ui, sans-serif;
 
-    --color-zinc-50: #fafafa;
-    --color-zinc-100: #f5f5f5;
-    --color-zinc-200: #e5e5e5;
-    --color-zinc-300: #d4d4d4;
-    --color-zinc-400: #a3a3a3;
-    --color-zinc-500: #737373;
-    --color-zinc-600: #525252;
-    --color-zinc-700: #404040;
-    --color-zinc-800: #262626;
-    --color-zinc-900: #171717;
-    --color-zinc-950: #0a0a0a;
+    /* Neutralen — de zinc-ramp wordt de Industry-neutraalramp. Industry heeft
+       negen stappen en Tailwind elf: `zinc-100` krijgt de grond (#f2f2f3) en
+       `zinc-950` de tekstkleur (#1d1f20); de negen ertussen zijn één op één de
+       Industry-ramp 100..900. */
+    --color-zinc-50:  #f5f5f8;
+    --color-zinc-100: #f2f2f3;
+    --color-zinc-200: #e7e7ea;
+    --color-zinc-300: #d4d4d7;
+    --color-zinc-400: #b7b7ba;
+    --color-zinc-500: #98989b;
+    --color-zinc-600: #7a7a7d;
+    --color-zinc-700: #5d5d60;
+    --color-zinc-800: #424244;
+    --color-zinc-900: #2b2b2d;
+    --color-zinc-950: #1d1f20;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
-    --color-accent-foreground: var(--color-white);
-}
+    /* Accent — staalblauw, hue 210, mono. De ramp heet `steel` en niet `accent`,
+       omdat `--color-accent` in Flux een eigen, enkelvoudige betekenis heeft. */
+    --color-steel-100: #eef6ff;
+    --color-steel-200: #d6ebff;
+    --color-steel-300: #b5d9fd;
+    --color-steel-400: #94bce3;
+    --color-steel-500: #749dc4;
+    --color-steel-600: #597ea3;
+    --color-steel-700: #416180;
+    --color-steel-800: #2c455d;
+    --color-steel-900: #1d2d3d;
 
-@layer theme {
-    .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
-    }
+    /* De drie Flux-accenttokens. `accent-content` is het accent op
+       bodygrootte en staat daarom een stap dieper: #5980a6 haalt op 15px geen
+       4.5:1 tegen de grond, #416180 wel. */
+    --color-accent: #5980a6;
+    --color-accent-content: #416180;
+    --color-accent-foreground: #f2f2f3;
+
+    /* Grond, oppervlak, inkt en scheidslijn als benoemde tokens, zodat ze ook
+       buiten de zinc-ramp aanroepbaar zijn (`bg-ground`, `border-divider`). */
+    --color-ground: #f2f2f3;
+    --color-surface: #e9e9ea;
+    --color-ink: #1d1f20;
+    --color-divider: color-mix(in srgb, #1d1f20 16%, transparent);
+
+    /* Blauwdruk: vierkant. De hele radiusschaal gaat naar nul, inclusief de
+       kale `rounded` (dat is Tailwinds afgeschreven `--radius`) — anders blijft
+       één van de acht stappen alsnog rond. `rounded-full` blijft rond: dat is
+       geen token maar `calc(infinity * 1px)`, en Industry houdt ronde punten en
+       avatars ook rond (zie de 16px-stip in industry-reference.css). */
+    --radius: 0px;
+    --radius-xs: 0px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
+    --radius-2xl: 0px;
+    --radius-3xl: 0px;
+    --radius-4xl: 0px;
+
+    /* Elevatie — inktgetinte schaduwen, afgestemd op de lichte grond. */
+    --shadow-sm: 0 1px 2px color-mix(in srgb, #2b2b2d 14%, transparent);
+    --shadow-md: 0 3px 10px color-mix(in srgb, #2b2b2d 16%, transparent);
+    --shadow-lg: 0 12px 32px color-mix(in srgb, #2b2b2d 22%, transparent);
 }
 
 @layer base {
 
+    /* De standaardrandkleur. Tailwind v4 zet die op `currentColor` en deze regel
+       hield hem op het v3-gedrag; nu de donkere modus weg is, kan het de
+       Industry-scheidslijn worden — inkt op 16%, de haarlijn van het systeem. */
     *,
     ::after,
     ::before,
     ::backdrop,
     ::file-selector-button {
-        border-color: var(--color-gray-200, currentColor);
+        border-color: var(--color-divider);
+    }
+
+    /* Één band, en dat moet de browser ook weten: zonder deze regel tekent een
+       bureaublad in donkere modus de schuifbalken en de inheemse
+       formulierbesturing alsnog donker op een lichte pagina. @fluxAppearance
+       zette hiervoor `color-scheme: dark` op `:root.dark`; die regel is met de
+       directive meeverdwenen. */
+    :root {
+        color-scheme: light;
+    }
+
+    /* De grond. De layouts droegen hier `bg-white dark:bg-zinc-800`; die
+       utilities zijn er in stap 2 af gehaald, zodat de kleur op deze ene plek
+       staat en niet in vier layouts. */
+    body {
+        background: var(--color-ground);
+        color: var(--color-ink);
+    }
+
+    /* Koppen in Barlow Condensed. De regelafstand en de licht negatieve
+       letterafstand komen uit industry-reference.css — het werkbestand
+       industry-tokens.css noteert +0.01em, maar de stylesheet van het
+       ontwerpsysteem zelf is daar de bron. */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        line-height: 1.12;
+        letter-spacing: -0.015em;
+    }
+
+    /* Industry-skin, stap 6: de streekdikte van de iconen.
+
+       Industry vraagt Lucide op 1.5. Deze applicatie tekent uit twee sets:
+       Flux levert Heroicons, en in resources/views/flux/icon/ staan vier
+       met de hand toegevoegde Lucide-iconen. De Heroicons-outline komen al
+       op 1.5 uit de stub; de vier Lucide's staan op Lucide's eigen 2 (en op
+       2.25 en 2.5 voor mini en micro). Deze regel trekt ze gelijk.
+
+       Een presentatie-attribuut verliest van elke CSS-regel, dus @layer base
+       volstaat. Gevulde iconvarianten hebben geen streek en merken er niets
+       van, en `[data-flux-icon]` houdt de regel weg bij de SVG-diagrammen,
+       waar de streekdikte gegevens draagt. */
+    svg[data-flux-icon] {
+        stroke-width: 1.5;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+    }
+
+    ::selection {
+        background: var(--color-steel-200);
     }
 }
 
@@ -51,35 +174,56 @@
    Diagramkleuren voor het dashboard (implementatie/12c §5).
 
    Eigen tokens en geen Tailwind-kleurklassen, omdat SVG-attributen als `stroke`
-   en `fill` geen utility-klasse kunnen dragen. Alle waarden zijn gevalideerd
-   tegen de échte vlakken van deze applicatie — `bg-white` licht en `bg-zinc-800`
-   donker — en niet tegen een standaardvlak: contrast is alleen betekenisvol
-   tegen de achtergrond waarop het diagram werkelijk staat.
+   en `fill` geen utility-klasse kunnen dragen. De waarden zijn gevalideerd
+   tegen het échte vlak van deze applicatie en niet tegen een standaardvlak:
+   contrast is alleen betekenisvol tegen de achtergrond waarop het diagram
+   werkelijk staat. Dat vlak is sinds de Industry-skin de grond zelf, #f2f2f3 —
+   de kaarten waarin de diagrammen staan zijn kaders zonder vulling geworden,
+   dus er zit niets meer tussen. Er is nog maar één band: de donkere modus is in
+   stap 2 vervallen.
 
    De ordinale ramp (`--ord-1..3`) draagt de implementatiestatus: licht naar
    donker is niet-gestart naar geïmplementeerd, zodat de ordening in de kleur
-   zelf zit. Monotone lichtheid, stapafstand ≥ 0.06, en de stap die het dichtst
-   bij het vlak ligt haalt ≥ 2:1. In donkere modus is de donkerste stap bewust
-   lichter (`#1c5cab` i.p.v. `#104281`): zinc-800 is lichter dan een gewoon
-   donker vlak, en `#104281` zakte daar met 1.87:1 in weg.
+   zelf zit. Monotone lichtheid, ruime stapafstand, en de stap die het dichtst
+   bij het vlak ligt haalt ≥ 2:1.
+
+   De ramp loopt over de accent-ramp, maar niet over de stappen die het
+   handoffpakket noemt (300/600/900). Accent-300 (#b5d9fd) haalt tegen #f2f2f3
+   nog maar 1.31:1 en valt dus door die ondergrens van 2:1 heen; tegen het wit
+   waarvoor het pakket het bedacht had, was dat net gelukt. Het worden dus
+   500/700/900, en dat komt dicht bij het profiel van de oude ramp:
+
+       tegen de grond     2.55 · 5.78 · 12.56   (oud tegen wit: 2.11 · 4.42 · 9.91)
+       tussen de stappen        2.27 · 2.17     (oud:                 2.09 · 2.25)
 
    `--sig-*` zijn statuskleuren met vaste betekenis; ze worden nooit als
-   seriekleur hergebruikt. Op licht vlak halen let-op en ernstig geen 3:1 — dat
-   is bekend en de reden dat elk signaal altijd een glyph én een tekstlabel
-   heeft, nooit alleen een kleur.
+   seriekleur hergebruikt en ze blijven staan: Industry is mono en heeft er geen
+   equivalent voor. Ze zijn wel opnieuw doorgerekend tegen de nieuwe grond, want
+   die is iets donkerder dan het wit waartegen ze ooit zijn vastgesteld:
+
+       goed #0ca30c        3.35 → 3.00      (net op de grens van 3:1)
+       let-op #fab219      1.83 → 1.64
+       ernstig #ec835a     2.64 → 2.36
+       kritiek #d03b3b     4.80 → 4.29
+       goed-tekst #006300  7.54 → 6.74      (ruim boven 4.5:1 voor tekst)
+
+   Let-op en ernstig haalden op wit al geen 3:1 en halen dat nu nog steeds niet.
+   Dat is bekend en het is de reden dat elk signaal altijd een glyph én een
+   tekstlabel draagt, nooit alleen een kleur; die keuze blijft geldig. Wie de
+   grond ooit dieper maakt, moet deze tabel opnieuw draaien.
    -------------------------------------------------------------------------- */
 :root {
-    --dia-lijn: #2a78d6;
-    --dia-vlak: rgb(42 120 214 / 0.10);
-    --dia-stil: #c3c2b7;
-    --dia-raster: #e5e5e5;
-    --dia-as: #d4d4d4;
-    --dia-oppervlak: #ffffff;
+    --dia-lijn: #5980a6;
+    --dia-vlak: rgb(89 128 166 / 0.10);
+    --dia-stil: #b7b7ba;
+    --dia-raster: #e7e7ea;
+    --dia-as: #d4d4d7;
+    --dia-oppervlak: #f2f2f3;
 
-    --ord-1: #86b6ef;
-    --ord-2: #2a78d6;
-    --ord-3: #104281;
-    --ord-buiten: #a3a3a3;
+    --ord-1: #749dc4;
+    --ord-2: #416180;
+    --ord-3: #1d2d3d;
+    --ord-buiten: #98989b;
 
     --sig-goed: #0ca30c;
     --sig-let-op: #fab219;
@@ -88,20 +232,185 @@
     --sig-goed-tekst: #006300;
 }
 
-.dark {
-    --dia-lijn: #3987e5;
-    --dia-vlak: rgb(57 135 229 / 0.14);
-    --dia-stil: #52514e;
-    --dia-raster: #404040;
-    --dia-as: #525252;
-    --dia-oppervlak: #262626;
+/* --------------------------------------------------------------------------
+   Industry-skin, stap 5: de teksttrappen van de neutraalramp.
 
-    --ord-1: #9ec5f4;
-    --ord-2: #3987e5;
-    --ord-3: #1c5cab;
-    --ord-buiten: #525252;
+   De Industry-ramp is een reeks oppervlaktetinten. Het ontwerpsysteem zet er
+   nooit tekst mee: dat gebruikt de inkt en één gedempte tint. Deze applicatie
+   doet dat wél — `text-zinc-500` is op 69 plaatsen de gedempte tekstkleur — en
+   omdat elke stap van de Industry-ramp lichter is dan de Tailwind-stap die hij
+   vervangt, zakte alle gedempte tekst mee. `text-zinc-500` ging van 4.74:1 naar
+   2.57:1 en `text-zinc-600` van 7.81:1 naar 3.82:1; allebei door de 4.5:1 voor
+   lopende tekst heen.
 
-    --sig-goed-tekst: #0ca30c;
+   De ramp zelf blijft ongemoeid — die klopt voor vlakken, randen en de zijbalk.
+   Alleen de tekstrol schuift twee stappen op, wat de vertaling is die het
+   ontwerpsysteem zelf niet hoefde te maken:
+
+       text-zinc-400   2.52 -> 3.82      text-zinc-700   10.37 -> 12.63
+       text-zinc-500   4.74 -> 5.87      text-zinc-800   15.13 -> 15.90
+       text-zinc-600   7.81 -> 8.96      text-zinc-900   17.93 -> 15.90
+
+   Elke stap komt daarmee op of boven zijn oude leesbaarheid uit, en de ordening
+   blijft monotoon. Dat `text-zinc-500` hierdoor een andere tint is dan
+   `bg-zinc-500` is geen ongeluk maar het punt: dezelfde stap kan niet tegelijk
+   het vlak zijn en de tekst erop. In deze views bestaan `bg-zinc-500` en
+   `border-zinc-500` trouwens niet.
+
+   Ongelaagd, want het overschrijft utility-klassen.
+   -------------------------------------------------------------------------- */
+.text-zinc-400 { color: var(--color-zinc-600); }
+.text-zinc-500 { color: var(--color-zinc-700); }
+.text-zinc-600 { color: var(--color-zinc-800); }
+.text-zinc-700 { color: var(--color-zinc-900); }
+.text-zinc-800,
+.text-zinc-900 { color: var(--color-zinc-950); }
+
+/* Dezelfde verschuiving voor de tekstlabels in de SVG-diagrammen; daar draagt
+   `fill` de kleur en niet `color`. */
+.fill-zinc-400 { fill: var(--color-zinc-600); }
+.fill-zinc-500 { fill: var(--color-zinc-700); }
+.fill-zinc-900 { fill: var(--color-zinc-950); }
+
+/* --------------------------------------------------------------------------
+   Industry-skin, stap 4: de blauwdrukrand.
+
+   Een kaart in Industry is geen vlak maar een kader: vierkante hoeken, een
+   haarlijn, geen vulling, en op de vier hoeken een registratiekruisje zoals op
+   een technische tekening. De kruisjes komen uit twee pseudo-elementen — vier
+   verlooptjes per stuk, twee kruisjes per pseudo — zodat er geen markup bij
+   hoeft en de klasse op de bestáánde wrapper kan.
+
+   De kruisjes liggen 6px búiten de doos. In een raster met `gap-4` (16px)
+   blijft er dus 4px tussen de kruisjes van twee buren; staat een kaart in een
+   houder met `overflow: hidden`, dan worden ze afgesneden.
+
+   `[data-flux-card]` krijgt dezelfde behandeling. Die component vult zichzelf
+   met `bg-white` en dat is precies het gevulde kaartje dat Industry niet kent;
+   24 aanroepen in drie views hoeven zo niet aangepast te worden. De vulling van
+   Flux staat in een `:where()` en heeft dus specificiteit nul — deze regel komt
+   daar zonder trucs langs.
+   -------------------------------------------------------------------------- */
+.blueprint,
+[data-flux-card] {
+    position: relative;
+    background: transparent;
+    border: 1px solid var(--color-divider);
+    border-radius: 0;
+}
+.blueprint::before,
+.blueprint::after,
+[data-flux-card]::before,
+[data-flux-card]::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    pointer-events: none;
+    color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+}
+/* linksboven en rechtsonder */
+.blueprint::before,
+[data-flux-card]::before {
+    background:
+        linear-gradient(currentColor, currentColor) 0 5px / 11px 1px no-repeat,
+        linear-gradient(currentColor, currentColor) 5px 0 / 1px 11px no-repeat,
+        linear-gradient(currentColor, currentColor) 100% calc(100% - 5px) / 11px 1px no-repeat,
+        linear-gradient(currentColor, currentColor) calc(100% - 5px) 100% / 1px 11px no-repeat;
+}
+/* rechtsboven en linksonder */
+.blueprint::after,
+[data-flux-card]::after {
+    background:
+        linear-gradient(currentColor, currentColor) 100% 5px / 11px 1px no-repeat,
+        linear-gradient(currentColor, currentColor) calc(100% - 5px) 0 / 1px 11px no-repeat,
+        linear-gradient(currentColor, currentColor) 0 calc(100% - 5px) / 11px 1px no-repeat,
+        linear-gradient(currentColor, currentColor) 5px 100% / 1px 11px no-repeat;
+}
+
+/* Aanwijzing binnen het systeem: het geselecteerde kader kleurt op — rand én
+   registratiekruisjes — in plaats van dat er een tweede kleur bij komt. */
+.blueprint-geselecteerd {
+    border-color: var(--color-accent);
+}
+.blueprint-geselecteerd::before,
+.blueprint-geselecteerd::after {
+    color: var(--color-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Industry-skin, stap 3: de zijbalk.
+
+   De navigatie staat op een vol veld in de donkerste accentstap. Dat is de
+   enige toegestane kleurvlakte in het systeem: verder is Industry lijnwerk op
+   een lichte grond.
+
+   Deze regels staan bewust búiten @layer. Cascade-lagen verliezen het altijd
+   van ongelaagde regels, en dat is hier nodig: Flux zet zijn kleuren als
+   utility-klassen op de elementen zélf (`text-zinc-500`, `data-current:bg-white`).
+   Een regel op een voorouder — hoe specifiek ook — komt daar niet langs, dus
+   een paar selectors noemen de utility-klasse bij naam. Dat is lelijk maar het
+   alternatief is de Flux-component vervangen, en dat mag niet.
+   -------------------------------------------------------------------------- */
+.sidebar-industry {
+    background: var(--color-steel-900);
+    color: #e9eef3;
+    border-right: 0;
+}
+
+/* De logotekst: productnaam op papierkleur, versie en organisatie een tint
+   gedempt. 0.62 en niet lager, want dit is tekst op 12px — daaronder zakt het
+   contrast tegen #1d2d3d door 4.5:1 heen. */
+.sidebar-industry .text-zinc-500,
+.sidebar-industry .text-zinc-400 {
+    color: rgb(233 238 243 / 0.62);
+}
+
+/* De kicker boven de menugroep: 10px, ruim gespatieerd, in de kopletter.
+   `sidebar-kicker` staat op de groep zelf; de kop is het enige kind van het
+   eerste kind — zie de structuur in de stub van flux:navlist.group. */
+.sidebar-kicker > div:first-child > div {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgb(233 238 243 / 0.62);
+}
+
+/* De menu-items. Vierkant, geen vulling, geen rand — het actieve item wordt
+   alleen aangewezen door een streep van 2px in accent-400 en door wit te
+   worden. Flux geeft het actieve item van huis uit een witte vulling met een
+   rand; dat is precies het gevulde kaartje dat Industry niet kent. */
+.sidebar-industry [data-flux-navlist-item] {
+    border-radius: 0;
+    border-color: transparent;
+    background: transparent;
+    color: rgb(233 238 243 / 0.72);
+}
+.sidebar-industry [data-flux-navlist-item]:hover {
+    background: rgb(255 255 255 / 0.06);
+    color: #ffffff;
+}
+.sidebar-industry [data-flux-navlist-item][data-current],
+.sidebar-industry [data-flux-navlist-item][data-current]:hover {
+    background: transparent;
+    border-color: transparent;
+    color: #ffffff;
+    box-shadow: inset 2px 0 0 var(--color-steel-400);
+}
+
+/* Het profielblok onderin en de menuknop op smalle schermen erven de
+   papierkleur; hun eigen zinc-klassen zijn hierboven al omgezet. */
+.sidebar-industry [data-flux-profile],
+.sidebar-industry [data-flux-sidebar-toggle] {
+    border-radius: 0;
+    color: rgb(233 238 243 / 0.72);
+}
+.sidebar-industry [data-flux-profile]:hover,
+.sidebar-industry [data-flux-sidebar-toggle]:hover {
+    background: rgb(255 255 255 / 0.06);
+    color: #ffffff;
 }
 
 [data-flux-field] {

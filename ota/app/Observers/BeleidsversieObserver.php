@@ -3,22 +3,43 @@
 namespace App\Observers;
 
 use App\Models\Beleidsversie;
+use App\Support\Beleidsgoedkeuring;
 use App\Support\TaakPlanner;
 
 /**
- * Twee afgeleide gevolgen van een versiewijziging (implementatie/05 §3b en §8):
- * de status van het document, en de herzieningstaak.
+ * Drie afgeleide gevolgen van een versiewijziging (implementatie/05 §3b en §8,
+ * 05b §4): de status van het document, de herzieningstaak en de
+ * goedkeuringstaak.
  *
  * De herziening is veldgestuurd (`volgende_herziening_gepland` wijzigt) en
- * hoort daarom hier, net als bij ScopeVerklaring. De leesbevestigingstaken zijn
+ * hoort daarom hier, net als bij ScopeVerklaring. De goedkeuring is dat ook —
+ * `status` wijzigt — en moet het bovendien wel zijn: een goedkeurder die pas de
+ * volgende ochtend hoort dat er iets op hem ligt te wachten, is precies de
+ * vertraging die deze taak weg moet nemen. De leesbevestigingstaken zijn
  * tijdgestuurd en zitten juist in `isms:genereer-taken`.
  */
 class BeleidsversieObserver
 {
+    /**
+     * Het moment van aanbieden vastleggen, ongeacht via welke weg de status
+     * verspringt: het detailscherm, de demosimulatie of een toekomstig
+     * importpad. In `saving` en niet in de Livewire-actie, want die is maar één
+     * van die wegen — en de deadline van de goedkeuringstaak hangt eraan.
+     */
+    public function saving(Beleidsversie $versie): void
+    {
+        if ($versie->isDirty('status')
+            && $versie->status === 'ter_goedkeuring'
+            && $versie->aangeboden_op === null) {
+            $versie->aangeboden_op = now();
+        }
+    }
+
     public function saved(Beleidsversie $versie): void
     {
         $this->werkDocumentstatusBij($versie);
         $this->planHerziening($versie);
+        Beleidsgoedkeuring::synchroniseerTaken($versie);
     }
 
     public function deleted(Beleidsversie $versie): void

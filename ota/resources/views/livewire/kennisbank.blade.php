@@ -33,12 +33,12 @@
                         @foreach ($resultaten as $resultaat)
                             <li wire:key="tref-{{ $resultaat->slug }}">
                                 <a href="{{ $resultaat->url() }}" wire:navigate
-                                   class="block rounded-md px-3 py-2 transition hover:bg-zinc-50 dark:hover:bg-zinc-800/50">
-                                    <span class="block text-sm font-medium text-zinc-900 dark:text-white">
+                                   class="block rounded-md px-3 py-2 transition hover:bg-zinc-50">
+                                    <span class="block text-sm font-medium text-zinc-900">
                                         {{ $resultaat->titel }}
                                     </span>
                                     <span class="block text-xs text-zinc-500">{{ $resultaat->categorie }}</span>
-                                    <span class="kennis-passage mt-1 block text-xs text-zinc-600 dark:text-zinc-400">
+                                    <span class="kennis-passage mt-1 block text-xs text-zinc-600">
                                         {!! $resultaat->passage !!}
                                     </span>
                                 </a>
@@ -58,8 +58,8 @@
                                     <a href="{{ route('kennisbank', $slug) }}" wire:navigate
                                        @class([
                                            'block rounded-md px-3 py-2 text-sm transition',
-                                           'bg-zinc-100 font-medium text-zinc-900 dark:bg-zinc-800 dark:text-white' => $slug === $huidigeSlug,
-                                           'text-zinc-600 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800/50' => $slug !== $huidigeSlug,
+                                           'bg-zinc-100 font-medium text-zinc-900' => $slug === $huidigeSlug,
+                                           'text-zinc-600 hover:bg-zinc-50' => $slug !== $huidigeSlug,
                                        ])>
                                         {{ $artikel['titel'] }}
                                     </a>

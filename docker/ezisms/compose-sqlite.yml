@@ -1,0 +1,154 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# EzISMS — de stack op SQLite (implementatie/00s)
+#
+# Eén container, één databasebestand. De tegenhanger is compose.yml, dat op
+# MySQL draait met een tweede container.
+#
+# DE TWEE ZIJN ALTERNATIEVEN EN NOOIT ALLEBEI OP DEZELFDE ISMS_DATA. Uw gegevens
+# staan in één van de twee; de andere zou naast uw ISMS een lege database
+# opbouwen. De installatie bewaakt dat zelf — na de eerste uitrol staat de
+# variant in data/app/installatie/db-variant en blokkeert de container bij een
+# afwijking — maar wisselen is geen migratie: er is geen weg van de ene variant
+# naar de andere dan opnieuw beginnen of `isms:exporteer`.
+#
+# Kopieer dit bestand als `compose.yml` naar de map waar de uitgepakte tarbal
+# staat, zet `env.voorbeeld-sqlite` ernaast als `.env`, vul hem in en draai:
+#
+#     docker compose up -d --build
+#
+# Geen container_name: die is hostbreed en zou twee ISMS'en op één machine laten
+# botsen. Compose leidt de naam af uit de mapnaam.
+#
+# LET OP BIJ EEN UPGRADE: kopieer dit bestand opnieuw uit de nieuwe boom — en
+# dan wéér compose-sqlite.yml, niet compose.yml. Er staan sleutels in die de
+# nieuwe entrypoint verwacht; een oud bestand geeft die niet door en dan valt
+# bijvoorbeeld ISMS_CISO_EMAIL stil weg.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ─────────────────────────────────────────────────────────────────────────────
+# De logdriver (implementatie/00p §3). Eén service in deze variant, maar de vorm
+# blijft gelijk aan compose.yml zodat de twee bestanden naast elkaar te lezen
+# zijn.
+#
+# Zonder deze sleutel draait Docker op `json-file` zónder max-size en zónder
+# max-file: het toegangslog van nginx groeit dan onbegrensd door tot de schijf
+# vol is. Op een appliance die jaren draait is dat een kwestie van tijd.
+#
+# `local` en niet `json-file`: hij roteert, comprimeert de oude delen en heeft
+# een zuiniger formaat. `docker compose logs` werkt er gewoon mee — dat geldt
+# niet voor drivers als syslog of fluentd, en daarom staat die keuze hier.
+#
+# 10 MB × 5 is ruwweg een dag of tien aan verkeer bij een kleine organisatie, en
+# hooguit 50 MB per container op de schijf. Wat langer moet blijven dan dat hoort
+# niet hier maar op de hostmap: de Laravel-logs staan al in `storage/logs`, en
+# de audit trail — het bewijsstuk waar een auditor naar vraagt — staat in de
+# database en niet in een logbestand.
+x-logdriver: &logdriver
+  driver: local
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+
+  app:
+    build:
+      context: ./${ISMS_BOOM:?ISMS_BOOM ontbreekt in .env — wijs de uitgepakte tarbal aan}
+      dockerfile: docker/Dockerfile
+    restart: unless-stopped
+    # Expliciete lijst, géén env_file. In deze variant zijn er geen
+    # databasegeheimen te lekken, maar de reden blijft staan: alles in `.env`
+    # zou anders leesbaar zijn via `docker inspect` en voor elk PHP-proces in de
+    # container. Wat de applicatie niet nodig heeft, komt er niet in.
+    environment:
+      APP_URL:                ${APP_URL:?ontbreekt in .env}
+      # Hoort normaal leeg te blijven: de entrypoint leidt hem af uit het schema
+      # van APP_URL (https ⇒ true, http ⇒ false met een waarschuwing). Tóch
+      # doorgegeven, want zonder deze regel bereikt een invulling in .env de
+      # container niet — deze lijst is uitputtend, er is geen env_file. Precies
+      # dát was de fout: de sleutel stond sinds de eerste versie in env.voorbeeld
+      # op `true` en kwam hier nooit langs, dus was hij in het geheel niet
+      # instelbaar. Zie tls.md.
+      SESSION_SECURE_COOKIE:  ${SESSION_SECURE_COOKIE:-}
+      ORGANISATIE:            ${ORGANISATIE:-}
+      # Het versienummer in de zijbalk. Zonder deze regel blijft de vermelding
+      # weg — en waarschuwt de uitrol dat een sleutel uit .env.example niet
+      # gezet is, wat hier terecht is: het nummer hoort bij de boom die draait.
+      APP_VERSION:            ${APP_VERSION:-}
+      # Hoort normaal leeg te blijven: de entrypoint genereert de sleutel en
+      # bewaart hem in installatie/app_key. Toch doorgegeven, want alleen zo kan
+      # de entrypoint zien dát iemand er een heeft ingevuld en weigeren als die
+      # afwijkt van de bewaarde. Zonder deze regel wordt zo'n invulling stil
+      # genegeerd — precies het stille gedrag dat §0.5 wil voorkomen.
+      APP_KEY:                ${APP_KEY:-}
+      ISMS_NORM:              ${ISMS_NORM:?verplicht — iso27001, nen7510 of bio2}
+      ISMS_CBW_PLICHTIG:      ${ISMS_CBW_PLICHTIG:-false}
+      ISMS_2FA_AFDWINGEN:     ${ISMS_2FA_AFDWINGEN:-true}
+      ISMS_2FA_RESPIJT_DAGEN: ${ISMS_2FA_RESPIJT_DAGEN:-14}
+      # ISMS_DEMO=ja zet APP_ENV=demo én ISMS_2FA_AFDWINGEN=false én vult het
+      # ISMS met het FruitBV-scenario. Eén schakelaar, want die instellingen
+      # kloppen alleen in combinatie; de entrypoint zet ze (00n §0.2).
+      ISMS_DEMO:              ${ISMS_DEMO:-nee}
+      # Leeg ⇒ er wordt geen account aangemaakt en het slotscherm toont het
+      # commando. Het wachtwoord staat hier BEWUST niet: de omgeving van een
+      # container is leesbaar met `docker inspect` (00n §9.4).
+      ISMS_CISO_EMAIL:        ${ISMS_CISO_EMAIL:-}
+      ISMS_CISO_NAAM:         ${ISMS_CISO_NAAM:-}
+      ISMS_MIGRATIE_POGINGEN: ${ISMS_MIGRATIE_POGINGEN:-3}
+      # De container doet hier niets mee — hij luistert binnenin altijd op 80.
+      # Het slotscherm van de uitrol noemt deze poort alleen, zodat er staat waar
+      # de HAProxy naartoe moet. Zonder deze regel viel dat terug op de
+      # standaardwaarde en meldde een stack op poort 82 doodleuk poort 81.
+      HTTP_POORT:             ${HTTP_POORT:-81}
+      # De variant. Stond tot 00s in env.statisch; hij verschilt nu per
+      # installatie, dus hoort hij hier. De sqlite-tegenhanger is
+      # compose-sqlite.yml — nooit allebei op dezelfde ISMS_DATA.
+      # De variant. Er is geen db-container, geen netwerk en geen wachttijd:
+      # de database is één bestand op de state-mount (00s §3).
+      DB_CONNECTION:          sqlite
+      # Absoluut pad, en nadrukkelijk NIET in de applicatieboom: die wordt bij
+      # een upgrade vervangen (ISMS_BOOM omzetten, 00l §11.4) en het ISMS zou
+      # dan stil verdwijnen. /var/lib/ezisms is de bind mount uit `volumes:`
+      # hieronder, dus dit bestand staat op de host in data/app/database/.
+      DB_DATABASE:            /var/lib/ezisms/database/ezisms.sqlite
+      MAIL_MAILER:            ${MAIL_MAILER:-log}
+      MAIL_HOST:              ${MAIL_HOST:-}
+      MAIL_PORT:              ${MAIL_PORT:-587}
+      MAIL_USERNAME:          ${MAIL_USERNAME:-}
+      MAIL_PASSWORD:          ${MAIL_PASSWORD:-}
+      MAIL_FROM_ADDRESS:      ${MAIL_FROM_ADDRESS:-}
+      LOG_LEVEL:              ${LOG_LEVEL:-warning}
+      TZ:                     ${TZ:-Europe/Amsterdam}
+    volumes:
+      - ${ISMS_DATA:-./data}/app:/var/lib/ezisms
+      # De uitvoermap van `isms:exporteer --doel=/var/tmp/isms_export`. Een
+      # eigen mount en niet een plek onder de mount hierboven: die landt op de
+      # host onder data/app/, en de export hoort naast de bedrijfsgegevens te
+      # staan en niet ertussen. De leidende ./ zit in de standaardwaarde en is
+      # verplicht — zie de opmerking bij de db-mount.
+      #
+      # Ontbreekt deze regel (een oude compose.yml na een upgrade), dan schrijft
+      # de export naar de schrijflaag van de container en is hij weg bij de
+      # eerstvolgende `up -d`. De entrypoint waarschuwt daarvoor.
+      - ${ISMS_DATA:-./data}/isms_export:/var/tmp/isms_export
+    ports:
+      # Hostpoort 81, niet 80: die is op de doelmachine al bezet. HAProxy
+      # termineert de TLS en stuurt hiernaartoe.
+      - "${HTTP_POORT:-81}:80"
+    logging: *logdriver
+    healthcheck:
+      # /up is Laravels eigen healthroute (bootstrap/app.php). Dit is de
+      # HTTP-rookproef: in de entrypoint kan die niet, want nginx draait dan nog
+      # niet.
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/up || exit 1"]
+      interval: 30s
+      timeout: 10s
+      # Ruim, en dat is nodig: een eerste initialisatie migreert en seedt vóórdat
+      # nginx start, en dat duurde bij een gemeten NEN 7510-installatie 6 min 42.
+      # Binnen start_period tellen mislukte controles niet mee; zodra er één
+      # slaagt is de container healthy. Te krap zetten levert dus een container
+      # die minutenlang "unhealthy" heet terwijl hij gewoon aan het seeden is.
+      # Met ISMS_DEMO=ja komt het vullen van het scenario daar nog bij, en bij
+      # een bestaande installatie de verplichte dump.
+      start_period: 900s
+      retries: 3

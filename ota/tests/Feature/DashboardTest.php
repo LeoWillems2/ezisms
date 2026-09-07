@@ -4,12 +4,15 @@ namespace Tests\Feature;
 
 use App\Livewire\Dashboard;
 use App\Models\Beleidsdocument;
+use App\Models\Beleidsversie;
 use App\Models\Bewijsstuk;
 use App\Models\Gebruiker;
 use App\Models\KpiDefinitie;
 use App\Models\Maatregel;
+use App\Models\OrganisatieEenheid;
 use App\Models\Risico;
 use App\Support\Kpitrend;
+use App\Support\Leesbevestigingsstand;
 use App\Support\Maatregelverdeling;
 use App\Support\Risicoverdeling;
 use Database\Seeders\BlokSeeder;
@@ -352,6 +355,209 @@ class DashboardTest extends TestCase
             ->assertSee('Beleidsdocumenten')
             ->assertSee('1 document herzien')
             ->assertSee('Bewijsstukken');
+    }
+
+    // --- Leesbevestiging (implementatie/12i) -------------------------------
+
+    /**
+     * @param  list<Gebruiker>  $bevestigers
+     */
+    private function bevestigingsplichtigDocument(
+        ?OrganisatieEenheid $afdeling,
+        array $bevestigers = [],
+        ?Carbon $gepubliceerd = null,
+    ): Beleidsdocument {
+        $document = Beleidsdocument::factory()->create([
+            'titel' => 'Beleid '.fake()->unique()->numberBetween(1000, 9999),
+            'status' => 'actief',
+            'leesbevestiging_vereist' => true,
+        ]);
+
+        if ($afdeling !== null) {
+            $document->afdelingen()->attach($afdeling);
+        }
+
+        $versie = Beleidsversie::factory()->actief()->for($document, 'document')->create();
+
+        if ($gepubliceerd !== null) {
+            $versie->forceFill(['gepubliceerd_op' => $gepubliceerd])->save();
+        }
+
+        foreach ($bevestigers as $bevestiger) {
+            $versie->bevestigingen()->create([
+                'gebruiker_id' => $bevestiger->id,
+                'bevestigd_op' => now(),
+            ]);
+        }
+
+        return $document;
+    }
+
+    /**
+     * De kern van het paneel. Een document met bevestigingsplicht en zonder
+     * gekoppelde afdeling raakt niemand: geen taak, geen bevestigknop, en een
+     * bevestigingsgraad die op "n.v.t." staat in plaats van op 0%. In het
+     * register is dat niet te onderscheiden van een document dat iedereen heeft
+     * gelezen — hier wel.
+     */
+    public function test_een_document_zonder_doelgroep_staat_als_kritiek_signaal_en_bovenaan(): void
+    {
+        $ciso = Gebruiker::factory()->metRol('CISO')->create();
+        $afdeling = OrganisatieEenheid::factory()->afdeling()->create();
+        Gebruiker::factory()->metRol('Medewerker')->opAfdeling($afdeling)->create();
+
+        $this->bevestigingsplichtigDocument(null)->update(['titel' => 'Beleid zonder afdeling']);
+        // Een tweede document mét doelgroep, zodat de volgorde iets te zeggen heeft.
+        $this->bevestigingsplichtigDocument($afdeling);
+
+        $this->actingAs($ciso)->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Leesbevestiging')
+            ->assertSee('geen doelgroep')
+            ->assertSee('Geen afdeling gekoppeld', false)
+            ->assertSee('1 document met bevestigingsplicht heeft geen doelgroep');
+
+        // De kapotte inrichting staat boven de achterstand: een document dat
+        // niemand raakt is erger dan een afdeling die achterloopt.
+        $aandacht = Leesbevestigingsstand::huidige()->aandacht;
+        $this->assertSame(Leesbevestigingsstand::REDEN_GEEN_DOELGROEP, $aandacht[0]['reden']);
+        $this->assertNull($aandacht[0]['graad']);
+        $this->assertSame(Leesbevestigingsstand::REDEN_ACHTERSTAND, $aandacht[1]['reden']);
+        $this->assertSame(0, $aandacht[1]['bevestigd']);
+        $this->assertSame(1, $aandacht[1]['doelgroep']);
+    }
+
+    public function test_een_achterstand_toont_teller_en_noemer_en_geen_kaal_percentage(): void
+    {
+        $ciso = Gebruiker::factory()->metRol('CISO')->create();
+        $afdeling = OrganisatieEenheid::factory()->afdeling()->create();
+        $bevestiger = Gebruiker::factory()->metRol('Medewerker')->opAfdeling($afdeling)->create();
+        Gebruiker::factory()->count(2)->metRol('Medewerker')->opAfdeling($afdeling)->create();
+
+        $this->bevestigingsplichtigDocument($afdeling, [$bevestiger]);
+
+        $this->actingAs($ciso)->get('/dashboard')
+            ->assertOk()
+            ->assertSee('1 van 3')
+            ->assertSee('2 openstaand · 33%', false);
+    }
+
+    public function test_volledig_bevestigde_documenten_staan_niet_in_de_lijst_maar_in_de_voetregel(): void
+    {
+        $ciso = Gebruiker::factory()->metRol('CISO')->create();
+        $afdeling = OrganisatieEenheid::factory()->afdeling()->create();
+        $lezer = Gebruiker::factory()->metRol('Medewerker')->opAfdeling($afdeling)->create();
+
+        $volledig = $this->bevestigingsplichtigDocument($afdeling, [$lezer]);
+        $volledig->update(['titel' => 'Volledig bevestigd beleid']);
+        $this->bevestigingsplichtigDocument($afdeling);
+
+        $this->actingAs($ciso)->get('/dashboard')
+            ->assertOk()
+            // Alleen wat aandacht vraagt (12c §4): het bevestigde document staat
+            // er als telling, niet als regel.
+            ->assertDontSee('Volledig bevestigd beleid')
+            ->assertSee('1 document is volledig bevestigd en staat hier niet.');
+
+        $stand = Leesbevestigingsstand::huidige();
+        $this->assertSame(1, $stand->volledig);
+        $this->assertCount(1, $stand->aandacht);
+    }
+
+    /**
+     * De CISO hoort niet zelf te hoeven uitrekenen wanneer de termijn verliep.
+     * De grens komt van `Beleidsversie::leesdeadline()` — dezelfde die
+     * `isms:genereer-taken` op de taak zet.
+     */
+    public function test_een_verstreken_leestermijn_levert_een_signaal(): void
+    {
+        $ciso = Gebruiker::factory()->metRol('CISO')->create();
+        $afdeling = OrganisatieEenheid::factory()->afdeling()->create();
+        Gebruiker::factory()->metRol('Medewerker')->opAfdeling($afdeling)->create();
+
+        $this->bevestigingsplichtigDocument(
+            $afdeling,
+            gepubliceerd: now()->subDays(Beleidsversie::LEESTERMIJN_DAGEN + 1),
+        );
+
+        $this->actingAs($ciso)->get('/dashboard')
+            ->assertOk()
+            ->assertSee('1 document staat over de leestermijn')
+            ->assertSee('Leestermijn verstreken op');
+
+        $this->assertSame(1, Leesbevestigingsstand::huidige()->overDeTermijn());
+    }
+
+    public function test_een_lopende_leestermijn_levert_geen_signaal(): void
+    {
+        $ciso = Gebruiker::factory()->metRol('CISO')->create();
+        $afdeling = OrganisatieEenheid::factory()->afdeling()->create();
+        Gebruiker::factory()->metRol('Medewerker')->opAfdeling($afdeling)->create();
+
+        $this->bevestigingsplichtigDocument($afdeling);
+
+        $this->actingAs($ciso)->get('/dashboard')
+            ->assertOk()
+            ->assertSee('Te bevestigen vóór')
+            ->assertDontSee('staat over de leestermijn');
+    }
+
+    /**
+     * Het voorbehoud bij elk percentage in het paneel: wie geen afdeling heeft,
+     * valt buiten élke doelgroep en dus buiten élke noemer. Zonder deze regel
+     * staat een document op 100% terwijl er iemand buiten staat.
+     */
+    public function test_actieve_gebruikers_zonder_afdeling_staan_als_voorbehoud_onder_het_paneel(): void
+    {
+        $ciso = Gebruiker::factory()->metRol('CISO')->create();
+        $afdeling = OrganisatieEenheid::factory()->afdeling()->create();
+        $lezer = Gebruiker::factory()->metRol('Medewerker')->opAfdeling($afdeling)->create();
+
+        $this->bevestigingsplichtigDocument($afdeling, [$lezer]);
+        Gebruiker::factory()->metRol('Medewerker')->create(['status' => 'actief']);
+
+        $this->actingAs($ciso)->get('/dashboard')
+            ->assertOk()
+            ->assertSee('daarmee buiten élke doelgroep — ook buiten de noemers hierboven', false);
+
+        // De CISO zelf heeft ook geen afdeling; het gaat om de telling, niet om
+        // het getal 1.
+        $this->assertGreaterThanOrEqual(2, Leesbevestigingsstand::huidige()->zonderAfdeling);
+    }
+
+    /**
+     * `uitvoeren` impliceert `lezen`, dus de Medewerker haalt `magBeleid()`. Het
+     * paneel hangt daarom aan `Recordscope` — zoals de bevestigingskolom op
+     * /beleid dat al deed (12i §2).
+     */
+    public function test_een_medewerker_ziet_de_stand_van_zijn_collegas_niet(): void
+    {
+        $afdeling = OrganisatieEenheid::factory()->afdeling()->create();
+        $medewerker = Gebruiker::factory()->metRol('Medewerker')->opAfdeling($afdeling)->create();
+
+        $this->bevestigingsplichtigDocument($afdeling);
+
+        $this->actingAs($medewerker)->get('/dashboard')
+            ->assertOk()
+            ->assertDontSee('wat aandacht vraagt')
+            ->assertDontSee('geen doelgroep');
+    }
+
+    /**
+     * Zonder actieve versie is er niets te bevestigen. Een concept in
+     * behandeling hoort niet als falende beheersmaatregel op het dashboard.
+     */
+    public function test_een_concept_zonder_actieve_versie_vraagt_geen_aandacht(): void
+    {
+        Beleidsdocument::factory()->create([
+            'status' => 'concept',
+            'leesbevestiging_vereist' => true,
+        ]);
+
+        $stand = Leesbevestigingsstand::huidige();
+
+        $this->assertSame([], $stand->aandacht);
+        $this->assertSame(0, $stand->volledig);
     }
 
     // --- Richting als eigen vlag (implementatie/12d §1) ---------------------

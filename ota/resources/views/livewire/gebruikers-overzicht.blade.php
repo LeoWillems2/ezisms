@@ -84,7 +84,7 @@
                                  Bewust een native <select>: @selected compileert
                                  niet binnen een Flux-componenttag. --}}
                             <select wire:change="stelAfdelingIn({{ $gebruiker->id }}, $event.target.value)"
-                                class="rounded-lg border border-zinc-200 bg-white py-1.5 pl-3 pr-8 text-sm dark:border-zinc-600 dark:bg-zinc-700 dark:text-zinc-100">
+                                class="rounded-lg border border-zinc-200 bg-white py-1.5 pl-3 pr-8 text-sm">
                                 <option value="" @selected(is_null($gebruiker->organisatie_eenheid_id))>— geen —</option>
                                 @foreach ($afdelingen as $id => $naam)
                                     <option value="{{ $id }}" @selected((int) $gebruiker->organisatie_eenheid_id === $id)>{{ $naam }}</option>
@@ -126,13 +126,26 @@
                              inmiddels verlopen is (01g §4). Dezelfde vorm als de
                              blokkaderegel hierboven: het antwoord staat op de
                              plek waar de vraag opkomt. --}}
-                        @if ($gebruiker->status === 'uitgenodigd' && $gebruiker->uitnodiging_verstuurd_op)
-                            <flux:text class="mt-1 block text-xs text-zinc-500">
-                                Verstuurd op {{ $gebruiker->uitnodiging_verstuurd_op->lokaal()->format('d-m-Y') }}
-                                @if ($gebruiker->uitnodigingVerlopen())
-                                    — link verlopen
-                                @endif
-                            </flux:text>
+                        @if ($gebruiker->status === 'uitgenodigd')
+                            @if ($gebruiker->uitnodiging_verstuurd_op)
+                                <flux:text class="mt-1 block text-xs text-zinc-500">
+                                    {{ $gebruiker->uitreikingLabel() }}
+                                    {{ $gebruiker->uitnodiging_verstuurd_op->lokaal()->format('d-m-Y') }}
+                                    @if ($gebruiker->uitnodigingVerlopen())
+                                        — link verlopen
+                                    @endif
+                                </flux:text>
+                            @else
+                                {{-- Het account bestaat, maar er is niets de deur uit
+                                     gegaan: de modal uit 01i is gesloten zonder
+                                     download, of de mail faalde. De badge zegt dan
+                                     "Uitgenodigd" en dat is precies wat er níet is
+                                     gebeurd — vandaar deze regel, in de kleur van een
+                                     openstaande handeling (01i §7). --}}
+                                <flux:text class="mt-1 block text-xs text-amber-600">
+                                    Nog uitnodigen
+                                </flux:text>
+                            @endif
                         @endif
 
                         {{-- Een lopende adreswijziging (01h §5). Staat hier en niet
@@ -202,7 +215,7 @@
                                      verstuurt dezelfde link nog een keer. --}}
                                 <flux:button size="sm" variant="ghost" icon="arrow-path"
                                     wire:click="uitnodigingOpnieuwVersturen({{ $gebruiker->id }})">
-                                    Uitnodiging opnieuw versturen
+                                    Uitnodiging opnieuw {{ $postkanaal ? 'versturen' : 'uitreiken' }}
                                 </flux:button>
                                 {{-- Alleen hier, en dat is de hele beveiliging van
                                      01g: bij een actief account is het geen
@@ -294,7 +307,14 @@
         <form wire:submit="uitnodigen" class="space-y-6">
             <div>
                 <flux:heading size="lg">Gebruiker uitnodigen</flux:heading>
-                <flux:subheading>De uitgenodigde stelt zelf een wachtwoord in via de mail.</flux:subheading>
+                <flux:subheading>
+                    @if ($postkanaal)
+                        De uitgenodigde stelt zelf een wachtwoord in via de mail.
+                    @else
+                        Er is geen e-mailkanaal ingesteld: u krijgt na het aanmaken een bestand
+                        om zelf uit te reiken.
+                    @endif
+                </flux:subheading>
             </div>
 
             <flux:input wire:model="naam" label="Naam" required />
@@ -505,5 +525,62 @@
                 <flux:button variant="primary" type="submit">Opslaan</flux:button>
             </div>
         </form>
+    </flux:modal>
+
+    {{-- Handmatig uitreiken zonder mailkanaal (01i §4). Geen formulier: de modal
+         bestaat om te vertellen wat er níet gebeurd is en om het bestand aan te
+         bieden. Bewust geen automatische download bij het openen — browsers
+         blokkeren die soms stil, en met een knop is het bestand opnieuw op te
+         halen. --}}
+    <flux:modal wire:model.self="toontHandmatigeUitnodiging" class="md:w-[34rem]">
+        <div class="space-y-6">
+            <div>
+                <flux:heading size="lg">Uitnodiging handmatig uitreiken</flux:heading>
+                <flux:subheading>
+                    @if ($handmatigeUitnodiging)
+                        Het account voor {{ $handmatigeUitnodiging->naam }}
+                        ({{ $handmatigeUitnodiging->email }}) is aangemaakt, maar er is
+                        <strong>geen uitnodiging verstuurd</strong>.
+                    @endif
+                </flux:subheading>
+            </div>
+
+            <flux:callout icon="information-circle">
+                <flux:callout.text>
+                    {{ $geenPostkanaalReden }} Reik de uitnodiging daarom zelf uit: download het
+                    bestand hieronder en geef het aan de betrokkene.
+                </flux:callout.text>
+            </flux:callout>
+
+            <flux:button variant="primary" icon="arrow-down-tray" wire:click="downloadUitnodiging">
+                Uitnodigingsbestand downloaden (.txt)
+            </flux:button>
+
+            {{-- De link ook in tekst, voor wie hem liever plakt dan een bestand
+                 verplaatst. Dat het downloaden de vastlegging is en het kopiëren
+                 niet, staat erbij: anders is het een verborgen regel. --}}
+            @if ($handmatigeUitnodigingslink)
+                <div class="space-y-1">
+                    <flux:text class="text-sm font-medium">Of kopieer de link</flux:text>
+                    <flux:input readonly value="{{ $handmatigeUitnodigingslink }}" class="text-xs" />
+                    <flux:text class="text-xs text-zinc-500">
+                        Pas de download legt vast dat deze uitnodiging is uitgereikt; kopiëren doet dat niet.
+                    </flux:text>
+                </div>
+            @endif
+
+            <flux:callout icon="exclamation-triangle" variant="warning">
+                <flux:callout.heading>Deze link is een sleutel</flux:callout.heading>
+                <flux:callout.text>
+                    Wie het bestand heeft, kan dit account activeren. Reik het uit via een kanaal dat
+                    bij een wachtwoord past en verwijder het daarna. De link vervalt na zeven dagen,
+                    of zodra er een wachtwoord mee is ingesteld.
+                </flux:callout.text>
+            </flux:callout>
+
+            <div class="flex justify-end">
+                <flux:button variant="ghost" wire:click="$set('toontHandmatigeUitnodiging', false)">Sluiten</flux:button>
+            </div>
+        </div>
     </flux:modal>
 </div>

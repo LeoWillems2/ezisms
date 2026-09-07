@@ -21,7 +21,7 @@
 
     @foreach ($regel->overheidsmaatregelBeoordelingen as $beoordeling)
         @php $om = $beoordeling->overheidsmaatregel; @endphp
-        <div class="border-t border-zinc-200 pt-3 first:border-0 first:pt-0 dark:border-zinc-700">
+        <div class="border-t border-zinc-200 pt-3 first:border-0 first:pt-0">
             <div class="flex flex-wrap items-center gap-1.5">
                 <flux:badge size="sm" color="zinc">{{ $om->nummer }}</flux:badge>
                 <flux:badge size="sm"

@@ -214,6 +214,10 @@ Toepasselijkheid. Dat is het echte werk, en het is werk dat je met of zonder dez
 software zou doen. Wat je ervoor terugkrijgt, is dat het de tweede keer — bij de
 opvolgingsaudit, een jaar later — geen werk meer is.
 
+In welke volgorde je dat invult, maakt uit: de registers hangen aan elkaar, en
+een paar stappen moeten door het management worden vastgesteld. Zie [Van lege
+installatie naar draaiend ISMS](/kennisbank/van-lege-installatie-naar-draaiend-isms).
+
 Om te zien hoe een gevuld ISMS eruitziet zonder eerst alles in te voeren, kan een
 beheerder een **aparte** installatie vullen met een compleet demoscenario: een
 fictief bedrijf met een samenhangende tijdlijn van risico's, incidenten, audits

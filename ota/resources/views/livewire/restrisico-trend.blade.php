@@ -56,7 +56,7 @@
             @foreach ($perControl as $rijen)
                 @php($maatregel = $rijen->first()->soaRegel->maatregel)
                 <div wire:key="control-{{ $rijen->first()->soa_regel_id }}"
-                    class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                    class="rounded-lg border border-zinc-200 p-4">
                     <flux:heading size="sm">A.{{ $maatregel->annex_a_referentie }} {{ $maatregel->naam }}</flux:heading>
 
                     <flux:table class="mt-3">

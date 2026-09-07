@@ -29,7 +29,7 @@
     </flux:callout>
 
     @forelse ($adapters as $adapter)
-        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+        <div class="blueprint p-4">
             <div class="mb-2 flex items-start justify-between gap-4">
                 <div>
                     <flux:heading size="lg">

@@ -13,6 +13,60 @@ geeft de oorspronkelijke tekst.
 
 ---
 
+## V3.1.0 — SQLite, en drie signalen die ontbraken
+
+*29-08-2026*
+
+Eén nieuwe manier om het ISMS te draaien, en drie plekken waar het systeem iets
+wist maar niets zei.
+
+**Het ISMS kan nu op één bestand draaien.** Naast de bestaande stack met MySQL
+staat er een tweede: `compose-sqlite.yml`, één container, de hele database in
+`data/app/database/ezisms.sqlite`. Geen databasecontainer, geen wachtwoorden om
+te verzinnen of te bewaren, en een back-up die één bestand is. Voor een
+organisatie van enkele tientallen mensen is dat genoeg, en `LEESMIJ.md` noemt
+deze variant daarom als eerste; MySQL is §1b geworden, met erbij wanneer die de
+betere keuze is. Wie op MySQL draait hoeft niets te doen — de bestandsnamen zijn
+met opzet niet omgedraaid, want `compose.yml` wordt bij elke upgrade opnieuw
+gekopieerd en een naam die van betekenis verandert is geen goede naam.
+
+Het image bedient beide varianten en de uitrolketen is gedeeld; alleen het
+compose-bestand en het `.env`-voorbeeld zijn eigen. Twee dingen bewaken de fout
+die geld kost: `installatie/db-variant` blokkeert een compose-bestand van de
+andere variant op bestaande gegevens, en de database staat op de hostmap en niet
+in de applicatieboom, die bij een upgrade vervangen wordt.
+
+**Op SQLite is een `enum` een tekstveld zonder controle.** Dat is geen detail
+voor een ISMS: 75 kolommen — statussen, ernstniveaus, auditacties — werden op
+MySQL door de database bewaakt en zouden op SQLite alles slikken. De toegestane
+waarden staan nu in de code, worden op de statusmachines afgedwongen, en een
+toets draait de volledige migratieset om te controleren dat het register er
+precies op past. Een nieuwe enum zonder waardenlijst laat de suite vallen.
+
+**Een uitnodiging kwam nooit aan als er geen mailserver was.** `MAIL_MAILER=log`
+is de standaardwaarde, en in een afgeschermd netwerk blijft dat zo. De verzending
+sláágde dan — het log-transport klaagt niet — dus meldde het scherm "Uitnodiging
+verstuurd" terwijl er niets uitging. De CISO krijgt nu een bestand om zelf uit te
+reiken, en de lijst zegt "Nog uitnodigen" zolang dat niet gebeurd is. Dat laatste
+signaal ontbrak ook als een échte mail faalde.
+
+**Een beleidsdocument bleef hangen op "ter goedkeuring".** De statusgang had
+precies één overgang zonder taak, en dat was net de overgang waarbij de bal van
+de opsteller naar de goedkeurder gaat. Er is nu een goedkeuringstaak, plus twee
+signalen op `/beleid` die een wachtende versie zichtbaar maken.
+
+**En het dashboard toont openstaande leesbevestigingen.** Nieuwkomers zonder
+afdeling vielen daarbij buiten beeld; dat gat is nu zichtbaar in plaats van
+stil.
+
+Verder verholpen: `ISMS_NORM=bio2` werd door de Docker-uitrol geweigerd terwijl
+alle documentatie hem aanbood. Een instelling die niet kan blokkeert nu meteen in
+plaats van drie keer opnieuw geprobeerd te worden, en het advies om een blokkade
+op te heffen is `docker compose up -d --force-recreate` geworden — `restart` mist
+een gewijzigde `.env`, en `up -d` doet niets als er aan `.env` niets veranderde.
+
+---
+
 ## V3.0.0 — een ander fundament
 
 *23-08-2026*

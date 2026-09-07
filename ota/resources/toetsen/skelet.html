@@ -18,19 +18,46 @@
     blokkeert die verzoeken, dus een toets met externe bronnen ziet er bij de
     deelnemer kapot uit.
 
-    Laat je deze toets door een AI schrijven, geef die regel dan mee.
+    DE HUISSTIJL. De opmaak hieronder volgt die van het ISMS zelf, zodat een
+    toets niet als een vreemd eiland aanvoelt. Het is een blauwdrukstijl:
+    lijnwerk op een lichte technische grond, met maar één kleur.
+
+      grond          #f2f2f3     oppervlak      #e9e9ea
+      tekst          #1d1f20     gedempte tekst #5d5d60
+      accent         #5980a6     accent, dieper #416180
+      scheidslijn    inkt op 16%
+
+    Vier regels die de stijl dragen:
+
+      1. Vierkante hoeken. Overal. Geen border-radius.
+      2. Kaders in plaats van vlakken: een haarlijn en géén vulling. Op de vier
+         hoeken staat een registratiekruisje, zoals op een technische tekening
+         — dat doet de klasse `.kader` hieronder, zonder extra HTML.
+      3. Eén gevuld object op de pagina: de knop.
+      4. Eén kleur. Het accent is het enige gekleurde ding; verder alleen
+         grijstinten. De twee uitzonderingen zijn goed en fout, want die
+         betekenen iets — en ze dragen altijd óók een woord, nooit alleen een
+         kleur.
+
+    Het ISMS zet koppen in Barlow Condensed en lopende tekst in Barlow. Die
+    lettertypen kan een toets niet laden (zie de harde regel hierboven), dus
+    hieronder staat de systeemstack. Dat is de bedoelde afwijking.
+
+    Laat je deze toets door een AI schrijven, geef de harde regel én deze
+    stijlregels mee.
 -->
 
 <style>
     :root {
-        --achtergrond: #0f172a;
-        --vlak: #1e293b;
-        --rand: #334155;
-        --tekst: #f8fafc;
-        --gedempt: #94a3b8;
-        --accent: #6366f1;
-        --goed: #34d399;
-        --fout: #fb7185;
+        --grond: #f2f2f3;
+        --oppervlak: #e9e9ea;
+        --tekst: #1d1f20;
+        --gedempt: #5d5d60;
+        --rand: rgba(29, 31, 32, .16);
+        --accent: #5980a6;
+        --accent-diep: #416180;
+        --goed: #0ca30c;
+        --fout: #d03b3b;
     }
 
     * { box-sizing: border-box; }
@@ -38,81 +65,114 @@
     body {
         margin: 0;
         padding: 2rem 1rem 4rem;
-        background: var(--achtergrond);
+        background: var(--grond);
         color: var(--tekst);
         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-        line-height: 1.6;
+        line-height: 1.55;
     }
 
     main { max-width: 46rem; margin: 0 auto; }
 
+    /* Koppen: zwaar en strak gespatieerd, als benadering van Barlow Condensed. */
+    h1, h2, h3 {
+        font-weight: 600;
+        line-height: 1.12;
+        letter-spacing: -.015em;
+    }
     h1 { font-size: 1.75rem; margin: 0 0 .25rem; }
     h2 { font-size: 1.25rem; margin: 2rem 0 .5rem; }
     p.inleiding { color: var(--gedempt); margin: 0 0 2rem; }
 
-    section.lesstof {
-        background: var(--vlak);
+    /* Het blauwdrukkader: haarlijn, geen vulling, vierkante hoeken, en op elke
+       hoek een kruisje. De kruisjes komen uit twee pseudo-elementen — vier
+       verlooptjes per stuk, twee kruisjes per pseudo — dus er hoeft geen HTML
+       bij. Ze liggen 6px buiten de doos; zet er niets omheen met
+       `overflow: hidden`, want dan snijdt dat ze af. */
+    .kader {
+        position: relative;
+        background: none;
         border: 1px solid var(--rand);
-        border-radius: .75rem;
         padding: 1rem 1.5rem;
-        margin-bottom: 1rem;
+        margin: 0 0 1.25rem;
+    }
+    .kader::before,
+    .kader::after {
+        content: "";
+        position: absolute;
+        inset: -6px;
+        pointer-events: none;
+        color: rgba(29, 31, 32, .55);
+    }
+    .kader::before {
+        background:
+            linear-gradient(currentColor, currentColor) 0 5px / 11px 1px no-repeat,
+            linear-gradient(currentColor, currentColor) 5px 0 / 1px 11px no-repeat,
+            linear-gradient(currentColor, currentColor) 100% calc(100% - 5px) / 11px 1px no-repeat,
+            linear-gradient(currentColor, currentColor) calc(100% - 5px) 100% / 1px 11px no-repeat;
+    }
+    .kader::after {
+        background:
+            linear-gradient(currentColor, currentColor) 100% 5px / 11px 1px no-repeat,
+            linear-gradient(currentColor, currentColor) calc(100% - 5px) 0 / 1px 11px no-repeat,
+            linear-gradient(currentColor, currentColor) 0 calc(100% - 5px) / 11px 1px no-repeat,
+            linear-gradient(currentColor, currentColor) 5px 100% / 1px 11px no-repeat;
     }
 
     code {
         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-        background: #0b1220;
-        border-radius: .25rem;
+        background: var(--oppervlak);
         padding: .1rem .35rem;
         font-size: .9em;
     }
 
-    fieldset {
-        background: var(--vlak);
-        border: 1px solid var(--rand);
-        border-radius: .75rem;
-        padding: 1rem 1.5rem;
-        margin: 0 0 1rem;
-    }
-
+    fieldset { border: 0; padding: 1rem 1.5rem; }
+    /* De browser knipt de bovenrand open waar de legend staat; de padding houdt
+       de tekst los van de twee uiteinden van die haarlijn. */
     legend { font-weight: 600; padding: 0 .4rem; }
 
     label { display: block; padding: .3rem 0; cursor: pointer; }
-    input[type="radio"] { margin-right: .5rem; }
+    input[type="radio"] { margin-right: .5rem; accent-color: var(--accent); }
 
+    /* Terugkoppeling: een streep in de signaalkleur en het woord ernaast. De
+       kleur alleen zou te weinig zijn, dus het script schrijft er "Goed" of
+       "Fout" bij. */
     .terugkoppeling {
         display: none;
         margin-top: .75rem;
-        padding: .6rem .8rem;
-        border-radius: .5rem;
+        padding: .5rem .8rem;
         font-size: .9rem;
+        background: var(--oppervlak);
+        border-left: 3px solid var(--rand);
     }
-    .terugkoppeling.goed { display: block; background: #064e3b; color: #d1fae5; }
-    .terugkoppeling.fout { display: block; background: #4c0519; color: #ffe4e6; }
+    .terugkoppeling.goed { display: block; border-left-color: var(--goed); }
+    .terugkoppeling.fout { display: block; border-left-color: var(--fout); }
 
+    /* Het enige gevulde object op de pagina. */
     button {
         background: var(--accent);
-        color: #fff;
-        border: 0;
-        border-radius: .5rem;
+        color: var(--grond);
+        border: 1px solid var(--accent);
         padding: .7rem 1.4rem;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
     }
-    button:hover { filter: brightness(1.1); }
+    button:hover { background: var(--accent-diep); border-color: var(--accent-diep); }
+
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     #uitslag {
         display: none;
         margin-top: 1.5rem;
-        padding: 1.25rem 1.5rem;
-        border-radius: .75rem;
-        border: 2px solid var(--rand);
-        background: var(--vlak);
         text-align: center;
     }
+    #uitslag.geslaagd,
+    #uitslag.gezakt { display: block; }
     #uitslag.geslaagd { border-color: var(--goed); }
     #uitslag.gezakt { border-color: var(--fout); }
-    #score { font-size: 2.5rem; font-weight: 800; margin: .25rem 0; }
+    #uitslag.geslaagd::before, #uitslag.geslaagd::after { color: var(--goed); }
+    #uitslag.gezakt::before, #uitslag.gezakt::after { color: var(--fout); }
+    #score { font-size: 2.5rem; font-weight: 700; line-height: 1.1; margin: .25rem 0; }
 </style>
 </head>
 <body>
@@ -123,13 +183,13 @@
 
     <h2>Lesstof</h2>
 
-    <section class="lesstof">
+    <section class="lesstof kader">
         <h3>Onderwerp 1</h3>
         <p>Beschrijf hier het eerste onderwerp. Gebruik gerust <code>code</code>,
            lijsten en tussenkopjes — alles wat gewone HTML kan.</p>
     </section>
 
-    <section class="lesstof">
+    <section class="lesstof kader">
         <h3>Onderwerp 2</h3>
         <p>En hier het tweede. Houd het kort: wie de toets maakt, leest dit vlak
            voor de vragen.</p>
@@ -141,7 +201,7 @@
 
     <button type="button" id="nakijken">Nakijken</button>
 
-    <div id="uitslag">
+    <div id="uitslag" class="kader">
         <div id="score"></div>
         <p id="oordeel"></p>
     </div>
@@ -178,6 +238,7 @@
 
     VRAGEN.forEach((v, i) => {
         const veld = document.createElement('fieldset');
+        veld.className = 'kader';
         const kop = document.createElement('legend');
         kop.textContent = (i + 1) + '. ' + v.vraag;
         veld.appendChild(kop);
@@ -223,7 +284,7 @@
         const geslaagd = goed / VRAGEN.length >= NORM;
 
         const uitslag = document.getElementById('uitslag');
-        uitslag.className = geslaagd ? 'geslaagd' : 'gezakt';
+        uitslag.className = geslaagd ? 'kader geslaagd' : 'kader gezakt';
         uitslag.style.display = 'block';
         document.getElementById('score').textContent = goed + ' / ' + VRAGEN.length;
         document.getElementById('oordeel').textContent = geslaagd

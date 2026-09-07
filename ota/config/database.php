@@ -37,9 +37,21 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
-            'busy_timeout' => null,
-            'journal_mode' => null,
-            'synchronous' => null,
+            // Drie literalen en geen env-sleutels: ze verschillen niet per
+            // installatie (implementatie/00s §2).
+            //
+            // busy_timeout — maakt van een botsing een wachtmoment in plaats van
+            // een 500. Zonder dit geeft SQLite meteen "database is locked" terug
+            // zodra twee van de twintig fpm-werkers tegelijk willen schrijven.
+            'busy_timeout' => 5000,
+            // WAL — lezers en één schrijver naast elkaar. Zonder WAL vergrendelt
+            // elke schrijf de hele database, en dat merken twintig werkers plus
+            // de scheduler onmiddellijk.
+            'journal_mode' => 'WAL',
+            // FULL en niet NORMAL. Onder WAL kost NORMAL bij een stroomstoring de
+            // laatste transacties; voor een append-only audit trail is dat de
+            // verkeerde ruil, en snelheid is hier het probleem niet.
+            'synchronous' => 'FULL',
         ],
 
         'mysql' => [
