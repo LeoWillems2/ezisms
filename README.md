@@ -46,6 +46,12 @@ sudo -u www-data php artisan isms:eerste-ciso 'email-adres' 'wachtwoord' 'naam'
 
 # Docker #
 
-- Lees docker/ezisms/LEESMIJ.md
+- Lees docker/ezisms/LEESMIJ.md voor eigen docker deployment
+- Lees docker/ezisms/LEESMIJ-image.md voor image deployment (AMD64 en sqlite)
+
+
+
+
+
 
 Dit werk is gelicenseerd onder <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/nc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
