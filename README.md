@@ -53,7 +53,7 @@ sudo -u www-data php artisan isms:eerste-ciso 'email-adres' 'wachtwoord' 'naam'
 # Docker #
 
 - Lees docker/ezisms/LEESMIJ.md voor eigen docker deployment
-- Lees docker/ezisms/LEESMIJ-image.md voor image deployment (AMD64 en sqlite)
+- Lees docker/ezisms/LEESMIJ-image.md voor image deployment (AMD64 en sqlite). Wil je een kant en klaar image? Mail naar info@ezisms.nl.
 
 - Deze installatie gaat er van uit dat haproxy met SSL terminatie wordt gebruikt. Als dat niet zo is, lees dan ota/tls.md voor instructies.
 
