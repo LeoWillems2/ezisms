@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Testing\TestResponse;
 use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
 use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Livewire\Livewire;
@@ -390,6 +391,51 @@ class TweefactorTest extends TestCase
 
         $this->actingAs($gebruiker)->get(route('settings.tweefactor'))->assertOk();
         $this->actingAs($gebruiker)->post(route('logout'))->assertRedirect('/');
+    }
+
+    /**
+     * Het instelscherm openen is niet genoeg: elke knop erop is een
+     * Livewire-verzoek naar het update-eindpunt, en dat is een andere route.
+     * Ging die niet mee in de uitzondering, dan redirectte de middleware hem
+     * terug naar het instelscherm en herlaadde de pagina zonder QR-code — alleen
+     * te zien met een verstreken respijtperiode, en niet met `Volt::test()`,
+     * want dat gaat buiten de middleware om.
+     */
+    public function test_het_instelscherm_werkt_ook_na_de_deadline(): void
+    {
+        $gebruiker = $this->gebruiker();
+        $gebruiker->forceFill(['tweefactor_deadline' => now()->subDay()])->save();
+
+        $this->actingAs($gebruiker);
+
+        $this->livewireAanroep(route('settings.tweefactor'), 'inschakelen', [
+            'wachtwoord' => self::WACHTWOORD,
+        ])->assertOk();
+
+        $this->assertNotNull($gebruiker->fresh()->two_factor_secret);
+    }
+
+    /**
+     * Een knop op een pagina indrukken zoals de browser dat doet: eerst de
+     * pagina ophalen, dan de snapshot daaruit terugsturen naar het
+     * update-eindpunt. Via `$this->post()` en niet via `Volt::test()`, want het
+     * gaat hier juist om de middleware die ertussen zit.
+     */
+    private function livewireAanroep(string $url, string $methode, array $invoer = []): TestResponse
+    {
+        $pagina = $this->get($url);
+        $pagina->assertOk();
+
+        preg_match('/wire:snapshot="([^"]*)"/', $pagina->getContent(), $treffer);
+        $this->assertNotEmpty($treffer, 'Geen Livewire-component gevonden op '.$url);
+
+        return $this->withHeader('X-Livewire', 'true')->postJson(Livewire::getUpdateUri(), [
+            'components' => [[
+                'snapshot' => html_entity_decode($treffer[1], ENT_QUOTES),
+                'updates' => $invoer,
+                'calls' => [['method' => $methode, 'params' => [], 'path' => '']],
+            ]],
+        ]);
     }
 
     public function test_zonder_afdwingen_blokkeert_er_niets(): void

@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Livewire\Livewire;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -40,7 +41,7 @@ class VereistTweefactor
             return $next($request);
         }
 
-        if ($request->routeIs(self::ALTIJD_TOEGANKELIJK)) {
+        if ($this->blijftBereikbaar($request)) {
             return $next($request);
         }
 
@@ -65,5 +66,47 @@ class VereistTweefactor
         }
 
         return redirect()->route('settings.tweefactor');
+    }
+
+    /**
+     * Hoort dit verzoek bij een van de routes die bereikbaar moeten blijven?
+     *
+     * Een Livewire-verzoek loopt niet over de route van de pagina zelf maar over
+     * het update-eindpunt, en dat staat nooit in de lijst. Zonder de vertaling
+     * hieronder redirect elke knop op het instelscherm naar datzelfde
+     * instelscherm: de gebruiker geeft zijn wachtwoord op, de pagina herlaadt en
+     * de QR-code komt er nooit — precies de toestand waarin iemand met een
+     * verlopen respijtperiode terechtkomt, want vóór de deadline redirect de
+     * middleware niet en valt er niets op.
+     */
+    private function blijftBereikbaar(Request $request): bool
+    {
+        if ($request->routeIs(self::ALTIJD_TOEGANKELIJK)) {
+            return true;
+        }
+
+        if (! Livewire::isLivewireRequest()) {
+            return false;
+        }
+
+        // De herkomst komt uit de snapshot van de component en niet uit een kop
+        // die de browser kan verzinnen. Livewire controleert de checksum van die
+        // snapshot pas ná de middleware, maar het pad zit erin: wie het omschrijft
+        // om hier langs te komen, strandt een stap later alsnog.
+        $pad = trim(Livewire::originalPath(), '/');
+
+        foreach (self::ALTIJD_TOEGANKELIJK as $naam) {
+            // Vergelijken op de URI en niet met `match()`: die bindt de gevonden
+            // route aan een verzonnen verzoek, en die binding blijft aan het
+            // gedeelde route-object hangen. Alle vier de uitzonderingen hebben
+            // een vaste URI; een route met parameters hoort hier niet thuis.
+            $route = app('router')->getRoutes()->getByName($naam);
+
+            if ($route !== null && trim($route->uri(), '/') === $pad) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
