@@ -9,6 +9,12 @@
 - Deze repo is de ontwikkelbasis, geheel ontwikkeld met Claude Code. De Architectuur, deelprojectplannen en bouwplannen staan hier niet. Wil je verder ontwikkelen, neem dan contact op: info @ ezisms.nl
 
 
+# Demo aanvragen
+
+Vraag een demo-omgeving aan via demo.ezisms.nl. Dit is een ISO 27001 ISMS gevuld met demo-data.
+
+
+
 # VMhost of bare metal requirements: #
 
 
