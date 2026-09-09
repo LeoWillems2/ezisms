@@ -33,7 +33,7 @@
         <flux:table.columns>
             <flux:table.column>Type</flux:table.column>
             <flux:table.column>Omschrijving</flux:table.column>
-            <flux:table.column>Maatregel</flux:table.column>
+            <flux:table.column>Betreft</flux:table.column>
             <flux:table.column>Auditronde</flux:table.column>
             <flux:table.column>Status</flux:table.column>
             <flux:table.column align="end">Acties</flux:table.column>
@@ -49,7 +49,7 @@
                     </flux:table.cell>
                     <flux:table.cell>{{ Str::limit($bevinding->omschrijving, 160) }}</flux:table.cell>
                     <flux:table.cell>
-                        {{ $bevinding->maatregel ? 'A.'.$bevinding->maatregel->annex_a_referentie : '—' }}
+                        {{ $bevinding->auditobject?->auditOmschrijving() ?? '—' }}
                     </flux:table.cell>
                     <flux:table.cell>
                         {{ $bevinding->auditronde?->auditOmschrijving() ?? '—' }}
@@ -62,7 +62,10 @@
                                 default => 'amber',
                             };
                         @endphp
-                        <flux:badge size="sm" :color="$kleur">{{ $this->statusLabel($bevinding->status) }}</flux:badge>
+                        <flux:badge size="sm" :color="$kleur"
+                            title="{{ $bevinding->isGesloten() ? 'Afgehandeld: '.$bevinding->afhandelingsnotitie : '' }}">
+                            {{ $this->statusLabel($bevinding->status) }}
+                        </flux:badge>
                     </flux:table.cell>
                     <flux:table.cell align="end">
                         <div class="flex justify-end gap-1">

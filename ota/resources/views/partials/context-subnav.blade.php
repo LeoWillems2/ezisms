@@ -5,8 +5,8 @@
     <flux:navbar.item :href="route('scope.show')" :current="request()->routeIs('scope.show')" wire:navigate>
         Scope-verklaring
     </flux:navbar.item>
-    <flux:navbar.item :href="route('organisatie-eenheden.index')" :current="request()->routeIs('organisatie-eenheden.index')" wire:navigate>
-        Organisatie-eenheden
+    <flux:navbar.item :href="route('organisatie.index')" :current="request()->routeIs('organisatie.index')" wire:navigate>
+        Organisatie
     </flux:navbar.item>
     <flux:navbar.item :href="route('issues.index')" :current="request()->routeIs('issues.index')" wire:navigate>
         Issues

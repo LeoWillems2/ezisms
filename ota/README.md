@@ -329,8 +329,13 @@ met een sub-navigatiebalk ertussen:
   verwijderen — versiehistorie is auditbewijs). De statusovergang loopt via de
   expliciete action `App\Actions\ActiveerScopeVerklaring`, niet via een
   model-observer, zodat het "vervangen"-effect zichtbaar blijft op de aanroep.
-- `/organisatie-eenheden` — zelfverwijzende boom (afdeling/locatie/proces),
-  recursief gerenderd zonder hiërarchie-package.
+- `/organisatie` — de gegevens van de organisatie zelf als één vrij tekstveld
+  (`organisatieprofiel`, precies één rij, max. 2000 tekens platte tekst; welke
+  gegevens een organisatie hier kwijt wil verschilt te zeer voor een
+  veldenschema), met daaronder de zelfverwijzende boom van eenheden
+  (afdeling/locatie/proces), recursief gerenderd zonder hiërarchie-package.
+  Het tekstveld staat los van `ORGANISATIE` uit `.env`: dat blijft de korte naam
+  voor de zijbalk en de documentvoettekst.
 - `/issues` en `/belanghebbenden` (met geneste eisen).
 
 Twee zaken zijn op databaseniveau afgedwongen in plaats van op schrijfdiscipline:

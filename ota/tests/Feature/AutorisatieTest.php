@@ -250,7 +250,7 @@ class AutorisatieTest extends TestCase
         '/meetaanpak' => [200, 200, 200, 403, 403],
         '/mijn-trainingen' => [200, 403, 200, 200, 403],
         '/notificaties' => [200, 200, 200, 403, 403],
-        '/organisatie-eenheden' => [200, 200, 200, 200, 403],
+        '/organisatie' => [200, 200, 200, 200, 403],
         '/risicos' => [200, 200, 200, 403, 403],
         '/risicos/criteria' => [200, 200, 200, 403, 403],
         '/risicos/matrix' => [200, 200, 200, 403, 403],

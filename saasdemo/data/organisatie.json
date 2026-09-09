@@ -8,6 +8,7 @@
 
   "organisatie": {
     "naam": "FruitBV",
+    "gegevens": "Fruit BV\nKersenstraat 45",
     "omschrijving": "Nederlandse groothandel in groenten en fruit, 20 medewerkers (16 FTE), kantoor in Barendrecht.",
     "platform": "FruitCloud — handelsplatform voor telers, groothandel en retail, in eigen huis ontwikkeld."
   },

@@ -5,19 +5,23 @@
         </flux:button>
     </div>
 
-    <div>
-        <flux:heading size="xl">
-            {{ $auditronde->typeLabel() }} — plan {{ $auditronde->auditplan->jaar }}
-            @php
-                $statusKleur = match ($auditronde->status) {
-                    'afgerond' => 'green',
-                    'in_uitvoering' => 'blue',
-                    default => 'zinc',
-                };
-            @endphp
-            <flux:badge size="sm" :color="$statusKleur">{{ ucfirst(str_replace('_', ' ', $auditronde->status)) }}</flux:badge>
-        </flux:heading>
-        <flux:subheading>Scope, uitvoerder, status en bevindingen van deze auditronde.</flux:subheading>
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <flux:heading size="xl">
+                {{ $auditronde->typeLabel() }} — plan {{ $auditronde->auditplan->jaar }}
+                @php
+                    $statusKleur = match ($auditronde->status) {
+                        'afgerond' => 'green',
+                        'in_uitvoering' => 'blue',
+                        default => 'zinc',
+                    };
+                @endphp
+                <flux:badge size="sm" :color="$statusKleur">{{ ucfirst(str_replace('_', ' ', $auditronde->status)) }}</flux:badge>
+            </flux:heading>
+            <flux:subheading>Scope, uitvoerder, status en bevindingen van deze auditronde.</flux:subheading>
+        </div>
+
+        @include('partials.kopieknop')
     </div>
 
     @if (session('melding'))
@@ -39,7 +43,7 @@
         @elseif ($auditronde->status === 'in_uitvoering')
             @if ($this->magUitvoeren())
                 <flux:button variant="primary" icon="check" wire:click="rondAf"
-                    wire:confirm="Afronden bevriest de bevindingen. Doorgaan?">Ronde afronden</flux:button>
+                    wire:confirm="Afronden bevriest de bevindingen en de behandelingen. Doorgaan?">Ronde afronden</flux:button>
             @endif
             <flux:text variant="subtle">Na afronden zijn de bevindingen definitief en niet meer te wijzigen.</flux:text>
         @else
@@ -177,19 +181,74 @@
                         <flux:text>—</flux:text>
                     @endif
                 </div>
-                <div class="sm:col-span-2">
-                    <flux:text class="text-xs">Normatieve scope (clausules / controls)</flux:text>
-                    @if ($auditronde->auditobjecten->isNotEmpty())
-                        <div class="mt-1 flex flex-wrap gap-1">
-                            @foreach ($auditronde->auditobjecten as $object)
-                                <flux:badge size="sm" color="zinc">{{ $object->refCode() }}</flux:badge>
-                            @endforeach
-                        </div>
-                    @else
-                        <flux:text>—</flux:text>
-                    @endif
-                </div>
             </dl>
+        @endif
+    </div>
+
+
+    {{-- Normatieve scope: niet wat de bedoeling was, maar wat er feitelijk is
+         gebeurd (plan 11d). Dit is het antwoord op de vraag van de externe
+         auditor: hoe weet ik dat u alles hebt bekeken? --}}
+    <div class="blueprint p-5">
+        @php
+            $telling = collect($objectstatussen)->countBy();
+        @endphp
+
+        <div class="mb-3 flex flex-wrap items-baseline justify-between gap-3">
+            <flux:heading size="lg">Normatieve scope</flux:heading>
+            @if ($auditronde->auditobjecten->isNotEmpty())
+                <flux:text variant="subtle">
+                    {{ $telling->get('geen_opmerkingen', 0) + $telling->get('bevinding', 0) }}
+                    van de {{ $auditronde->auditobjecten->count() }} behandeld
+                    @if ($telling->get('bevinding', 0) > 0), waarvan {{ $telling->get('bevinding') }} met bevinding @endif
+                    @if ($telling->get('niet_toegekomen', 0) > 0) · {{ $telling->get('niet_toegekomen') }} niet aan toegekomen @endif
+                </flux:text>
+            @endif
+        </div>
+
+        @if ($auditronde->auditobjecten->isEmpty())
+            <flux:text>Nog geen clausules of controls in de scope; die legt de CISO vast bij de planning.</flux:text>
+        @else
+            <div class="flex flex-wrap gap-1">
+                @foreach ($auditronde->auditobjecten->sortBy([['groep', 'asc'], ['volgorde', 'asc']]) as $object)
+                    @php
+                        $status = $objectstatussen[$object->id] ?? 'niet_behandeld';
+                        $kleur = match ($status) {
+                            'geen_opmerkingen' => 'green',
+                            'bevinding' => 'amber',
+                            'niet_toegekomen' => 'red',
+                            default => 'zinc',
+                        };
+                        $bron = match (true) {
+                            (bool) $object->pivot->eigen_waarneming => ' — eigen waarneming',
+                            $object->pivot->gesproken_met_id !== null => ' — gesproken met '
+                                .($gesprekspartners[$object->pivot->gesproken_met_id] ?? 'onbekend'),
+                            default => '',
+                        };
+                        $titel = $object->omschrijving().' — '.$afhandelingLabels[$status]
+                            .($status === 'niet_toegekomen' ? ' — '.$object->pivot->toelichting : $bron)
+                            .($object->pivot->buiten_planning ? ' (tijdens de uitvoering toegevoegd)' : '');
+                    @endphp
+
+                    @if ($this->magBevindingBewerken() && $status !== 'bevinding')
+                        <button type="button" wire:click="behandelObject({{ $object->id }})" title="{{ $titel }}">
+                            <flux:badge size="sm" :color="$kleur">
+                                {{ $object->pivot->buiten_planning ? '+' : '' }}{{ $object->refCode() }}
+                            </flux:badge>
+                        </button>
+                    @else
+                        <flux:badge size="sm" :color="$kleur" title="{{ $titel }}">
+                            {{ $object->pivot->buiten_planning ? '+' : '' }}{{ $object->refCode() }}
+                        </flux:badge>
+                    @endif
+                @endforeach
+            </div>
+
+            <flux:text variant="subtle" class="mt-3 text-xs">
+                Groen: behandeld, geen opmerkingen. Oranje: er is een bevinding. Rood: niet aan toegekomen.
+                Grijs: nog niet behandeld. Een "+" betekent: tijdens de uitvoering aan de scope toegevoegd.
+                @if ($this->magBevindingBewerken()) Klik een knop aan om de behandeling vast te leggen. @endif
+            </flux:text>
         @endif
     </div>
 
@@ -216,7 +275,8 @@
             <flux:table.columns>
                 <flux:table.column>Type</flux:table.column>
                 <flux:table.column>Omschrijving</flux:table.column>
-                <flux:table.column>Maatregel</flux:table.column>
+                <flux:table.column>Betreft</flux:table.column>
+                <flux:table.column>Bron</flux:table.column>
                 <flux:table.column>Status</flux:table.column>
                 <flux:table.column align="end">Acties</flux:table.column>
             </flux:table.columns>
@@ -231,7 +291,14 @@
                         </flux:table.cell>
                         <flux:table.cell>{{ Str::limit($bevinding->omschrijving, 80) }}</flux:table.cell>
                         <flux:table.cell>
-                            {{ $bevinding->maatregel ? 'A.'.$bevinding->maatregel->annex_a_referentie : '—' }}
+                            {{ $bevinding->auditobject?->auditOmschrijving() ?? '—' }}
+                        </flux:table.cell>
+                        <flux:table.cell>
+                            @if ($bevinding->eigen_waarneming)
+                                <flux:text variant="subtle">eigen waarneming</flux:text>
+                            @else
+                                {{ $gesprekspartners[$bevinding->gesprekspartnerId()] ?? '—' }}
+                            @endif
                         </flux:table.cell>
                         <flux:table.cell>
                             @php
@@ -241,7 +308,10 @@
                                     default => 'zinc',
                                 };
                             @endphp
-                            <flux:badge size="sm" :color="$bKleur">{{ ucfirst(str_replace('_', ' ', $bevinding->status)) }}</flux:badge>
+                            <flux:badge size="sm" :color="$bKleur"
+                                title="{{ $bevinding->isGesloten() ? 'Afgehandeld: '.$bevinding->afhandelingsnotitie : '' }}">
+                                {{ ucfirst(str_replace('_', ' ', $bevinding->status)) }}
+                            </flux:badge>
                         </flux:table.cell>
                         <flux:table.cell align="end">
                             <div class="flex justify-end gap-1">
@@ -260,15 +330,14 @@
                                     @endif
 
                                     <flux:button size="sm" variant="ghost" icon="check"
-                                        wire:click="sluitBevinding({{ $bevinding->id }})"
-                                        wire:confirm="Bevinding sluiten? Een gesloten bevinding is definitief en kan niet heropend worden.">Sluiten</flux:button>
+                                        wire:click="sluitBevinding({{ $bevinding->id }})">Sluiten</flux:button>
                                 @endif
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="5"><flux:text>Nog geen bevindingen vastgelegd.</flux:text></flux:table.cell>
+                        <flux:table.cell colspan="6"><flux:text>Nog geen bevindingen vastgelegd.</flux:text></flux:table.cell>
                     </flux:table.row>
                 @endforelse
             </flux:table.rows>
@@ -281,6 +350,91 @@
         <livewire:bewijs-paneel blok-naam="auditmanagement" entiteit-type="auditronde"
             :entiteit-id="$auditronde->id" :wire:key="'bewijs-auditronde-'.$auditronde->id" />
     </div>
+
+    {{-- Sluiten: wat er met de bevinding is gebeurd (plan 11d §13). --}}
+    <flux:modal wire:model.self="toontSluitFormulier" class="md:w-[32rem]">
+        <form wire:submit="bevestigSluiten" class="space-y-6">
+            <div>
+                <flux:heading size="lg">Bevinding sluiten</flux:heading>
+                <flux:subheading>
+                    Een gesloten bevinding is definitief en kan niet heropend worden.
+                </flux:subheading>
+            </div>
+
+            <flux:textarea wire:model="sluitNotitie" label="Afhandeling" required
+                description="Wat is er met deze bevinding gebeurd? Bij de volgende audit is dit het antwoord op de vraag wat u ermee hebt gedaan." />
+
+            <div class="flex justify-end gap-2">
+                <flux:button variant="ghost" type="button" wire:click="$set('toontSluitFormulier', false)">Annuleren</flux:button>
+                <flux:button variant="primary" type="submit">Sluiten</flux:button>
+            </div>
+        </form>
+    </flux:modal>
+
+    {{-- Behandeling van één object in de normatieve scope (plan 11d). --}}
+    <flux:modal wire:model.self="toontBehandelFormulier" class="md:w-[32rem]">
+        <form wire:submit="slaBehandelingOp" class="space-y-6">
+            @php
+                $behandeld = $auditronde->auditobjecten->firstWhere('id', $behandeldObjectId);
+            @endphp
+
+            <div>
+                <flux:heading size="lg">{{ $behandeld?->refCode() }} behandelen</flux:heading>
+                <flux:subheading>{{ $behandeld?->omschrijving() }}</flux:subheading>
+            </div>
+
+            <flux:radio.group wire:model.live="behandelAfhandeling" label="Afhandeling">
+                @foreach ($handmatigeAfhandelingen as $waarde)
+                    <flux:radio value="{{ $waarde }}" label="{{ ucfirst($afhandelingLabels[$waarde]) }}" />
+                @endforeach
+            </flux:radio.group>
+
+            @if ($behandelAfhandeling === 'geen_opmerkingen')
+                <x-keuzelijst wire:model="behandelBron" label="Bron" required
+                    leeg="— kies een bron —" :opties="$bronnen"
+                    description="Zonder bron is 'geen opmerkingen' een bewering; hiermee is het auditbewijs. Nagelezen in de documentatie? Kies eigen waarneming." />
+            @else
+                <flux:textarea wire:model="behandelToelichting" label="Reden"
+                    description="Waarom is dit object niet behandeld? Dit staat straks in het dossier bij het gat in de dekking." />
+            @endif
+
+            <div class="flex justify-end gap-2">
+                <flux:button variant="ghost" type="button" wire:click="sluitBehandelFormulier">Annuleren</flux:button>
+                <flux:button variant="primary" type="submit">Vastleggen</flux:button>
+            </div>
+        </form>
+    </flux:modal>
+
+    {{-- Afronden met objecten die nog grijs staan: geen blokkade, wel een reden
+         per object (plan 11d §5). --}}
+    <flux:modal wire:model.self="toontAfrondFormulier" class="md:w-[36rem]">
+        <form wire:submit="rondAfMetRedenen" class="space-y-6">
+            <div>
+                <flux:heading size="lg">Ronde afronden</flux:heading>
+                <flux:subheading>
+                    Deze objecten staan nog in de scope zonder behandeling. Noteer per object waarom;
+                    ze tellen daarna niet mee voor de dekking, en in het dossier staat waaróm er een gat zit.
+                </flux:subheading>
+            </div>
+
+            <div class="max-h-64 space-y-3 overflow-y-auto">
+                @foreach ($onbehandeld as $object)
+                    <flux:input wire:key="reden-{{ $object->id }}"
+                        wire:model="afrondRedenen.{{ $object->id }}"
+                        label="{{ $object->refCode() }} {{ $object->omschrijving() }}" />
+                @endforeach
+            </div>
+
+            <flux:text variant="subtle" class="text-xs">
+                Na afronden zijn de bevindingen en de behandelingen definitief.
+            </flux:text>
+
+            <div class="flex justify-end gap-2">
+                <flux:button variant="ghost" type="button" wire:click="$set('toontAfrondFormulier', false)">Annuleren</flux:button>
+                <flux:button variant="primary" type="submit">Redenen vastleggen en afronden</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 
     {{-- Bevinding-formulier --}}
     <flux:modal wire:model.self="toontBevindingFormulier" class="md:w-[32rem]">
@@ -295,8 +449,13 @@
 
             <flux:textarea wire:model="bevindingOmschrijving" label="Omschrijving" required />
 
-            <x-keuzelijst wire:model="bevindingMaatregelId" label="Betreft maatregel (optioneel)"
-                leeg="— geen —" :opties="$maatregelen" />
+            <x-keuzelijst wire:model.live="bevindingAuditobjectId" label="Betreft" required
+                leeg="— kies een clausule of control —" :opties="$onderwerpen"
+                description="Ook de clausules uit H4-H10. Valt de keuze buiten de normatieve scope van deze ronde, dan groeit de scope mee." />
+
+            <x-keuzelijst wire:model="bevindingBron" label="Bron" required
+                leeg="— kies een bron —" :opties="$bronnen"
+                description="Waar de bevinding vandaan komt: met wie je erover sprak, of je eigen waarneming. Staat er al een bron bij dit object in de scope, dan wordt die voorgesteld." />
 
             <div class="flex justify-end gap-2">
                 <flux:button variant="ghost" type="button" wire:click="sluitBevindingFormulier">Annuleren</flux:button>

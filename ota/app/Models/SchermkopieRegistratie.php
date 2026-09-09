@@ -21,7 +21,7 @@ class SchermkopieRegistratie extends Model
     /** @var list<string> */
     protected $fillable = [
         'scherm', 'filters', 'aantal_rijen', 'totaal_rijen',
-        'met_persoonsgegevens', 'gebruiker_id', 'gemaakt_op',
+        'met_persoonsgegevens', 'documenthash', 'gebruiker_id', 'gemaakt_op',
     ];
 
     /** @var array<string, string> */
@@ -47,6 +47,12 @@ class SchermkopieRegistratie extends Model
     public function gebruiker(): BelongsTo
     {
         return $this->belongsTo(Gebruiker::class);
+    }
+
+    /** De eerste tekens van de hash: genoeg om te herkennen, de rest staat in de titel. */
+    public function korteHash(): string
+    {
+        return $this->documenthash === null ? '—' : substr($this->documenthash, 0, 16).'…';
     }
 
     /** Het volledige register, of een gefilterde selectie? */

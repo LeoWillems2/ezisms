@@ -349,7 +349,7 @@ doelgroep. Ook hier bewust niet 100%: een enkele bevestiging blijft openstaan.
 | **M15** | Leveranciersbeoordeling ronde 2. **Tegenslag 3**: SnijBoon Support zakt van laag naar hoog — geen incidentmeldplicht in het contract, geen aantoonbare beveiligingsmaatregelen. Actie: clausule toevoegen of dienst uitfaseren. Procedure incidentbeheer v2 |
 | **M16** | **Tegenslag 4**: de kwartaaltaak "Herbeoordeling risicoregister" wordt niet opgepakt en **verloopt**. De Check-KPI voor risicoherbeoordeling zakt zichtbaar |
 | **M17** | Inhaalslag: alle risico's herbeoordeeld, risico 8 terug naar 2×4 na patchronde; **risico 15** (afhankelijkheid van één betaaldienstverlener) en **risico 16** (AI-plugin in de klantportal verwerkt ordergegevens) nieuw geïdentificeerd |
-| **M18** | **Interne audit programmajaar 1** (H4 Context, H5 Leiderschap, H6 Planning + bijbehorende maatregelen — de eerste schijf van de driejarige dekking). Bevindingen: 1 minor NC (leveranciersbeoordelingen niet volgens de eigen frequentie), 3 observaties, 2 verbeterkansen. Dit is de eerste ronde die de dekkingsmatrix kleurt |
+| **M18** | **Interne audit programmajaar 1** (H4 Context, H5 Leiderschap, H6 Planning, H7 Ondersteuning + bijbehorende maatregelen — de eerste schijf van de driejarige dekking). Bevindingen: 1 minor NC (leveranciersbeoordelingen niet volgens de eigen frequentie), 3 observaties, 2 verbeterkansen. Aan clausule 7.2 (competentie) komt de auditor niet toe — de teamleider Beheer is de hele auditweek afwezig — dus dat object blijft met reden onbehandeld en telt niet als dekking. Dit is de eerste ronde die de dekkingsmatrix kleurt |
 | **M19** | **Directiebeoordeling 2**: negen inputs, besluit tot investering in monitoring, 3 verbeteracties waarvan er één blijft lopen. Keesje Kers uit dienst: account gedeactiveerd, toegang ingetrokken. Ciske stelt **versie 2 van de risicocriteria** op en dient hem in: acceptatiedrempel van 15 naar 12, en een kwantitatieve band per impactstap |
 | **M20** | Bobo **stelt de risicocriteria vast**; de risico's die daardoor boven de acceptatiedrempel uitkomen krijgen een herbeoordelingstaak bij hun eigenaar. Jaarlijkse SoA-herziening: implementatie naar ~80 van 88; twee regels van "in uitvoering" naar "geïmplementeerd" |
 | **M21** | **Eerste opvolgingsaudit** (`extern_surveillance`): 1 minor NC — het continuïteitsplan is nooit getest (A.5.30) — plus 2 observaties |
@@ -374,7 +374,10 @@ risicogebaseerde frequentie.
 
 Op de peildatum M22 is er dus **één afgeronde dekkende ronde** (M18, jaar 1) en
 loopt programmajaar 1 nog tot M23. De dekkingsmatrix toont de eerste schijf
-groen, de rest gepland. Dat is een magerder plaatje dan twee afgeronde jaren,
+groen op één gat na — clausule 7.2, waar de auditor niet aan toekwam — en de
+rest gepland. Dat gat is er met opzet: sinds plan 11d dekt een ronde alleen wat
+zij feitelijk behandelde, en een demo waarin dat verschil nergens te zien is,
+laat het punt van die regel niet zien. Dat is een magerder plaatje dan twee afgeronde jaren,
 maar het is wat een organisatie 22 maanden na de kickoff werkelijk kan tonen —
 en de nulmeting die eronder hangt laat zien waaróm de matrix er zo uitziet.
 

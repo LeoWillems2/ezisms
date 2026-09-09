@@ -37,7 +37,7 @@ use App\Livewire\ManagementReviewOverzicht;
 use App\Livewire\MeetaanpakOverzicht;
 use App\Livewire\MijnTrainingen;
 use App\Livewire\NotificatieBeheer;
-use App\Livewire\OrganisatieEenhedenOverzicht;
+use App\Livewire\OrganisatieOverzicht;
 use App\Livewire\RestrisicoTrend;
 use App\Livewire\ReviewsessieDetail;
 use App\Livewire\RisicoCriteria;
@@ -117,7 +117,7 @@ Route::middleware(['auth'])->group(function () {
     // muteer-acties in het component checken nogmaals op 'muteren'.
     Route::middleware("can:heeft-niveau,'context-scope','lezen'")->group(function () {
         Route::get('scope', ScopeBeheer::class)->name('scope.show');
-        Route::get('organisatie-eenheden', OrganisatieEenhedenOverzicht::class)->name('organisatie-eenheden.index');
+        Route::get('organisatie', OrganisatieOverzicht::class)->name('organisatie.index');
         Route::get('issues', IssuesOverzicht::class)->name('issues.index');
         Route::get('belanghebbenden', BelanghebbendenOverzicht::class)->name('belanghebbenden.index');
     });

@@ -10,6 +10,7 @@ use App\Models\Auditplan;
 use App\Models\Auditprogramma;
 use App\Models\AuditprogrammaDekking;
 use App\Models\Auditronde;
+use App\Models\Bevinding;
 use App\Models\Gebruiker;
 use App\Models\Maatregel;
 use Database\Seeders\AuditobjectClausuleSeeder;
@@ -259,7 +260,8 @@ class AuditProgrammaTest extends TestCase
             'auditplan_id' => $plan->id, 'type' => 'intern',
             'status' => 'afgerond', 'uitgevoerd_op' => '2024-05-01',
         ]);
-        $ronde->auditobjecten()->attach($gedekt->id);
+        // Plan 11d: in de scope staan is geen dekking — behandeld zijn wel.
+        $ronde->auditobjecten()->attach($gedekt->id, ['afhandeling' => 'geen_opmerkingen']);
 
         $component = Livewire::actingAs($this->ciso)
             ->test(Dekkingsmatrix::class)
@@ -274,6 +276,39 @@ class AuditProgrammaTest extends TestCase
         $this->assertSame(2, $kpi['totaal']);
     }
 
+    /**
+     * Plan 11d: de dekkingsmatrix telt de behandeling, niet de scope. Een object
+     * dat in de scope stond maar waar de auditor niet aan toekwam, is een gat —
+     * dat is het verschil tussen "we waren het van plan" en "we hebben ernaar
+     * gekeken".
+     */
+    public function test_alleen_behandelde_objecten_dekken(): void
+    {
+        $programma = Auditprogramma::factory()->create(['start_datum' => '2024-01-01', 'aantal_jaren' => 3]);
+        $plan = Auditplan::factory()->voorProgramma($programma)->create();
+
+        $onbehandeld = Auditobject::factory()->create();
+        $metBevinding = Auditobject::factory()->create();
+
+        $ronde = Auditronde::factory()->create([
+            'auditplan_id' => $plan->id, 'type' => 'intern',
+            'status' => 'afgerond', 'uitgevoerd_op' => '2024-05-01',
+        ]);
+        $ronde->auditobjecten()->attach([$onbehandeld->id, $metBevinding->id]);
+        Bevinding::factory()->create([
+            'auditronde_id' => $ronde->id,
+            'auditobject_id' => $metBevinding->id,
+        ]);
+
+        $cellen = Livewire::actingAs($this->ciso)
+            ->test(Dekkingsmatrix::class)
+            ->set('programmaId', $programma->id)
+            ->viewData('cellen');
+
+        $this->assertSame('uitgevoerd', $cellen[$metBevinding->id][1]);
+        $this->assertNotSame('uitgevoerd', $cellen[$onbehandeld->id][1]);
+    }
+
     public function test_kpi_telt_alleen_afgeronde_rondes(): void
     {
         $programma = Auditprogramma::factory()->create(['start_datum' => '2024-01-01', 'aantal_jaren' => 3]);
@@ -285,7 +320,7 @@ class AuditProgrammaTest extends TestCase
             'auditplan_id' => $plan->id, 'type' => 'intern',
             'status' => 'in_uitvoering', 'uitgevoerd_op' => null,
         ]);
-        $ronde->auditobjecten()->attach($object->id);
+        $ronde->auditobjecten()->attach($object->id, ['afhandeling' => 'geen_opmerkingen']);
 
         $kpi = Livewire::actingAs($this->ciso)
             ->test(Dekkingsmatrix::class)
@@ -448,7 +483,7 @@ class AuditProgrammaTest extends TestCase
             'status' => 'afgerond',
             'uitgevoerd_op' => '2028-01-02',
         ]);
-        $ronde->auditobjecten()->attach($object->id);
+        $ronde->auditobjecten()->attach($object->id, ['afhandeling' => 'geen_opmerkingen']);
 
         $cellen = Livewire::actingAs($this->ciso)
             ->test(Dekkingsmatrix::class)

@@ -58,8 +58,10 @@ trait LevertSchermkopie
         }
 
         // Pas ná een geslaagde conversie: een mislukte kopie is niet meegegeven.
-        // Dezelfde volgorde als bij `Raadpleging` in DownloadBewijsstuk.
-        $kopie->legVast();
+        // Dezelfde volgorde als bij `Raadpleging` in DownloadBewijsstuk. De hash
+        // gaat over precies de bytes die de deur uit gaan, niet over de markdown
+        // eronder: het document is wat de auditor in handen krijgt.
+        $kopie->legVast(hash('sha256', $inhoud));
 
         return response()->streamDownload(
             fn () => print ($inhoud),

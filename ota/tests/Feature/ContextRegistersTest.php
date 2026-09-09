@@ -4,13 +4,14 @@ namespace Tests\Feature;
 
 use App\Livewire\BelanghebbendenOverzicht;
 use App\Livewire\IssuesOverzicht;
-use App\Livewire\OrganisatieEenhedenOverzicht;
+use App\Livewire\OrganisatieOverzicht;
 use App\Livewire\RisicoDetail;
 use App\Livewire\RisicosOverzicht;
 use App\Models\Belanghebbende;
 use App\Models\Gebruiker;
 use App\Models\Issue;
 use App\Models\OrganisatieEenheid;
+use App\Models\Organisatieprofiel;
 use App\Models\Risico;
 use Database\Seeders\BlokSeeder;
 use Database\Seeders\RisicocriteriaSeeder;
@@ -39,7 +40,7 @@ class ContextRegistersTest extends TestCase
         $medewerker = Gebruiker::factory()->metRol('Medewerker')->create();
 
         $this->actingAs($medewerker)->get('/scope')->assertOk();
-        $this->actingAs($medewerker)->get('/organisatie-eenheden')->assertOk();
+        $this->actingAs($medewerker)->get('/organisatie')->assertOk();
         $this->actingAs($medewerker)->get('/issues')->assertOk();
         $this->actingAs($medewerker)->get('/belanghebbenden')->assertOk();
     }
@@ -56,7 +57,7 @@ class ContextRegistersTest extends TestCase
         $afdeling = OrganisatieEenheid::factory()->create(['naam' => 'ICT', 'type' => 'afdeling']);
 
         Livewire::actingAs($this->ciso)
-            ->test(OrganisatieEenhedenOverzicht::class)
+            ->test(OrganisatieOverzicht::class)
             ->call('nieuweEenheid', $afdeling->id)
             ->set('naam', 'Salarisadministratie')
             ->set('type', 'proces')
@@ -74,12 +75,60 @@ class ContextRegistersTest extends TestCase
         $medewerker = Gebruiker::factory()->metRol('Medewerker')->create();
 
         Livewire::actingAs($medewerker)
-            ->test(OrganisatieEenhedenOverzicht::class)
+            ->test(OrganisatieOverzicht::class)
             ->set('naam', 'Stiekem')
             ->call('opslaan')
             ->assertForbidden();
 
         $this->assertDatabaseMissing('organisatie_eenheden', ['naam' => 'Stiekem']);
+    }
+
+    public function test_ciso_kan_de_organisatiegegevens_vastleggen_en_wissen(): void
+    {
+        Livewire::actingAs($this->ciso)
+            ->test(OrganisatieOverzicht::class)
+            ->call('bewerkGegevens')
+            ->set('gegevens', "Fruit BV\nKersenstraat 45")
+            ->call('gegevensOpslaan')
+            ->assertHasNoErrors();
+
+        $this->assertSame("Fruit BV\nKersenstraat 45", Organisatieprofiel::huidig()->gegevens);
+
+        // Nogmaals opslaan mag geen tweede profiel opleveren, en leeg invullen
+        // wist het blok in plaats van een lege string te bewaren.
+        Livewire::actingAs($this->ciso)
+            ->test(OrganisatieOverzicht::class)
+            ->call('bewerkGegevens')
+            ->set('gegevens', '   ')
+            ->call('gegevensOpslaan')
+            ->assertHasNoErrors();
+
+        $this->assertSame(1, Organisatieprofiel::query()->count());
+        $this->assertNull(Organisatieprofiel::huidig()->gegevens);
+    }
+
+    public function test_organisatiegegevens_zijn_begrensd_op_2000_tekens(): void
+    {
+        Livewire::actingAs($this->ciso)
+            ->test(OrganisatieOverzicht::class)
+            ->set('gegevens', str_repeat('a', 2001))
+            ->call('gegevensOpslaan')
+            ->assertHasErrors(['gegevens' => 'max']);
+
+        $this->assertSame(0, Organisatieprofiel::query()->count());
+    }
+
+    public function test_medewerker_mag_de_organisatiegegevens_niet_wijzigen(): void
+    {
+        $medewerker = Gebruiker::factory()->metRol('Medewerker')->create();
+
+        Livewire::actingAs($medewerker)
+            ->test(OrganisatieOverzicht::class)
+            ->set('gegevens', 'Stiekem BV')
+            ->call('gegevensOpslaan')
+            ->assertForbidden();
+
+        $this->assertSame(0, Organisatieprofiel::query()->count());
     }
 
     public function test_ciso_kan_een_issue_toevoegen_en_bewerken(): void

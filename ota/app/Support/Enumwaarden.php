@@ -77,6 +77,9 @@ final class Enumwaarden
             'auditprogrammas.aard' => ['voorbereiding', 'certificeringscyclus'],
             'auditprogrammas.status' => ['concept', 'actief', 'afgesloten'],
             'auditrondes.status' => ['gepland', 'in_uitvoering', 'afgerond'],
+            'auditronde_auditobject.afhandeling' => [
+                'niet_behandeld', 'geen_opmerkingen', 'niet_toegekomen',
+            ],
             'auditrondes.type' => [
                 'intern', 'intern_nulmeting', 'extern_certificering', 'extern_surveillance',
             ],

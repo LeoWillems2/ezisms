@@ -35,6 +35,10 @@ final class Schermkopie
      * @param  string  $eenheid  waar de rijen er één van zijn; alleen de omvangregel
      *                           gebruikt het, zodat een scherm dat geen register
      *                           toont geen "alle 5 regels" hoeft te zeggen
+     * @param  array<string, string>  $kenmerken  label => waarde, als extra regels in de kopregel-tabel;
+     *                                            voor een scherm dat een dossier toont in plaats van een
+     *                                            register, waar de kop zelf gegevens draagt (status,
+     *                                            uitvoerder, datum)
      * @param  Schermafbeelding|null  $afbeelding  optionele illustratie boven de tabel (§7a)
      * @param  Schermkopiebijlage|null  $bijlage  tweede tabel onder de hoofdtabel, voor een
      *                                            scherm met een tweede detailniveau
@@ -48,6 +52,7 @@ final class Schermkopie
         public readonly ?string $toelichting = null,
         public readonly bool $metPersoonsgegevens = false,
         public readonly string $eenheid = 'regels',
+        public readonly array $kenmerken = [],
         public readonly ?Schermafbeelding $afbeelding = null,
         public readonly ?Schermkopiebijlage $bijlage = null,
     ) {}
@@ -104,9 +109,16 @@ final class Schermkopie
         // Twee namen voor één tijdstip in één document is iets waar een auditor
         // over struikelt. Het tijdstip zelf gaat niet verloren — het staat in de
         // bestandsnaam en in de vastlegging (`SchermkopieRegistratie`).
+        $regels[] = '| Gemaakt door | '.$this->veilig(auth()->user()?->naam ?? '—').' |';
+
+        // De kenmerken van een dossier staan vóór de omvang: eerst waar dit
+        // document over gaat, dan hoeveel ervan in de tabel staat.
+        foreach ($this->kenmerken as $label => $waarde) {
+            $regels[] = '| '.$this->veilig($label).' | '.$this->veilig($waarde).' |';
+        }
+
         $regels = [
             ...$regels,
-            '| Gemaakt door | '.$this->veilig(auth()->user()?->naam ?? '—').' |',
             '| Omvang | '.$this->veilig($this->omvangregel()).' |',
             '',
         ];
@@ -208,8 +220,15 @@ final class Schermkopie
      * Legt vast dát deze kopie is meegegeven (§9). Niet de inhoud: die wordt
      * nergens bewaard, en de vraag die beantwoordbaar moet blijven is wélk
      * scherm met welke filters de deur uit is gegaan.
+     *
+     * Wél de **vingerafdruk** van het document: met de sha256 erbij is een
+     * bestand dat iemand later voorlegt te herleiden tot deze regel — of niet, en
+     * dan is het een ander document. Dat is geen archief; het is het verschil
+     * tussen "er is toen iets meegegeven" en "dít is wat er toen is meegegeven".
+     *
+     * @param  string|null  $documenthash  sha256 van de meegegeven bytes
      */
-    public function legVast(): SchermkopieRegistratie
+    public function legVast(?string $documenthash = null): SchermkopieRegistratie
     {
         return SchermkopieRegistratie::create([
             'scherm' => $this->scherm,
@@ -217,6 +236,7 @@ final class Schermkopie
             'aantal_rijen' => count($this->rijen),
             'totaal_rijen' => $this->totaalRijen,
             'met_persoonsgegevens' => $this->metPersoonsgegevens,
+            'documenthash' => $documenthash,
             'gebruiker_id' => auth()->id(),
             'gemaakt_op' => Carbon::now(),
         ]);

@@ -560,6 +560,38 @@ class DemoEindstandTest extends TestCase
     }
 
     /**
+     * Het scopebewijs uit plan 11d: elke uitgevoerde ronde legt per object vast
+     * wat ermee is gebeurd. De demo laat alle drie de uitkomsten zien — anders
+     * toont zij een kleur minder dan het product kent.
+     */
+    public function test_de_uitgevoerde_rondes_dragen_hun_scopebewijs(): void
+    {
+        $rondes = Auditronde::where('status', 'afgerond')->with(['auditobjecten', 'bevindingen'])->get();
+
+        foreach ($rondes as $ronde) {
+            $this->assertNotContains('niet_behandeld', $ronde->objectstatussen(),
+                "Ronde {$ronde->id} heeft objecten in de scope zonder vastgelegde afhandeling.");
+        }
+
+        // De interne audit van programmajaar 1 kwam niet aan de competentie-eisen
+        // toe: het gat staat met reden in het dossier en telt niet als dekking.
+        $jaar1 = $rondes->first(fn (Auditronde $r) => $r->type === 'intern' && $r->telt_mee_voor_dekking);
+        $gat = $jaar1->auditobjecten->firstWhere('clausule_nummer', '7.2');
+
+        $this->assertNotNull($gat, 'Clausule 7.2 hoort in de scope van programmajaar 1 te zitten.');
+        $this->assertSame('niet_toegekomen', $gat->pivot->afhandeling);
+        $this->assertStringContainsString('afwezig', $gat->pivot->toelichting);
+        $this->assertNotContains($gat->id, $jaar1->behandeldeObjectIds());
+
+        // En de bijgroei: een bevinding buiten de geplande scope trekt haar
+        // object alsnog het bewijsbeeld in.
+        $this->assertTrue(
+            $jaar1->auditobjecten->contains(fn ($o) => (bool) $o->pivot->buiten_planning),
+            'Een bevinding buiten de geplande scope hoort het object mee te nemen.',
+        );
+    }
+
+    /**
      * De Act-fase meet nu ook gebeurtenissen (implementatie/12g). Het scenario
      * beschreef het patroon al — de scoredaling van risico 5 in M8 volgt op de
      * hersteltest, die van risico 8 in M17 op de patchronde — maar de tijdlijn

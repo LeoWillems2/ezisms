@@ -230,6 +230,38 @@ class SchermkopieTest extends TestCase
         $this->assertFalse($regel->isVolledig());
     }
 
+    /**
+     * De hash gaat over de bytes die de deur uit gaan. Zonder die vingerafdruk
+     * zegt de vastlegging alleen dát er iets is meegegeven, niet wát.
+     */
+    public function test_de_vastlegging_bevat_de_hash_van_het_meegegeven_document(): void
+    {
+        $this->actingAs($this->ciso);
+
+        // Bewust niet via pandoc: wat hier telt is dat de meegegeven bytes hun
+        // vingerafdruk in de vastlegging krijgen, niet hoe die bytes ontstaan.
+        $inhoud = 'de bytes van het document';
+        $this->kopie([['A.5.1', 'Beleidsregels', 'Ja']], 1)->legVast(hash('sha256', $inhoud));
+
+        $regel = SchermkopieRegistratie::firstOrFail();
+
+        $this->assertSame(hash('sha256', $inhoud), $regel->documenthash);
+        $this->assertSame(64, strlen((string) $regel->documenthash));
+        $this->assertStringEndsWith('…', $regel->korteHash());
+
+        $this->get('/schermkopieen')->assertOk()->assertSee(substr($regel->documenthash, 0, 16));
+    }
+
+    /** Een kopie van vóór deze kolom heeft geen hash, en die verzinnen we niet. */
+    public function test_zonder_hash_blijft_de_kolom_leeg(): void
+    {
+        $this->actingAs($this->ciso);
+        $regel = $this->kopie([['A.5.1', 'Beleidsregels', 'Ja']], 1)->legVast();
+
+        $this->assertNull($regel->documenthash);
+        $this->assertSame('—', $regel->korteHash());
+    }
+
     public function test_een_vastlegging_is_niet_te_wijzigen_of_te_verwijderen(): void
     {
         $this->actingAs($this->ciso);
@@ -376,12 +408,21 @@ class SchermkopieTest extends TestCase
             $this->markTestSkipped('pandoc staat niet op deze machine.');
         }
 
-        Livewire::actingAs($this->ciso)
+        $respons = Livewire::actingAs($this->ciso)
             ->test(KopieerbaarTestscherm::class)
             ->call('kopieerVoorAuditor')
             ->assertFileDownloaded();
 
         $this->assertSame(1, SchermkopieRegistratie::count());
+
+        // De vastgelegde hash hoort bij precies het bestand dat is meegegeven —
+        // niet bij de markdown eronder en niet bij een tweede conversie.
+        $bytes = base64_decode($respons->effects['download']['content']);
+
+        $this->assertSame(
+            hash('sha256', $bytes),
+            SchermkopieRegistratie::firstOrFail()->documenthash,
+        );
     }
 }
 

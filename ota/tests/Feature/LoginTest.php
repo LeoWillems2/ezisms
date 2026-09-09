@@ -153,4 +153,30 @@ class LoginTest extends TestCase
     {
         $this->get('/register')->assertNotFound();
     }
+
+    /**
+     * De inlogpagina noemt de installatie: voor welke organisatie dit ISMS
+     * draait en welke norm zij volgt. Beide zijn stamgegevens, dus zichtbaar
+     * vóór het inloggen.
+     */
+    public function test_inlogpagina_toont_organisatie_en_norm(): void
+    {
+        config(['app.organisatie' => 'Fruit BV', 'norm.actief' => 'nen7510']);
+
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee('Fruit BV')
+            ->assertSee('NEN 7510');
+    }
+
+    /** Zonder ORGANISATIE blijft de norm staan, zonder losse scheidingsstreep. */
+    public function test_inlogpagina_zonder_organisatienaam_toont_alleen_de_norm(): void
+    {
+        config(['app.organisatie' => '', 'norm.actief' => 'iso27001']);
+
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee('ISO 27001')
+            ->assertDontSee('&middot;', false);
+    }
 }

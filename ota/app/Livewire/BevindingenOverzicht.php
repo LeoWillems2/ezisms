@@ -99,7 +99,7 @@ class BevindingenOverzicht extends Component
     private function gefilterdeBevindingen(): Collection
     {
         return Bevinding::query()
-            ->with(['auditronde.auditplan', 'maatregel', 'afwijking'])
+            ->with(['auditronde.auditplan', 'auditobject.maatregel', 'afwijking'])
             ->when($this->filterType !== '', fn ($q) => $q->where('type', $this->filterType))
             ->when($this->filterStatus === self::OPENSTAAND,
                 fn ($q) => $q->where('status', '!=', 'gesloten'))
@@ -159,22 +159,24 @@ class BevindingenOverzicht extends Component
 
         return new Schermkopie(
             scherm: 'Bevindingenregister',
-            // Dezelfde kolommen als het scherm, plus twee die op het scherm een
-            // knop zijn: "Openen" naar de afwijking en de sluitdatum in het
-            // rondedossier. In een document wordt een knop niets — en zonder de
-            // opvolging is dit een lijst met constateringen, geen bewijs dat er
-            // iets mee gebeurd is (§9.2/§10.2).
-            kolommen: ['Type', 'Omschrijving', 'Maatregel', 'Auditronde', 'Status', 'Opvolging', 'Gesloten op'],
+            // Dezelfde kolommen als het scherm, plus drie die op het scherm een
+            // knop of een tooltip zijn: "Openen" naar de afwijking, de sluitdatum
+            // in het rondedossier, en de afhandeling achter de statusbadge. In een
+            // document wordt een knop niets — en zonder de opvolging is dit een
+            // lijst met constateringen, geen bewijs dat er iets mee gebeurd is
+            // (§9.2/§10.2).
+            kolommen: ['Type', 'Omschrijving', 'Betreft', 'Auditronde', 'Status', 'Opvolging', 'Gesloten op', 'Afhandeling'],
             rijen: $bevindingen->map(fn (Bevinding $bevinding) => [
                 $this->typeLabel($bevinding->type),
                 // De volledige tekst, niet de afgekapte versie van het scherm:
                 // die afkapping is een kolombreedte, geen inhoudelijke keuze.
                 $bevinding->omschrijving,
-                $bevinding->maatregel ? 'A.'.$bevinding->maatregel->annex_a_referentie : null,
+                $bevinding->auditobject?->auditOmschrijving(),
                 $bevinding->auditronde?->auditOmschrijving(),
                 $this->statusLabel($bevinding->status),
                 self::opvolgingLabel($bevinding),
                 $bevinding->gesloten_op?->format('d-m-Y'),
+                $bevinding->afhandelingsnotitie,
             ])->all(),
             // Het hele register, ook als er gefilterd is — en dit scherm filtert
             // standaard. Juist dát verschil moet de kop noemen (12h §4).

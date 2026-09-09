@@ -6,6 +6,8 @@
         <flux:subheading>
             Wat er als Word-document het systeem uit is gegaan: welk scherm, met welke filters, hoeveel
             regels en door wie. De kopieën zelf worden niet bewaard — dit is de lijst, niet het archief.
+            Van elk document staat de sha256 erbij, zodat een bestand dat iemand later voorlegt tot een
+            regel hier te herleiden is.
         </flux:subheading>
     </div>
 
@@ -15,6 +17,7 @@
             <flux:table.column>Scherm</flux:table.column>
             <flux:table.column>Omvang</flux:table.column>
             <flux:table.column>Filters</flux:table.column>
+            <flux:table.column>Document (sha256)</flux:table.column>
             <flux:table.column>Door</flux:table.column>
         </flux:table.columns>
 
@@ -43,11 +46,18 @@
                             <flux:text>—</flux:text>
                         @endforelse
                     </flux:table.cell>
+                    <flux:table.cell>
+                        {{-- Afgekapt in beeld, volledig in de titel: 64 tekens maken
+                             van deze tabel een horizontale schuifbalk. --}}
+                        <flux:text class="font-mono text-xs" title="{{ $kopie->documenthash }}">
+                            {{ $kopie->korteHash() }}
+                        </flux:text>
+                    </flux:table.cell>
                     <flux:table.cell>{{ $kopie->gebruiker?->naam ?? '—' }}</flux:table.cell>
                 </flux:table.row>
             @empty
                 <flux:table.row>
-                    <flux:table.cell colspan="5">
+                    <flux:table.cell colspan="6">
                         <flux:text>Er zijn nog geen schermkopieën meegegeven.</flux:text>
                     </flux:table.cell>
                 </flux:table.row>

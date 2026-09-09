@@ -26,7 +26,7 @@
             <div class="blueprint p-4">
                 <flux:text>Cyclusdekking</flux:text>
                 <flux:heading size="lg">{{ $kpi['percentage'] }}%</flux:heading>
-                <flux:text class="text-xs">{{ $kpi['gedekt'] }} van {{ $kpi['totaal'] }} objecten ≥1× geaudit</flux:text>
+                <flux:text class="text-xs">{{ $kpi['gedekt'] }} van {{ $kpi['totaal'] }} objecten ≥1× behandeld</flux:text>
             </div>
             <div class="blueprint p-4">
                 <flux:text>Nog nooit geaudit</flux:text>
@@ -42,9 +42,11 @@
 
         {{-- Legenda --}}
         <div class="flex flex-wrap gap-3 text-xs text-zinc-500">
-            <span><span class="inline-block h-3 w-3 rounded-sm bg-emerald-500 align-middle"></span> uitgevoerd</span>
+            <span><span class="inline-block h-3 w-3 rounded-sm bg-emerald-500 align-middle"></span> behandeld</span>
             <span><span class="inline-block h-3 w-3 rounded-sm bg-zinc-400 align-middle"></span> gepland</span>
             <span><span class="inline-block h-3 w-3 rounded-sm bg-red-500 align-middle"></span> gat (gepland, niet uitgevoerd)</span>
+            <span class="w-full">Een uitgevoerde ronde dekt alleen wat zij behandelde: een object dat in de
+                scope stond maar waar de auditor niet aan toekwam, blijft een gat.</span>
         </div>
 
         {{-- Matrix --}}

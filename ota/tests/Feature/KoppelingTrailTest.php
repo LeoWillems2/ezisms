@@ -3,6 +3,8 @@
 namespace Tests\Feature;
 
 use App\Models\AuditLogregel;
+use App\Models\Auditobject;
+use App\Models\Auditronde;
 use App\Models\Beleidsdocument;
 use App\Models\Dienst;
 use App\Models\Gebruiker;
@@ -152,6 +154,58 @@ class KoppelingTrailTest extends TestCase
         $this->assertCount(2, $risico->aanleidingen()->get());
         $regel = $this->laatsteRegelVan('risico');
         $this->assertSame('1 gekoppeld: Krappe arbeidsmarkt', $regel->nieuwe_waarde['aanleidingen']);
+        $this->assertNull($regel->oude_waarde);
+    }
+
+    /**
+     * Plan 11d: een pivotwijziging is geen koppeling erbij of eraf, dus de
+     * regel moet zeggen *wat* er aan die ene rij veranderde — en het object bij
+     * naam noemen, want "auditobject #12" is voor een auditor waardeloos.
+     */
+    public function test_een_pivotwijziging_levert_een_leesbare_regel(): void
+    {
+        $ronde = Auditronde::factory()->create(['type' => 'intern', 'status' => 'in_uitvoering']);
+        $object = Auditobject::factory()->create(['clausule_nummer' => '9.2', 'titel' => 'Interne audit']);
+        Koppeling::sync($ronde->auditobjecten(), 'auditobjecten', [$object->id]);
+
+        Koppeling::werkPivotBij(
+            $ronde->auditobjecten(),
+            'auditobject',
+            $object->id,
+            ['afhandeling' => 'geen_opmerkingen'],
+            oud: 'nog niet behandeld',
+            nieuw: 'geen opmerkingen (gesproken met Jansen)',
+        );
+
+        $regel = $this->laatsteRegelVan('auditronde');
+        $this->assertSame('9.2 Interne audit: nog niet behandeld', $regel->oude_waarde['auditobject']);
+        $this->assertSame(
+            '9.2 Interne audit: geen opmerkingen (gesproken met Jansen)',
+            $regel->nieuwe_waarde['auditobject'],
+        );
+    }
+
+    /** De bulkvariant: één regel voor de hele reeks, met het aantal vooraan. */
+    public function test_een_pivotwijziging_in_bulk_levert_een_regel(): void
+    {
+        $ronde = Auditronde::factory()->create(['type' => 'intern', 'status' => 'in_uitvoering']);
+        $een = Auditobject::factory()->create(['clausule_nummer' => '9.2', 'titel' => 'Interne audit']);
+        $twee = Auditobject::factory()->create(['clausule_nummer' => '9.3', 'titel' => 'Directiebeoordeling']);
+        Koppeling::sync($ronde->auditobjecten(), 'auditobjecten', [$een->id, $twee->id]);
+
+        Koppeling::werkPivotsBij(
+            $ronde->auditobjecten(),
+            'auditobject',
+            [$een->id, $twee->id],
+            ['afhandeling' => 'geen_opmerkingen'],
+            'geen opmerkingen (gesproken met Jansen)',
+        );
+
+        $regel = $this->laatsteRegelVan('auditronde');
+        $this->assertSame(
+            '2× geen opmerkingen (gesproken met Jansen): 9.2 Interne audit, 9.3 Directiebeoordeling',
+            $regel->nieuwe_waarde['auditobject'],
+        );
         $this->assertNull($regel->oude_waarde);
     }
 

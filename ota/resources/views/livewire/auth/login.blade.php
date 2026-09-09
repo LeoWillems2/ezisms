@@ -124,6 +124,25 @@ new #[Layout('components.layouts.auth')] class extends Component {
 <div class="flex flex-col gap-6">
     <x-auth-header title="Inloggen" description="Voer uw e-mailadres en wachtwoord in." />
 
+    {{-- Welke installatie dit is, vóór het inloggen. Er draaien meerdere
+         installaties naast elkaar die er verder identiek uitzien, en het
+         normprofiel ligt bij de installatie vast (00h): wie hier staat hoort te
+         zien voor welke organisatie hij inlogt en welke norm die volgt, zonder
+         daarvoor eerst in te loggen. Beide waarden zijn stamgegevens en geen
+         gebruikersgegevens; ze verraden dus niets over wie hier een account
+         heeft.
+
+         `naam_kort` en niet `naam`: het is een bijschrift van één regel, en de
+         korte vorm is wat de organisatie zelf zegt te volgen. ORGANISATIE mag
+         leeg zijn (zie config/app.php) — dan blijft alleen de norm staan, net
+         als in de zijbalk. --}}
+    <p class="-mt-2 text-center text-sm text-zinc-500">
+        @if (config('app.organisatie'))
+            {{ config('app.organisatie') }} &middot;
+        @endif
+        {{ $norm->naam_kort }}
+    </p>
+
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 

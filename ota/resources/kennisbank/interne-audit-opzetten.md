@@ -22,9 +22,38 @@ per cyclus hoeft op te zetten.
    audit-universe. Staat een control nog op *onbeslist*, dan valt die buiten de
    cyclus. Van-toepassing verklaren voegt de control meteen toe (zie *De SoA
    onderbouwen*).
-2. **Zet de cyclus op** met het beheercommando `isms:bereid-auditcyclus-voor` (zie
-   onder) — of leg programma, jaarplannen en dekking met de hand aan via
-   **Audits → Auditprogramma**.
+2. **Zet de cyclus op.** Het snelst met het beheercommando
+   `isms:bereid-auditcyclus-voor` (zie onder): dat maakt het programma, de
+   jaarplannen, de dekkingsverdeling én een geplande ronde per jaar in één keer.
+   Met de hand kan ook — hieronder als voorbeeld een cyclus 2028–2030:
+
+   - **Programma** — *Audits → Auditprogramma → Nieuw programma*. Naam "Interne
+     auditcyclus 2028–2030", startdatum `2028-01-01`, aantal jaren `3`, aard
+     *certificeringscyclus*. Opslaan, daarna **Activeren**.
+   - **Jaarplannen** — *Audits → Overzicht → Nieuw auditplan*, drie keer: 2028,
+     2029 en 2030. Het programmascherm kan jaarplannen wel koppelen maar niet
+     aanmaken; ze beginnen hier hun leven, los van elke cyclus.
+   - **Koppelen** — terug naar *Auditprogramma* en het programma aanklikken. Bij
+     "Jaarplannen in de cyclus" staan de drie plannen als grijze badge met een
+     `+`. Klik ze **in volgorde** aan: het `+` kent steeds het eerstvolgende
+     vrije programmajaar toe, dus 2028 → jaar 1, 2029 → jaar 2, 2030 → jaar 3.
+     Verkeerd geklikt? `×` maakt het plan weer los.
+   - **Dekkingsplanning** — in hetzelfde blok de knop
+     **Vul standaard (eenmaal per cyclus)**: elk in-scope object krijgt interval
+     3. Stel daarna per object bij; clausule 9.2 is het klassieke voorbeeld van
+     *jaarlijks*.
+   - **Rondes** — *Audits → Overzicht → Nieuwe ronde* per jaarplan. In de ronde
+     zelf wijs je de auditor toe en vink je de normatieve scope aan: welke
+     clausules en controls dít jaar aan de beurt zijn.
+   - **Vaststellen** — het jaarplan vaststellen zodra de rondes erin staan. Dat
+     is onomkeerbaar.
+
+   > Twee dingen kan alleen het commando: de objecten **spreiden** over de
+   > programmajaren — het scherm plant elke dekkingsregel vanaf jaar 1 — en de
+   > rondes met hun scope per jaar meteen klaarzetten. Bouw je met de hand, kies
+   > dan per ronde zelf de normatieve scope. De matrix leest het *geplande* uit
+   > de dekkingsplanning en het *uitgevoerde* uit wat een ronde feitelijk
+   > behandelde.
 3. **Activeer** het programma, **wijs per ronde een interne auditor toe** en plan de
    datum. De auditor is bewust opengelaten: dat is vaak een (tijdelijk)
    Auditor-account.
@@ -34,17 +63,42 @@ per cyclus hoeft op te zetten.
 ## Bewijs en bevindingen: het juiste detailniveau
 
 Per ronde lever je **één auditrapport** als bewijs, waarin je per in-scope control
-**Opzet** en **Bestaan** (en waar relevant **Werking**) beoordeelt. Dat rapport is
-je dekkingsbewijs — óók voor de controls die gewoon in orde zijn.
+**Opzet** en **Bestaan** (en waar relevant **Werking**) beoordeelt.
 
 **Bevindingen maak je alleen voor de uitzonderingen:** een tekortkoming
 (`non_conformiteit_major`/`minor`), een `observatie` of een `verbeterkans`. Dus
 **niet** één bevinding per control — dat zou de lijst en de opvolging waardeloos
 maken. Non-conformiteiten escaleer je naar een **Afwijking (§10.2)**.
 
-> Dat "de audit compleet is" blijkt uit twee dingen: de **normatieve scope** die je
-> aan de ronde vinkt, en het **rapport** als bewijs — niet uit een positief record
-> per beheersmaatregel.
+Een bevinding **sluiten** doe je in het rondedossier, ook nadat de ronde is afgerond:
+afronden bevriest het oordeel van de auditor, maar de opvolging loopt daarna gewoon
+door. Sluiten vraagt een korte **afhandeling** — wat er met de bevinding is gebeurd.
+Een non-conformiteit sluit pas als de bijbehorende afwijking gesloten is.
+
+Bij elke bevinding leg je de **bron** vast: met wie je erover sprak. Kwam de
+constatering niet uit een gesprek maar uit je eigen onderzoek — een logbestand, een
+export, een document — dan kies je *Geen gesprek — eigen waarneming*. Het veld leeg
+laten kan niet: een constatering die niemand kan navragen is niet na te lopen. Bij
+een behandeld object heet het veld hetzelfde en werkt het hetzelfde.
+
+Dat een control gewoon in orde was, leg je daarom niet als bevinding vast maar als
+**afhandeling op het object zelf**: in het rondedossier klik je het knopje van de
+clausule of control aan en kiest *geen opmerkingen*, met de bron erbij — de collega
+met wie je erover sprak, of *eigen waarneming* als je het zelf hebt nagelopen in de
+documentatie. Kwam je er niet aan toe, dan kies je *niet aan toegekomen* met de reden;
+bij het afronden vraagt het scherm die reden alsnog voor alles wat nog grijs staat.
+De knopjes kleuren mee — groen (geen opmerkingen), oranje (er is een bevinding),
+rood (niet aan toegekomen) — en dat is precies het overzicht dat een externe auditor
+komt natellen.
+
+> Dat "de audit compleet is" blijkt uit drie dingen: de **normatieve scope** die je
+> aan de ronde vinkt, de **afhandeling per object** die je tijdens de uitvoering
+> vastlegt, en het **rapport** als bewijs — niet uit een bevinding per
+> beheersmaatregel.
+
+Alleen een object dat je zo hebt behandeld telt mee voor de dekking. In de scope
+staan is niet genoeg: dat is het verschil tussen "we waren het van plan" en "we
+hebben ernaar gekeken".
 
 ## Voor de beheerder: de artisan-commando's
 

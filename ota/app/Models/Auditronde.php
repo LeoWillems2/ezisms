@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 
 /**
@@ -40,6 +41,13 @@ class Auditronde extends Model
 
     /** De interne typen: een nulmeting ís een interne audit (plan 11c fase 1). */
     public const INTERNE_TYPEN = ['intern', 'intern_nulmeting'];
+
+    /**
+     * De afhandelingen die een auditor zélf op een object in de normatieve scope
+     * zet (plan 11d). 'bevinding' staat hier bewust niet bij: dat is afgeleid uit
+     * de bevindingen van de ronde — zie `objectstatussen()`.
+     */
+    public const AFHANDELINGEN = ['niet_behandeld', 'geen_opmerkingen', 'niet_toegekomen'];
 
     protected static function booted(): void
     {
@@ -82,12 +90,72 @@ class Auditronde extends Model
     /** De normatieve scope-as (plan 11b): welke clausules/controls deze ronde dekt. */
     public function auditobjecten(): BelongsToMany
     {
-        return $this->belongsToMany(Auditobject::class, 'auditronde_auditobject');
+        return $this->belongsToMany(Auditobject::class, 'auditronde_auditobject')
+            ->withPivot([
+                'afhandeling', 'toelichting', 'gesproken_met_id', 'eigen_waarneming', 'buiten_planning',
+            ]);
     }
 
     public function bevindingen(): HasMany
     {
         return $this->hasMany(Bevinding::class);
+    }
+
+    /**
+     * Per object in de normatieve scope wat ermee is gebeurd (plan 11d) — de
+     * enige plek waar die afleiding wordt gemaakt, zodat het scherm, de
+     * afrondcheck en de dekkingsmatrix niet uiteen kunnen lopen.
+     *
+     * 'bevinding' wint van de opgeslagen afhandeling en staat daarom niet in de
+     * kolom: een object waar een bevinding op zit, is per definitie behandeld, en
+     * twee vastleggingen van hetzelfde feit kunnen elkaar tegenspreken.
+     *
+     * @return array<int, string> object-id => niet_behandeld|geen_opmerkingen|bevinding|niet_toegekomen
+     */
+    public function objectstatussen(): array
+    {
+        $metBevinding = $this->bevindingen->pluck('auditobject_id')->filter()->all();
+
+        $statussen = [];
+
+        foreach ($this->auditobjecten as $object) {
+            $statussen[$object->id] = in_array($object->id, $metBevinding, true)
+                ? 'bevinding'
+                : $object->pivot->afhandeling;
+        }
+
+        return $statussen;
+    }
+
+    /**
+     * De objecten die deze ronde feitelijk dekt (plan 11d §6): behandeld zonder
+     * opmerkingen, of met een bevinding. In de scope staan is niet genoeg — dat
+     * is het verschil tussen "we waren het van plan" en "we hebben ernaar
+     * gekeken".
+     *
+     * @return list<int>
+     */
+    public function behandeldeObjectIds(): array
+    {
+        return array_keys(array_filter(
+            $this->objectstatussen(),
+            fn (string $status) => in_array($status, ['geen_opmerkingen', 'bevinding'], true),
+        ));
+    }
+
+    /**
+     * Wat er bij afronden nog grijs staat: in de scope, geen bevinding, en geen
+     * uitspraak van de auditor. Hier vraagt het scherm een reden voor (§5).
+     *
+     * @return Collection<int, Auditobject>
+     */
+    public function onbehandeldeObjecten(): Collection
+    {
+        $statussen = $this->objectstatussen();
+
+        return $this->auditobjecten
+            ->filter(fn (Auditobject $object) => ($statussen[$object->id] ?? null) === 'niet_behandeld')
+            ->values();
     }
 
     /**

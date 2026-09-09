@@ -114,7 +114,7 @@ class Dekkingsmatrix extends Component
 
     /**
      * Per auditobject de **programmajaren** waarin een afgeronde ronde van dit
-     * programma het object dekte. Distinct (twee rondes in hetzelfde
+     * programma het object **behandelde**. Distinct (twee rondes in hetzelfde
      * programmajaar tellen één keer).
      *
      * De bucketing gaat op de **uitvoerdatum** binnen het venster van een
@@ -140,7 +140,7 @@ class Dekkingsmatrix extends Component
             // telt alleen niet mee in deze telling.
             ->dekkend()
             ->whereHas('auditplan', fn ($q) => $q->where('auditprogramma_id', $programma->id))
-            ->with(['auditobjecten:id', 'auditplan'])
+            ->with(['auditobjecten', 'bevindingen:id,auditronde_id,auditobject_id', 'auditplan'])
             ->get();
 
         $vensters = $programma->programmajaren();
@@ -153,8 +153,13 @@ class Dekkingsmatrix extends Component
                 continue;
             }
 
-            foreach ($ronde->auditobjecten as $object) {
-                $map[$object->id][$nummer] = true;
+            // Plan 11d: in de scope staan is geen dekking. Alleen een object dat
+            // de auditor daadwerkelijk behandelde — geen opmerkingen, of een
+            // bevinding — telt mee. Het verschil tussen "we waren het van plan"
+            // en "we hebben ernaar gekeken" is precies wat een externe auditor
+            // natelt.
+            foreach ($ronde->behandeldeObjectIds() as $objectId) {
+                $map[$objectId][$nummer] = true;
             }
         }
 

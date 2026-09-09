@@ -10,6 +10,7 @@ use App\Models\Auditobject;
 use App\Models\Auditplan;
 use App\Models\Auditronde;
 use App\Models\Bevinding;
+use App\Models\Bewijsstuk;
 use App\Models\Gebruiker;
 use App\Models\Maatregel;
 use App\Support\Schermkopie;
@@ -32,6 +33,12 @@ class AuditmanagementTest extends TestCase
 
         $this->seed([RolSeeder::class, BlokSeeder::class, RolPermissieSeeder::class]);
         $this->ciso = Gebruiker::factory()->metRol('CISO')->create();
+    }
+
+    /** Een actief auditobject om een bevinding aan te hangen (plan 11d). */
+    private function auditobject(string $nummer = '9.2'): Auditobject
+    {
+        return Auditobject::factory()->create(['clausule_nummer' => $nummer, 'titel' => 'Interne audit']);
     }
 
     /** Een interne ronde met een toegewezen Auditor-account. */
@@ -110,11 +117,16 @@ class AuditmanagementTest extends TestCase
     {
         $auditor = Gebruiker::factory()->metRol('Auditor')->create();
         $ronde = $this->interneRonde('in_uitvoering', $auditor);
+        $object = $this->auditobject();
 
         Livewire::actingAs($auditor)
             ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
-            ->set('bevindingType', 'non_conformiteit_minor')
-            ->set('bevindingOmschrijving', 'Toegangsrechten niet periodiek herzien.')
+            ->set([
+                'bevindingType' => 'non_conformiteit_minor',
+                'bevindingOmschrijving' => 'Toegangsrechten niet periodiek herzien.',
+                'bevindingAuditobjectId' => (string) $object->id,
+                'bevindingBron' => (string) $auditor->id,
+            ])
             ->call('slaBevindingOp')
             ->assertHasNoErrors();
 
@@ -122,6 +134,7 @@ class AuditmanagementTest extends TestCase
             'auditronde_id' => $ronde->id,
             'type' => 'non_conformiteit_minor',
             'status' => 'open',
+            'auditobject_id' => $object->id,
         ]);
     }
 
@@ -207,12 +220,38 @@ class AuditmanagementTest extends TestCase
             ->call('sluitBevinding', $bevinding->id);
         $this->assertSame('non_conformiteit_gestart', $bevinding->fresh()->status);
 
-        // Afwijking gesloten: nu wél.
+        // Afwijking gesloten: nu wél — met de afhandelingsnotitie erbij.
         $afwijking->update(['status' => 'gesloten', 'gesloten_op' => now()]);
         Livewire::actingAs($this->ciso)
             ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
-            ->call('sluitBevinding', $bevinding->id);
+            ->call('sluitBevinding', $bevinding->id)
+            ->assertSet('toontSluitFormulier', true)
+            ->set('sluitNotitie', 'Corrigerende maatregel afgerond en getoetst.')
+            ->call('bevestigSluiten')
+            ->assertHasNoErrors();
         $this->assertSame('gesloten', $bevinding->fresh()->status);
+    }
+
+    /**
+     * Sluiten zonder te zeggen wat er is gebeurd, laat een dossier achter waarin
+     * "gesloten door X op Y" de hele verantwoording is (11d §13).
+     */
+    public function test_sluiten_zonder_afhandelingsnotitie_wordt_geweigerd(): void
+    {
+        $ronde = $this->interneRonde('afgerond', Gebruiker::factory()->metRol('Auditor')->create());
+        $bevinding = Bevinding::factory()->create([
+            'auditronde_id' => $ronde->id,
+            'type' => 'observatie',
+            'status' => 'open',
+        ]);
+
+        Livewire::actingAs($this->ciso)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->call('sluitBevinding', $bevinding->id)
+            ->call('bevestigSluiten')
+            ->assertHasErrors('sluitNotitie');
+
+        $this->assertSame('open', $bevinding->fresh()->status);
     }
 
     public function test_observatie_sluit_direct(): void
@@ -226,9 +265,15 @@ class AuditmanagementTest extends TestCase
 
         Livewire::actingAs($this->ciso)
             ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
-            ->call('sluitBevinding', $bevinding->id);
+            ->call('sluitBevinding', $bevinding->id)
+            ->set('sluitNotitie', 'Meegenomen bij de herinrichting van het logboek.')
+            ->call('bevestigSluiten')
+            ->assertHasNoErrors();
 
-        $this->assertSame('gesloten', $bevinding->fresh()->status);
+        $bevinding->refresh();
+        $this->assertSame('gesloten', $bevinding->status);
+        $this->assertSame('Meegenomen bij de herinrichting van het logboek.', $bevinding->afhandelingsnotitie);
+        $this->assertSame($this->ciso->id, $bevinding->gesloten_door_id);
         $this->assertSame($this->ciso->id, $bevinding->fresh()->gesloten_door_id);
     }
 
@@ -243,9 +288,13 @@ class AuditmanagementTest extends TestCase
 
         Livewire::actingAs($this->ciso)
             ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
-            ->set('externAuditorNaam', 'Certificerende Instelling BV')
-            ->set('bevindingType', 'non_conformiteit_major')
-            ->set('bevindingOmschrijving', 'Directiebetrokkenheid onvoldoende aangetoond.')
+            ->set([
+                'externAuditorNaam' => 'Certificerende Instelling BV',
+                'bevindingType' => 'non_conformiteit_major',
+                'bevindingOmschrijving' => 'Directiebetrokkenheid onvoldoende aangetoond.',
+                'bevindingAuditobjectId' => (string) $this->auditobject('5.1')->id,
+                'bevindingBron' => (string) $this->ciso->id,
+            ])
             ->call('slaBevindingOp')
             ->assertHasNoErrors();
 
@@ -253,6 +302,350 @@ class AuditmanagementTest extends TestCase
             'auditronde_id' => $ronde->id,
             'type' => 'non_conformiteit_major',
         ]);
+    }
+
+    // --- Behandeling per auditobject (plan 11d) ----------------------------
+
+    /** Een lopende interne ronde met één object in de normatieve scope. */
+    private function rondeMetScope(Gebruiker $auditor, string $status = 'in_uitvoering'): array
+    {
+        $ronde = $this->interneRonde($status, $auditor);
+        $object = $this->auditobject();
+        $ronde->auditobjecten()->attach($object->id);
+
+        return [$ronde->load('auditobjecten'), $object];
+    }
+
+    public function test_auditor_legt_geen_opmerkingen_vast_met_gesprekspartner(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+        $gesprokene = Gebruiker::factory()->metRol('Medewerker')->create();
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->call('behandelObject', $object->id)
+            ->set([
+                'behandelAfhandeling' => 'geen_opmerkingen',
+                'behandelBron' => (string) $gesprokene->id,
+            ])
+            ->call('slaBehandelingOp')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('auditronde_auditobject', [
+            'auditronde_id' => $ronde->id,
+            'auditobject_id' => $object->id,
+            'afhandeling' => 'geen_opmerkingen',
+            'gesproken_met_id' => $gesprokene->id,
+        ]);
+    }
+
+    /**
+     * Zonder bron is groen een bewering en geen bewijs — dat is de hele reden dat
+     * dit veld bestaat (plan 11d §0).
+     */
+    public function test_geen_opmerkingen_zonder_gesprekspartner_wordt_geweigerd(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->call('behandelObject', $object->id)
+            ->set('behandelAfhandeling', 'geen_opmerkingen')
+            ->call('slaBehandelingOp')
+            ->assertHasErrors('behandelBron');
+    }
+
+    /**
+     * Ook bij "geen opmerkingen" is eigen onderzoek een geldige bron: een
+     * nagelezen procedure is bewijs, een verzonnen gesprekspartner niet
+     * (11d §12).
+     */
+    public function test_geen_opmerkingen_mag_op_eigen_waarneming_steunen(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->call('behandelObject', $object->id)
+            ->set([
+                'behandelAfhandeling' => 'geen_opmerkingen',
+                'behandelBron' => AuditrondeDetail::EIGEN_WAARNEMING,
+            ])
+            ->call('slaBehandelingOp')
+            ->assertHasNoErrors()
+            ->assertSee('eigen waarneming');
+
+        $this->assertDatabaseHas('auditronde_auditobject', [
+            'auditronde_id' => $ronde->id,
+            'auditobject_id' => $object->id,
+            'afhandeling' => 'geen_opmerkingen',
+            'gesproken_met_id' => null,
+            'eigen_waarneming' => true,
+        ]);
+    }
+
+    public function test_niet_toegekomen_zonder_reden_wordt_geweigerd(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->call('behandelObject', $object->id)
+            ->set('behandelAfhandeling', 'niet_toegekomen')
+            ->call('slaBehandelingOp')
+            ->assertHasErrors('behandelToelichting');
+    }
+
+    /**
+     * Een object waar een bevinding op zit, is niet handmatig op "geen
+     * opmerkingen" te zetten: die status is afgeleid en twee vastleggingen van
+     * hetzelfde feit kunnen elkaar tegenspreken.
+     */
+    public function test_object_met_bevinding_is_niet_handmatig_te_zetten(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+        Bevinding::factory()->create(['auditronde_id' => $ronde->id, 'auditobject_id' => $object->id]);
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde->load('bevindingen')])
+            ->call('behandelObject', $object->id)
+            ->assertSet('toontBehandelFormulier', false);
+    }
+
+    /**
+     * Wie tijdens een interview over iets buiten de scope struikelt, moet het
+     * kwijt kunnen; het object groeit de scope in en is herkenbaar als bijgroei.
+     */
+    public function test_bevinding_buiten_de_scope_laat_de_scope_meegroeien(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde] = $this->rondeMetScope($auditor);
+        $buiten = $this->auditobject('7.5');
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->set([
+                'bevindingType' => 'observatie',
+                'bevindingOmschrijving' => 'Documentbeheer niet geregeld.',
+                'bevindingAuditobjectId' => (string) $buiten->id,
+                'bevindingBron' => AuditrondeDetail::EIGEN_WAARNEMING,
+            ])
+            ->call('slaBevindingOp')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('auditronde_auditobject', [
+            'auditronde_id' => $ronde->id,
+            'auditobject_id' => $buiten->id,
+            'buiten_planning' => true,
+        ]);
+    }
+
+    public function test_ciso_en_afgeronde_ronde_kunnen_de_behandeling_niet_zetten(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+
+        // De record-guard: de CISO mag de bevindingen van een interne ronde niet
+        // vastleggen, en dus ook de behandeling niet (implementatie/11 §4a).
+        Livewire::actingAs($this->ciso)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->call('behandelObject', $object->id)
+            ->assertForbidden();
+
+        [$afgerond, $objectB] = $this->rondeMetScope($auditor, 'afgerond');
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $afgerond])
+            ->call('behandelObject', $objectB->id)
+            ->assertForbidden();
+    }
+
+    /**
+     * Afronden met grijze objecten blokkeert niet, maar dwingt de auditor het uit
+     * te spreken: "niet aan toegekomen" is een reëel auditresultaat (11d §0).
+     */
+    public function test_afronden_met_grijze_objecten_vraagt_eerst_een_reden(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+
+        $component = Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->call('rondAf')
+            ->assertSet('toontAfrondFormulier', true);
+
+        // Nog niets afgerond zolang de reden ontbreekt.
+        $this->assertSame('in_uitvoering', $ronde->fresh()->status);
+
+        $component->call('rondAfMetRedenen')->assertHasErrors('afrondRedenen.'.$object->id);
+
+        $component->set('afrondRedenen.'.$object->id, 'Beheerder was afwezig.')
+            ->call('rondAfMetRedenen')
+            ->assertHasNoErrors();
+
+        $this->assertSame('afgerond', $ronde->fresh()->status);
+        $this->assertDatabaseHas('auditronde_auditobject', [
+            'auditronde_id' => $ronde->id,
+            'auditobject_id' => $object->id,
+            'afhandeling' => 'niet_toegekomen',
+            'toelichting' => 'Beheerder was afwezig.',
+        ]);
+    }
+
+    /**
+     * De bron van een bevinding is verplicht: een constatering die niemand kan
+     * navragen, is niet na te lopen. De uitweg is een expliciete keuze en geen
+     * leeg veld — niet elke bevinding komt uit een gesprek (11d §12).
+     */
+    public function test_bevinding_zonder_bron_wordt_geweigerd(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->set([
+                'bevindingType' => 'observatie',
+                'bevindingOmschrijving' => 'Geen bron opgegeven.',
+                'bevindingAuditobjectId' => (string) $object->id,
+            ])
+            ->call('slaBevindingOp')
+            ->assertHasErrors('bevindingBron');
+    }
+
+    public function test_eigen_waarneming_legt_de_bevinding_vast_zonder_gebruiker(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->set([
+                'bevindingType' => 'observatie',
+                'bevindingOmschrijving' => 'In de logbestanden gezien.',
+                'bevindingAuditobjectId' => (string) $object->id,
+                'bevindingBron' => AuditrondeDetail::EIGEN_WAARNEMING,
+            ])
+            ->call('slaBevindingOp')
+            ->assertHasNoErrors()
+            ->assertSee('eigen waarneming');
+
+        $this->assertDatabaseHas('bevindingen', [
+            'auditobject_id' => $object->id,
+            'gesproken_met_id' => null,
+            'eigen_waarneming' => true,
+        ]);
+    }
+
+    /**
+     * De erfenis uit 11d §0 werkt bij het invullen en niet bij het lezen: een
+     * object dat al een gesprekspartner droeg, stelt die voor.
+     */
+    public function test_het_onderwerp_stelt_de_gesprekspartner_van_het_object_voor(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde, $object] = $this->rondeMetScope($auditor);
+        $gesprokene = Gebruiker::factory()->metRol('Medewerker')->create();
+        $ronde->auditobjecten()->updateExistingPivot($object->id, [
+            'afhandeling' => 'geen_opmerkingen',
+            'gesproken_met_id' => $gesprokene->id,
+        ]);
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde->load('auditobjecten')])
+            ->set('bevindingAuditobjectId', (string) $object->id)
+            ->assertSet('bevindingBron', (string) $gesprokene->id);
+    }
+
+    // --- Kopie voor de auditor (12h) ---------------------------------------
+
+    /**
+     * Het rondedossier als Word-document: de kopgegevens met de status, de
+     * normatieve scope met wat er met elk object is gebeurd, de bevindingen
+     * eronder, en de titels van het gekoppelde bewijs.
+     */
+    public function test_de_rondekopie_bevat_de_status_de_scope_en_het_bewijs(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create(['naam' => 'Aurelius Aardappel']);
+        [$ronde, $behandeld] = $this->rondeMetScope($auditor);
+        $gesprokene = Gebruiker::factory()->metRol('Medewerker')->create(['naam' => 'Barbara Bes']);
+
+        $ronde->auditobjecten()->updateExistingPivot($behandeld->id, [
+            'afhandeling' => 'geen_opmerkingen',
+            'gesproken_met_id' => $gesprokene->id,
+        ]);
+
+        $gat = $this->auditobject('7.2');
+        $ronde->auditobjecten()->attach($gat->id, [
+            'afhandeling' => 'niet_toegekomen',
+            'toelichting' => 'Teamleider was afwezig.',
+        ]);
+
+        // Een derde object met een bevinding: die status is afgeleid en zou de
+        // 'geen opmerkingen' op hetzelfde object overschrijven.
+        $metBevinding = $this->auditobject('9.1');
+        $ronde->auditobjecten()->attach($metBevinding->id);
+
+        Bevinding::factory()->create([
+            'auditronde_id' => $ronde->id,
+            'auditobject_id' => $metBevinding->id,
+            'type' => 'observatie',
+            'omschrijving' => 'Logboek niet volledig ingevuld.',
+            'eigen_waarneming' => true,
+        ]);
+
+        Bewijsstuk::factory()->create(['naam' => 'Auditrapport 2029'])->koppelingen()->create([
+            'blok_naam' => 'auditmanagement',
+            'entiteit_type' => 'auditronde',
+            'entiteit_id' => $ronde->id,
+        ]);
+
+        $component = Livewire::actingAs($this->ciso)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde->fresh()])
+            ->instance();
+        $markdown = (fn (): Schermkopie => $this->schermkopie())->call($component)->markdown();
+
+        $this->assertStringContainsString('# Auditronde — Intern, plan', $markdown);
+        $this->assertStringContainsString('| Status | In uitvoering |', $markdown);
+        $this->assertStringContainsString('| Bewijs | 1 stuk(ken): Auditrapport 2029 |', $markdown);
+
+        // De scope met de afhandeling per object, en de reden bij het gat.
+        $this->assertStringContainsString('| Geen opmerkingen |', $markdown);
+        $this->assertStringContainsString('Teamleider was afwezig.', $markdown);
+        // Een object met een bevinding: die status is afgeleid, niet gezet.
+        $this->assertStringContainsString('| Bevinding |', $markdown);
+
+        // De bijlage met de bevindingen.
+        $this->assertStringContainsString('## Bevindingen', $markdown);
+        $this->assertStringContainsString('1 bevinding, nog open.', $markdown);
+        $this->assertStringContainsString('Logboek niet volledig ingevuld.', $markdown);
+        $this->assertStringContainsString('eigen waarneming', $markdown);
+
+        // Personen staan als initialen met hun rol, niet met hun volle naam.
+        $this->assertStringContainsString('BB (Medewerker)', $markdown);
+        $this->assertStringNotContainsString('Barbara Bes', $markdown);
+        $this->assertStringNotContainsString('Aurelius Aardappel', $markdown);
+    }
+
+    /** Wie het scherm mag lezen, mag een kopie van wat hij ziet (12h). */
+    public function test_de_rondekopie_vraagt_leesrecht_op_auditmanagement(): void
+    {
+        $auditor = Gebruiker::factory()->metRol('Auditor')->create();
+        [$ronde] = $this->rondeMetScope($auditor);
+
+        Livewire::actingAs($auditor)
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->assertSee('Kopie voor de auditor');
+
+        Livewire::actingAs(Gebruiker::factory()->metRol('Medewerker')->create())
+            ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
+            ->call('kopieerVoorAuditor')
+            ->assertForbidden();
     }
 
     // --- Audit trail -------------------------------------------------------
@@ -264,8 +657,12 @@ class AuditmanagementTest extends TestCase
 
         Livewire::actingAs($auditor)
             ->test(AuditrondeDetail::class, ['auditronde' => $ronde])
-            ->set('bevindingType', 'observatie')
-            ->set('bevindingOmschrijving', 'Logboek niet volledig ingevuld.')
+            ->set([
+                'bevindingType' => 'observatie',
+                'bevindingOmschrijving' => 'Logboek niet volledig ingevuld.',
+                'bevindingAuditobjectId' => (string) $this->auditobject()->id,
+                'bevindingBron' => AuditrondeDetail::EIGEN_WAARNEMING,
+            ])
             ->call('slaBevindingOp');
 
         $bevinding = Bevinding::where('auditronde_id', $ronde->id)->firstOrFail();
@@ -405,12 +802,12 @@ class AuditmanagementTest extends TestCase
     {
         [$openstaand] = $this->registerVulling();
         $maatregel = Maatregel::factory()->create(['annex_a_referentie' => '5.30']);
-        $openstaand->update(['maatregel_id' => $maatregel->id]);
+        $openstaand->update(['auditobject_id' => Auditobject::factory()->maatregel($maatregel->id)->create()->id]);
 
         $component = Livewire::actingAs($this->ciso)->test(BevindingenOverzicht::class)->instance();
         $markdown = $this->registerKopie($component)->markdown();
 
-        foreach (['Type', 'Omschrijving', 'Maatregel', 'Auditronde', 'Status', 'Opvolging', 'Gesloten op'] as $kolom) {
+        foreach (['Type', 'Omschrijving', 'Betreft', 'Auditronde', 'Status', 'Opvolging', 'Gesloten op', 'Afhandeling'] as $kolom) {
             $this->assertStringContainsString($kolom, $markdown);
         }
 

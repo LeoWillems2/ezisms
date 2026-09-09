@@ -211,11 +211,85 @@ final class AuditHandlers
 
         Handelt::als($uitvoerder)
             ->mitsRecord(
+                'de behandeling per object legt dezelfde uitvoerder vast als de bevindingen',
+                fn (Gebruiker $u) => $ronde->magBevindingBewerkenDoor($u),
+            )
+            ->bij("M{$maand}/auditronde/{$g['sleutel']} (behandeling)")
+            ->doe(fn () => $this->legBehandelingVast($g, $sim, $ronde));
+
+        Handelt::als($uitvoerder)
+            ->mitsRecord(
                 'alleen de uitvoerder rondt de ronde af',
                 fn (Gebruiker $u) => $ronde->magUitvoerenDoor($u),
             )
             ->bij("M{$maand}/auditronde/{$g['sleutel']} (afronden)")
             ->doe(fn () => $ronde->update(['status' => 'afgerond', 'uitgevoerd_op' => now()]));
+    }
+
+    /**
+     * De afhandeling per object in de normatieve scope (plan 11d). Zonder deze
+     * stap staat de dekkingsmatrix in de demo op nul: in de scope staan is geen
+     * dekking meer, alleen behandelen telt.
+     *
+     * Alles wat geen bevinding kreeg gaat op "geen opmerkingen", met de
+     * gesprekspartner uit `gesproken_met` (standaard de CISO). De sectie
+     * `niet_toegekomen` in `audits.json` — refCode => reden — legt vast waar de
+     * auditor niet aan toekwam; die objecten blijven buiten de dekking.
+     */
+    private function legBehandelingVast(array $g, Simulatie $sim, Auditronde $ronde): void
+    {
+        $ronde->load(['auditobjecten', 'bevindingen']);
+
+        $gesprokenMet = $sim->gebruiker($g['gesproken_met'] ?? 'ciske');
+        $gaten = $sim->fixtures()->bestand('audits')['niet_toegekomen'][$g['sleutel']] ?? [];
+
+        $onbekend = array_diff(
+            array_keys($gaten),
+            $ronde->auditobjecten->map(fn (Auditobject $o) => $o->refCode())->all(),
+        );
+
+        if ($onbekend !== []) {
+            throw DemoFixtureFout::bij(
+                "audits/niet_toegekomen/{$g['sleutel']}",
+                'staat niet in de normatieve scope van deze ronde: '.implode(', ', $onbekend),
+            );
+        }
+
+        $statussen = $ronde->objectstatussen();
+        $groen = [];
+
+        foreach ($ronde->auditobjecten as $object) {
+            if (($statussen[$object->id] ?? null) !== 'niet_behandeld') {
+                continue;
+            }
+
+            $reden = $gaten[$object->refCode()] ?? null;
+
+            if ($reden === null) {
+                $groen[] = $object->id;
+
+                continue;
+            }
+
+            // Elk gat heeft een eigen reden en is dus een eigen handeling.
+            Koppeling::werkPivotBij(
+                $ronde->auditobjecten(),
+                'auditobject',
+                $object->id,
+                ['afhandeling' => 'niet_toegekomen', 'toelichting' => $reden],
+                nieuw: 'niet aan toegekomen ('.$reden.')',
+            );
+        }
+
+        // De rest in één handeling: 111 trailregels per ronde maken de trail
+        // onleesbaar (zie Koppeling::werkPivotsBij).
+        Koppeling::werkPivotsBij(
+            $ronde->auditobjecten(),
+            'auditobject',
+            $groen,
+            ['afhandeling' => 'geen_opmerkingen', 'gesproken_met_id' => $gesprokenMet->id],
+            'geen opmerkingen (gesproken met '.$gesprokenMet->naam.')',
+        );
     }
 
     /**
@@ -226,6 +300,8 @@ final class AuditHandlers
      */
     private function legBevindingenVast(array $g, Simulatie $sim, Auditronde $ronde): void
     {
+        $gesprokenMet = $sim->gebruiker($g['gesproken_met'] ?? 'ciske');
+
         $definities = $sim->fixtures()->bestand('audits')['bevindingen'][$g['sleutel']]
             ?? throw DemoFixtureFout::bij('audits/bevindingen', "geen bevindingen voor '{$g['sleutel']}'");
 
@@ -252,7 +328,15 @@ final class AuditHandlers
                 'auditronde_id' => $ronde->id,
                 'type' => $def['type'],
                 'omschrijving' => $def['omschrijving'] ?? $afwijking['omschrijving'],
-                'maatregel_id' => $this->maatregelId($def['maatregel'] ?? $afwijking['maatregel'] ?? null),
+                // Een bevinding die uit een afwijking komt, erft haar onderwerp:
+                // daar staat een kale Annex A-referentie, hier moet het de
+                // schrijfwijze van refCode() zijn.
+                'auditobject_id' => $this->auditobjectId($def['auditobject'] ?? (
+                    isset($afwijking['maatregel']) ? 'A.'.$afwijking['maatregel'] : null
+                )),
+                // Dezelfde bron als bij de behandelde objecten; het veld is in het
+                // scherm verplicht, dus een demo zonder bron kan niet bestaan.
+                'gesproken_met_id' => $gesprokenMet->id,
             ]);
 
             if ($afwijking !== null) {
@@ -261,12 +345,59 @@ final class AuditHandlers
                 $sim->fixtures()->onthoud("bevinding:{$def['afwijking']}", $bevinding);
             }
         }
+
+        $this->laatScopeMeegroeien($ronde);
     }
 
-    private function maatregelId(?string $referentie): ?int
+    /**
+     * Dezelfde regel als in het scherm (plan 11d §0): een bevinding op een object
+     * buiten de normatieve scope trekt dat object de scope in, herkenbaar als
+     * bijgroei. Zonder dit toont de demo een toestand die de applicatie zelf niet
+     * kan maken — een bevinding zonder knop in het scopebewijs.
+     */
+    private function laatScopeMeegroeien(Auditronde $ronde): void
     {
-        return $referentie === null
-            ? null
-            : Maatregel::where('annex_a_referentie', $referentie)->value('id');
+        $ronde->load(['auditobjecten', 'bevindingen']);
+
+        $erbij = $ronde->bevindingen->pluck('auditobject_id')->filter()
+            ->reject(fn (int $id) => $ronde->auditobjecten->contains('id', $id))
+            ->unique()->values();
+
+        if ($erbij->isEmpty()) {
+            return;
+        }
+
+        Koppeling::koppelErbij(
+            $ronde->auditobjecten(),
+            'auditobjecten',
+            $erbij->mapWithKeys(fn (int $id) => [$id => ['buiten_planning' => true]])->all(),
+        );
+
+        $ronde->load('auditobjecten');
+    }
+
+    /**
+     * Zoekt het auditobject bij een referentie zoals `Auditobject::refCode()` die
+     * schrijft: "A.5.35" voor een Annex A-maatregel, "9.2" voor een clausule uit
+     * de hoofdtekst. Het onderscheid moet expliciet zijn — 5.35 bestaat aan
+     * beide kanten.
+     */
+    private function auditobjectId(?string $referentie): ?int
+    {
+        if ($referentie === null) {
+            return null;
+        }
+
+        $id = str_starts_with($referentie, 'A.')
+            ? Auditobject::where('soort', 'maatregel')
+                ->whereIn('maatregel_id', Maatregel::where('annex_a_referentie', substr($referentie, 2))->select('id'))
+                ->value('id')
+            : Auditobject::where('soort', 'clausule')->where('clausule_nummer', $referentie)->value('id');
+
+        if ($id === null) {
+            throw DemoFixtureFout::bij("bevinding/{$referentie}", 'geen auditobject met deze referentie');
+        }
+
+        return $id;
     }
 }

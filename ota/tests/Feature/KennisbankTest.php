@@ -148,7 +148,11 @@ class KennisbankTest extends TestCase
             ->assertOk()
             ->assertSee('Een interne audit opzetten (§9.2)') // titel uit register
             ->assertSee('isms:bereid-auditcyclus-voor')      // beheercommando
-            ->assertSee('isms:verwijder-auditdata');         // reset-commando
+            ->assertSee('isms:verwijder-auditdata')          // reset-commando
+            // Het handmatige recept noemt de knoppen zoals ze in het scherm
+            // heten; wijzigt een knop, dan moet dit artikel mee.
+            ->assertSee('Nieuw auditplan')
+            ->assertSee('Vul standaard (eenmaal per cyclus)');
     }
 
     public function test_externe_certificeringsaudit_artikel_rendert(): void

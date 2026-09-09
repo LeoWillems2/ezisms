@@ -5,8 +5,10 @@ namespace App\Console\Commands;
 use App\Models\Afwijking;
 use App\Models\Asset;
 use App\Models\AssetToewijzing;
+use App\Models\Auditobject;
 use App\Models\Auditprogramma;
 use App\Models\AuditprogrammaDekking;
+use App\Models\Auditronde;
 use App\Models\Belanghebbende;
 use App\Models\Beleidsdocument;
 use App\Models\BewijsKoppeling;
@@ -787,7 +789,7 @@ class ExporteerIsms extends Command
     private function audits(): int
     {
         $md = "# Audits (§9.2)\n\n";
-        $programmas = Auditprogramma::with(['auditplannen.rondes.bevindingen.maatregel', 'dekkingen.auditobject'])
+        $programmas = Auditprogramma::with(['auditplannen.rondes.bevindingen.auditobject', 'auditplannen.rondes.auditobjecten', 'dekkingen.auditobject'])
             ->orderByDesc('start_datum')->get();
 
         foreach ($programmas as $p) {
@@ -807,9 +809,19 @@ class ExporteerIsms extends Command
                         .($ronde->telt_mee_voor_dekking ? '' : ' — telt niet mee voor de dekking')
                         ."\n"
                         .$this->bewijs('auditronde', $ronde->id, '  ');
+                    $md .= $this->behandelingVanDeScope($ronde);
+
                     foreach ($ronde->bevindingen as $b) {
-                        $ref = $b->maatregel ? "A.{$b->maatregel->annex_a_referentie}: " : '';
-                        $md .= "  - Bevinding ({$b->type}, {$b->status}): {$ref}{$this->cel($b->omschrijving)}\n"
+                        $ref = $b->auditobject ? "{$b->auditobject->auditOmschrijving()}: " : '';
+                        // De bron hoort in het dossier: een constatering die
+                        // niemand kan navragen is geen bewijs (11d §12).
+                        $bron = $b->eigen_waarneming ? 'eigen waarneming' : $this->persoonId($b->gesproken_met_id);
+                        // De afhandeling erbij: bij een gesloten bevinding is dat
+                        // het antwoord op "en wat hebt u ermee gedaan?".
+                        $af = filled($b->afhandelingsnotitie)
+                            ? ' — afgehandeld: '.$this->cel($b->afhandelingsnotitie)
+                            : '';
+                        $md .= "  - Bevinding ({$b->type}, {$b->status}, bron: {$bron}): {$ref}{$this->cel($b->omschrijving)}{$af}\n"
                             .$this->bewijs('bevinding', $b->id, '    ');
                     }
                 }
@@ -822,6 +834,51 @@ class ExporteerIsms extends Command
         $this->schrijf('07-audits.md', $md);
 
         return $programmas->count();
+    }
+
+    /**
+     * Het scopebewijs van één ronde (11d): wat er met elk object in de
+     * normatieve scope is gebeurd. Gegroepeerd op afhandeling en gesprekspartner
+     * en niet één regel per object: een ronde over de hele norm raakt 111
+     * objecten, en dan is een regel per object geen dossier maar een muur.
+     */
+    private function behandelingVanDeScope(Auditronde $ronde): string
+    {
+        if ($ronde->auditobjecten->isEmpty()) {
+            return '';
+        }
+
+        $statussen = $ronde->objectstatussen();
+        $telling = collect($statussen)->countBy();
+        $behandeld = $telling->get('geen_opmerkingen', 0) + $telling->get('bevinding', 0);
+
+        $md = "  - Normatieve scope: {$ronde->auditobjecten->count()} objecten, {$behandeld} behandeld"
+            .($telling->get('bevinding', 0) > 0 ? " (waarvan {$telling->get('bevinding')} met bevinding)" : '')
+            .($telling->get('niet_toegekomen', 0) > 0 ? ", {$telling->get('niet_toegekomen')} niet aan toegekomen" : '')
+            .($telling->get('niet_behandeld', 0) > 0 ? ", {$telling->get('niet_behandeld')} zonder vastlegging" : '')
+            ."\n";
+
+        $groen = $ronde->auditobjecten
+            ->filter(fn (Auditobject $o) => ($statussen[$o->id] ?? null) === 'geen_opmerkingen')
+            ->groupBy(fn (Auditobject $o) => $o->pivot->eigen_waarneming
+                ? 'waarneming'
+                : (string) $o->pivot->gesproken_met_id);
+
+        foreach ($groen as $sleutel => $objecten) {
+            $bron = $sleutel === 'waarneming'
+                ? 'eigen waarneming'
+                : 'gesproken met '.$this->persoonId($sleutel === '' ? null : (int) $sleutel);
+            $md .= "    - Geen opmerkingen, {$bron}: "
+                .$objecten->map(fn (Auditobject $o) => $o->refCode())->implode(', ')."\n";
+        }
+
+        foreach ($ronde->auditobjecten as $object) {
+            if (($statussen[$object->id] ?? null) === 'niet_toegekomen') {
+                $md .= "    - Niet aan toegekomen: {$object->refCode()} ({$this->cel($object->pivot->toelichting)})\n";
+            }
+        }
+
+        return $md;
     }
 
     /**

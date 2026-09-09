@@ -7,6 +7,7 @@ use App\Models\Belanghebbende;
 use App\Models\Gebruiker;
 use App\Models\Issue;
 use App\Models\OrganisatieEenheid;
+use App\Models\Organisatieprofiel;
 use App\Models\Rol;
 use App\Models\ScopeInterface;
 use App\Models\ScopeVerklaring;
@@ -42,6 +43,7 @@ final class OrganisatieHandlers
      */
     private function gebruikersAanmaken(array $g, int $maand, Simulatie $sim): void
     {
+        $this->borgOrganisatieprofiel($sim);
         $this->borgEenheden($sim);
 
         $eersteRonde = ! $sim->fixtures()->kent('ciske');
@@ -93,6 +95,21 @@ final class OrganisatieHandlers
                 ->bij("M{$maand}/gebruikers_aanmaken/{$sleutel}")
                 ->doe($maak);
         }
+    }
+
+    /**
+     * De vrije tekst met de gegevens van de organisatie. Geen fixture-sleutel:
+     * er is er precies één, en niets in de tijdlijn verwijst er later naar.
+     */
+    private function borgOrganisatieprofiel(Simulatie $sim): void
+    {
+        $gegevens = $sim->fixtures()->bestand('organisatie')['organisatie']['gegevens'] ?? null;
+
+        if ($gegevens === null || Organisatieprofiel::query()->exists()) {
+            return;
+        }
+
+        Organisatieprofiel::create(['gegevens' => $gegevens]);
     }
 
     private function borgEenheden(Simulatie $sim): void

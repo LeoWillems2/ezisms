@@ -192,7 +192,7 @@ elke handler moet doen:
 | `corrigerende_maatregel_voltooien` / `effectiviteitstoets` / `afwijking_sluiten` | De CAPA-keten; sluiten via `Afwijkingafsluiting`. |
 | `auditprogramma_aanmaken` / `auditprogramma_afsluiten` | Het voorbereidingsprogramma. |
 | `auditcyclus_voorbereiden` | Roept `isms:bereid-auditcyclus-voor` aan met de startdatum uit de klok. |
-| `auditronde` | Ronde met type, dekkingsvlag, auditor, scope en bevindingen; afronden als `afgerond: true`. |
+| `auditronde` | Ronde met type, dekkingsvlag, auditor, scope en bevindingen; afronden als `afgerond: true`. Bij afronden legt de motor ook de behandeling per object vast (plan 11d): alles zonder bevinding op "geen opmerkingen" met `gesproken_met` (standaard de CISO), behalve wat in `audits.json` onder `niet_toegekomen` staat. |
 | `directiebeoordeling` | Sessie met de negen inputs, besluiten en verbeteracties; als gehouden vastgelegd door een directeur. |
 | `taak_te_laat` / `taak_verlopen` / `taak_afronden` | Sturen de taken-KPI's. |
 | `gebruiker_uit_dienst` | Deactiveren en toegang intrekken. |

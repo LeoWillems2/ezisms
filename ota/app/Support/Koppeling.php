@@ -92,6 +92,90 @@ final class Koppeling
     }
 
     /**
+     * Wijzigt de pivotkolommen van één bestaande koppeling (`updateExistingPivot`)
+     * en legt dat vast.
+     *
+     * Anders dan koppelen en ontkoppelen zegt het aantal hier niets: er verandert
+     * één rij, en wat je wilt weten is *wat* eraan veranderde. `oud` en `nieuw`
+     * komen daarom van de aanroeper als leesbare zin — "geen opmerkingen
+     * (gesproken met Jansen)" — want de kolomwaarden zelf zijn id's en enums, en
+     * "gesproken_met_id: 4" is voor een auditor waardeloos.
+     *
+     * @param  array<string, mixed>  $attributen  pivotkolommen
+     */
+    public static function werkPivotBij(
+        BelongsToMany $relatie,
+        string $veld,
+        mixed $id,
+        array $attributen,
+        ?string $oud = null,
+        ?string $nieuw = null,
+        ?Model $logOp = null,
+    ): void {
+        $relatie->updateExistingPivot($id, $attributen);
+
+        $doel = $logOp ?? $relatie->getParent();
+
+        if (! method_exists($doel, 'schrijfAuditregel')) {
+            throw new RuntimeException(sprintf(
+                'Pivotwijzigingen op %s kunnen niet worden gelogd: het model gebruikt de Auditeerbaar-trait niet. '
+                .'Geef met $logOp het model mee waar het scherm over gaat.',
+                $doel::class,
+            ));
+        }
+
+        $rij = $relatie->getRelated()->newQuery()->find($id);
+        $noemer = $rij === null ? $veld.' #'.$id : self::omschrijvingVan($rij);
+
+        $doel->schrijfAuditregel(
+            'gewijzigd',
+            oud: $oud === null ? null : [$veld => $noemer.': '.$oud],
+            nieuw: $nieuw === null ? null : [$veld => $noemer.': '.$nieuw],
+        );
+    }
+
+    /**
+     * Dezelfde pivotwijziging op een reeks koppelingen, met **één** logregel.
+     *
+     * Bestaat naast `werkPivotBij()` om dezelfde reden als de aggregatie in
+     * `log()`: een auditronde behandelt 111 objecten in één handeling, en
+     * honderdelf trailregels maken de trail onleesbaar voor de vraag waar hij
+     * voor bestaat. Gebruik dit alleen als de wijziging voor alle rijen identiek
+     * is; verschilt de toelichting per rij, dan is elke rij een eigen handeling.
+     *
+     * @param  list<mixed>  $ids
+     * @param  array<string, mixed>  $attributen  pivotkolommen
+     */
+    public static function werkPivotsBij(
+        BelongsToMany $relatie,
+        string $veld,
+        array $ids,
+        array $attributen,
+        string $nieuw,
+        ?Model $logOp = null,
+    ): void {
+        if ($ids === []) {
+            return;
+        }
+
+        $relatie->updateExistingPivot($ids, $attributen);
+
+        $doel = $logOp ?? $relatie->getParent();
+
+        if (! method_exists($doel, 'schrijfAuditregel')) {
+            throw new RuntimeException(sprintf(
+                'Pivotwijzigingen op %s kunnen niet worden gelogd: het model gebruikt de Auditeerbaar-trait niet. '
+                .'Geef met $logOp het model mee waar het scherm over gaat.',
+                $doel::class,
+            ));
+        }
+
+        $doel->schrijfAuditregel('gewijzigd', oud: null, nieuw: [
+            $veld => self::samenvatting(count($ids).'× '.$nieuw, $relatie, $ids, metAantal: false),
+        ]);
+    }
+
+    /**
      * Eén logregel per handeling, met de delta erin — niet één regel per rij.
      *
      * De normatieve scope van een auditronde koppelt 111 objecten in één klik;
@@ -141,7 +225,7 @@ final class Koppeling
      *
      * @param  list<mixed>  $ids
      */
-    private static function samenvatting(string $werkwoord, BelongsToMany $relatie, array $ids): string
+    private static function samenvatting(string $werkwoord, BelongsToMany $relatie, array $ids, bool $metAantal = true): string
     {
         $namen = $relatie->getRelated()->newQuery()
             ->whereKey($ids)
@@ -150,7 +234,7 @@ final class Koppeling
             ->sort()
             ->values();
 
-        return count($ids).' '.$werkwoord.($namen->isEmpty() ? '' : ': '.$namen->implode(', '));
+        return ($metAantal ? count($ids).' ' : '').$werkwoord.($namen->isEmpty() ? '' : ': '.$namen->implode(', '));
     }
 
     /**

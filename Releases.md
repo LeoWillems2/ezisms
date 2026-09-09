@@ -13,6 +13,75 @@ geeft de oorspronkelijke tekst.
 
 ---
 
+## V3.2.0 — de audit die zichzelf kan verantwoorden
+
+*09-09-2026*
+
+Eén vraag van een externe auditor liep door dit hele blok heen: *hoe weet ik dat u
+alles hebt bekeken?* Het systeem kon daar niet op antwoorden.
+
+**De normatieve scope zei wat de bedoeling was, niet wat er is gebeurd.** Een
+control die was bekeken en in orde bevonden, was niet te onderscheiden van een
+control waar niemand naar had gekeken: het enige spoor van "in orde" was de
+*afwezigheid* van een bevinding. Elk object in de scope van een ronde draagt nu
+zijn eigen afhandeling — geen opmerkingen, of niet aan toegekomen met de reden
+erbij — en de knopjes in het rondedossier kleuren mee: groen behandeld, oranje een
+bevinding, rood een gat, grijs nog niets. Daaronder staat de zin die de auditor
+zoekt: "9 van de 12 behandeld".
+
+Dat "er zit hier een bevinding" is bewust géén waarde die iemand zelf zet: hij
+volgt uit de bevindingen, zodat de twee elkaar nooit kunnen tegenspreken. Om
+dezelfde reden verwijst een bevinding niet langer naar een beheersmaatregel maar
+naar een auditobject — en kan zij eindelijk óók over de hoofdtekst H4–H10 gaan.
+Loopt de auditor tijdens een interview tegen iets buiten de scope aan, dan groeit
+de scope mee, herkenbaar gemarkeerd.
+
+**De dekkingsmatrix telt vanaf nu de behandeling en niet de planning.** In de
+scope staan is geen dekking meer; dat is het verschil tussen "we waren het van
+plan" en "we hebben ernaar gekeken". Een object waar de ronde niet aan toekwam
+blijft dus een gat in de matrix, met de reden in het dossier.
+
+**Afronden blokkeert niet, maar dwingt wel een uitspraak af.** "Niet aan
+toegekomen" is een reëel auditresultaat — het interview ging niet door, de
+beheerder was ziek. Wie dat moet wegpoetsen om te kunnen afronden, vult "geen
+opmerkingen" in over iets dat hij nooit heeft bekeken. Bij het afronden vraagt het
+scherm daarom per grijs object een reden en gaat dan door.
+
+**Elke constatering noemt zijn bron.** Bij een bevinding en bij een behandeld
+object staat nu met wie erover is gesproken — verplicht, want een constatering die
+niemand kan navragen is niet na te lopen. Kwam het uit eigen onderzoek in plaats
+van uit een gesprek, dan is *eigen waarneming* het antwoord: een nagelezen
+procedure is een bron, een verzonnen naam niet.
+
+**En sluiten vraagt wat er is gebeurd.** `gesloten door X op Y` was de hele
+verantwoording van een observatie die dicht ging; bij een non-conformiteit staat
+het antwoord in de afwijking eronder, maar een observatie of verbeterkans liet
+niets na. Sluiten vraagt nu een afhandelingsnotitie. Dat sluiten ná het afronden
+van de ronde kan, blijft zo: afronden bevriest het oordeel van de auditor, de
+opvolging loopt daarna nog maanden door — en de ronde openhouden tot dat klaar is,
+zou de bevindingen al die tijd bewerkbaar laten.
+
+**Een auditronde is als Word-document mee te geven.** De knop "Kopie voor de
+auditor" stond al op zes registers; de rondepagina is het eerste dossier dat hem
+krijgt. Het document opent met de kenmerken van de ronde — status, uitvoerder,
+scope, dekkingsvlag en de titels van het gekoppelde bewijs — daarna de normatieve
+scope met per object de afhandeling en de bron, en de bevindingen als bijlage.
+Personen staan er als initialen met hun rol, zoals in elk auditdocument hier.
+
+**En van elke meegegeven schermkopie staat nu de sha256 vast.** Het register op
+`/schermkopieen` hield al bij welk scherm met welke filters de deur uit ging; wat
+het niet kon beantwoorden is de vraag die er in een geschil toe doet — iemand legt
+een Word-document op tafel en zegt dat het uit dit ISMS komt. Met de vingerafdruk
+erbij is dat na te lopen. De kopieën zelf worden nog steeds niet bewaard: uit een
+hash valt niets te reconstrueren.
+
+Verder: de inlogpagina noemt de installatie waarop u inlogt (organisatie en norm,
+allebei stamgegevens), en het kennisbankartikel over de interne audit beschrijft nu
+ook hoe u een cyclus met de hand opzet — het programmascherm kan jaarplannen wel
+koppelen maar niet aanmaken, en wie dat niet weet loopt vast.
+
+---
+
 ## V3.1.0 — SQLite, en drie signalen die ontbraken
 
 *29-08-2026*
