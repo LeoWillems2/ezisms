@@ -9,6 +9,7 @@ use App\Models\AuditprogrammaDekking;
 use App\Models\Auditronde;
 use App\Models\Maatregel;
 use App\Models\SoaRegel;
+use App\Support\Dekkingsspreiding;
 use Database\Seeders\AuditobjectClausuleSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -139,7 +140,8 @@ class BereidAuditcyclusVoor extends Command
         // dekking, eenmaal per cyclus). De groep bepaalt het jaar, zodat verwante
         // items in dezelfde ronde vallen. Bij een voorbereiding gebeurt dat niet:
         // daar gaat álles in één nulmeting.
-        $groepJaar = $voorbereiding ? [] : $this->verdeelGroepenOverProgrammajaren($objecten, $jaren);
+        // Eén definitie, gedeeld met het programmascherm (11e §5).
+        $groepJaar = $voorbereiding ? [] : Dekkingsspreiding::perGroep($objecten, $jaren);
 
         DB::transaction(function () use ($naam, $startDatum, $jaren, $objecten, $groepJaar, $vervang, $teVervangen, $voorbereiding) {
             if ($vervang && $teVervangen->isNotEmpty()) {
@@ -362,25 +364,5 @@ class BereidAuditcyclusVoor extends Command
         $this->line('--forceer opgegeven: de cyclus wordt aangemaakt met alleen de in-scope controls.');
 
         return null;
-    }
-
-    /**
-     * Verdeelt de groepen (hoofdstukken H4-H10 en Bijlage-A-thema's) gelijkmatig
-     * over de cyclusjaren. Groep i → jaar start + floor(i * jaren / groepen).
-     *
-     * @param  Collection<int, Auditobject>  $objecten
-     * @return array<string, int> groep => peiljaar
-     */
-    private function verdeelGroepenOverProgrammajaren($objecten, int $jaren): array
-    {
-        $groepen = $objecten->pluck('groep')->unique()->values();
-        $aantal = max(1, $groepen->count());
-
-        $verdeling = [];
-        foreach ($groepen as $index => $groep) {
-            $verdeling[$groep] = 1 + intdiv($index * $jaren, $aantal);
-        }
-
-        return $verdeling;
     }
 }

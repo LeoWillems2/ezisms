@@ -57,6 +57,10 @@
             <div class="mb-2 flex items-center justify-between gap-4">
                 <flux:heading size="lg">
                     Auditplan {{ $plan->jaar }}
+                    {{-- Het jaartal is een label en geen sleutel (11e §0): zonder
+                         de cyclus erbij zijn twee plannen "2026" niet uit elkaar
+                         te houden. --}}
+                    <flux:text class="text-sm">· {{ $plan->cyclusLabel() }}</flux:text>
                     <flux:badge size="sm" :color="$plan->status === 'vastgesteld' ? 'green' : 'zinc'">
                         {{ ucfirst($plan->status) }}
                     </flux:badge>
@@ -131,8 +135,13 @@
     <flux:modal wire:model.self="toontPlanFormulier" class="md:w-96">
         <form wire:submit="slaPlanOp" class="space-y-6">
             <flux:heading size="lg">Nieuw auditplan</flux:heading>
-            <flux:input wire:model="jaar" type="number" label="Jaar" required
-                description="Eén auditplan per jaar." />
+            <flux:input wire:model.live.debounce.400ms="jaar" type="number" label="Jaar" required
+                description="Het jaartal is een label; meerdere plannen in hetzelfde jaar mogen — in de opstartfase is dat gebruikelijk." />
+
+            @if ($this->bestaandPlanMelding())
+                <flux:callout variant="warning" icon="exclamation-triangle"
+                    heading="{{ $this->bestaandPlanMelding() }}" />
+            @endif
             <div class="flex justify-end gap-2">
                 <flux:button variant="ghost" type="button" wire:click="$set('toontPlanFormulier', false)">Annuleren</flux:button>
                 <flux:button variant="primary" type="submit">Aanmaken</flux:button>

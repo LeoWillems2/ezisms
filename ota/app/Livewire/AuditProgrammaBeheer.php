@@ -6,6 +6,8 @@ use App\Models\Auditobject;
 use App\Models\Auditplan;
 use App\Models\Auditprogramma;
 use App\Models\AuditprogrammaDekking;
+use App\Support\Dekkingsspreiding;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -132,10 +134,7 @@ class AuditProgrammaBeheer extends Component
 
         abort_unless($programma !== null, 422);
 
-        $bezet = $programma->auditplannen()->pluck('programmajaar')->filter()->all();
-        $vrij = collect($programma->programmajaren())
-            ->reject(fn (array $jaar) => in_array($jaar['nummer'], $bezet, true))
-            ->first();
+        $vrij = $this->eerstvolgendeVrijeJaar($programma);
 
         abort_if($vrij === null, 422);
 
@@ -145,6 +144,55 @@ class AuditProgrammaBeheer extends Component
             'periode_start' => $vrij['start'],
             'periode_eind' => $vrij['eind'],
         ]);
+    }
+
+    /**
+     * Een jaarplan maken én koppelen in één handeling (plan 11e §4). Het scherm
+     * kon alleen koppelen; aanmaken moest op het andere tabblad, en wie dat niet
+     * wist liep vast op een cyclus zonder jaarplannen.
+     *
+     * Het jaartal is geen keuze maar een gevolg: het startjaar van het venster van
+     * het programmajaar dat aan de beurt is. Een jaarplan dat je hier maakt hoort
+     * per definitie bij dit programma.
+     */
+    public function voegJaarplanToe(): void
+    {
+        $this->vereisMuteren();
+        $programma = $this->geselecteerdProgramma();
+
+        abort_unless($programma !== null, 422);
+
+        $vrij = $this->eerstvolgendeVrijeJaar($programma);
+
+        if ($vrij === null) {
+            return;
+        }
+
+        Auditplan::create([
+            'auditprogramma_id' => $programma->id,
+            'programmajaar' => $vrij['nummer'],
+            'jaar' => $vrij['start']->year,
+            'periode_start' => $vrij['start'],
+            'periode_eind' => $vrij['eind'],
+        ]);
+
+        session()->flash('melding', "Jaarplan {$vrij['start']->year} toegevoegd als programmajaar {$vrij['nummer']}.");
+    }
+
+    /**
+     * Het eerstvolgende programmajaar zonder jaarplan, of `null` als ze allemaal
+     * bezet zijn. Gedeeld door koppelen en aanmaken: twee bepalingen van "wat is
+     * er vrij" die uit elkaar lopen, leveren een jaarplan op het verkeerde jaar.
+     *
+     * @return array{nummer: int, start: Carbon, eind: Carbon}|null
+     */
+    private function eerstvolgendeVrijeJaar(Auditprogramma $programma): ?array
+    {
+        $bezet = $programma->auditplannen()->pluck('programmajaar')->filter()->all();
+
+        return collect($programma->programmajaren())
+            ->reject(fn (array $jaar) => in_array($jaar['nummer'], $bezet, true))
+            ->first();
     }
 
     public function ontkoppelPlan(int $planId): void
@@ -198,7 +246,26 @@ class AuditProgrammaBeheer extends Component
         session()->flash('melding', count($nieuw).' object(en) toegevoegd aan de dekkingsplanning.');
     }
 
+    /**
+     * Het interval van één dekkingsregel. Het startjaar blijft wat het was — of
+     * 1 bij een nieuwe regel; dat is de betekenis van "toevoegen" (11e §5).
+     */
     public function stelInterval(int $auditobjectId, int $interval): void
+    {
+        $this->schrijfDekking($auditobjectId, interval: $interval);
+    }
+
+    /**
+     * Het programmajaar waarin de reeks begint. Zonder dit stond elke regel op
+     * jaar 1 en kon een met de hand gebouwd programma zijn spreiding over de
+     * cyclus niet uitdrukken — de kolommen voor jaar 2 en 3 bleven leeg.
+     */
+    public function stelStartjaar(int $auditobjectId, int $startjaar): void
+    {
+        $this->schrijfDekking($auditobjectId, startjaar: $startjaar);
+    }
+
+    private function schrijfDekking(int $auditobjectId, ?int $interval = null, ?int $startjaar = null): void
     {
         $this->vereisMuteren();
         $programma = $this->geselecteerdProgramma();
@@ -206,12 +273,50 @@ class AuditProgrammaBeheer extends Component
             return;
         }
 
-        $interval = max(1, min($interval, $programma->aantal_jaren));
+        $bestaand = $programma->dekkingen()->where('auditobject_id', $auditobjectId)->first();
+
+        $grens = fn (?int $waarde, int $terugval) => $waarde === null
+            ? $terugval
+            : max(1, min($waarde, $programma->aantal_jaren));
 
         AuditprogrammaDekking::updateOrCreate(
             ['auditprogramma_id' => $programma->id, 'auditobject_id' => $auditobjectId],
-            ['interval_jaren' => $interval, 'gepland_start_programmajaar' => 1],
+            [
+                'interval_jaren' => $grens($interval, $bestaand->interval_jaren ?? $programma->aantal_jaren),
+                'gepland_start_programmajaar' => $grens($startjaar, $bestaand->gepland_start_programmajaar ?? 1),
+            ],
         );
+    }
+
+    /**
+     * Zet per dekkingsregel het startjaar volgens de spreiding die het commando
+     * ook gebruikt: de groep bepaalt het jaar, zodat verwante onderwerpen in
+     * dezelfde ronde aan bod komen. Het interval gaat mee naar de cycluslengte —
+     * eenmaal per cyclus, in het toegewezen jaar.
+     */
+    public function verdeelOverDeJaren(): void
+    {
+        $this->vereisMuteren();
+        $programma = $this->geselecteerdProgramma();
+        if ($programma === null) {
+            return;
+        }
+
+        $objecten = Auditobject::actief()->orderBy('groep')->orderBy('volgorde')->get();
+        $verdeling = Dekkingsspreiding::perGroep($objecten, $programma->aantal_jaren);
+
+        foreach ($objecten as $object) {
+            AuditprogrammaDekking::updateOrCreate(
+                ['auditprogramma_id' => $programma->id, 'auditobject_id' => $object->id],
+                [
+                    'interval_jaren' => $programma->aantal_jaren,
+                    'gepland_start_programmajaar' => $verdeling[$object->groep] ?? 1,
+                ],
+            );
+        }
+
+        session()->flash('melding', 'De objecten zijn over de '.$programma->aantal_jaren
+            .' programmajaren verdeeld, eenmaal per cyclus.');
     }
 
     public function verwijderDekking(int $auditobjectId): void
@@ -271,6 +376,7 @@ class AuditProgrammaBeheer extends Component
             'objecten' => $objecten,
             'dekkingen' => $dekkingen,
             'plannenInVenster' => $plannenInVenster,
+            'vrijProgrammajaar' => $programma === null ? null : $this->eerstvolgendeVrijeJaar($programma),
         ]);
     }
 }

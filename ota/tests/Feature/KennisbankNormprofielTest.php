@@ -178,6 +178,42 @@ class KennisbankNormprofielTest extends TestCase
     }
 
     /**
+     * De leeswijzer is per profiel een eigen bestand, en dat heeft alleen zin
+     * als hij ook precies het profiel beschrijft waarin hij staat: élk zichtbaar
+     * artikel genoemd, en geen enkele verwijzing naar een artikel dat in dit
+     * profiel niet bestaat. Zonder deze test loopt hij stilzwijgend uit de pas —
+     * een nieuw artikel belandt nergens in de lijst, of een BIO-installatie
+     * verwijst naar het NEN-artikel en levert een 404.
+     */
+    public function test_de_leeswijzer_noemt_in_elk_profiel_precies_de_zichtbare_artikelen(): void
+    {
+        foreach (self::profielen() as $profiel) {
+            config()->set('norm.actief', $profiel);
+
+            preg_match_all(
+                '#/kennisbank/([a-z0-9-]+)#',
+                Kennisartikelen::inhoud('leeswijzer') ?? '',
+                $treffers
+            );
+            $genoemd = array_unique($treffers[1]);
+
+            // Zichzelf staat er zonder link in: een leeswijzer die naar zichzelf
+            // verwijst stuurt de lezer in een rondje.
+            $verwacht = array_keys(Kennisartikelen::alles());
+            $verwacht = array_values(array_diff($verwacht, ['leeswijzer']));
+
+            sort($verwacht);
+            sort($genoemd);
+
+            $this->assertSame(
+                $verwacht,
+                $genoemd,
+                "De leeswijzer van profiel {$profiel} dekt niet precies de zichtbare artikelen."
+            );
+        }
+    }
+
+    /**
      * Elke variant-slug moet in élk profiel een ánder bestand opleveren.
      * Twee identieke paden zouden betekenen dat iemand een variant heeft
      * ingekort tot een kopie — dan hoort de array weg.
@@ -231,6 +267,7 @@ class KennisbankNormprofielTest extends TestCase
             ->assertOk()
             ->assertSee(route('kennisbank', 'wat-nen-7510-toevoegt'));
     }
+
     /**
      * De profielen die deze installatie kent, in de volgorde van
      * `config/norm.php`.

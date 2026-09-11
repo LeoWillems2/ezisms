@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\AuditProgrammaBeheer;
 use App\Livewire\AuditrondeDetail;
+use App\Livewire\AuditsOverzicht;
 use App\Livewire\Dekkingsmatrix;
 use App\Models\Auditobject;
 use App\Models\Auditplan;
@@ -13,6 +14,7 @@ use App\Models\Auditronde;
 use App\Models\Bevinding;
 use App\Models\Gebruiker;
 use App\Models\Maatregel;
+use App\Support\Dekkingsspreiding;
 use Database\Seeders\AuditobjectClausuleSeeder;
 use Database\Seeders\BlokSeeder;
 use Database\Seeders\RolPermissieSeeder;
@@ -621,5 +623,173 @@ class AuditProgrammaTest extends TestCase
             ->call('wisselDekkingsvlag');
 
         $this->assertFalse($ronde->fresh()->telt_mee_voor_dekking);
+    }
+    // --- Plan 11e: een cyclus met de hand opzetten -------------------------
+
+    /**
+     * Plan 11c heeft de globale unique op het jaartal opgeheven; het scherm hield
+     * hem nog vast, en juist in de opstartfase liggen er meerdere plannen in
+     * hetzelfde kalenderjaar.
+     */
+    public function test_twee_auditplannen_in_hetzelfde_kalenderjaar_via_het_scherm(): void
+    {
+        Livewire::actingAs($this->ciso)
+            ->test(AuditsOverzicht::class)
+            ->call('nieuwPlan')
+            ->set('jaar', '2029')
+            ->call('slaPlanOp')
+            ->assertHasNoErrors();
+
+        Livewire::actingAs($this->ciso)
+            ->test(AuditsOverzicht::class)
+            ->call('nieuwPlan')
+            ->set('jaar', '2029')
+            ->call('slaPlanOp')
+            ->assertHasNoErrors();
+
+        $this->assertSame(2, Auditplan::where('jaar', 2029)->count());
+    }
+
+    /** Waarschuwen mag, blokkeren niet: het tweede plan is een geldig geval. */
+    public function test_het_formulier_waarschuwt_voor_een_bestaand_jaartal(): void
+    {
+        $programma = Auditprogramma::factory()->create(['naam' => 'Tweede interne']);
+        Auditplan::factory()->voorProgramma($programma)->create(['jaar' => 2029, 'programmajaar' => 1]);
+
+        Livewire::actingAs($this->ciso)
+            ->test(AuditsOverzicht::class)
+            ->call('nieuwPlan')
+            ->set('jaar', '2029')
+            ->assertSee('Er bestaat al een auditplan 2029')
+            ->assertSee('Tweede interne, jaar 1');
+    }
+
+    /** Zonder de cyclus erbij zijn twee plannen "2029" niet uit elkaar te houden. */
+    public function test_de_plankop_noemt_de_cyclus(): void
+    {
+        $programma = Auditprogramma::factory()->create(['naam' => 'Tweede interne']);
+        Auditplan::factory()->voorProgramma($programma)->create(['jaar' => 2029, 'programmajaar' => 2]);
+        Auditplan::factory()->create(['jaar' => 2029, 'auditprogramma_id' => null, 'programmajaar' => null]);
+
+        Livewire::actingAs($this->ciso)
+            ->test(AuditsOverzicht::class)
+            ->assertSee('Tweede interne, jaar 2')
+            ->assertSee('niet in een cyclus');
+    }
+
+    public function test_jaarplan_toevoegen_maakt_en_koppelt_in_een_handeling(): void
+    {
+        $programma = Auditprogramma::factory()->create([
+            'start_datum' => '2029-05-14', 'aantal_jaren' => 3,
+        ]);
+
+        Livewire::actingAs($this->ciso)
+            ->test(AuditProgrammaBeheer::class)
+            ->call('selecteer', $programma->id)
+            ->call('voegJaarplanToe');
+
+        $plan = $programma->auditplannen()->firstOrFail();
+
+        $this->assertSame(1, $plan->programmajaar);
+        // Het jaartal volgt uit het venster van dat programmajaar, niet uit vandaag.
+        $this->assertSame(2029, $plan->jaar);
+        $this->assertSame('2029-05-14', $plan->periode_start->format('Y-m-d'));
+
+        // De tweede klik pakt het eerstvolgende vrije jaar.
+        Livewire::actingAs($this->ciso)
+            ->test(AuditProgrammaBeheer::class)
+            ->call('selecteer', $programma->id)
+            ->call('voegJaarplanToe');
+
+        $this->assertSame([1, 2], $programma->auditplannen()->orderBy('programmajaar')
+            ->pluck('programmajaar')->all());
+    }
+
+    public function test_een_volle_cyclus_krijgt_er_geen_jaarplan_meer_bij(): void
+    {
+        $programma = Auditprogramma::factory()->create(['start_datum' => '2029-01-01', 'aantal_jaren' => 1]);
+        Auditplan::factory()->voorProgramma($programma)->create(['jaar' => 2029, 'programmajaar' => 1]);
+
+        Livewire::actingAs($this->ciso)
+            ->test(AuditProgrammaBeheer::class)
+            ->call('selecteer', $programma->id)
+            ->assertSee('Alle 1 programmajaren hebben een jaarplan')
+            ->call('voegJaarplanToe');
+
+        $this->assertSame(1, $programma->auditplannen()->count());
+    }
+
+    /** Een actief programma zonder jaarplannen kan niets; dat hoort het te zeggen. */
+    public function test_een_programma_zonder_jaarplannen_toont_een_signaal(): void
+    {
+        Auditprogramma::factory()->create(['naam' => 'Lege cyclus']);
+
+        Livewire::actingAs($this->ciso)
+            ->test(AuditProgrammaBeheer::class)
+            ->assertSee('geen jaarplannen');
+    }
+
+    /**
+     * Zonder een instelbaar startjaar stond alles op jaar 1 en bleven de kolommen
+     * voor jaar 2 en 3 leeg — de spreiding waar §9.2.2 om vraagt was met de hand
+     * niet uit te drukken.
+     */
+    public function test_het_startjaar_per_dekkingsregel_verschuift_de_matrix(): void
+    {
+        // Een cyclus in de toekomst: een gepland jaar dat al voorbij is heet
+        // 'gat', en dat verschil is hier niet wat we toetsen.
+        $programma = Auditprogramma::factory()->create(['start_datum' => '2029-01-01', 'aantal_jaren' => 3]);
+        $object = Auditobject::factory()->create();
+
+        Livewire::actingAs($this->ciso)
+            ->test(AuditProgrammaBeheer::class)
+            ->call('selecteer', $programma->id)
+            ->call('stelInterval', $object->id, 3)
+            ->call('stelStartjaar', $object->id, 2);
+
+        $dekking = $programma->dekkingen()->firstOrFail();
+        $this->assertSame(2, $dekking->gepland_start_programmajaar);
+        // Het interval blijft staan: het startjaar zetten is geen reset.
+        $this->assertSame(3, $dekking->interval_jaren);
+
+        $cellen = Livewire::actingAs($this->ciso)
+            ->test(Dekkingsmatrix::class)
+            ->set('programmaId', $programma->id)
+            ->viewData('cellen');
+
+        $this->assertNotSame('gepland', $cellen[$object->id][1]);
+        $this->assertSame('gepland', $cellen[$object->id][2]);
+    }
+
+    /**
+     * De test die het duplicaat tegenhoudt: knop en commando delen één verdeling.
+     * Lopen ze uiteen, dan hangt de dekkingsplanning af van de weg waarlangs zij
+     * is ontstaan, en dat kan een auditor niet volgen.
+     */
+    public function test_de_verdeelknop_geeft_dezelfde_spreiding_als_het_commando(): void
+    {
+        $this->seed(AuditobjectClausuleSeeder::class);
+        $programma = Auditprogramma::factory()->create(['start_datum' => '2029-01-01', 'aantal_jaren' => 3]);
+
+        Livewire::actingAs($this->ciso)
+            ->test(AuditProgrammaBeheer::class)
+            ->call('selecteer', $programma->id)
+            ->call('verdeelOverDeJaren');
+
+        $viaScherm = $programma->dekkingen()->with('auditobject')->get()
+            ->mapWithKeys(fn (AuditprogrammaDekking $d) => [
+                $d->auditobject->groep => $d->gepland_start_programmajaar,
+            ])->all();
+
+        // Zoals het commando de objecten ophaalt: op volgorde, niet op groepsnaam.
+        $viaCommando = Dekkingsspreiding::perGroep(Auditobject::actief()->orderBy('volgorde')->get(), 3);
+
+        $this->assertSame($viaCommando, $viaScherm);
+        // En de verdeling mag niet van de ophaalvolgorde afhangen.
+        $this->assertSame(
+            $viaCommando,
+            Dekkingsspreiding::perGroep(Auditobject::actief()->orderBy('groep')->get(), 3),
+        );
+        $this->assertSame([3], $programma->dekkingen()->pluck('interval_jaren')->unique()->all());
     }
 }

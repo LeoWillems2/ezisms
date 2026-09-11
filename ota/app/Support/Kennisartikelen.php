@@ -30,147 +30,21 @@ final class Kennisartikelen
      * @var array<string, array{titel: string, categorie: string, bestand: string|array<string, string>, bron?: string, norm?: string}>
      */
     private const ARTIKELEN = [
-        'incidenten-en-afwijkingen' => [
-            'titel' => 'Incidenten & afwijkingen: statussen en normkoppeling',
-            'categorie' => 'Incidentbeheer',
-            'bestand' => 'incidenten-en-afwijkingen.md',
-        ],
-        'wijzigingsbeheer' => [
-            'titel' => 'Wijzigingsbeheer: van aankondiging tot evaluatie',
-            'categorie' => 'Incidentbeheer',
-            'bestand' => 'wijzigingsbeheer.md',
-        ],
-        // Het waaróm staat hierboven; dit gaat over de twee tabbladen zelf.
-        'wijzigingsbeheer-schermen' => [
-            'titel' => 'Wijzigingsbeheer: het register en de sjablonen',
-            'categorie' => 'Incidentbeheer',
-            'bestand' => 'wijzigingsbeheer-schermen.md',
-        ],
-        'hr-saas-leverancier-opvoeren' => [
-            'titel' => 'Een HR-SaaS-leverancier opvoeren',
-            'categorie' => 'Leveranciers & derdenrisico',
-            'bestand' => 'hr-saas-leverancier-opvoeren.md',
-        ],
-        'software-bill-of-materials' => [
-            'titel' => 'Software Bill of Materials (SBOM)',
-            'categorie' => 'Techniek & beheer',
-            // Canoniek in de projectroot; gegenereerd door
-            // scripts/genereer-sbom.php. Niet dupliceren naar resources/.
-            'bestand' => 'SBOM.md',
-            'bron' => 'projectroot',
-        ],
-        'besluit-opslag-bewijzen-beleidsdocumenten' => [
-            'titel' => 'Besluit: opslag van bewijzen en beleidsdocumenten',
-            'categorie' => 'Besluiten & architectuur',
-            'bestand' => 'besluit-opslag-bewijzen-beleidsdocumenten.md',
-        ],
-        'kpis-en-meetwaarden' => [
-            'titel' => "KPI's en meetwaarden",
-            'categorie' => 'Meten & rapportage',
-            'bestand' => 'kpis-en-meetwaarden.md',
-        ],
-        'kpi-opzetten-voorbeeld' => [
-            'titel' => 'Een KPI opzetten: een uitgewerkt voorbeeld',
-            'categorie' => 'Meten & rapportage',
-            // Direct achter het KPI-artikel: dat legt het model uit, dit loopt
-            // één KPI van aanmaken tot afsluiten door. Profielloos — de casus
-            // draait om §9.1 en noemt geen maatregelnummers.
-            'bestand' => 'kpi-opzetten-voorbeeld.md',
-        ],
-        'de-audit-trail' => [
-            'titel' => 'De audit trail: wat er in staat, en wat niet',
-            'categorie' => 'Meten & rapportage',
-            'bestand' => 'de-audit-trail.md',
-        ],
-        'communicatie-en-overleg' => [
-            'titel' => 'Communicatie en overleg vastleggen (§7.4)',
-            // Bij de audit trail en de KPI's, want het gaat over aantoonbaar
-            // maken dat het managementsysteem draait — en niet over één blok:
-            // het artikel leunt op beleid, taken, doelgroepen en bewijs.
-            'categorie' => 'Meten & rapportage',
-            // Norm-neutraal: clausule 7.4 staat in alle drie de profielen
-            // gelijk, en het artikel noemt geen maatregelnummers.
-            'bestand' => 'communicatie-en-overleg.md',
-        ],
-        'issues-en-risicos' => [
-            'titel' => "Issues (§4.1) en risico's (§6.1): wat hoort waar?",
-            'categorie' => 'Risico & SoA',
-            'bestand' => 'issues-en-risicos.md',
-        ],
-        'soa-onderbouwen-en-restrisico' => [
-            'titel' => "De SoA onderbouwen: van 'ja' tot restrisico",
-            'categorie' => 'Risico & SoA',
-            // Bewust géén variant: dit artikel gaat van begin tot eind over
-            // methode (driver → realisatie → bewijs, netto versus bruto), en die
-            // is onder beide normen identiek. Zie 00i §0.
-            'bestand' => 'soa-onderbouwen-en-restrisico.md',
-        ],
-        'maatregelclassificatie' => [
-            'titel' => 'Maatregelclassificatie: uitgangspunt en eigen vaststelling',
-            'categorie' => 'Risico & SoA',
-            'bestand' => 'maatregelclassificatie.md',
-        ],
-        'beheer' => [
-            'titel' => "Beheer: de artisan-commando's",
-            'categorie' => 'Techniek & beheer',
-            'bestand' => 'beheer.md',
-        ],
-        'normteksten-invoeren' => [
-            'titel' => 'De normteksten invoeren',
-            'categorie' => 'Techniek & beheer',
-            // Bewust gedeeld en geen variant per profiel: het bestand, het
-            // commando en de valkuilen zijn in beide profielen gelijk. Wat
-            // NEN 7510 erbij heeft — de zorgspecifieke aanvullingen — staat in
-            // `wat-nen-7510-toevoegt`, dat toch al over dat veld gaat. Zie
-            // 00i §0 voor waarom een variant hier duurder is dan hij oplevert.
-            'bestand' => 'normteksten-invoeren.md',
-        ],
-        'integraties-en-normeis' => [
-            'titel' => 'Integraties: welke norm-eis onderbouw je ermee?',
-            'categorie' => 'Techniek & beheer',
-            // Het antwoord kantelt per norm: NEN 7512 en 7513 zijn zelfstandige
-            // normen die precies over koppelvlakken gaan, en die bestaan onder
-            // ISO niet.
+        // De leeswijzer staat vooraan en dat is de hele bedoeling: zonder slug
+        // toont /kennisbank het eerste artikel uit dit register, en dat is dus
+        // het overzicht van alles wat erin staat. Per profiel een eigen bestand,
+        // want de lijst noemt élk zichtbaar artikel — en welke dat zijn
+        // verschilt (`wat-nen-7510-toevoegt` en `wat-de-bio-toevoegt` bestaan
+        // maar in één profiel). Eén gedeelde tekst zou in de andere profielen
+        // naar een 404 wijzen; KennisbankTest bewaakt beide kanten.
+        'leeswijzer' => [
+            'titel' => 'Leeswijzer',
+            'categorie' => 'Naslag',
             'bestand' => [
-                'iso27001' => 'integraties-en-normeis.md',
-                'nen7510' => 'integraties-en-normeis-nen7510.md',
-                // Onder de BIO kantelt het antwoord opnieuw: koppelvlakken met
-                // ketenpartners en de verplichte beveiligingsstandaarden van het
-                // Forum Standaardisatie zijn hier de onderbouwing, en die bestaan
-                // in geen van de andere twee profielen.
-                'bio2' => 'integraties-en-normeis-bio2.md',
+                'iso27001' => 'leeswijzer.md',
+                'nen7510' => 'leeswijzer-nen7510.md',
+                'bio2' => 'leeswijzer-bio2.md',
             ],
-        ],
-        'open-punten' => [
-            'titel' => 'Open punten, bedenkingen en ideeën',
-            'categorie' => 'Techniek & beheer',
-            'bestand' => 'open-punten.md',
-        ],
-        'interne-audit-opzetten' => [
-            'titel' => 'Een interne audit opzetten (§9.2)',
-            'categorie' => 'Audits & certificering',
-            'bestand' => 'interne-audit-opzetten.md',
-        ],
-        'externe-certificeringsaudit' => [
-            'titel' => 'De externe certificeringsaudit in het ISMS',
-            'categorie' => 'Audits & certificering',
-            // De opvolgingsmechaniek is identiek; het stelsel eromheen niet.
-            // Doorslaggevend voor de variant: de IGJ is geen certificerende
-            // instelling, en dat onderscheid staat nergens in de ISO-versie.
-            'bestand' => [
-                'iso27001' => 'externe-certificeringsaudit.md',
-                'nen7510' => 'externe-certificeringsaudit-nen7510.md',
-                // De BIO verplicht geen certificering; wat ervoor in de plaats
-                // komt is verantwoording aan de RDI. Dat is een ander gesprek met
-                // een andere partij en een andere uitkomst — geen certificaat maar
-                // een In Control Verklaring.
-                'bio2' => 'externe-certificeringsaudit-bio2.md',
-            ],
-        ],
-        'gebruikers-rollen-en-rechten' => [
-            'titel' => 'Gebruikers, rollen en rechten',
-            'categorie' => 'Toegang & gebruikers',
-            'bestand' => 'gebruikers-rollen-en-rechten.md',
         ],
         'ezisms-voor-de-ciso' => [
             'titel' => 'EzISMS voor de CISO: past dit bij je?',
@@ -223,6 +97,12 @@ final class Kennisartikelen
             'bestand' => 'wat-nen-7510-toevoegt.md',
             'norm' => 'nen7510',
         ],
+        'wat-de-bio-toevoegt' => [
+            'titel' => 'Wat de BIO toevoegt bovenop ISO 27001',
+            'categorie' => 'Naslag',
+            'bestand' => 'wat-de-bio-toevoegt.md',
+            'norm' => 'bio2',
+        ],
         'verantwoording-en-disclaimer' => [
             'titel' => 'Verantwoording en disclaimer',
             'categorie' => 'Naslag',
@@ -241,11 +121,147 @@ final class Kennisartikelen
                 'bio2' => 'verantwoording-en-disclaimer-bio2.md',
             ],
         ],
-        'wat-de-bio-toevoegt' => [
-            'titel' => 'Wat de BIO toevoegt bovenop ISO 27001',
-            'categorie' => 'Naslag',
-            'bestand' => 'wat-de-bio-toevoegt.md',
-            'norm' => 'bio2',
+        'gebruikers-rollen-en-rechten' => [
+            'titel' => 'Gebruikers, rollen en rechten',
+            'categorie' => 'Toegang & gebruikers',
+            'bestand' => 'gebruikers-rollen-en-rechten.md',
+        ],
+        'issues-en-risicos' => [
+            'titel' => "Issues (§4.1) en risico's (§6.1): wat hoort waar?",
+            'categorie' => 'Risico & SoA',
+            'bestand' => 'issues-en-risicos.md',
+        ],
+        'soa-onderbouwen-en-restrisico' => [
+            'titel' => "De SoA onderbouwen: van 'ja' tot restrisico",
+            'categorie' => 'Risico & SoA',
+            // Bewust géén variant: dit artikel gaat van begin tot eind over
+            // methode (driver → realisatie → bewijs, netto versus bruto), en die
+            // is onder beide normen identiek. Zie 00i §0.
+            'bestand' => 'soa-onderbouwen-en-restrisico.md',
+        ],
+        'maatregelclassificatie' => [
+            'titel' => 'Maatregelclassificatie: uitgangspunt en eigen vaststelling',
+            'categorie' => 'Risico & SoA',
+            'bestand' => 'maatregelclassificatie.md',
+        ],
+        'kpis-en-meetwaarden' => [
+            'titel' => "KPI's en meetwaarden",
+            'categorie' => 'Meten & rapportage',
+            'bestand' => 'kpis-en-meetwaarden.md',
+        ],
+        'kpi-opzetten-voorbeeld' => [
+            'titel' => 'Een KPI opzetten: een uitgewerkt voorbeeld',
+            'categorie' => 'Meten & rapportage',
+            // Direct achter het KPI-artikel: dat legt het model uit, dit loopt
+            // één KPI van aanmaken tot afsluiten door. Profielloos — de casus
+            // draait om §9.1 en noemt geen maatregelnummers.
+            'bestand' => 'kpi-opzetten-voorbeeld.md',
+        ],
+        'de-audit-trail' => [
+            'titel' => 'De audit trail: wat er in staat, en wat niet',
+            'categorie' => 'Meten & rapportage',
+            'bestand' => 'de-audit-trail.md',
+        ],
+        'communicatie-en-overleg' => [
+            'titel' => 'Communicatie en overleg vastleggen (§7.4)',
+            // Bij de audit trail en de KPI's, want het gaat over aantoonbaar
+            // maken dat het managementsysteem draait — en niet over één blok:
+            // het artikel leunt op beleid, taken, doelgroepen en bewijs.
+            'categorie' => 'Meten & rapportage',
+            // Norm-neutraal: clausule 7.4 staat in alle drie de profielen
+            // gelijk, en het artikel noemt geen maatregelnummers.
+            'bestand' => 'communicatie-en-overleg.md',
+        ],
+        'interne-audit-opzetten' => [
+            'titel' => 'Een interne audit opzetten (§9.2)',
+            'categorie' => 'Audits & certificering',
+            'bestand' => 'interne-audit-opzetten.md',
+        ],
+        'externe-certificeringsaudit' => [
+            'titel' => 'De externe certificeringsaudit in het ISMS',
+            'categorie' => 'Audits & certificering',
+            // De opvolgingsmechaniek is identiek; het stelsel eromheen niet.
+            // Doorslaggevend voor de variant: de IGJ is geen certificerende
+            // instelling, en dat onderscheid staat nergens in de ISO-versie.
+            'bestand' => [
+                'iso27001' => 'externe-certificeringsaudit.md',
+                'nen7510' => 'externe-certificeringsaudit-nen7510.md',
+                // De BIO verplicht geen certificering; wat ervoor in de plaats
+                // komt is verantwoording aan de RDI. Dat is een ander gesprek met
+                // een andere partij en een andere uitkomst — geen certificaat maar
+                // een In Control Verklaring.
+                'bio2' => 'externe-certificeringsaudit-bio2.md',
+            ],
+        ],
+        'hr-saas-leverancier-opvoeren' => [
+            'titel' => 'Een HR-SaaS-leverancier opvoeren',
+            'categorie' => 'Leveranciers & derdenrisico',
+            'bestand' => 'hr-saas-leverancier-opvoeren.md',
+        ],
+        'incidenten-en-afwijkingen' => [
+            'titel' => 'Incidenten & afwijkingen: statussen en normkoppeling',
+            'categorie' => 'Incidentbeheer',
+            'bestand' => 'incidenten-en-afwijkingen.md',
+        ],
+        'wijzigingsbeheer' => [
+            'titel' => 'Wijzigingsbeheer: van aankondiging tot evaluatie',
+            'categorie' => 'Incidentbeheer',
+            'bestand' => 'wijzigingsbeheer.md',
+        ],
+        // Het waaróm staat hierboven; dit gaat over de twee tabbladen zelf.
+        'wijzigingsbeheer-schermen' => [
+            'titel' => 'Wijzigingsbeheer: het register en de sjablonen',
+            'categorie' => 'Incidentbeheer',
+            'bestand' => 'wijzigingsbeheer-schermen.md',
+        ],
+        'beheer' => [
+            'titel' => "Beheer: de artisan-commando's",
+            'categorie' => 'Techniek & beheer',
+            'bestand' => 'beheer.md',
+        ],
+        'normteksten-invoeren' => [
+            'titel' => 'De normteksten invoeren',
+            'categorie' => 'Techniek & beheer',
+            // Bewust gedeeld en geen variant per profiel: het bestand, het
+            // commando en de valkuilen zijn in beide profielen gelijk. Wat
+            // NEN 7510 erbij heeft — de zorgspecifieke aanvullingen — staat in
+            // `wat-nen-7510-toevoegt`, dat toch al over dat veld gaat. Zie
+            // 00i §0 voor waarom een variant hier duurder is dan hij oplevert.
+            'bestand' => 'normteksten-invoeren.md',
+        ],
+        'integraties-en-normeis' => [
+            'titel' => 'Integraties: welke norm-eis onderbouw je ermee?',
+            'categorie' => 'Techniek & beheer',
+            // Het antwoord kantelt per norm: NEN 7512 en 7513 zijn zelfstandige
+            // normen die precies over koppelvlakken gaan, en die bestaan onder
+            // ISO niet.
+            'bestand' => [
+                'iso27001' => 'integraties-en-normeis.md',
+                'nen7510' => 'integraties-en-normeis-nen7510.md',
+                // Onder de BIO kantelt het antwoord opnieuw: koppelvlakken met
+                // ketenpartners en de verplichte beveiligingsstandaarden van het
+                // Forum Standaardisatie zijn hier de onderbouwing, en die bestaan
+                // in geen van de andere twee profielen.
+                'bio2' => 'integraties-en-normeis-bio2.md',
+            ],
+        ],
+        'software-bill-of-materials' => [
+            'titel' => 'Software Bill of Materials (SBOM)',
+            'categorie' => 'Techniek & beheer',
+            // Canoniek in de projectroot; gegenereerd door
+            // scripts/genereer-sbom.php. Niet dupliceren naar resources/.
+            'bestand' => 'SBOM.md',
+            'bron' => 'projectroot',
+        ],
+        'open-punten' => [
+            'titel' => 'Open punten, bedenkingen en ideeën',
+            'categorie' => 'Techniek & beheer',
+            'bestand' => 'open-punten.md',
+        ],
+        'besluit-opslag-bewijzen-beleidsdocumenten' => [
+            'titel' => 'Besluit: opslag van bewijzen en beleidsdocumenten',
+            'categorie' => 'Besluiten & architectuur',
+            'bestand' => 'besluit-opslag-bewijzen-beleidsdocumenten.md',
         ],
     ];
 
@@ -314,7 +330,7 @@ final class Kennisartikelen
      * in artikelen die niet op te vragen zijn.
      *
      * Niet gememoriseerd: het profiel ligt vast per installatie en dit is een
-     * `array_filter` over achttien regels.
+     * `array_filter` over de regels van het register.
      *
      * @return array<string, array{titel: string, categorie: string, bestand: string, bron?: string, norm?: string}>
      */

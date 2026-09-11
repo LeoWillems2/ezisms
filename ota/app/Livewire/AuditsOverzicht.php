@@ -57,8 +57,13 @@ class AuditsOverzicht extends Component
     {
         $this->vereisMuteren();
 
+        // Geen `unique` op het jaartal: sinds plan 11c mogen er meerdere plannen
+        // in hetzelfde kalenderjaar liggen — in de opstartfase is dat de regel en
+        // niet de uitzondering. Twee keer per ongeluk hetzelfde jaar aanmaken is
+        // een slip, en die vangen we met een waarschuwing (§3), niet met een
+        // verbod dat een geldig geval blokkeert.
         $gevalideerd = $this->validate([
-            'jaar' => ['required', 'integer', 'min:2000', 'max:2100', Rule::unique('auditplannen', 'jaar')],
+            'jaar' => ['required', 'integer', 'min:2000', 'max:2100'],
         ], attributes: ['jaar' => 'jaar']);
 
         Auditplan::create(['jaar' => (int) $gevalideerd['jaar']]);
@@ -111,10 +116,30 @@ class AuditsOverzicht extends Component
         $this->redirectRoute('audits.ronde', $ronde, navigate: true);
     }
 
+    /**
+     * De waarschuwing onder het jaartalveld: er bestaat al een plan met dit jaar.
+     * Een melding en geen fout — zie `slaPlanOp()`.
+     */
+    public function bestaandPlanMelding(): ?string
+    {
+        if ($this->jaar === '' || ! ctype_digit($this->jaar)) {
+            return null;
+        }
+
+        $bestaand = Auditplan::with('auditprogramma')->where('jaar', (int) $this->jaar)->get();
+
+        if ($bestaand->isEmpty()) {
+            return null;
+        }
+
+        return 'Er bestaat al een auditplan '.$this->jaar.' ('
+            .$bestaand->map(fn (Auditplan $plan) => $plan->cyclusLabel())->implode('; ').').';
+    }
+
     public function render()
     {
         $plannen = Auditplan::query()
-            ->with(['rondes' => fn ($q) => $q->with('auditor')->orderByDesc('gepland_op')->orderByDesc('id')])
+            ->with(['auditprogramma', 'rondes' => fn ($q) => $q->with('auditor')->orderByDesc('gepland_op')->orderByDesc('id')])
             ->orderByDesc('jaar')
             ->get();
 

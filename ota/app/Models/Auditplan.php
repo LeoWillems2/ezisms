@@ -52,6 +52,23 @@ class Auditplan extends Model
     }
 
     /** De meerjarige cyclus waar dit jaarplan onder valt (plan 11b), optioneel. */
+    /**
+     * Waar dit jaarplan bij hoort (plan 11e §0). Sinds 11c is `jaar` een label en
+     * geen sleutel: er mogen meerdere plannen in hetzelfde kalenderjaar liggen, en
+     * dan is "Auditplan 2026" alleen niet meer genoeg om ze uit elkaar te houden.
+     * "Niet in een cyclus" is geen fout maar een toestand — de plannen van vóór een
+     * cyclus zijn er, en juist die zijn te koppelen.
+     */
+    public function cyclusLabel(): string
+    {
+        if ($this->auditprogramma === null) {
+            return 'niet in een cyclus';
+        }
+
+        return $this->auditprogramma->naam
+            .($this->programmajaar === null ? '' : ', jaar '.$this->programmajaar);
+    }
+
     public function auditprogramma(): BelongsTo
     {
         return $this->belongsTo(Auditprogramma::class);

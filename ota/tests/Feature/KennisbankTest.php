@@ -29,13 +29,15 @@ class KennisbankTest extends TestCase
 
     public function test_elke_ingelogde_gebruiker_ziet_het_eerste_artikel(): void
     {
-        // Geen rol nodig: de kennisbank is niet blok-gated.
+        // Geen rol nodig: de kennisbank is niet blok-gated. Zonder slug opent
+        // de kennisbank op het eerste artikel uit het register, en dat is sinds
+        // de herordening de leeswijzer.
         $gebruiker = Gebruiker::factory()->create();
 
         $this->actingAs($gebruiker)->get('/kennisbank')
             ->assertOk()
-            ->assertSee('Incidenten')
-            ->assertSee('De sluitpoort van een incident'); // markdown → gerenderde h2
+            ->assertSee('Leeswijzer')
+            ->assertSee('Risico &amp; SoA', false); // markdown → gerenderde h2
     }
 
     public function test_specifiek_artikel_rendert(): void

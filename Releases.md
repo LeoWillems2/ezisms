@@ -13,6 +13,33 @@ geeft de oorspronkelijke tekst.
 
 ---
 
+## V3.3.0 — een kennisbank die zichzelf uitlegt
+
+*11-09-2026*
+
+De kennisbank telt inmiddels bijna dertig artikelen, en wie hem voor het eerst
+opende kreeg het bovenste te zien zonder te weten wat er verder in stond. De
+linkerkolom gaf titels, geen antwoord op de vraag welk artikel je nú nodig hebt.
+
+**Er is een Leeswijzer, en die staat vooraan.** Eén pagina met elk artikel in een
+of twee regels, gegroepeerd zoals de linkerkolom. Omdat de kennisbank zonder slug
+op het eerste artikel opent, is dat overzicht voortaan het eerste wat je ziet.
+
+**De volgorde volgt nu de vulvolgorde.** De categorieën stonden in de volgorde
+waarin ze ooit zijn bijgeschreven; ze lopen nu mee met de vier fasen uit *Van lege
+installatie naar draaiend ISMS* — eerst het fundament, dan het kader en de inhoud,
+dan het ritme, en daarna wat geen harde voorganger heeft. Naslag staat bovenaan,
+want dat is waar iemand begint die het systeem nog niet kent. Dezelfde volgorde
+geldt voor de Leeswijzer en voor de linkerkolom: ze komen uit één register.
+
+De Leeswijzer bestaat per normprofiel in een eigen uitvoering, want welke
+artikelen er zijn verschilt per profiel. Een test bewaakt dat de lijst in elk
+profiel precies de zichtbare artikelen dekt — een nieuw artikel dat er niet in
+belandt, en een verwijzing naar een artikel dat in dat profiel niet bestaat, laten
+de suite vallen.
+
+---
+
 ## V3.2.0 — de audit die zichzelf kan verantwoorden
 
 *09-09-2026*
@@ -75,10 +102,22 @@ een Word-document op tafel en zegt dat het uit dit ISMS komt. Met de vingerafdru
 erbij is dat na te lopen. De kopieën zelf worden nog steeds niet bewaard: uit een
 hash valt niets te reconstrueren.
 
+**Een auditcyclus is nu ook zonder de commandoregel op te zetten.** Wie geen
+shell-toegang heeft, of een cyclus wil die van het standaardpatroon afwijkt, liep op
+drie plekken vast. Het jaartal van een auditplan is een label geworden en geen
+sleutel meer — meerdere plannen in hetzelfde kalenderjaar mogen, wat in de
+opstartfase eerder regel dan uitzondering is — en de plankop noemt daarom voortaan
+zijn cyclus en programmajaar. Het programmascherm kan zelf een jaarplan toevoegen,
+meteen op het eerstvolgende vrije programmajaar, en een programma zonder jaarplannen
+zegt dat het er geen heeft in plaats van er compleet uit te zien. En het startjaar
+per dekkingsregel is instelbaar geworden, met een knop die de hoofdstukken en thema's
+over de cyclusjaren verdeelt volgens dezelfde verdeling die het commando gebruikt —
+één definitie, zodat de dekkingsplanning niet afhangt van de weg waarlangs zij is
+ontstaan.
+
 Verder: de inlogpagina noemt de installatie waarop u inlogt (organisatie en norm,
 allebei stamgegevens), en het kennisbankartikel over de interne audit beschrijft nu
-ook hoe u een cyclus met de hand opzet — het programmascherm kan jaarplannen wel
-koppelen maar niet aanmaken, en wie dat niet weet loopt vast.
+ook hoe u zo'n cyclus stap voor stap opzet.
 
 ---
 

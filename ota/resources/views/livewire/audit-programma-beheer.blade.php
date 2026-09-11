@@ -64,6 +64,12 @@
                         <flux:badge :color="match($p->status) { 'actief' => 'green', 'afgesloten' => 'zinc', default => 'amber' }">
                             {{ ucfirst($p->status) }}
                         </flux:badge>
+                        {{-- Een actief programma zonder jaarplannen kan niets: geen
+                             ronde in te plannen, en de dekkingsmatrix blijft leeg
+                             (11e §4). --}}
+                        @if ($p->auditplannen_count === 0)
+                            <flux:badge color="amber">geen jaarplannen</flux:badge>
+                        @endif
                         @if ($this->magMuteren())
                             @if ($p->status === 'concept')
                                 <flux:button size="sm" wire:click="activeer({{ $p->id }})">Activeren</flux:button>
@@ -88,10 +94,26 @@
 
             {{-- Jaarplan-koppeling --}}
             <div class="mt-3">
-                <flux:text class="font-medium">Jaarplannen in de cyclus ({{ $programma->venster() }})</flux:text>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <flux:text class="font-medium">Jaarplannen in de cyclus ({{ $programma->venster() }})</flux:text>
+
+                    @if ($this->magMuteren())
+                        @if ($vrijProgrammajaar !== null)
+                            <flux:button size="sm" icon="plus" wire:click="voegJaarplanToe">
+                                Jaarplan toevoegen (jaar {{ $vrijProgrammajaar['nummer'] }})
+                            </flux:button>
+                        @else
+                            <flux:text class="text-xs text-zinc-500">
+                                Alle {{ $programma->aantal_jaren }} programmajaren hebben een jaarplan.
+                            </flux:text>
+                        @endif
+                    @endif
+                </div>
+
                 @if ($plannenInVenster->isEmpty())
                     <flux:text class="mt-1 text-sm text-zinc-500">
-                        Geen jaarplannen in dit venster. Maak ze aan onder “Overzicht”.
+                        Nog geen jaarplannen. Voeg er een toe met de knop hierboven; het plan komt meteen
+                        op het eerstvolgende vrije programmajaar te staan.
                     </flux:text>
                 @else
                     <div class="mt-2 flex flex-wrap gap-2">
@@ -116,7 +138,16 @@
             <div class="mt-5 flex items-center justify-between">
                 <flux:text class="font-medium">Dekkingsplanning (frequentie per object)</flux:text>
                 @if ($this->magMuteren())
-                    <flux:button size="sm" wire:click="vulStandaardplanning">Vul standaard (eenmaal per cyclus)</flux:button>
+                    <div class="flex flex-wrap gap-2">
+                        <flux:button size="sm" wire:click="vulStandaardplanning">Vul standaard (eenmaal per cyclus)</flux:button>
+                        {{-- Dezelfde spreiding als het commando (11e §5): de groep
+                             bepaalt het jaar, zodat verwante onderwerpen in
+                             dezelfde ronde aan bod komen. --}}
+                        <flux:button size="sm" variant="ghost" wire:click="verdeelOverDeJaren"
+                            wire:confirm="Dit zet het startjaar van elke regel opnieuw volgens de groepsverdeling. Handmatige startjaren gaan verloren. Doorgaan?">
+                            Verdeel de groepen over de jaren
+                        </flux:button>
+                    </div>
                 @endif
             </div>
 
@@ -127,6 +158,7 @@
                             <th class="py-2 pr-3">Object</th>
                             <th class="py-2 pr-3">Groep</th>
                             <th class="py-2 pr-3">Interval (jaren)</th>
+                            <th class="py-2 pr-3">Vanaf jaar</th>
                             @if ($this->magMuteren())<th class="py-2"></th>@endif
                         </tr>
                     </thead>
@@ -159,6 +191,24 @@
                                         @endif
                                     @else
                                         <span class="text-zinc-400">niet gepland</span>
+                                    @endif
+                                </td>
+                                <td class="py-2 pr-3">
+                                    @if ($dekking)
+                                        @if ($this->magMuteren())
+                                            <select
+                                                wire:change="stelStartjaar({{ $object->id }}, $event.target.value)"
+                                                class="rounded border border-zinc-300 bg-transparent px-2 py-1"
+                                            >
+                                                @for ($i = 1; $i <= $programma->aantal_jaren; $i++)
+                                                    <option value="{{ $i }}" @selected($dekking->gepland_start_programmajaar === $i)>jaar {{ $i }}</option>
+                                                @endfor
+                                            </select>
+                                        @else
+                                            <flux:badge color="zinc">jaar {{ $dekking->gepland_start_programmajaar }}</flux:badge>
+                                        @endif
+                                    @else
+                                        <span class="text-zinc-400">—</span>
                                     @endif
                                 </td>
                                 @if ($this->magMuteren())

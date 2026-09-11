@@ -196,10 +196,16 @@ class KennisbankZoekenTest extends TestCase
         }
     }
 
+    /**
+     * Het artikel staat er expres bij. Zonder slug opent de kennisbank op de
+     * leeswijzer, en die noemt élke categorie in zijn eigen tekst — dan zegt
+     * `assertDontSee('Naslag')` niets meer over de navigatie, want het woord
+     * staat dan in het artikel ernaast.
+     */
     public function test_het_scherm_toont_de_treffers_en_de_zoekterm_staat_in_de_url(): void
     {
         Livewire::actingAs(Gebruiker::factory()->create())
-            ->test(Kennisbank::class)
+            ->test(Kennisbank::class, ['slug' => 'incidenten-en-afwijkingen'])
             ->assertSee('Incidenten')                          // de categorielijst
             ->set('zoekterm', 'normclausules')
             ->assertSee('Issues')
