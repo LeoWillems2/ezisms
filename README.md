@@ -11,7 +11,7 @@
 
 # Demo aanvragen
 
-Vraag een demo-omgeving aan via demo.ezisms.nl. Dit is een ISO 27001 ISMS gevuld met demo-data.
+Vraag een demo-omgeving aan via demo.ezisms.nl. Dit is een ISO 27001 ISMS gevuld met demo-data. Wil je een leeg NEN 7510, BIO2 of ISO 27001 ISMS, mail dan naar info @ ezisms.nl.
 
 
 
