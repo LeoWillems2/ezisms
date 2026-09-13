@@ -25,9 +25,11 @@ final class Kennisartikelen
      * bepaalt de volgorde in de lijst. `bron: 'projectroot'` leest het bestand
      * uit de projectroot i.p.v. `resources/kennisbank/` — voor gegenereerde
      * documenten die daar canoniek staan (de SBOM), zodat er geen tweede kopie
-     * ontstaat.
+     * ontstaat. `opdracht` wijst bij een oefening naar de opdrachttekst voor een
+     * AI-assistent, relatief aan `resources/kennisbank/`; die staat niet in het
+     * artikel maar is als los bestand te downloaden (zie {@see self::opdrachtPad()}).
      *
-     * @var array<string, array{titel: string, categorie: string, bestand: string|array<string, string>, bron?: string, norm?: string}>
+     * @var array<string, array{titel: string, categorie: string, bestand: string|array<string, string>, bron?: string, norm?: string, opdracht?: string}>
      */
     private const ARTIKELEN = [
         // De leeswijzer staat vooraan en dat is de hele bedoeling: zonder slug
@@ -139,6 +141,17 @@ final class Kennisartikelen
             // is onder beide normen identiek. Zie 00i §0.
             'bestand' => 'soa-onderbouwen-en-restrisico.md',
         ],
+        'risico-oefening' => [
+            'titel' => 'Oefening: volg een risico over vier jaar',
+            'categorie' => 'Risico & SoA',
+            // Derde oefening in dezelfde vorm als `kpi-oefening` en
+            // `audit-oefening`: één opdrachttekst voor een AI-assistent buiten
+            // EzISMS. Staat achter het restrisico-artikel omdat de ontknoping
+            // dáárover gaat — de trendkolom toont een maximum over de
+            // gekoppelde risico's, niet de reeks van één risico.
+            'bestand' => 'risico-oefening.md',
+            'opdracht' => 'opdrachten/risico-oefening.md',
+        ],
         'maatregelclassificatie' => [
             'titel' => 'Maatregelclassificatie: uitgangspunt en eigen vaststelling',
             'categorie' => 'Risico & SoA',
@@ -156,6 +169,21 @@ final class Kennisartikelen
             // één KPI van aanmaken tot afsluiten door. Profielloos — de casus
             // draait om §9.1 en noemt geen maatregelnummers.
             'bestand' => 'kpi-opzetten-voorbeeld.md',
+        ],
+        'kpi-oefening' => [
+            'titel' => 'Oefening: zet zelf een KPI op',
+            'categorie' => 'Meten & rapportage',
+            // Achter het uitgewerkte voorbeeld, want het is dezelfde casus: dat
+            // artikel laat zien hoe het goed gaat, dit laat de lezer de fout
+            // maken. Het artikel legt uit; de oefening zelf is een los
+            // downloadbare opdrachttekst voor een AI-assistent buiten EzISMS — de
+            // applicatie belt zelf geen enkele AI-dienst. De feiten over EzISMS
+            // die in die opdracht staan bewaakt
+            // KennisbankOefeningTest tegen drift: verandert een foutmelding of
+            // een standaardwaarde in het scherm, dan valt de test om en niet de
+            // cursist.
+            'bestand' => 'kpi-oefening.md',
+            'opdracht' => 'opdrachten/kpi-oefening.md',
         ],
         'de-audit-trail' => [
             'titel' => 'De audit trail: wat er in staat, en wat niet',
@@ -176,6 +204,18 @@ final class Kennisartikelen
             'titel' => 'Een interne audit opzetten (§9.2)',
             'categorie' => 'Audits & certificering',
             'bestand' => 'interne-audit-opzetten.md',
+        ],
+        'audit-oefening' => [
+            'titel' => 'Oefening: zet een auditcyclus op',
+            'categorie' => 'Audits & certificering',
+            // Dezelfde opzet als `kpi-oefening`: één opdrachttekst voor een
+            // AI-assistent buiten EzISMS, met een nulmeting, een
+            // voorbereidingsprogramma en een cyclus die op de certificaatdatum
+            // begint. Profielloos — de casus draait om §9.2 en noemt geen
+            // maatregelnummers. De beweringen over de schermen staan onder
+            // KennisbankOefeningTest.
+            'bestand' => 'audit-oefening.md',
+            'opdracht' => 'opdrachten/audit-oefening.md',
         ],
         'externe-certificeringsaudit' => [
             'titel' => 'De externe certificeringsaudit in het ISMS',
@@ -292,7 +332,7 @@ final class Kennisartikelen
      * De artikelen die in het actieve normprofiel bestaan, met `bestand`
      * opgelost naar het pad voor dít profiel.
      *
-     * @return array<string, array{titel: string, categorie: string, bestand: string, bron?: string, norm?: string}>
+     * @return array<string, array{titel: string, categorie: string, bestand: string, bron?: string, norm?: string, opdracht?: string}>
      */
     public static function alles(): array
     {
@@ -311,7 +351,7 @@ final class Kennisartikelen
     }
 
     /**
-     * @return array{titel: string, categorie: string, bestand: string, bron?: string, norm?: string}|null
+     * @return array{titel: string, categorie: string, bestand: string, bron?: string, norm?: string, opdracht?: string}|null
      */
     public static function metadata(string $slug): ?array
     {
@@ -332,7 +372,7 @@ final class Kennisartikelen
      * Niet gememoriseerd: het profiel ligt vast per installatie en dit is een
      * `array_filter` over de regels van het register.
      *
-     * @return array<string, array{titel: string, categorie: string, bestand: string, bron?: string, norm?: string}>
+     * @return array<string, array{titel: string, categorie: string, bestand: string, bron?: string, norm?: string, opdracht?: string}>
      */
     private static function zichtbaar(): array
     {
@@ -375,6 +415,27 @@ final class Kennisartikelen
         }
 
         return $bestand[$profiel];
+    }
+
+    /**
+     * Het pad naar de opdrachttekst van een oefening, of null als het artikel in
+     * dit profiel niet bestaat, geen oefening is, of het bestand ontbreekt.
+     *
+     * Via `metadata()` en niet rechtstreeks op de map, om dezelfde reden als bij
+     * de Word-download: dat filtert op het actieve normprofiel, zodat de
+     * opdracht van een artikel dat hier niet bestaat ook niet op te halen is.
+     */
+    public static function opdrachtPad(string $slug): ?string
+    {
+        $opdracht = self::metadata($slug)['opdracht'] ?? null;
+
+        if ($opdracht === null) {
+            return null;
+        }
+
+        $pad = resource_path('kennisbank/'.$opdracht);
+
+        return is_file($pad) ? $pad : null;
     }
 
     /** Het pad naar het markdown-bestand, of null als slug/bestand ontbreekt. */

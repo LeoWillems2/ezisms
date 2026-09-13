@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DownloadBewijsstuk;
 use App\Http\Controllers\DownloadKennisartikel;
+use App\Http\Controllers\DownloadOefenopdracht;
 use App\Http\Controllers\ToetsCallbackController;
 use App\Http\Controllers\ToonBewijsstukPreview;
 use App\Http\Controllers\ToonToets;
@@ -335,6 +336,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('kennisbank/{slug}/download', DownloadKennisartikel::class)
         ->middleware('can:kennisartikel-downloaden')
         ->name('kennisbank.download');
+    // De opdracht bij een oefening: wél voor elke ingelogde gebruiker. Die tekst
+    // stond eerst voluit in het artikel; een download die strenger is dan de
+    // pagina beschermt niets (zie DownloadOefenopdracht).
+    Route::get('kennisbank/{slug}/opdracht', DownloadOefenopdracht::class)
+        ->name('kennisbank.opdracht');
 
     // Eigen profiel: bewust géén blok-permissie, elke ingelogde gebruiker mag
     // zijn eigen gegevens zien en wachtwoord wijzigen (implementatie/05 §4).

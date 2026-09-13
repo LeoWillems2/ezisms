@@ -40,6 +40,9 @@ Een overzicht van de artikelen.
   — Een sterke motivatie beantwoordt driver, realisatie en bewijs. Plus het netto
   restrisico per maatregel en de veel-op-veel-realiteit van één maatregel over
   meerdere deelsystemen.
+- **[Oefening: volg een risico over vier jaar](/kennisbank/risico-oefening)** —
+  Dezelfde stof als oefening in je eigen AI-assistent: één risico van formuleren
+  tot vier peiljaren restrisico, inclusief het jaar dat tegenvalt.
 - **[Maatregelclassificatie: uitgangspunt en eigen vaststelling](/kennisbank/maatregelclassificatie)**
   — De meegeleverde kenmerken zijn een startpunt en geen waarheid; pas je eigen
   vaststelling maakt er een uitspraak over jóúw organisatie van.
@@ -52,6 +55,9 @@ Een overzicht van de artikelen.
 - **[Een KPI opzetten: een uitgewerkt voorbeeld](/kennisbank/kpi-opzetten-voorbeeld)**
   — Eén KPI van aanmaken tot afsluiten aan de hand van een casus: de
   berekeningswijze voluit, een verdedigbare streefwaarde en de maandelijkse routine.
+- **[Oefening: zet zelf een KPI op](/kennisbank/kpi-oefening)** — Dezelfde casus,
+  nu als oefening in je eigen AI-assistent: afwijken mag, je ziet het gevolg
+  maanden later, en je mag terug naar het punt waar je afweek.
 - **[De audit trail: wat er in staat, en wat niet](/kennisbank/de-audit-trail)** —
   Wie, wat, wanneer en op welk blok — append-only, met naam en omschrijving als
   momentopname, en een eerlijk antwoord op "hoe hard is append-only?".
@@ -65,6 +71,9 @@ Een overzicht van de artikelen.
 - **[Een interne audit opzetten](/kennisbank/interne-audit-opzetten)** — De
   opbouw cyclus → jaarplan → ronde, de vaste volgorde die met een besliste SoA
   begint, en de dekkingsmatrix over hoofdstuk 4–10 plus Bijlage A.
+- **[Oefening: zet een auditcyclus op](/kennisbank/audit-oefening)** — Dezelfde
+  stof als oefening in je eigen AI-assistent: van de nulmeting tot een cyclus die
+  op de certificaatdatum begint, met het gevolg van elke misstap erbij.
 - **[De externe certificeringsaudit in het ISMS](/kennisbank/externe-certificeringsaudit)**
   — Het auditrapport blijft de bron van waarheid; je hangt het als bewijs onder de
   ronde en neemt de punten over als bevindingen, zodat de opvolging in één systeem

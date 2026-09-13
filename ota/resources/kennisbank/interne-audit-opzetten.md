@@ -30,14 +30,15 @@ per cyclus hoeft op te zetten.
    - **Programma** — *Audits → Auditprogramma → Nieuw programma*. Naam "Interne
      auditcyclus 2028–2030", startdatum `2028-01-01`, aantal jaren `3`, aard
      *certificeringscyclus*. Opslaan, daarna **Activeren**.
-   - **Jaarplannen** — *Audits → Overzicht → Nieuw auditplan*, drie keer: 2028,
-     2029 en 2030. Het programmascherm kan jaarplannen wel koppelen maar niet
-     aanmaken; ze beginnen hier hun leven, los van elke cyclus.
-   - **Koppelen** — terug naar *Auditprogramma* en het programma aanklikken. Bij
-     "Jaarplannen in de cyclus" staan de drie plannen als grijze badge met een
-     `+`. Klik ze **in volgorde** aan: het `+` kent steeds het eerstvolgende
-     vrije programmajaar toe, dus 2028 → jaar 1, 2029 → jaar 2, 2030 → jaar 3.
-     Verkeerd geklikt? `×` maakt het plan weer los.
+   - **Jaarplannen** — in het planningsblok van het programma zelf, met de knop
+     **Jaarplan toevoegen (jaar N)**: die maakt het plan aan en hangt het meteen
+     op het eerstvolgende vrije programmajaar. Drie keer klikken levert 2028 →
+     jaar 1, 2029 → jaar 2, 2030 → jaar 3.
+   - **Koppelen** — alleen nodig voor plannen die al bestonden, bijvoorbeeld uit
+     de opstartfase of los aangemaakt met *Audits → Overzicht → Nieuw auditplan*.
+     Die staan bij "Jaarplannen in de cyclus" als grijze badge met een `+`. Klik
+     ze **in volgorde** aan: het `+` kent steeds het eerstvolgende vrije
+     programmajaar toe. Verkeerd geklikt? `×` maakt het plan weer los.
    - **Dekkingsplanning** — in hetzelfde blok de knop
      **Vul standaard (eenmaal per cyclus)**: elk in-scope object krijgt interval
      3. Stel daarna per object bij; clausule 9.2 is het klassieke voorbeeld van
@@ -48,12 +49,14 @@ per cyclus hoeft op te zetten.
    - **Vaststellen** — het jaarplan vaststellen zodra de rondes erin staan. Dat
      is onomkeerbaar.
 
-   > Twee dingen kan alleen het commando: de objecten **spreiden** over de
-   > programmajaren — het scherm plant elke dekkingsregel vanaf jaar 1 — en de
-   > rondes met hun scope per jaar meteen klaarzetten. Bouw je met de hand, kies
-   > dan per ronde zelf de normatieve scope. De matrix leest het *geplande* uit
-   > de dekkingsplanning en het *uitgevoerde* uit wat een ronde feitelijk
-   > behandelde.
+   > Spreiden kan ook met de hand: de knop **Verdeel de groepen over de jaren**
+   > zet het startjaar per dekkingsregel volgens de groepsverdeling, en daarna is
+   > elke regel los bij te stellen in de kolom *Vanaf jaar*. Zonder die stap staat
+   > elke regel op jaar 1 en blijven de kolommen voor jaar 2 en 3 leeg. Wat alleen
+   > het commando doet, is de rondes met hun scope per jaar meteen klaarzetten;
+   > bouw je met de hand, kies dan per ronde zelf de normatieve scope. De matrix
+   > leest het *geplande* uit de dekkingsplanning en het *uitgevoerde* uit wat een
+   > ronde feitelijk behandelde.
 3. **Activeer** het programma, **wijs per ronde een interne auditor toe** en plan de
    datum. De auditor is bewust opengelaten: dat is vaak een (tijdelijk)
    Auditor-account.

@@ -118,6 +118,7 @@
             <file>tests/Feature/KennisbankTest.php</file>
             <file>tests/Feature/KennisbankZoekenTest.php</file>
             <file>tests/Feature/KennisbankNormprofielTest.php</file>
+            <file>tests/Feature/KennisbankOefeningTest.php</file>
         </testsuite>
         <testsuite name="export">
             <file>tests/Feature/ExporteerIsmsTest.php</file>

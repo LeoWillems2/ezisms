@@ -11,8 +11,17 @@
 
 # Demo aanvragen
 
-Vraag een demo-omgeving aan via demo.ezisms.nl. Dit is een ISO 27001 ISMS gevuld met demo-data. Wil je een leeg NEN 7510, BIO2 of ISO 27001 ISMS, mail dan naar info @ ezisms.nl.
+- Vraag een demo-omgeving aan via demo.ezisms.nl. Dit is een ISO 27001 ISMS gevuld met demo-data.
+- Wil je een leeg NEN 7510, BIO2 of ISO 27001 ISMS, mail dan naar info @ ezisms.nl.
+- Demo-omgevingen draaien maximaal 14 dagen.
 
+
+# Laatste nieuws
+
+AI assisted gouden pad oefeningen:
+- Hoe zet ik een correcte KPI cyclus op.
+- Hoe zet ik een goede interne audit op.
+- Hoe zet ik een risico-trend op.
 
 
 # VMhost of bare metal requirements: #

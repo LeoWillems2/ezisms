@@ -13,6 +13,93 @@ geeft de oorspronkelijke tekst.
 
 ---
 
+## V3.5.0 — oefenen met audits en risico's
+
+*13-09-2026*
+
+Bij het KPI-artikel stond één oefening. Er zijn er nu drie, en ze zijn anders
+aangeboden.
+
+**Een auditcyclus opzetten.** Een verzonnen organisatie die nog nooit intern heeft
+geaudit, van de nulmeting tot een driejarige cyclus die op de certificaatdatum
+begint. De oefening draait om drie fouten die de dekkingsmatrix onherstelbaar
+vervuilen en die op het moment zelf onzichtbaar zijn: een nulmeting die als
+gewone ronde meetelt, een cyclus die op 1 januari begint in plaats van op de
+certificaatdatum, en een object dat in de scope stond maar waar niemand aan
+toekwam. Veertien beslispunten, met een vaste planning en een uitgerekende matrix,
+zodat de assistent niet hoeft te gokken wat er op het scherm staat.
+
+**Een risico vier jaar volgen.** Eén risico — vertrokken medewerkers die toegang
+houden tot het klantenbestand — van formuleren tot vier peiljaren restrisico. De
+reeks is 16, 12, 10, 15, en elk knikje is een les: het derde jaar valt tegen omdat
+een controle twee kwartalen is overgeslagen, en in het vierde jaar springt de lijn
+omhoog terwijl het eigen risico juist daalt, omdat er een tweede risico onder
+dezelfde maatregel komt te hangen. De restrisico-trend toont een maximum, geen
+gemiddelde. Deze oefening is na een eerste doorloop bijgesteld: de
+niveaudefinities voor kans en impact staan er nu in, en de herbeoordeling valt
+vóór de jaarlijkse vastlegging in plaats van erna.
+
+**De opdracht is een download.** Het artikel legt uit wat de oefening is en wat je
+nodig hebt; de opdracht voor de AI-assistent zelf haal je op met een link. Dat mag
+elke ingelogde gebruiker, net als het lezen van het artikel. De opdracht wordt
+bijgewerkt als EzISMS verandert — haal hem daarom opnieuw op als je een oefening
+later nog eens doet.
+
+**Snel doorstappen met `cheat`.** Typ je dat tijdens een oefening, dan geeft de
+assistent het antwoord dat de oefening verwacht en gaat hij door naar het volgende
+beslispunt. Handig om een oefening te controleren; oefenen doe je er niet mee. In
+de nabespreking staat zo'n stap als overgeslagen.
+
+**Correctie in *Een interne audit opzetten*.** Het artikel zei dat het
+programmascherm geen jaarplannen kan aanmaken en dat spreiden over de jaren alleen
+met het beheercommando kan. Allebei kan inmiddels met de hand.
+
+Onder alle drie de oefeningen ligt een test die de beweringen over EzISMS in de
+opdracht tegen de broncode houdt: foutmeldingen, labels, standaardwaarden,
+drempels. Verandert er iets in een scherm, dan valt de test om, en niet iemand
+die de oefening doet.
+
+---
+
+## V3.4.0 — een oefening bij het KPI-artikel
+
+*12-09-2026*
+
+Het artikel *Een KPI opzetten: een uitgewerkt voorbeeld* laat zien hoe het goed
+gaat. Dat is nuttig om te lezen en makkelijk om te onderschatten: bij je eigen
+eerste KPI voelt elke keuze redelijk, en de meeste fouten wreken zich pas
+maanden later. Een streefwaarde van 0 kost je twintig maanden rood. Een
+verkeerde richting zie je pas als het dashboard een verbetering als
+achteruitgang meldt. De verkeerde volgorde bij een kwartaalwissel is
+onherstelbaar op het moment dat je hem ziet.
+
+**Er is nu een oefening naast dat artikel.** Dezelfde casus, maar je zet de KPI
+zelf op. Afwijken van de aanbevolen keuze mag: de oefening spoelt dan de tijd
+door tot het gevolg zichtbaar is, en zet je daarna terug naar het punt waar je
+afweek. Veertien beslispunten, van de vraag die de KPI moet beantwoorden tot het
+moment waarop je hem op inactief zet.
+
+**De oefening draait in je eigen AI-assistent, niet in EzISMS.** Het artikel is
+de opdracht; je kopieert hem als eerste bericht in een nieuw gesprek. Dat volgt
+uit een keuze die blijft staan: EzISMS stuurt zelf niets naar een AI-dienst.
+Geen sleutel in de configuratie, geen verwerker erbij, en de installatie doet
+niets anders dan voorheen. Het artikel zegt er ook bij wat het níét is — er
+wordt niets geregistreerd en het levert geen bewijs van bekwaamheid op — en dat
+het scherm gelijk heeft als de assistent iets anders beweert.
+
+Die laatste waarschuwing is niet vrijblijvend. De opdracht bevat zestig
+beweringen over EzISMS: foutmeldingen, veldlabels, statuslabels, de standaarden
+van het formulier. Een taalmodel controleert die niet, het herhaalt ze met
+overtuiging. Een test houdt ze daarom tegen de broncode aan. Verandert er een
+melding in het scherm, dan valt de suite om en niet de lezer.
+
+**Eén correctie in het bestaande artikel.** De alinea over een gemiste maand
+klopte niet: zo'n maand is later alsnog in te vullen, en het ingehaalde meetpunt
+krijgt dan de streefwaarde van vandaag in plaats van die van de maand waarover
+het gaat. Haal dus in vóórdat de nieuwe streefwaarde erin gaat.
+
+---
+
 ## V3.3.0 — een kennisbank die zichzelf uitlegt
 
 *11-09-2026*

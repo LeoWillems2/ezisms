@@ -229,12 +229,35 @@ niet meer is:
 
 ### Een gemiste maand
 
-Niets onherstelbaars — de reeks krijgt een gat en loopt daarna door. Wel meldt het
-dashboard na **twee** perioden zonder meetpunt dat deze handmatige KPI is
+Niets onherstelbaars, en meestal hoeft er niet eens een gat in de reeks te komen.
+Een maand zonder meetpunt is later nog in te vullen: kies bij **Gemeten op** de
+laatste dag van die maand en tel volgens dezelfde regel. De applicatie zet het
+punt op zijn plaats in de reeks, ook als het later is ingevoerd dan het punt van
+de maand erna. Zet in de toelichting dat het achteraf is ingevoerd, en wanneer.
+
+Bij deze KPI kost inhalen niets aan betrouwbaarheid. De bron blijft bestaan, en de
+telregel neemt het moment van melden als ankerpunt: de meldingen van oktober zijn
+in januari nog precies dezelfde. Dat geldt niet voor elke KPI. Een telling van
+een toestand, zoals *sticks in omloop op de laatste dag van de maand*, is achteraf
+alleen te reconstrueren als de administratie haar historie bewaart.
+
+Twee dingen gaan bij inhalen niet vanzelf goed:
+
+- **Het meetpunt krijgt de streefwaarde van vandaag.** Een meetpunt krijgt bij het
+  invoeren een kopie van de streefwaarde die op dát moment geldt, niet van die van
+  de maand waarover het gaat. Ligt er een kwartaalwissel tussen de gemiste maand en
+  het inhalen, dan wordt het ingehaalde punt aan de lat van het nieuwe kwartaal
+  gemeten. Haal daarom in vóórdat de nieuwe streefwaarde erin gaat. Is dat al
+  gebeurd, noem dan in de toelichting de lat die toen gold.
+- **Tel de gemiste maand niet op bij de volgende.** De applicatie kan dat niet
+  zien, maar dan staat er een punt van twee maanden in een reeks van maanden, en
+  bij een telling ziet dat eruit als een piek. Elke maand krijgt een eigen punt.
+  Een tweede meetpunt in dezelfde kalendermaand weigert de applicatie.
+
+Wordt er niet ingehaald, dan krijgt de reeks een gat en loopt daarna door. Na
+**twee** perioden zonder meetpunt meldt het dashboard dat deze handmatige KPI is
 stilgevallen. Dat signaal bestaat omdat een handmatige KPI die niemand invult op
-een trendgrafiek niet te onderscheiden is van een KPI die nog niet meet. Inhalen
-met een tweede meetpunt in dezelfde maand kan niet: de regel is één per
-kalendermaand.
+een trendgrafiek niet te onderscheiden is van een KPI die nog niet meet.
 
 ## Stap 5 — het einde van de KPI
 

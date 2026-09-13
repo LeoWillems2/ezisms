@@ -57,8 +57,12 @@ final class Kennisbankzoeker
     /** Meer woorden dan dit maakt de opdracht niet preciezer, alleen trager. */
     private const MAX_ZOEKWOORDEN = 6;
 
-    /** Leestekens die aan het begin of eind van een woord niet meetellen. */
-    private const RANDTEKENS = " \t\n\r\0\x0B\"'`(){}[]<>,.;:!?*_/\\|…«»„“”‘’—–-";
+    /**
+     * Leestekens die aan het begin of eind van een woord niet meetellen. Het
+     * hekje hoort erbij omdat een kopmarkering opmaak is — ook waar hij als
+     * gewone tekst in de index belandt, zoals een kopregel binnen een codeblok.
+     */
+    private const RANDTEKENS = " \t\n\r\0\x0B\"'`(){}[]<>,.;:!?*_/\\|#…«»„“”‘’—–-";
 
     /**
      * Ontlede artikelen, per verzoek, gesleuteld op bestandspad + mtime. Zie
