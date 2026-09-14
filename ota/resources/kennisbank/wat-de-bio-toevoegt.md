@@ -1,46 +1,46 @@
 # Wat de BIO toevoegt bovenop ISO 27001
 
 De Baseline Informatiebeveiliging Overheid 2 (BIO2) is geen vervanging van
-ISO 27001 en ook geen alternatief ervoor. De norm zegt het zelf onomwonden:
-*"De BIO2 vervangt deze twee normen niet, maar vult ze aan."*
+ISO 27001 en ook geen alternatief ervoor. De norm stelt dat zelf zonder
+voorbehoud: *"De BIO2 vervangt deze twee normen niet, maar vult ze aan."*
 
-Deze pagina legt uit wat die aanvulling precies is, waar je die in dit systeem
-terugvindt, en wat er ánders is dan je van een ISO-installatie zou verwachten.
+Deze pagina legt uit wat die aanvulling inhoudt, waar die in dit systeem terug te
+vinden is, en wat er anders is dan bij een ISO-installatie te verwachten valt.
 
 ## Twee delen die los van elkaar staan
 
 De BIO2 bestaat uit twee delen die architectonisch weinig met elkaar te maken
 hebben:
 
-- **Deel 1, het BIO2-kader.** Gestructureerd volgens NEN-EN-ISO/IEC 27001:2023 —
-  dezelfde Harmonized Structure, dus dezelfde hoofdstukken 4 tot en met 10. Geen
-  maatregelen, maar eisen aan het managementsysteem, aan risicomanagement, aan de
-  Verklaring van Toepasselijkheid, aan governance en aan de verantwoording.
-- **Deel 2, de BIO-overheidsmaatregelen.** Gestructureerd volgens
-  NEN-EN-ISO/IEC 27002:2022, en dít is de maatregelentabel.
+- **Deel 1, het BIO2-kader.** Dit deel is gestructureerd volgens
+  NEN-EN-ISO/IEC 27001:2023. Het volgt dezelfde Harmonized Structure en heeft dus
+  dezelfde hoofdstukken 4 tot en met 10. Het bevat geen maatregelen, maar eisen
+  aan het managementsysteem, aan risicomanagement, aan de Verklaring van
+  Toepasselijkheid, aan governance en aan de verantwoording.
+- **Deel 2, de BIO-overheidsmaatregelen.** Dit deel is gestructureerd volgens
+  NEN-EN-ISO/IEC 27002:2022 en vormt de maatregelentabel.
 
-Voor deel 1 geldt: als je een ISO 27001-managementsysteem hebt, heb je het meeste
-al. De registers in dit systeem — issues, risico's, scope, beleid, taken, bewijs,
-audits, review — zijn dezelfde.
+Een organisatie met een ISO 27001-managementsysteem voldoet al grotendeels aan
+deel 1. De registers in dit systeem zijn dezelfde: issues, risico's, scope,
+beleid, taken, bewijs, audits en review.
 
-Deel 2 is waar het echte verschil zit.
+Het werkelijke verschil zit in deel 2.
 
 ## Geen extra maatregelen, maar een extra niveau
 
-Dit is het punt dat het makkelijkst wordt misbegrepen, ook door mensen die de norm
-kennen.
+Dit punt wordt het vaakst verkeerd begrepen, ook door mensen die de norm kennen.
 
-De BIO **voegt geen beheersmaatregelen toe**. Bijlage A houdt precies dezelfde 93
+De BIO **voegt geen beheersmaatregelen toe**. Bijlage A bevat precies dezelfde 93
 maatregelen als onder ISO 27001, met dezelfde nummers en dezelfde titels. Er is
 niets bijgekomen en niets hernummerd.
 
-Wat de BIO doet, is er een **niveau onder hangen**: 118 genummerde
-*overheidsmaatregelen*, verdeeld over 54 van die 93. Onder beheersmaatregel 5.24
-hangen er zeven; onder 5.20, 8.08 en 8.15 elk zes. De andere 39
-beheersmaatregelen hebben er geen.
+De BIO voegt **een niveau onder die maatregelen** toe: 118 genummerde
+*overheidsmaatregelen*, verdeeld over 54 van de 93 beheersmaatregelen. Onder
+beheersmaatregel 5.24 hangen er zeven. Onder 5.20, 8.08 en 8.15 hangen er elk
+zes. De andere 39 beheersmaatregelen hebben er geen.
 
-De nummering is drieledig en leest zichzelf: **5.24.03** is overheidsmaatregel 3
-bij beheersmaatregel 5.24.
+De nummering bestaat uit drie delen en spreekt voor zich: **5.24.03** is
+overheidsmaatregel 3 bij beheersmaatregel 5.24.
 
 Over het karakter van die verplichtingen is de norm expliciet:
 
@@ -53,28 +53,30 @@ en:
 > risico-inschatting van de entiteit niet geaccepteerd worden, tenzij ze niet van
 > toepassing kunnen zijn."*
 
-Dat "tenzij" is smal. Onder ISO 27001 is een maatregel niet van toepassing
-verklaren een vrije uitspraak met een motivatie. Onder de BIO mag dat alleen als de
-maatregel *niet van toepassing kán zijn*, en de onderbouwing hoort met een
-verwijzing naar de risicoanalyse in een bijlage "Uitzonderingen" bij de VvT.
+De uitzondering na "tenzij" is smal. Onder ISO 27001 is het niet van toepassing
+verklaren van een maatregel een vrije uitspraak met een motivatie. Onder de BIO
+mag dat alleen als de maatregel niet van toepassing kan zijn. De onderbouwing
+hoort dan, met een verwijzing naar de risicoanalyse, in een bijlage
+"Uitzonderingen" bij de VvT.
 
-**Waar je dat in dit systeem terugvindt:** op de pagina *Statement of
-Applicability* staat per beheersmaatregel een kolom **Verplichtingen** met de
-dekking — bijvoorbeeld `3 / 7`, en het aantal uitzonderingen erachter als die er
-zijn. Klik op dat cijfer en de verplichtingen klappen onder de regel open: nummer,
-status, tekst, onderbouwing, verwijzingen en het bewijs dat eronder hangt. Dat is
-een leesweergave; beoordelen doe je met de knop *Beoordelen*, in het blok
+**De plaats in dit systeem:** op de pagina *Statement of Applicability* staat per
+beheersmaatregel een kolom **Verplichtingen** met de dekking, bijvoorbeeld
+`3 / 7`. Als er uitzonderingen zijn, staat het aantal daarvan erachter. Een klik
+op dat cijfer klapt de verplichtingen onder de regel open, met nummer, status,
+tekst, onderbouwing, verwijzingen en het bewijs dat eronder hangt. Dat is een
+leesweergave. Het beoordelen gebeurt met de knop *Beoordelen*, in het blok
 "Overheidsmaatregelen (BIO2)" onder de omschrijving. Een streepje in de kolom
-betekent dat deze beheersmaatregel er geen heeft — zie de volgende paragraaf, want
-daar geldt een andere route.
+betekent dat de beheersmaatregel geen overheidsmaatregelen heeft. Voor die
+beheersmaatregelen geldt een andere route, die de volgende paragraaf beschrijft.
 
-Neem je een **kopie voor de auditor** mee, dan staan de verplichtingen daar als
-eigen regels in een bijlage onder de SoA-tabel, ongeacht wat je had opengeklapt.
+Een **kopie voor de auditor** bevat de verplichtingen als eigen regels in een
+bijlage onder de SoA-tabel, ongeacht welke regels in het scherm waren
+opengeklapt.
 
 ## De beheersmaatregelen zonder overheidsmaatregel
 
-Voor de 39 beheersmaatregelen zonder overheidsmaatregel geldt een eigen route, en
-die staat in de inleiding van deel 2:
+Voor de 39 beheersmaatregelen zonder overheidsmaatregel geldt een eigen route.
+Die route staat in de inleiding van deel 2:
 
 > *"Als een dergelijke beheersmaatregel van toepassing is, wordt gebruik gemaakt
 > van de bijbehorende implementatierichtlijn uit NEN-EN-ISO/IEC 27002. Afwijken of
@@ -82,11 +84,11 @@ die staat in de inleiding van deel 2:
 > risicoanalyse. De referentie naar deze analyse is in een bijlage uitzonderingen
 > opgenomen in de Verklaring van Toepasselijkheid (VvT)."*
 
-Ontbreekt bij zo'n maatregel het blok met overheidsmaatregelen, dan is dat dus geen
-gat in dit systeem maar de norm die daar niets voorschrijft — en dan val je terug
-op ISO 27002.
+Als bij zo'n maatregel het blok met overheidsmaatregelen ontbreekt, is dat dus
+geen gat in dit systeem. De norm schrijft daar niets voor, en dan geldt ISO 27002
+als terugvaloptie.
 
-## Wat níét onder de Cyberbeveiligingswet valt
+## Wat niet onder de Cyberbeveiligingswet valt
 
 Sinds uitgave v1.3 markeert de BIO welke maatregelen buiten de reikwijdte van de
 Cyberbeveiligingswet vallen:
@@ -95,8 +97,8 @@ Cyberbeveiligingswet vallen:
 > vallen niet onder de reikwijdte van de Cbw. Hiervoor geldt verplichtende
 > zelfregulering."*
 
-Het zijn er drie, en de logica erachter is goed te volgen — het zijn de
-onderwerpen die hun eigen wet al hebben:
+Het gaat om drie beheersmaatregelen. De logica is goed te volgen, want het zijn de
+onderwerpen waarvoor al een eigen wet bestaat:
 
 | Beheersmaatregel | Onderwerp | Eigen kader |
 |---|---|---|
@@ -104,66 +106,68 @@ onderwerpen die hun eigen wet al hebben:
 | 5.33 | Bescherming van registraties | Archiefwet |
 | 5.34 | Privacy en bescherming van PII | AVG |
 
-Dit systeem markeert die drie in de SoA. Het verschil doet ertoe: bij de andere 90
-is de grondslag een wettelijke plicht die de RDI kan handhaven, hier is het een
-bestuurlijke afspraak.
+Dit systeem markeert die drie in de SoA. Het verschil is relevant. Bij de andere
+90 is de grondslag een wettelijke plicht die de RDI kan handhaven. Bij deze drie
+is de grondslag een bestuurlijke afspraak.
 
-**Let op het onderscheid met je eigen situatie.** Of jóuw organisatie onder de
-Cyberbeveiligingswet valt, hangt af van sector en omvang en staat los van welke
-norm je volgt. Dat is een aparte instelling in dit systeem. Deel 1 §11.1 noemt de
-BIO-entiteit die buiten de Cbw valt expliciet; dan geldt de hele BIO als
-verplichtende zelfregulering.
+**Dit onderscheid staat los van de situatie van de eigen organisatie.** Of een
+organisatie onder de Cyberbeveiligingswet valt, hangt af van sector en omvang en
+staat los van de norm die de organisatie volgt. Dat is in dit systeem een aparte
+instelling. Deel 1 §11.1 noemt expliciet de BIO-entiteit die buiten de Cbw valt.
+Voor zo'n entiteit geldt de hele BIO als verplichtende zelfregulering.
 
 ## Verantwoording in plaats van certificering
 
-Onder ISO 27001 werk je naar een certificaat. Onder de BIO niet: *"De BIO
-verplicht geen NEN-EN-ISO/IEC 27001-certificering."*
+Onder ISO 27001 werkt een organisatie naar een certificaat toe. Onder de BIO is
+dat niet zo: *"De BIO verplicht geen NEN-EN-ISO/IEC 27001-certificering."*
 
-Wat ervoor in de plaats komt is verantwoording. Overheidsmaatregel 5.36.01 en deel
-1 §9 vragen om een jaarlijkse **In Control Verklaring**, en het toezicht loopt via
-de Cyberbeveiligingswet met de **RDI** als toezichthouder voor de sector Overheid.
+Verantwoording komt daarvoor in de plaats. Overheidsmaatregel 5.36.01 en deel 1
+§9 vragen om een jaarlijkse **In Control Verklaring**. Het toezicht loopt via de
+Cyberbeveiligingswet, met de **RDI** als toezichthouder voor de sector Overheid.
 
-Dat verschuift waar het zwaartepunt van dit systeem ligt. Niet in het opleveren
-van een dossier voor een certificerende instelling, maar in het jaar rond kunnen
-aantonen dat de verplichtingen belegd zijn, met bewijs en met een datum. Vandaar
-dat de beoordeling per overheidsmaatregel bijhoudt *wanneer* er voor het laatst
-naar gekeken is: "belegd" zonder datum verjaart.
+Daardoor verschuift het zwaartepunt van dit systeem. Het zwaartepunt ligt niet in
+het opleveren van een dossier voor een certificerende instelling, maar in het
+gedurende het hele jaar kunnen aantonen dat de verplichtingen belegd zijn, met
+bewijs en met een datum. Om die reden houdt de beoordeling per overheidsmaatregel
+bij wanneer er voor het laatst naar gekeken is. De status "belegd" zonder datum
+verliest na verloop van tijd zijn waarde.
 
 ## Wat BIO2 heeft laten vallen
 
-Kom je van de vorige generatie (BIO 1.04), dan zijn twee dingen verdwenen die je
-misschien zoekt:
+Voor organisaties die van de vorige generatie (BIO 1.04) komen, zijn twee
+onderdelen verdwenen:
 
-- **Het basisbeveiligingsniveau (BBN 1, 2, 3).** BIO2 kent het niet meer. In de
-  officiële wordt-was-lijst staat de BBN-kolom voor BIO2 over de hele linie op
-  "niet van toepassing".
+- **Het basisbeveiligingsniveau (BBN 1, 2, 3).** BIO2 kent dit niveau niet meer.
+  In de officiële wordt-was-lijst staat de BBN-kolom voor BIO2 over de hele linie
+  op "niet van toepassing".
 - **De vaste verantwoordelijke per maatregel.** BIO1 wees per maatregel een rol
   aan (secretaris/algemeen directeur, proceseigenaar, dienstenleverancier). BIO2
   doet dat niet meer.
 
-Dit systeem heeft die velden daarom niet. Dat is een keuze van de norm, geen
-omissie hier. Wie in dit ISMS een verantwoordelijke aan een verplichting wil
-hangen, doet dat via een taak — die heeft een eigenaar en een deadline.
+Dit systeem heeft die velden daarom niet. Dat is een keuze van de norm en geen
+omissie in het systeem. Een verantwoordelijke voor een verplichting wordt in dit
+ISMS vastgelegd via een taak, omdat een taak een eigenaar en een deadline heeft.
 
-Verder is de inhoud flink verschoven: van de 118 overheidsmaatregelen zijn er 87
-één-op-één uit BIO1 overgenomen, 6 samengevoegd uit meerdere BIO1-maatregelen, en
-**25 zijn nieuw**. Andersom hebben 25 BIO1-maatregelen geen opvolger in BIO2. Een
-BIO1-beoordeling laat zich dus niet zomaar overzetten.
+Daarnaast is de inhoud sterk verschoven. Van de 118 overheidsmaatregelen zijn er
+87 één-op-één uit BIO1 overgenomen, 6 zijn samengevoegd uit meerdere
+BIO1-maatregelen, en **25 zijn nieuw**. Omgekeerd hebben 25 BIO1-maatregelen geen
+opvolger in BIO2. Een BIO1-beoordeling laat zich daarom niet zonder meer
+overzetten.
 
-## Twee andere BIO-varianten die je kunt tegenkomen
+## Twee andere BIO-varianten
 
 Het CIP onderhoudt op dit moment drie normatieve varianten naast elkaar. Dit
-systeem volgt er één — **BIO2** — en het is nuttig te weten welke twee dat niet
-zijn:
+systeem volgt er één, **BIO2**. Het is nuttig te weten welke twee varianten het
+systeem niet volgt:
 
-- **Handreiking BIO2-opmaat.** Voor organisaties die zich op BIO2 voorbereiden
-  maar (nog) niet onder de Cbw vallen. Zelfde 93 beheersmaatregelen, maar 149
-  overheidsmaatregelen in plaats van 118, met een eigen nummering (`5.01.1` in
-  plaats van `5.01.01`) en eigen formuleringen — "de organisatie" waar BIO2 "de
-  entiteit" zegt.
-- **BIO1 v1.04zv.** De vorige generatie, gebouwd op de indeling van
+- **Handreiking BIO2-opmaat.** Deze variant is bedoeld voor organisaties die zich
+  op BIO2 voorbereiden, maar (nog) niet onder de Cbw vallen. De variant heeft
+  dezelfde 93 beheersmaatregelen, maar 149 overheidsmaatregelen in plaats van
+  118. De nummering is anders (`5.01.1` in plaats van `5.01.01`) en de
+  formuleringen zijn eigen: "de organisatie" waar BIO2 "de entiteit" schrijft.
+- **BIO1 v1.04zv.** Dit is de vorige generatie, gebouwd op de indeling van
   ISO 27002:**2013** met 116 controls. Die nummering past niet op Bijlage A zoals
-  die sinds 2022 is, dus dit is in feite een andere maatregelenset.
+  die sinds 2022 luidt. In feite is dit dus een andere maatregelenset.
 
 ## Samengevat
 
@@ -171,11 +175,12 @@ zijn:
 |---|---|---|
 | Beheersmaatregelen | 93 | dezelfde 93 |
 | Niveau daaronder | — | 118 overheidsmaatregelen |
-| Niet van toepassing verklaren | vrij, met motivatie | alleen als het niet van toepassing *kán* zijn |
+| Niet van toepassing verklaren | vrij, met motivatie | alleen als het niet van toepassing kan zijn |
 | Doel | certificering | verantwoording aan de RDI |
 | Toezicht | certificerende instelling | RDI, onder de Cyberbeveiligingswet |
 | Jaarlijkse uitkomst | auditrapport | In Control Verklaring |
 | Basisbeveiligingsniveau | — | niet meer in BIO2 |
 
-De korte versie: **de BIO maakt Bijlage A concreter, niet groter.** Waar ISO
-zegt "beheer je toegangsrechten", zegt de BIO hoe vaak je ze beoordeelt.
+Kort samengevat: **de BIO maakt Bijlage A concreter, niet groter.** Waar ISO
+voorschrijft dat toegangsrechten beheerd worden, schrijft de BIO voor hoe vaak ze
+beoordeeld worden.

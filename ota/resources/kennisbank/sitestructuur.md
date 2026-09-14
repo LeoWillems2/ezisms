@@ -1,8 +1,9 @@
 # Sitestructuur
 
-Een overzicht van de navigatie: de hoofdsecties (met een gekleurd blokje) en hun
-onderliggende tabbladen. Het spiegelt het menu in de linkerkolom; wat je ziet
-hangt af van je rol en rechten.
+Deze pagina geeft een overzicht van de navigatie: de hoofdsecties (met een
+gekleurd blokje) en hun onderliggende tabbladen. Het overzicht volgt het menu in
+de linkerkolom. Welke onderdelen een gebruiker ziet, hangt af van de rol en de
+rechten van die gebruiker.
 
 <div class="sitemap" style="margin:1.2rem 0;">
 <svg role="img" aria-label="Sitestructuur van het ISMS: boomdiagram van de menustructuur met hoofdsecties en hun tabbladen." viewBox="0 0 720 756" style="width:100%;height:auto;font-family:ui-sans-serif,system-ui,sans-serif;" xmlns="http://www.w3.org/2000/svg">
@@ -126,20 +127,20 @@ hangt af van je rol en rechten.
 </svg>
 </div>
 
-**Legenda:** een gevuld blokje markeert een hoofdsectie; ingesprongen items zijn de
-tabbladen binnen die sectie. Sommige tabbladen zijn alleen zichtbaar met
-voldoende rechten (bijvoorbeeld *Sjablonen*, *Wijzigingssjablonen* en
-*Doelgroepen* vragen muteerrecht).
+**Legenda:** een gevuld blokje markeert een hoofdsectie, en ingesprongen items
+zijn de tabbladen binnen die sectie. Sommige tabbladen zijn alleen zichtbaar met
+voldoende rechten. *Sjablonen*, *Wijzigingssjablonen* en *Doelgroepen* vereisen
+bijvoorbeeld muteerrecht.
 
-**Twee secties ziet vrijwel niemand.** *Toetsbestanden* en *Export* horen bij de
-Administrator, en die rol heeft op geen enkel ISMS-blok inzage — voor hem zijn
-dit juist de énige twee items in het menu. Andersom ziet niemand met een
-ISMS-rol ze staan. Ze horen hier omdat dit overzicht de hele menustructuur
-beschrijft en niet die van één rol.
+**Twee secties zijn voor vrijwel niemand zichtbaar.** *Toetsbestanden* en
+*Export* horen bij de Administrator. Die rol heeft op geen enkel ISMS-blok inzage,
+en voor de Administrator zijn dit daarom de enige twee items in het menu.
+Omgekeerd ziet geen enkele gebruiker met een ISMS-rol deze twee secties. De
+secties staan toch in dit overzicht, omdat het overzicht de volledige
+menustructuur beschrijft en niet de menustructuur van één rol.
 
-**Zoeken.** Het zoekveld boven de artikellijst doorzoekt de kennisbank — en
-alleen de kennisbank. Het is niet hoofdlettergevoelig en trekt zich niets aan van
-accenten, en een deel van een woord volstaat: *beoordel* vindt ook *beoordeling*.
-Een resultaat springt naar de paragraaf waarin de term staat, niet naar de
-bovenkant van het artikel. De zoekterm staat in de URL, dus een zoekopdracht is
-te delen en te bewaren.
+**Zoeken.** Het zoekveld boven de artikellijst doorzoekt alleen de kennisbank.
+De zoekfunctie is niet hoofdlettergevoelig en negeert accenten. Een deel van een
+woord is voldoende: *beoordel* vindt ook *beoordeling*. Een resultaat springt naar
+de paragraaf waarin de term staat, en niet naar het begin van het artikel. De
+zoekterm staat in de URL, zodat een zoekopdracht te delen en te bewaren is.

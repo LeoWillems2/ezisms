@@ -1,204 +1,216 @@
 # Verantwoording en disclaimer
 
 Dit ISMS is gebouwd **zonder dat de normtekst zelf wordt meegeleverd**. Dat is
-geen tekortkoming die nog wordt ingehaald: het is een ontwerpkeuze die bepaalt
-wat dit systeem voor je is en wat het niet is. Deze pagina legt uit wat je hier
-wel en niet mag verwachten, waar de informatie vandaan komt, en waar je zelf de
-norm nodig hebt.
+geen tekortkoming die later nog wordt ingehaald. Het is een ontwerpkeuze die
+bepaalt wat dit systeem voor een organisatie is en wat het niet is. Deze pagina
+beschrijft wat een gebruiker van dit systeem wel en niet mag verwachten, waar de
+informatie vandaan komt en op welke punten de norm zelf nodig is.
 
-Deze installatie draait op het **NEN 7510-profiel**. Dat maakt het voorbehoud
-hieronder op één punt strenger dan in de ISO-uitvoering van dit systeem, en dat
-punt is het eerste dat je moet weten.
+Deze installatie draait op het **NEN 7510-profiel**. Daardoor is het voorbehoud
+hieronder op één punt strenger dan in de ISO-uitvoering van dit systeem. Dat punt
+is het belangrijkste om te weten en komt daarom als eerste aan bod.
 
-## Wij leveren geen maatregelteksten
+## Geen meegeleverde maatregelteksten
 
-**Bij geen enkele maatregel staat een omschrijving.** Niet bij de acht
-zorgspecifieke maatregelen, en ook niet bij de 93 die uit ISO 27001 komen. Je
-ziet nummer, titel en thema — de rest is leeg tot je hem zelf vult.
+**Bij geen enkele maatregel staat een omschrijving.** Dat geldt voor de acht
+zorgspecifieke maatregelen en ook voor de 93 maatregelen die uit ISO 27001 komen.
+Bij elke maatregel staan het nummer, de titel en het thema. Het veld voor de
+omschrijving blijft leeg totdat de organisatie het zelf vult.
 
-Dat is een bewuste keuze en geen omissie, en ze geldt in elke uitvoering van
-dit systeem: een eigen omschrijving van wat een maatregel beoogt is een
-interpretatie van de norm, op precies de plek waar een auditor de toepasselijkheid
-beoordeelt. Elk verschil met de normtekst is een discussie die jouw organisatie
-niet hoeft te voeren.
+Dat is een bewuste keuze en geen omissie, en die keuze geldt in elke uitvoering
+van dit systeem. Een eigen omschrijving van het doel van een maatregel is een
+interpretatie van de norm, op precies de plek waar een auditor de
+toepasselijkheid beoordeelt. Elk verschil met de normtekst leidt tot een
+discussie die de organisatie niet hoeft te voeren.
 
-Voor deze uitvoering komt daar een tweede reden bij, en die is zwaarder. NEN 7510
-legt op veertien van die 93 maatregelen een **zwaardere eis** dan ISO 27001 doet.
-Wie een ISO-gerichte tekst hier zou overnemen, zou de eis onderschatten op precies
-de plek waar jij hem beoordeelt — en dat is erger dan een leeg veld.
+Voor deze uitvoering komt daar een tweede, zwaardere reden bij. NEN 7510 stelt
+bij 14 van die 93 maatregelen een **zwaardere eis** dan ISO 27001. Een
+ISO-gerichte tekst zou op die plekken de eis onderschatten, precies waar de
+organisatie de maatregel beoordeelt. Dat is erger dan een leeg veld.
 
-Een leeg veld is eerlijk. Het zegt: kijk in de norm.
+Een leeg veld is eerlijk. Het geeft aan dat de norm geraadpleegd moet worden.
 
 ## Waar dit systeem geen vervanging voor is
 
-**Dit is geen kopie van NEN 7510 en geen samenvatting ervan.** Je kunt je
-organisatie er niet mee certificeren zonder de norm te bezitten en te lezen. Het
-systeem ondersteunt de administratie van een managementsysteem — registers,
-beoordelingen, taken, bewijs, audits, rapportage — maar het vertelt je niet
-gezaghebbend wat de norm van je eist.
+**Dit is geen kopie van NEN 7510 en geen samenvatting ervan.** Een organisatie
+kan zich met dit systeem niet laten certificeren zonder de norm te bezitten en te
+lezen. Het systeem ondersteunt de administratie van een managementsysteem:
+registers, beoordelingen, taken, bewijs, audits en rapportage. Het systeem geeft
+echter geen gezaghebbend antwoord op de vraag wat de norm van de organisatie
+eist.
 
-Concreet betekent dat:
+Concreet betekent dat het volgende:
 
-- **De verwijzingen zijn een hulpmiddel, geen bewijs.** Als hier "§9.3" of
-  "A.8.16" staat, is dat een aanwijzing waar je in je eigen exemplaar moet
-  kijken. Het is geen garantie dat de tekst daar zegt wat je hier leest.
-- **"Moeten" en "behoren te" zijn niet altijd hard te maken.** Het onderscheid
-  tussen een eis en een aanbeveling bepaalt of een auditor een afwijking schrijft.
-  Dat onderscheid staat in de norm en nergens anders betrouwbaar. Ga er niet van
-  uit dat de bewoording hier dat verschil correct weergeeft.
-- **De zorgspecifieke aanvullingen ontbreken.** Zie hieronder — het veld bestaat,
-  de tekst niet.
+- **De verwijzingen zijn een hulpmiddel en geen bewijs.** Een verwijzing als
+  "§9.3" of "A.8.16" geeft aan waar in het eigen exemplaar van de norm te kijken.
+  De verwijzing garandeert niet dat de normtekst op die plek zegt wat hier staat.
+- **Het verschil tussen "moeten" en "behoren te" is niet altijd vast te
+  stellen.** Het onderscheid tussen een eis en een aanbeveling bepaalt of een
+  auditor een afwijking noteert. Alleen de norm geeft dat onderscheid betrouwbaar
+  weer. De bewoording in dit systeem geeft dat verschil niet noodzakelijk correct
+  weer.
+- **De zorgspecifieke aanvullingen ontbreken.** Het veld voor de aanvulling
+  bestaat, maar de tekst ontbreekt; zie de volgende sectie.
 
 ## De zorgspecifieke aanvulling: het veld zonder de tekst
 
 NEN 7510 markeert bij een deel van de maatregelen een **zorgspecifieke
 beheersmaatregel**: een aanvulling bovenop wat ISO 27001 vraagt. Dit systeem
-heeft daar een eigen veld voor, met een eigen kopje in de SoA, los van de
-omschrijving — want bron, licentiestatus en voorbehoud verschillen per blok en
-dat hoort zichtbaar te blijven.
+heeft daarvoor een eigen veld, met een eigen kopje in de SoA, los van de
+omschrijving. Die scheiding is nodig omdat bron, licentiestatus en voorbehoud per
+blok verschillen, en dat verschil hoort zichtbaar te blijven.
 
-Wat je ziet hangt af van wat er is ingelezen:
+Wat de SoA toont, hangt af van wat er is ingelezen:
 
 | Wat er staat | Wat het betekent |
 |---|---|
-| Geen blok | Déze maatregel heeft geen zorgspecifieke beheersmaatregel. |
-| "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee." | NEN 7510 heeft hier wél een zorgspecifieke beheersmaatregel. Wat die inhoudt, leest u in de norm zelf. |
-| "Niet ingelezen…" | Er is helemaal niets ingelezen, dus het is niet eens bekend óf deze maatregel er een heeft. Dat is een installatiefout: de lijst hoort meegeleverd te zijn. |
+| Geen blok | Deze maatregel heeft geen zorgspecifieke beheersmaatregel. |
+| "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee." | NEN 7510 heeft hier wel een zorgspecifieke beheersmaatregel. De inhoud daarvan staat in de norm zelf. |
+| "Niet ingelezen…" | Er is helemaal niets ingelezen. Daardoor is zelfs niet bekend of deze maatregel een zorgspecifieke beheersmaatregel heeft. Dat is een installatiefout, omdat de lijst hoort te zijn meegeleverd. |
 
-Dat onderscheid is er met opzet. Zou de derde stand ontbreken, dan zou een
-installatie waar de lijst niet is geladen er precies zo uitzien als een waarin
-geen enkele maatregel een aanvulling heeft — en dat is een verschil dat u wilt
-zien.
+Dat onderscheid is bewust aangebracht. Zonder de derde stand zou een installatie
+waarin de lijst niet is geladen, er precies zo uitzien als een installatie waarin
+geen enkele maatregel een aanvulling heeft. Dat verschil hoort zichtbaar te zijn.
 
-De derde stand draagt bewust geen normtekst, ook niet in een installatie waar de
-norm gekocht is. Dat is dezelfde keuze als bij de maatregelomschrijvingen: het
-ISMS zegt *dát* er iets staat en waar u het vindt, in plaats van de tekst te
-verspreiden. Dat scheelt bovendien een risico dat u anders zelf loopt — een
-export, een schermkopie of een demonstratie neemt de tekst mee zodra hij in het
-systeem staat.
+De tweede stand bevat bewust geen normtekst, ook niet in een installatie waarvoor
+de norm is gekocht. Dat is dezelfde keuze als bij de maatregelomschrijvingen: het
+ISMS meldt dat er iets staat en waar het te vinden is, in plaats van de tekst te
+verspreiden. Die keuze voorkomt bovendien een risico dat de organisatie anders
+zelf loopt. Zodra de tekst in het systeem staat, gaat die mee in elke export,
+schermkopie of demonstratie.
 
-**De lijst "welke maatregelen hebben een aanvulling" wordt wél meegeleverd.**
-Dát een maatregel een zorgspecifieke beheersmaatregel heeft, is openbaar bekend;
-alleen wat er staat, is dat niet. U ziet dus meteen bij welke 22 van de 101
-maatregelen u de norm erbij moet pakken — zonder dat dit systeem iets uit die
-norm doorgeeft.
+**De lijst met maatregelen die een aanvulling hebben, wordt wel meegeleverd.**
+Het is openbaar bekend dat een maatregel een zorgspecifieke beheersmaatregel
+heeft. Alleen de inhoud van die beheersmaatregel is niet openbaar. De SoA toont
+daardoor direct bij welke 22 van de 101 maatregelen de norm geraadpleegd moet
+worden, zonder dat dit systeem inhoud uit de norm doorgeeft.
 
-## Wat wél uit openbare bronnen komt
+## Wat wel uit openbare bronnen komt
 
-Veel van wat een ISMS nodig heeft, is publiek en onomstreden. De
-hoofdstukindeling H4–H10 — de Harmonized Structure die NEN 7510-1 deelt met ISO
-27001 en met elke andere moderne managementsysteemnorm — het bestaan van de
-maatregelen met hun nummers, titels en vier thema's, de verplichting van een
-Verklaring van Toepasselijkheid, de onderwerpen die in een directiebeoordeling
-aan bod komen, de cyclus van afwijking naar corrigerende maatregel: dat staat in
-talloze openbare bronnen.
+Veel van wat een ISMS nodig heeft, is openbaar en onomstreden. Dat geldt voor de
+hoofdstukindeling H4–H10, het bestaan van de maatregelen met hun nummers, titels
+en vier thema's, de verplichting van een Verklaring van Toepasselijkheid, de
+onderwerpen van een directiebeoordeling en de cyclus van afwijking naar
+corrigerende maatregel. Deze onderwerpen staan in talloze openbare bronnen. De
+hoofdstukindeling H4–H10 is de Harmonized Structure die NEN 7510-1 deelt met ISO
+27001 en met elke andere moderne managementsysteemnorm.
 
-Ook de opbouw van de norm zelf is openbaar: **NEN 7510-1 bevat de eisen** (het
-managementsysteem, waartegen je certificeert) en **NEN 7510-2 de
-beheersmaatregelen** met hun toelichting. Voor de vocabulaire is er ISO/IEC
-27000, dat gratis verkrijgbaar is — maar let op dat die de zorgspecifieke
-begrippen niet dekt.
+Ook de opbouw van de norm zelf is openbaar. **NEN 7510-1 bevat de eisen** aan het
+managementsysteem, waartegen een organisatie wordt gecertificeerd. **NEN 7510-2
+bevat de beheersmaatregelen** met hun toelichting. Voor de vocabulaire is ISO/IEC
+27000 gratis verkrijgbaar. Die norm dekt de zorgspecifieke begrippen echter niet.
 
-Ook de driejarige certificeringscyclus — initiële audit, twee opvolgingsaudits,
-hercertificering — komt niet uit de norm zelf maar uit de accreditatieregels voor
-certificerende instellingen, en die zijn openbaar.
+De driejarige certificeringscyclus bestaat uit een initiële audit, twee
+opvolgingsaudits en een hercertificering. Die cyclus komt niet uit de norm zelf,
+maar uit de accreditatieregels voor certificerende instellingen. Die regels zijn
+openbaar.
 
-De **architectuur** van dit systeem is helemaal niet norm-afgeleid: de indeling in
-blokken, het rechtenmodel, de audit trail, de manier waarop bewijs aan records
-hangt. Dat is gewoon softwareontwerp.
+De **architectuur** van dit systeem is op geen enkel punt van de norm afgeleid.
+De indeling in blokken, het rechtenmodel, de audit trail en de manier waarop
+bewijs aan records is gekoppeld, zijn gewoon softwareontwerp.
 
 ## Caveat emptor
 
-Er zijn plekken waar openbare bronnen structureel tekortschieten. Wij hebben ze
-liever benoemd dan stilzwijgend ingevuld.
+Op enkele plekken schieten openbare bronnen structureel tekort. Die plekken zijn
+hieronder benoemd in plaats van stilzwijgend ingevuld.
 
 **De attribuuttabellen.** Elke maatregel heeft vijf attribuutdimensies. Dit
-systeem levert er vier mee als *uitgangspunt*, herleid uit openbare gegevens en
-uitdrukkelijk bedoeld om door jou vastgesteld te worden. Leg je zelf een
-classificatie vast, dan komt die naast het uitgangspunt te staan en niet
-eroverheen — zo is altijd te zien wat wij meegaven en wat jullie hebben bepaald.
-De vijfde, beveiligingscapaciteiten, ontbreekt bewust: die toewijzing is niet uit
-openbare bronnen te herleiden en staat alleen in de norm. Zie [Maatregelclassificatie](/kennisbank/maatregelclassificatie) voor het
-volledige verhaal en voor hoe je hem vult als je de norm wél bezit.
+systeem levert er vier mee als *uitgangspunt*. Die vier zijn herleid uit openbare
+gegevens en zijn uitdrukkelijk bedoeld om door de organisatie te worden
+vastgesteld. Een classificatie die de organisatie zelf vastlegt, komt naast het
+uitgangspunt te staan en overschrijft het niet. Zo blijft altijd zichtbaar wat
+het systeem meeleverde en wat de organisatie heeft bepaald. De vijfde dimensie,
+beveiligingscapaciteiten, ontbreekt bewust. Die toewijzing is niet uit openbare
+bronnen te herleiden en staat alleen in de norm.
+[Maatregelclassificatie](/kennisbank/maatregelclassificatie) beschrijft het
+volledige verhaal en legt uit hoe een organisatie die de norm bezit, de vijfde
+dimensie vult.
 
-**De acht zorgspecifieke maatregelen zijn beoordeeld op hun titel.** Voor de 93
-maatregelen uit Bijlage A is over hun strekking veel openbaar beschreven; voor
-deze acht, die alleen NEN 7510 kent, is dat veel dunner. Hun classificatie leunt
-dus zwaarder op de titel. Loop ze na.
+**De acht zorgspecifieke maatregelen zijn beoordeeld op hun titel.** Over de
+strekking van de 93 maatregelen uit Bijlage A is veel openbaar beschreven. Over de
+acht maatregelen die alleen NEN 7510 kent, is veel minder openbaar beschreven.
+Hun classificatie leunt daarom zwaarder op de titel. Die classificatie hoort te
+worden nagelopen.
 
 **Exacte sub-lettering.** Verwijzingen tot op letterniveau ("6.1.3 d") zijn
-cosmetisch, maar het is wel het eerste wat een auditor natrekt. Controleer ze
-tegen je eigen exemplaar.
+cosmetisch, maar een auditor controleert juist die verwijzingen als eerste. Deze
+verwijzingen horen te worden gecontroleerd tegen het eigen exemplaar van de norm.
 
 ## Het eigenlijke risico: verifieerbaarheid
 
 Het probleem is niet dat er een deel ontbreekt. Het probleem is dat **een juiste
 en een verzonnen bewering er even stellig uitzien**. Een systeem dat de norm niet
-kan raadplegen, kan ook niet zichtbaar maken wélk deel onzeker is.
+kan raadplegen, kan ook niet zichtbaar maken welk deel onzeker is.
 
-Daarom is de leidende regel bij het bouwen van dit ISMS geweest: liever een gat
-dan een plausibele gok. Een lege dimensie is eerlijk; een verzonnen dimensie gaat
-rondzingen in SoA-onderbouwingen en is achteraf niet meer terug te vinden.
+Daarom was de leidende regel bij het bouwen van dit ISMS: liever een gat dan een
+plausibele gok. Een lege dimensie is eerlijk. Een verzonnen dimensie verspreidt
+zich door SoA-onderbouwingen en is achteraf niet meer op te sporen.
 
-Wat dat voor jou betekent: **behandel elke norm-afgeleide bewering in dit systeem
-als een aanwijzing die je zelf verifieert.** Voor een certificeringstraject is dat
-sowieso werk dat je doet — met of zonder dit systeem.
+Voor de organisatie betekent dat: **elke van de norm afgeleide bewering in dit
+systeem is een aanwijzing die de organisatie zelf verifieert.** Voor een
+certificeringstraject is dat verificatiewerk hoe dan ook nodig, met of zonder dit
+systeem.
 
-Heb je de norm aangeschaft, dan kun je de maatregelteksten en de zorgspecifieke
-aanvullingen lokaal invoeren; [De normteksten
-invoeren](/kennisbank/normteksten-invoeren) beschrijft hoe. Dat mag voor eigen
-gebruik, maar **die bestanden mag je niet distribueren.**
+Een organisatie die de norm heeft aangeschaft, kan de maatregelteksten en de
+zorgspecifieke aanvullingen lokaal invoeren; [De normteksten
+invoeren](/kennisbank/normteksten-invoeren) beschrijft hoe. Dat is toegestaan voor
+eigen gebruik, maar **de bestanden met die teksten mogen niet worden verspreid.**
 
 ## En wat het systeem niet kan weten
 
-Een kanttekening in de andere richting, want die is minstens zo belangrijk.
+Er is ook een kanttekening in de andere richting, en die is minstens zo
+belangrijk.
 
 De inrichting van dit systeem is op meerdere punten bijgestuurd door
-praktijkkennis die **nergens in de norm staat**. Dat de interne auditcyclus pas
-echt begint ná de certificeringsaudit. Dat er in de aanloop meerdere auditrondes
-in één jaar vallen. Dat de eerste ronde een nulmeting is en niet een oordeel.
+praktijkkennis die **nergens in de norm staat**. De interne auditcyclus begint
+pas echt na de certificeringsaudit. In de aanloop naar certificering vallen
+meerdere auditrondes in één jaar. De eerste ronde is een nulmeting en geen
+oordeel.
 
-Een systeem dat de norm perfect zou naspreken maar dat soort dingen niet weet,
-levert een ISMS op dat formeel klopt en in de praktijk niet werkt. De norm is de
-ondergrens van wat je moet regelen, niet de handleiding voor hoe je het regelt.
+Een systeem dat de norm perfect navolgt maar zulke praktijkkennis mist, levert
+een ISMS op dat formeel klopt en in de praktijk niet werkt. De norm is de
+ondergrens van wat een organisatie moet regelen, en geen handleiding voor de
+manier waarop.
 
 ## Wat buiten dit systeem valt
 
-NEN 7510 stelt eisen aan de informatiebeveiliging van de **zorgsystemen van je
-organisatie**. Dit is een ISMS-platform: het administreert je managementsysteem,
-het is zelf geen zorgsysteem en het verwerkt geen persoonlijke
-gezondheidsinformatie. Maatregelen als cliëntidentificatie, break-glass-toegang
-en logging volgens NEN 7513 gaan over je EPD en je zorgapplicaties, niet over
-deze software — je motiveert ze hier in de SoA, je bouwt ze elders.
+NEN 7510 stelt eisen aan de informatiebeveiliging van de **zorgsystemen van de
+organisatie**. Dit systeem is een ISMS-platform. Het administreert het
+managementsysteem, is zelf geen zorgsysteem en verwerkt geen persoonlijke
+gezondheidsinformatie. Maatregelen als cliëntidentificatie,
+break-glass-toegang en logging volgens NEN 7513 gaan over het EPD en de
+zorgapplicaties, en niet over deze software. De organisatie motiveert die
+maatregelen hier in de SoA, maar implementeert ze in andere systemen.
 
-Zie [Wat NEN 7510 toevoegt bovenop ISO 27001](/kennisbank/wat-nen-7510-toevoegt)
-voor de volledige afbakening.
+[Wat NEN 7510 toevoegt bovenop ISO 27001](/kennisbank/wat-nen-7510-toevoegt)
+beschrijft de volledige afbakening.
 
 ## Auteursrecht en verspreiding
 
 NEN- en ISO-normen zijn auteursrechtelijk beschermd en worden per exemplaar in
-licentie gegeven. Bij NEN 7510 spelen er **twee rechthebbenden**: NEN voor de
-Nederlandse norm, en ISO/IEC voor de tekst die NEN 7510 daaruit overneemt. Dat
-betekent voor dit systeem:
+licentie gegeven. Bij NEN 7510 zijn er **twee rechthebbenden**: NEN voor de
+Nederlandse norm, en ISO/IEC voor de tekst die NEN 7510 uit ISO/IEC-normen
+overneemt. Voor dit systeem betekent dat het volgende:
 
-- **Er staat geen normtekst in.** Niet in de code, niet in de gegevens, niet in
-  de kennisbank. De maatregelomschrijvingen zijn leeg, en de zorgspecifieke
+- **Er staat geen normtekst in.** De code, de gegevens en de kennisbank bevatten
+  geen normtekst. De maatregelomschrijvingen zijn leeg, en de zorgspecifieke
   aanvullingen worden niet meegeleverd.
-- **Wel de aanwijzing, niet de inhoud.** Wélke maatregelen een zorgspecifieke
-  beheersmaatregel dragen, is openbaar bekend en zit daarom wél in de
-  uitlevering. Het is een verwijzing naar de norm, geen weergave ervan — net als
-  de nummers en de titels hieronder.
-- **Referenties, nummers, titels en thema's zijn wél gelijk gehouden** aan de
-  norm. Zonder dat werkt de koppeling met een audit niet: een auditor die naar
-  A.5.43 vraagt, moet A.5.43 kunnen vinden.
-- **Norm-eigen gegevens die je zelf toevoegt, blijven van jou en blijven lokaal.**
-  Vul je de capaciteitendimensie of de aanvullingsteksten zelf aan, dan komt jouw
-  invulling in bestanden die niet in versiebeheer terechtkomen.
+- **Het systeem levert de aanwijzing, maar niet de inhoud.** Welke maatregelen
+  een zorgspecifieke beheersmaatregel hebben, is openbaar bekend en zit daarom wel
+  in de uitlevering. Die lijst is een verwijzing naar de norm en geen weergave
+  ervan, net als de nummers en de titels in het volgende punt.
+- **Referenties, nummers, titels en thema's zijn wel gelijk gehouden** aan de
+  norm. Zonder die gelijkheid werkt de koppeling met een audit niet: een auditor
+  die naar A.5.43 vraagt, moet A.5.43 kunnen vinden.
+- **Norm-eigen gegevens die de organisatie zelf toevoegt, blijven van de
+  organisatie en blijven lokaal.** Een zelf ingevulde capaciteitendimensie of zelf
+  ingevoerde aanvullingsteksten komen in bestanden die niet in versiebeheer
+  terechtkomen.
 
 ## Aansprakelijkheid
 
-Dit systeem wordt geleverd zoals het is. Het geeft geen juridisch advies, geen
-certificeringsgarantie en geen uitspraak over de vraag of jouw organisatie aan
-enige norm voldoet. Die beoordeling is aan jou, je adviseur en uiteindelijk aan
-je certificerende instelling — en waar het om toezicht gaat, aan de
-Inspectie Gezondheidszorg en Jeugd.
+Dit systeem wordt geleverd zoals het is. Het systeem geeft geen juridisch advies,
+geen certificeringsgarantie en geen uitspraak over de vraag of de organisatie aan
+enige norm voldoet. Die beoordeling ligt bij de organisatie zelf, bij haar
+adviseur en uiteindelijk bij haar certificerende instelling. Waar het om toezicht
+gaat, ligt die beoordeling bij de Inspectie Gezondheidszorg en Jeugd.

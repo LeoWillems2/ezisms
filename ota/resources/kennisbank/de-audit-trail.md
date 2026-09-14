@@ -1,54 +1,55 @@
 # De audit trail: wat er in staat, en wat niet
 
 De audit trail is het logboek van wijzigingen aan het ISMS: **wie, wat, wanneer,
-op welk blok**. Hij is append-only — er is geen scherm en geen knop waarmee een
-regel te wijzigen of te verwijderen valt.
+op welk blok**. De audit trail is append-only. Er is geen scherm en geen knop
+waarmee een regel te wijzigen of te verwijderen is.
 
-U vindt hem onder **Bewijs & audit trail → Audit trail**. Volledige inzage
-vereist `muteren`, `goedkeuren` of `exporteren` op dat blok: een Medewerker heeft
-er `uitvoeren` (eigen bewijs uploaden) en zou anders ieders handelen kunnen
-doorlezen.
+De audit trail staat onder **Bewijs & audit trail → Audit trail**. Volledige
+inzage vereist `muteren`, `goedkeuren` of `exporteren` op dat blok. Een
+Medewerker heeft op dat blok `uitvoeren` (eigen bewijs uploaden) en zou zonder
+die beperking het handelen van iedereen kunnen doorlezen.
 
 ## Wat er in één regel staat
 
 | Veld | Wat het is |
 | --- | --- |
 | Tijdstip | Het moment van de wijziging. |
-| Gebruiker | Wie de handeling deed — als **naam én verwijzing**. Zie hieronder. |
-| Blok | Het ISMS-blok waar de entiteit bij hoort; hier filtert een auditor op. |
-| Entiteit | Type, nummer, en een leesbare omschrijving zoals die op dat moment was. |
+| Gebruiker | De persoon die de handeling uitvoerde, als **naam én verwijzing**. Zie hieronder. |
+| Blok | Het ISMS-blok waar de entiteit bij hoort. Een auditor filtert op dit veld. |
+| Entiteit | Het type, het nummer en een leesbare omschrijving zoals die op dat moment was. |
 | Actie | Aangemaakt, gewijzigd, status gewijzigd, verwijderd of geëxporteerd. |
 | Wijziging | Per veld de oude en de nieuwe waarde. |
 
-De naam van de gebruiker en de omschrijving van de entiteit staan er als
-**momentopname** bij, niet alleen als verwijzing. Dat is bewuste dubbeling: een
-logregel die "Risico #14" toont waar toen "Uitval fileserver" stond, is als
-bewijs waardeloos. Wordt een account verwijderd, dan blijft de naam in de
-logregel staan — anders verdwijnt juist het bewijs van wat die persoon deed.
+De naam van de gebruiker en de omschrijving van de entiteit staan in de regel als
+**momentopname**, en niet alleen als verwijzing. Die dubbeling is bewust. Een
+logregel die "Risico #14" toont waar op dat moment "Uitval fileserver" stond, is
+als bewijs waardeloos. Als een account wordt verwijderd, blijft de naam in de
+logregel staan. Anders verdwijnt juist het bewijs van wat die persoon deed.
 
-Staat er **Systeem (geplande taak)** als gebruiker, dan is de wijziging door een
-dagelijkse taak gedaan en niet door een mens. Bijvoorbeeld het vervallen van
-accounts of het archiveren van bewijsstukken.
+Als de gebruiker **Systeem (geplande taak)** is, dan is de wijziging uitgevoerd
+door een dagelijkse taak en niet door een mens. Voorbeelden zijn het vervallen van
+accounts en het archiveren van bewijsstukken.
 
 ## De vijf acties
 
 | Actie | Wanneer |
 | --- | --- |
-| `aangemaakt` | Een nieuw record. De beginwaarden staan erbij. |
-| `gewijzigd` | Eén of meer velden gewijzigd, met oud en nieuw. |
+| `aangemaakt` | Er is een nieuw record. De beginwaarden staan erbij. |
+| `gewijzigd` | Eén of meer velden zijn gewijzigd. De oude en de nieuwe waarde staan erbij. |
 | `status_gewijzigd` | **Alleen** als de status het enige gewijzigde veld was. |
-| `verwijderd` | Het record is weg; de laatste waarden staan er nog. |
-| `geexporteerd` | De inhoud van het ISMS is uitgeleverd. Raakt geen record; zie de verzamelingsregels hieronder. |
+| `verwijderd` | Het record is verwijderd. De laatste waarden staan er nog. |
+| `geexporteerd` | De inhoud van het ISMS is uitgeleverd. Deze actie raakt geen record; zie de verzamelingsregels hieronder. |
 
-Die derde is de subtiele. Een risico dat tegelijk werd herbeoordeeld *en* van
-status veranderde, draagt actie `gewijzigd` — de statusovergang zit dan in de
-kolom Wijziging, niet in de actie. **Filter dus niet op `status_gewijzigd` als u
-alle statusovergangen zoekt**; u mist er dan een deel van. De KPI's die
-statusovergangen tellen, doen dat om die reden ook niet.
+De derde actie vraagt de meeste aandacht. Een risico dat tegelijk werd
+herbeoordeeld en van status veranderde, krijgt de actie `gewijzigd`. De
+statusovergang staat dan in de kolom Wijziging en niet in de actie. **Een filter op
+`status_gewijzigd` vindt daarom niet alle statusovergangen**; een deel ontbreekt
+dan. De KPI's die statusovergangen tellen, gebruiken dit filter om die reden ook
+niet.
 
 ## Alle entiteiten die een regel opleveren
 
-Vijfenveertig entiteiten schrijven naar de trail. Per blok:
+Er zijn 45 entiteiten die naar de trail schrijven. Per blok:
 
 | Blok | Entiteit | Waarover de regels gaan |
 | --- | --- | --- |
@@ -98,111 +99,113 @@ Vijfenveertig entiteiten schrijven naar de trail. Per blok:
 | Wijzigingsbeheer | `wijzigingssjabloon` | Welke route een soort wijziging volgt |
 | Wijzigingsbeheer | `sjabloonstap` | De stappen in die route, inclusief goedkeuringspunten |
 
-`bewijs_koppeling` is de enige die geen vast blok heeft: die regel landt op het
-blok van het record waaraan het bewijs hangt. Bewijs aan een risico koppelen komt
-dus onder Risicomanagement & SoA te staan, waar de auditor het zoekt.
+`bewijs_koppeling` is de enige entiteit zonder vast blok. Die regel komt op het
+blok van het record waaraan het bewijs hangt. Bewijs dat aan een risico wordt
+gekoppeld, staat dus onder Risicomanagement & SoA, waar de auditor het zoekt.
 
 ## Drie soorten regels die er anders uitzien
 
-**Koppelingen.** Het wijzigen van een koppeling komt in
-de trail: welk beleid welke maatregel dekt, wie in welke doelgroep zit, welke
-clausules binnen een auditronde vallen. Eén regel per handeling met de delta
-erin, niet één per gekoppelde rij — de normatieve scope van een auditronde
-koppelt anders honderdelf regels in één klik. De waarde leest als
-*"2 gekoppeld: A.8.2 …, A.8.3 …"*, met het aantal vooraan.
+**Koppelingen.** Het wijzigen van een koppeling komt in de trail: welk beleid welke
+maatregel dekt, wie in welke doelgroep zit en welke clausules binnen een
+auditronde vallen. Het systeem schrijft één regel per handeling met de delta
+erin, en niet één regel per gekoppelde rij. Anders levert het koppelen van de
+normatieve scope van een auditronde honderdelf regels op in één klik. De waarde
+leest als *"2 gekoppeld: A.8.2 …, A.8.3 …"*, met het aantal vooraan.
 
-**Verzamelingsregels.** Een handeling die geen record raakt maar een verzameling
-krijgt één regel zonder entiteitnummer, met "(verzameling)" in de kolom Entiteit.
-Er zijn er twee:
+**Verzamelingsregels.** Een handeling die geen record raakt maar een verzameling,
+levert één regel op zonder entiteitnummer, met "(verzameling)" in de kolom
+Entiteit. Er zijn twee van zulke handelingen:
 
 - het opruimen van raadplegingen na de bewaartermijn (`raadpleging`);
-- een **export van het ISMS** (`isms_export`, blok Installatiebeheer). Die legt
-  vast dát de inhoud het systeem heeft verlaten, door wie en naar welke map —
-  niet wát erin staat, want dat is het ISMS zelf. Zonder die regel is uitleveren
-  een handeling zonder spoor, en juist daar kijkt een auditor naar.
+- een **export van het ISMS** (`isms_export`, blok Installatiebeheer). Deze regel
+  legt vast dat de inhoud het systeem heeft verlaten, door wie en naar welke map.
+  De regel legt niet vast wat erin staat, omdat dat het ISMS zelf is. Zonder deze
+  regel is uitleveren een handeling zonder spoor, en juist daar kijkt een auditor
+  naar.
 
 **Verklaringen zonder wijziging.** Bij een handmatige KPI legt het systeem vast
-dát u hebt verklaard dat de meetmethode níét is veranderd. Dat is geen wijziging
-maar wel een uitspraak, en juist die uitspraak draagt de vergelijkbaarheid van de
-reeks.
+dat de gebruiker heeft verklaard dat de meetmethode niet is veranderd. Dat is geen
+wijziging, maar wel een uitspraak. Die uitspraak onderbouwt de vergelijkbaarheid
+van de meetreeks.
 
-## Wat er bewust níét in staat
+## Wat er bewust niet in staat
 
-Een auditor die vraagt wat de trail dekt, verdient ook het antwoord op wat hij
-niet dekt.
+Een auditor die vraagt wat de trail dekt, hoort ook te horen wat de trail niet
+dekt.
 
-- **Leesgedrag.** Wie een bewijsstuk ophaalt komt in een aparte registratie
-  (`raadplegingen`), niet in de trail. Lezen gebeurt vaker dan muteren, heeft een
-  eigen bewaartermijn, en zou de mutaties verdrinken. Het doel is beperkt en
-  expliciet: onderbouwen of iemand die een leesbevestiging afgaf het document ook
-  daadwerkelijk had.
-- **Schermkopieën.** Wat er als Word-document is meegegeven staat in een eigen
+- **Leesgedrag.** Het ophalen van een bewijsstuk komt in een aparte registratie
+  (`raadplegingen`) en niet in de trail. Lezen gebeurt vaker dan muteren, heeft
+  een eigen bewaartermijn en zou de mutaties overstemmen. Het doel van de
+  registratie is beperkt en expliciet: onderbouwen of iemand die een
+  leesbevestiging afgaf, het document ook daadwerkelijk had geopend.
+- **Schermkopieën.** Wat als Word-document is meegegeven, staat in een eigen
   register (Bewijs & audit trail → Schermkopieën). Een kopie wijzigt niets, en
-  twee soorten feiten in één tabel maakt beide onleesbaar.
+  twee soorten feiten in één tabel maken beide onleesbaar.
 - **Wachtwoordhashes en tokens.** `wachtwoord` en `remember_token` op een account
   en het `token` van een toetsopdracht zijn uitgesloten. Dat is een
-  beveiligingscontrole en geen opmaakkeuze: zonder uitsluiting zou een
-  wachtwoordhash leesbaar belanden in een tabel die de Auditor mag inzien én
+  beveiligingsmaatregel en geen opmaakkeuze. Zonder uitsluiting zou een
+  wachtwoordhash leesbaar terechtkomen in een tabel die de Auditor mag inzien en
   exporteren.
-- **Wijzigingen buiten de applicatie om.** Wie rechtstreeks in de database
-  schrijft, komt niet in de trail. Zie hieronder.
+- **Wijzigingen buiten de applicatie om.** Een wijziging die rechtstreeks in de
+  database wordt geschreven, komt niet in de trail. Zie hieronder.
 
 ## Hoe hard is "append-only"?
 
-Eerlijk antwoord: **in de applicatie hard, in de database niet vanzelf.**
+In de applicatie is append-only hard afgedwongen, in de database niet vanzelf.
 
-Het model weigert elke poging tot wijzigen of verwijderen van een logregel. Dat
-is een vangnet tegen programmeerfouten, geen beveiligingscontrole — wie
-databasetoegang heeft, omzeilt het met één `UPDATE`. De echte controle is een
-grant op databaseniveau: het applicatieaccount krijgt `INSERT` en `SELECT` op
-`audit_logregels`, geen `UPDATE` of `DELETE`. Dat is een inrichtingsstap bij het
-opzetten van de omgeving, en het is de moeite waard hem aantoonbaar te doen: dit
-is precies het punt waarop een auditor doorvraagt.
+Het model weigert elke poging om een logregel te wijzigen of te verwijderen. Dat
+is een vangnet tegen programmeerfouten en geen beveiligingsmaatregel. Iemand met
+databasetoegang omzeilt het met één `UPDATE`. De werkelijke beheersmaatregel is
+een grant op databaseniveau: het applicatieaccount krijgt `INSERT` en `SELECT` op
+`audit_logregels`, en geen `UPDATE` of `DELETE`. Dat is een inrichtingsstap bij
+het opzetten van de omgeving. Het is de moeite waard die stap aantoonbaar uit te
+voeren, omdat een auditor precies op dit punt doorvraagt.
 
-Eén valkuil voor wie meebouwt: een massa-update rechtstreeks op de database
-(`Model::where(...)->update()`) vuurt geen model-events en komt dus niet in de
-trail. Daar zijn `updateGeaudit()` en `deleteGeaudit()` voor; de wijziging
-gebeurt dan per record en de trail loopt gewoon mee.
+Voor ontwikkelaars geldt één valkuil. Een massa-update rechtstreeks op de database
+(`Model::where(...)->update()`) vuurt geen model-events af en komt dus niet in de
+trail. Daarvoor bestaan `updateGeaudit()` en `deleteGeaudit()`. De wijziging
+gebeurt dan per record, en de trail registreert elke wijziging.
 
-## De keten: wat er gebeurt als iemand er tóch in schrijft
+## De keten: wat er gebeurt als iemand er toch in schrijft
 
-Elke logregel draagt de **hash van zijn voorganger**. Wordt er een regel
-verwijderd, gewijzigd of tussengevoegd, dan klopt de schakel niet meer en wijst
-de controle de regel aan waar het misgaat.
+Elke logregel bevat de **hash van zijn voorganger**. Als er een regel wordt
+verwijderd, gewijzigd of tussengevoegd, klopt de schakel niet meer. De controle
+wijst dan de regel aan waar de keten breekt.
 
-Die controle draait elke nacht om 01:45 (`isms:controleer-audittrail`) en de
-uitslag komt in een eigen tabel — u ziet hem bovenaan dit scherm staan: *keten
-intact t/m regel zoveel, gecontroleerd op die datum*. Dat de uitslagen bewaard
-blijven is het punt: een auditor vraagt niet of de keten vandaag klopt, maar of
-hij al twee jaar elke nacht is gecontroleerd.
+Die controle draait elke nacht om 01:45 (`isms:controleer-audittrail`). De uitslag
+komt in een eigen tabel en staat bovenaan dit scherm: *keten intact t/m regel
+zoveel, gecontroleerd op die datum*. Het bewaren van de uitslagen is het
+wezenlijke punt. Een auditor vraagt niet of de keten vandaag klopt, maar of de
+keten al twee jaar elke nacht is gecontroleerd.
 
-**Wat een keten niet oplost.** Wie de database kan wijzigen, kan na een wijziging
-alle volgende hashes opnieuw uitrekenen; dan klopt de keten weer. Daar helpt maar
-één ding tegen: een oudere **kophash** die búiten dit systeem ligt. Vandaar dat
-de kopie voor de auditor van dit scherm die hash draagt — dat document ligt na
-afloop buiten uw invloed, en bij de volgende audit is één vergelijking genoeg.
-Bewaar het dus niet alleen zelf.
+**Wat een keten niet oplost.** Iemand die de database kan wijzigen, kan na een
+wijziging alle volgende hashes opnieuw berekenen. Daarna klopt de keten weer.
+Daartegen helpt maar één middel: een oudere **kophash** die buiten dit systeem
+ligt. Daarom bevat de kopie voor de auditor van dit scherm die hash. Dat document
+ligt na afloop buiten de invloed van de organisatie, en bij de volgende audit is
+één vergelijking genoeg. De organisatie hoort het document daarom niet alleen zelf
+te bewaren.
 
 **Twee momenten waarop de keten opnieuw begint.** Bij het in gebruik nemen van
-deze versie is de keten over de bestaande regels aangelegd; dat legt de inhoud
-vast zoals die op dat moment was en zegt niets over wat er daarvóór is gebeurd.
+deze versie is de keten over de bestaande regels aangelegd. Dat legt de inhoud
+vast zoals die op dat moment was, en zegt niets over wat er daarvóór is gebeurd.
 Hetzelfde gebeurt na `isms:verwijder-auditdata --met-trail` en na een handmatige
 ingreep in de database, bijvoorbeeld het verwijderen van een account. Zo'n
-verzegeling wordt met datum en reden vastgelegd — het is zichtbaar waar de
+verzegeling wordt met datum en reden vastgelegd. Daardoor is zichtbaar waar de
 bewijskracht van de trail begint.
 
 
 ## De trail als meetbron
 
-De audit trail is niet alleen een naslagwerk. Drie KPI's meten er rechtstreeks
-uit: het aantal **nieuw geïdentificeerde risico's** in een periode, het aandeel
-**statusovergangen naar gemitigeerd**, en **scoredalingen zonder bewijs** in
-dezelfde periode. Zie [KPI's en meetwaarden](kpis-en-meetwaarden).
+De audit trail is niet alleen een naslagwerk. Drie KPI's meten rechtstreeks uit
+de trail: het aantal **nieuw geïdentificeerde risico's** in een periode, het
+aandeel **statusovergangen naar gemitigeerd**, en het aantal **scoredalingen
+zonder bewijs** in dezelfde periode. Zie [KPI's en meetwaarden](kpis-en-meetwaarden).
 
-Dat laatste is het aardigste geval: een dalende risicoscore is te sturen, dus een
-scoredaling zónder bewijs in dezelfde periode is zelf een signaal. Dat is alleen
-meetbaar omdat de trail vastlegt wanneer die score veranderde en wanneer het
-bewijs eraan werd gehangen.
+De laatste KPI is het meest leerzame geval. Een dalende risicoscore is te sturen,
+dus een scoredaling zonder bewijs in dezelfde periode is zelf een signaal. Dat is
+alleen meetbaar omdat de trail vastlegt wanneer de score veranderde en wanneer het
+bewijs eraan werd gekoppeld.
 
 ## Normkoppeling
 

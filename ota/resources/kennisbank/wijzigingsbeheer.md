@@ -1,100 +1,107 @@
 # Wijzigingsbeheer
 
-Een leverancier kondigt een upgrade van uw HR-systeem aan. Wie beoordeelt de
-release notes, wie geeft toestemming, wie waarschuwt de gebruikers, en wat doet
-u als het misgaat? Dat is wijzigingsbeheer, en A.8.32 vraagt erom.
+Een leverancier kondigt een upgrade van het HR-systeem van de organisatie aan.
+Iemand moet de release notes beoordelen, toestemming geven en de gebruikers
+waarschuwen, en er moet een plan zijn voor het geval de upgrade mislukt. Dat
+proces heet wijzigingsbeheer, en A.8.32 vereist het.
 
-Het register beantwoordt bij een audit één vraag: *welke wijzigingen zijn er
+Bij een audit beantwoordt het register één vraag: *welke wijzigingen zijn er
 geweest, en met welke goedkeuring.*
 
 ## De route: een sjabloon met stappen
 
-Een wijziging doorloopt een vaste reeks stappen. Welke stappen dat zijn, staat
-in een **sjabloon** — en dat is instelbaar, zonder dat er iemand aan de
-programmatuur hoeft te komen. Er worden er drie meegeleverd:
+Een wijziging doorloopt een vaste reeks stappen. Welke stappen dat zijn, staat in
+een **sjabloon**. Een sjabloon is instelbaar zonder dat de programmatuur hoeft te
+worden aangepast. Er worden zeven sjablonen meegeleverd, één per soort
+wijziging. Vier daarvan laten de verschillen goed zien:
 
-- **Leveranciersrelease — standaard.** De gewone route: beoordelen,
-  impactanalyse, informeren, autoriseren, uitvoeren, evalueren.
-- **Leveranciersrelease — ingrijpend.** Idem, met een toets op het terugvalplan
-  en het bijwerken van documentatie en continuïteitsplannen.
-- **Afvoer van een systeem of dienst.** Het uitfaseren van iets dat u niet meer
-  gebruikt. Het zwaartepunt ligt ná de buitengebruikstelling: toegang intrekken,
-  gegevens exporteren of vernietigen, contract beëindigen, registers bijwerken.
-- **Spoedwijziging.** Uitvoeren mag vooropgaan; de goedkeuring verschuift naar
-  achteraf.
+- **Leveranciersrelease — standaard.** Dit is de gewone route: beoordelen,
+  impactanalyse, informeren, autoriseren, uitvoeren en evalueren.
+- **Leveranciersrelease — ingrijpend.** Deze route bevat dezelfde stappen, plus
+  een toets op het terugvalplan en het bijwerken van documentatie en
+  continuïteitsplannen.
+- **Afvoer van een systeem of dienst.** Deze route faseert een systeem of dienst
+  uit dat niet meer wordt gebruikt. Het zwaartepunt ligt na de
+  buitengebruikstelling: toegang intrekken, gegevens exporteren of vernietigen,
+  het contract beëindigen en de registers bijwerken.
+- **Spoedwijziging.** Bij deze route mag de uitvoering voorafgaan aan de
+  goedkeuring. De goedkeuring vindt achteraf plaats.
 
-Pas ze gerust aan. Een aanpassing geldt voor nieuwe dossiers; **lopende dossiers
-houden de reeks waarmee ze zijn gestart.** Zo verandert er nooit met
-terugwerkende kracht iets aan een wijziging die al onderweg is.
+De sjablonen mogen worden aangepast. Een aanpassing geldt voor nieuwe dossiers.
+**Lopende dossiers houden de reeks waarmee ze zijn gestart.** Daardoor verandert
+er nooit met terugwerkende kracht iets aan een wijziging die al loopt.
 
 ## Stappen zijn taken
 
-Elke stap is een gewone taak. Hij verschijnt bij de eigenaar onder *Taken*, hij
-heeft een deadline, hij escaleert als hij blijft liggen, en hij is af te ronden
-vanaf twee plekken: het takenscherm of het dossier zelf.
+Elke stap is een gewone taak. De stap verschijnt bij de eigenaar onder *Taken*,
+heeft een deadline en escaleert als hij te lang blijft liggen. Een stap is op
+twee plekken af te ronden: op het takenscherm en op het dossier zelf.
 
-Een stap die nog niet aan de beurt is, staat op **wachtend**. Die telt nergens
-mee — niet op uw dashboard, niet in het aantal openstaande taken. Zodra de
-vorige stap klaar is, wordt hij actueel en krijgt de eigenaar bericht.
+Een stap die nog niet aan de beurt is, staat op **wachtend**. Een wachtende stap
+telt nergens mee, niet op het dashboard en niet in het aantal openstaande taken.
+Zodra de vorige stap klaar is, wordt de stap actueel en krijgt de eigenaar
+bericht.
 
 Stappen met **hetzelfde nummer lopen parallel**. In de standaardroute staan de
-impactanalyse en het informeren van belanghebbenden allebei op 2: de
-communicatie hoeft niet op de analyse te wachten.
+impactanalyse en het informeren van belanghebbenden allebei op 2. De
+communicatie hoeft daardoor niet op de analyse te wachten.
 
 ## Twee dingen die het systeem tegenhoudt
 
-**Uitvoeren zonder terugvalplan kan niet.** A.8.32 f) vraagt om een vangnet, en
-zolang het veld *Terugvalplan* leeg is, weigert de uitvoerstap — ook wanneer u
-hem vanaf het takenscherm probeert af te vinken. Dat is geen scherm-cosmetica
-maar een controle op het dossier zelf.
+**Uitvoeren zonder terugvalplan is niet mogelijk.** A.8.32 f) vraagt om een
+vangnet. Zolang het veld *Terugvalplan* leeg is, weigert het systeem de
+uitvoerstap. Dat geldt ook voor een poging om de stap op het takenscherm af te
+ronden. De controle zit niet alleen in het scherm, maar in het dossier zelf.
 
-**Een stap die om bewijs vraagt, kan niet zonder.** Waar het sjabloon *bewijs
-verplicht* zegt, moet er eerst een bewijsstuk aan de wijziging hangen — de
-release notes, het testrapport, de acceptatieverklaring.
+**Een stap die om bewijs vraagt, gaat niet door zonder bewijs.** Als het sjabloon
+bij een stap *bewijs verplicht* aangeeft, moet er eerst een bewijsstuk aan de
+wijziging hangen. Voorbeelden zijn de release notes, het testrapport en de
+acceptatieverklaring.
 
 ## Goedkeuren en afkeuren
 
-Een goedkeuringsstap rondt u niet af met "voltooid" maar met **goedkeuren** of
-**afkeuren**. Dat verschil is het punt: "voltooid" zegt niets over de uitkomst,
-en juist de uitkomst is wat een auditor wil zien.
+Een goedkeuringsstap wordt niet afgerond met "voltooid", maar met **goedkeuren**
+of **afkeuren**. Dat verschil is essentieel. "Voltooid" zegt niets over de
+uitkomst, en een auditor wil juist de uitkomst zien.
 
-Bij afkeuren gebeurt er één van twee dingen, afhankelijk van het sjabloon:
+Bij afkeuren gebeurt één van twee dingen, afhankelijk van het sjabloon:
 
-- Staat er een terugsprong ingesteld, dan gaat de reeks terug naar die stap en
-  loopt het dossier door.
-- Staat die er niet, dan wordt de wijziging **afgewezen**.
+- Als er een terugsprong is ingesteld, gaat de reeks terug naar die stap en loopt
+  het dossier verder.
+- Als er geen terugsprong is ingesteld, wordt de wijziging **afgewezen**.
 
-Let op: keurt u een stap af vanaf het **takenscherm**, dan staat de reeks stil
-maar gebeurt er verder niets. Het vervolg is een besluit dat op het
-dossierscherm wordt genomen. Open dus het dossier om verder te gaan.
+Een stap die op het **takenscherm** wordt afgekeurd, zet de reeks stil. Verder
+gebeurt er dan niets. Het vervolg is een besluit dat op het dossierscherm wordt
+genomen. Om verder te gaan, moet dus het dossier worden geopend.
 
 ## De planning verzetten
 
-De geplande datum is het anker: alle deadlines zijn eraan opgehangen met een
-aantal dagen ervóór of erná. Verzet u de planning, dan **schuiven de stappen die
-nog moeten gebeuren mee**. Stappen die al klaar zijn houden hun oorspronkelijke
-deadline — die is historie, en de eventuele vertraging telt mee in de meting.
+De geplande datum is het anker. Alle deadlines zijn eraan gekoppeld met een
+aantal dagen vóór of na die datum. Bij het verzetten van de planning **schuiven
+de stappen die nog moeten gebeuren mee**. Stappen die al klaar zijn, houden hun
+oorspronkelijke deadline. Die deadline is historie, en een eventuele vertraging
+telt mee in de meting.
 
-## Wat u eraan afleest
+## Wat het register laat zien
 
-Twee signalen verschijnen boven het register:
+Drie signalen verschijnen boven het register:
 
-- **Uitgevoerd zonder terugvalplan.** Dit hoort nul te zijn. Staat er meer, dan
-  is er buiten het systeem om gewerkt.
-- **Spoedwijzigingen zonder goedkeuring achteraf.** De spoedroute is toegestaan;
-  het overslaan van de goedkeuring niet.
-- **Systemen afgevoerd zonder afvoerdossier.** Een systeem dat op `/systemen` is
-  afgevoerd zonder dat er een afgerond afvoerdossier tegenover staat. Dan is niet
-  te laten zien dat toegang, gegevens en contract zijn afgehandeld. Het signaal
-  kijkt twaalf maanden terug; oudere afvoeren zijn niet meer te repareren en
-  zouden de melding permanent rood houden.
+- **Uitgevoerd zonder terugvalplan.** Dit aantal hoort nul te zijn. Een hoger
+  aantal betekent dat er buiten het systeem om is gewerkt.
+- **Spoedwijzigingen zonder goedkeuring achteraf.** De spoedroute is toegestaan,
+  maar het overslaan van de goedkeuring niet.
+- **Systemen afgevoerd zonder afvoerdossier.** Dit signaal toont een systeem dat
+  op `/systemen` is afgevoerd zonder dat er een afgerond afvoerdossier tegenover
+  staat. In dat geval is niet aan te tonen dat toegang, gegevens en contract zijn
+  afgehandeld. Het signaal kijkt twaalf maanden terug. Oudere afvoeren zijn niet
+  meer te herstellen en zouden de melding permanent rood houden.
 
-Dezelfde drie punten komen als KPI terug bij *KPI's*: geslaagde wijzigingen,
-uitvoering met terugvalplan, en spoedwijzigingen die achteraf zijn goedgekeurd.
+Onder *KPI's* komen drie verwante punten terug als KPI: geslaagde wijzigingen,
+uitvoering met terugvalplan en spoedwijzigingen die achteraf zijn goedgekeurd.
 
 ## Wat dit blok niet is
 
-Geen deploytool en geen configuratiedatabase. Het systeem registreert dát er is
-getest, goedgekeurd en uitgevoerd — het voert niets uit. Werkt u met een
-ticketsysteem, vul dan het veld **ticketnummer** in; er is bewust geen koppeling,
-zodat er geen tweede bron van waarheid ontstaat.
+Dit blok is geen deploytool en geen configuratiedatabase. Het systeem registreert
+dat er is getest, goedgekeurd en uitgevoerd, maar voert zelf niets uit. Een
+organisatie die met een ticketsysteem werkt, vult het veld **ticketnummer** in.
+Er is bewust geen koppeling, zodat er geen tweede bron van waarheid ontstaat.

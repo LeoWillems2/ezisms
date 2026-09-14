@@ -49,7 +49,7 @@ final class Kennisartikelen
             ],
         ],
         'ezisms-voor-de-ciso' => [
-            'titel' => 'EzISMS voor de CISO: past dit bij je?',
+            'titel' => 'EzISMS voor de CISO: past dit systeem bij de organisatie?',
             'categorie' => 'Naslag',
             // Bewust profielloos: het is een oriëntatiestuk voor wie het systeem
             // nog niet kent, en de keuze tussen de twee profielen is er zelf een
@@ -57,7 +57,7 @@ final class Kennisartikelen
             // dat is het enige wat per profiel zou verschillen.
             'bestand' => 'ezisms-voor-de-ciso.md',
         ],
-        // Direct achter het oriëntatiestuk: dat beantwoordt "past dit bij je?",
+        // Direct achter het oriëntatiestuk: dat beantwoordt "past dit systeem bij de organisatie?",
         // dit beantwoordt de vraag die er meteen op volgt — waar begin je. Ook
         // profielloos, en om dezelfde reden: de vulvolgorde loopt over de
         // registers van het managementsysteem (H4 t/m H10) en die zijn in alle
@@ -270,7 +270,7 @@ final class Kennisartikelen
             'bestand' => 'normteksten-invoeren.md',
         ],
         'integraties-en-normeis' => [
-            'titel' => 'Integraties: welke norm-eis onderbouw je ermee?',
+            'titel' => 'Integraties: welke norm-eis onderbouwt het register?',
             'categorie' => 'Techniek & beheer',
             // Het antwoord kantelt per norm: NEN 7512 en 7513 zijn zelfstandige
             // normen die precies over koppelvlakken gaan, en die bestaan onder

@@ -6,10 +6,39 @@ blijven de bron, dit bestand is de leesbare vorm ervan.
 **Versienummers.** De eerste cijferreeks springt bij een breuk in wat het product
 ís — V2.0.0 markeert het punt waarop de repo uitleverbaar werd. Het tweede cijfer
 telt uitgaven met nieuwe functionaliteit, het derde is voor correcties op een
-uitgave die al buiten staat. Tot nu toe is er één zo'n correctie geweest: V2.2.1.
+uitgave die al buiten staat. Tot nu toe zijn er twee zulke correcties geweest: V2.2.1
+en V3.5.1.
 
 Elke uitgave is een annotated tag; `git tag -l --format='%(contents)' V2.9.0`
 geeft de oorspronkelijke tekst.
+
+---
+
+## V3.5.1 — de kennisbank in de derde persoon
+
+*14-09-2026*
+
+Een correctie op de tekst van de kennisbank, zonder nieuwe functionaliteit.
+
+**Alle artikelen in één schrijfstijl.** De 38 artikelen spraken de lezer aan met
+je of u en leunden op telegramstijl, gedachtestreepjes, retorische vragen en
+nadrukaccenten. Ze zijn herschreven in de derde persoon en in volledige zinnen: de
+organisatie, de CISO of het systeem is het onderwerp, of de zin staat in de
+lijdende vorm. Twee titels veranderden mee, *EzISMS voor de CISO: past dit
+systeem bij de organisatie?* en *Integraties: welke norm-eis onderbouwt het
+register?*.
+
+**De oefenopdrachten ook.** De drie opdrachten voor de AI-assistent spreken de
+assistent in de derde persoon aan. Wat de assistent tegen de cursist zegt, blijft
+tutoyerend.
+
+**Feitelijke correcties.** Bij het herschrijven zijn de beweringen nagelopen in de
+code. Wijzigingsbeheer levert zeven sjablonen mee en kent drie signalen; het
+artikel over incidenten noemt vijf punten waar het er vier aankondigde; het eigen
+account blokkeren of deactiveren kan voor geen enkele gebruiker, niet alleen voor
+de CISO; de NEN 7510-disclaimer verwees naar de derde stand waar de tweede bedoeld
+was. Het besluit over de opslag van bewijzen noemt alleen nog A.5.33 als maatregel
+voor de bescherming van records.
 
 ---
 

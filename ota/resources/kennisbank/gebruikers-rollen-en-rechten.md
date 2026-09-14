@@ -1,155 +1,161 @@
 # Gebruikers, rollen en rechten
 
-Toegang is in dit ISMS geen verzameling `if`-jes in de code, maar **data**: een
-rij in `rol_permissies` die zegt "rol X mag op blok Y niveau Z". Wie de
-rechtenmatrix wil veranderen, verandert rijen — geen PHP. Dat is de kern; de
-rest van dit artikel is uitwerking en de eerlijke lijst van wat het model *niet*
-doet.
+Toegang is in dit ISMS geen verzameling `if`-statements in de code, maar
+**data**. Een rij in `rol_permissies` legt vast dat rol X op blok Y niveau Z
+heeft. Een wijziging van de rechtenmatrix is dus een wijziging van rijen en geen
+wijziging van PHP-code. Dat is de kern van het model. De rest van dit artikel
+werkt die kern uit en somt eerlijk op wat het model niet doet.
 
 ## Het model in één zin
 
-> Een **gebruiker** heeft een of meer **rollen**; een rol heeft per **blok** een
-> **niveau**; de generieke autorisatiecheck `heeft-niveau` toetst (blok, niveau)
-> tegen die rijen.
+> Een **gebruiker** heeft een of meer **rollen**, een rol heeft per **blok** een
+> **niveau**, en de generieke autorisatiecheck `heeft-niveau` toetst de
+> combinatie van blok en niveau tegen die rijen.
 
-Er zijn geen Policy-classes per model en geen rolnamen in views. Overal in de
-applicatie staat dezelfde vraag: *heeft deze gebruiker op dit blok minstens dit
-niveau?*
+Er zijn geen Policy-classes per model en er staan geen rolnamen in views. Overal
+in de applicatie wordt dezelfde vraag gesteld: heeft deze gebruiker op dit blok
+minstens dit niveau?
 
 ## De vier begrippen
 
 ### 1. Rol
 
-Vijf rollen, referentiedata (geseed, niet aan te maken via het scherm):
+Er zijn vijf rollen. De rollen zijn referentiedata: ze worden geseed en zijn niet
+via het scherm aan te maken.
 
 | Rol | Bedoeld voor |
 | --- | --- |
 | **CISO** | Eigenaar van het ISMS: risico's, maatregelen, beleid, gebruikers |
 | **Medewerker** | Voert eigen taken uit, meldt incidenten, bevestigt beleid |
 | **Auditor** | Interne of externe auditor, read-only inzage voor auditbewijs |
-| **Management** | Directie: stelt vast wat de CISO opstelt. Géén beheerrechten |
-| **Administrator** | Technisch beheer van de installatie. Géén toegang tot het ISMS |
+| **Management** | Directie: stelt vast wat de CISO opstelt. Geen beheerrechten |
+| **Administrator** | Technisch beheer van de installatie. Geen toegang tot het ISMS |
 
-Een gebruiker kan meerdere rollen hebben; de rechten zijn dan de **vereniging**
-ervan (de gunstigste wint). De combinatie gebruiker × rol is uniek.
+Een gebruiker kan meerdere rollen hebben. De rechten zijn dan de **vereniging**
+van die rollen, wat betekent dat de gunstigste rol wint. Elke combinatie van
+gebruiker en rol is uniek.
 
-**Op één uitzondering: de Administrator gaat met geen enkele andere rol samen.**
-Die rol staat buiten het ISMS — hij mag toetsbestanden plaatsen en verder niets,
-en heeft op geen enkel ISMS-blok een rij. Zou één account beide petten dragen,
-dan kan dezelfde persoon een bestand plaatsen én het als ISMS-gebruiker openen,
-en dat is precies wat de scheiding moet voorkomen. Beheert u zelf de installatie,
-maak daar dan een tweede account voor aan. Het systeem weigert de combinatie.
+**Er is één uitzondering: de Administrator is met geen enkele andere rol te
+combineren.** Die rol staat buiten het ISMS. Een Administrator mag toetsbestanden
+plaatsen en verder niets, en de rol heeft op geen enkel ISMS-blok een rij. Als
+één account beide rollen zou dragen, kan dezelfde persoon een bestand plaatsen en
+het daarna als ISMS-gebruiker openen. Dat is precies wat de scheiding moet
+voorkomen. Een persoon die zelf de installatie beheert, heeft daarom een tweede
+account nodig. Het systeem weigert de combinatie.
 
-Dat is de enige harde onverenigbaarheid in dit model. Voor de vier ISMS-rollen
-geldt onverminderd dat functiescheiding een organisatorische keuze is die het
-systeem faciliteert en niet afdwingt: bij een kleine organisatie draagt iemand
-soms twee petten, en het gebruikersoverzicht maakt dat zichtbaar zodat een
-auditor het kan wegen.
+Dit is de enige harde onverenigbaarheid in het model. Voor de vier ISMS-rollen
+blijft functiescheiding een organisatorische keuze die het systeem faciliteert
+maar niet afdwingt. In een kleine organisatie heeft één persoon soms twee rollen.
+Het gebruikersoverzicht maakt dat zichtbaar, zodat een auditor de combinatie kan
+wegen.
 
 ### 2. Blok
 
-Een blok is een functiegebied van het ISMS, niet een scherm. `identity-access`,
-`risico-soa`, `beleid-maatregelbeheer`, `auditmanagement`, … — de codes komen
-één-op-één uit de deelproducten. Rechten zitten dus op **domein**detailniveau, niet
-per pagina en niet per record.
+Een blok is een functiegebied van het ISMS en geen scherm. Voorbeelden zijn
+`identity-access`, `risico-soa`, `beleid-maatregelbeheer` en `auditmanagement`.
+De codes komen één-op-één uit de deelproducten. Rechten gelden dus op het
+detailniveau van een **domein**, niet per pagina en niet per record.
 
-### 3. Niveau — een ladder
+### 3. Niveau: een ladder
 
 `lezen` → `uitvoeren` → `muteren`
 
-Oplopend: een hoger niveau impliceert alle lagere. Daarom heeft de CISO aan één
-rij `muteren` genoeg en hoeft er geen aparte `lezen`-rij bij.
+De niveaus zijn oplopend: een hoger niveau omvat alle lagere niveaus. Daarom
+heeft de CISO genoeg aan één rij `muteren` en is er geen aparte `lezen`-rij nodig.
 
-`uitvoeren` is het interessante niveau: het betekent "mag hier schrijven, maar
-alleen aan het eigene" — eigen taak afwerken, eigen incident melden, eigen
-leesbevestiging afgeven, eigen bewijs uploaden.
+`uitvoeren` is het niveau dat de meeste uitleg vraagt. Het betekent dat de
+gebruiker in het blok mag schrijven, maar alleen aan de eigen gegevens:
+een eigen taak afwerken, een eigen incident melden, een eigen leesbevestiging
+afgeven of een eigen bewijsstuk uploaden.
 
 ### 4. Twee niveaus bewust buiten de ladder
 
-`exporteren` en `goedkeuren` staan **naast** de ladder, niet erboven. Allebei
-impliceren ze alleen `lezen`.
+`exporteren` en `goedkeuren` staan **naast** de ladder en niet erboven. Beide
+niveaus omvatten alleen `lezen`.
 
-**`exporteren`** is géén "meer dan muteren", maar een andere soort bevoegdheid:
-data naar buiten brengen. Zou het in de ladder staan, dan kreeg de Auditor — de
-rol die per definitie onafhankelijk moet zijn — muteerrechten cadeau. Wie mag
-exporteren mag per definitie inzien.
+**`exporteren`** is geen niveau boven muteren, maar een andere soort
+bevoegdheid: gegevens naar buiten brengen. Als het niveau in de ladder zou
+staan, zou de Auditor muteerrechten krijgen, terwijl die rol per definitie
+onafhankelijk moet zijn. Wie mag exporteren, mag per definitie ook inzien.
 
-**`goedkeuren`** is vaststellen, en dat is een andere sóórt bevoegdheid dan
-bewerken — geen grotere hoeveelheid ervan.
-Omdat het losstaat, is functiescheiding
-mogelijk: de CISO stelt op (`muteren`), Management stelt vast (`goedkeuren`).
+**`goedkeuren`** is vaststellen. Vaststellen is een andere soort bevoegdheid dan
+bewerken en geen grotere hoeveelheid ervan. Omdat het niveau los staat, is
+functiescheiding mogelijk: de CISO stelt op (`muteren`) en Management stelt vast
+(`goedkeuren`).
 
-Vijf acties toetsen erop: beleid publiceren, een scope-versie activeren, een
-restrisico boven de acceptatiedrempel accepteren, de risicocriteria vaststellen
-(de risk appetite, de acceptatiedrempel en de beoordelingsschaal — zie
-*Issues en risico's*), en de directiebeoordeling als gehouden vastleggen.
+Vijf acties toetsen op dit niveau: beleid publiceren, een scope-versie
+activeren, een restrisico boven de acceptatiedrempel accepteren, de
+risicocriteria vaststellen (de risk appetite, de acceptatiedrempel en de
+beoordelingsschaal, zie *Issues en risico's*) en de directiebeoordeling als
+gehouden vastleggen.
 
-Bij de risicocriteria loopt de functiescheiding het verst door: daar ligt ook
-het *afwijzen* — een ingediende versie terugsturen naar concept — bij
-Management. De CISO houdt zijn weg terug via een nieuw concept.
+Bij de risicocriteria gaat de functiescheiding het verst. Daar ligt ook het
+*afwijzen* bij Management, wat betekent dat Management een ingediende versie
+terugstuurt naar concept. De CISO kan daarna een nieuw concept opstellen.
 
-**Let op wat `exporteren` vandaag echt doet.** Er is nog geen exportknop in de
-applicatie, en dus geen scherm dat op dit niveau toetst. De enige plek die het
-uitleest is `Recordscope::magAllesZien()` — het functioneert nu als
-**rolmarkering**: "deze rol ziet alle rijen, niet alleen de eigene". De naam
-beschrijft de bedoelde bevoegdheid, niet de huidige functie. Zodra er een
-exportfunctie in de applicatie komt, is dit het niveau waar die achter hoort.
-Om diezelfde reden krijgt ook
-Management het niveau op bewijs en incidenten: zonder die markering zou een
-directeur er alleen zijn eigen rijen zien, en dat is nu juist de input voor de
-directiebeoordeling.
+**De huidige functie van `exporteren` wijkt af van de naam.** De applicatie heeft
+nog geen exportknop, en er is dus geen scherm dat op dit niveau toetst. De enige
+plek die het niveau uitleest, is `Recordscope::magAllesZien()`. Het niveau werkt
+nu als **rolmarkering**: deze rol ziet alle rijen en niet alleen de eigen rijen.
+De naam beschrijft de bedoelde bevoegdheid en niet de huidige functie. Zodra de
+applicatie een exportfunctie krijgt, hoort die functie achter dit niveau. Om
+dezelfde reden krijgt ook Management dit niveau op bewijs en incidenten. Zonder
+die markering zou een directeur daar alleen de eigen rijen zien, terwijl juist
+het volledige beeld de input is voor de directiebeoordeling.
 
-De export die er wél is, loopt buiten dit model om: `php artisan isms:exporteer`
-schrijft het ISMS als Markdown-boom weg (persoonsgegevens standaard
-geanonimiseerd). Dat commando kent geen autorisatiecheck — shelltoegang is daar
-de autorisatie. En het dichtstbijzijnde "data naar buiten" in de UI, de download
-of preview van een bewijsstuk, zit achter `lezen` op
-`bewijsrepository-audit-trail`, niet achter `exporteren`.
+De export die wel bestaat, valt buiten dit model. `php artisan isms:exporteer`
+schrijft het ISMS weg als een boom van Markdown-bestanden, met persoonsgegevens
+standaard geanonimiseerd. Dat commando kent geen autorisatiecheck, omdat
+shelltoegang daar de autorisatie is. De download of preview van een bewijsstuk
+komt in de UI het dichtst bij gegevens naar buiten brengen, maar die functie
+vereist `lezen` op `bewijsrepository-audit-trail` en niet `exporteren`.
 
 ## Het ontbreken van een rij is de weigering
 
-Er is geen niveau `geen`. Staat er voor (rol, blok) niets, dan is er geen
-toegang: het menu-item verdwijnt, de route geeft 403. Zo heeft de Medewerker
-bijvoorbeeld géén rij op `risico-soa` — geen risicoregister, geen SoA. Dat is een
-bewuste keuze, geen omissie.
+Er is geen niveau `geen`. Als er voor een combinatie van rol en blok geen rij
+bestaat, is er geen toegang: het menu-item verdwijnt en de route geeft een 403.
+De Medewerker heeft bijvoorbeeld geen rij op `risico-soa` en ziet daardoor geen
+risicoregister en geen SoA. Dat is een bewuste keuze en geen omissie.
 
 ## Drie lagen toegang
 
-De autorisatiecheck op blokniveau alleen is te grof. Er liggen drie lagen over
-elkaar heen:
+De autorisatiecheck op blokniveau is op zichzelf te grof. Daarom liggen er drie
+lagen over elkaar heen.
 
-### Laag 1 — de autorisatiecheck op blokniveau (`heeft-niveau`)
+### Laag 1: de autorisatiecheck op blokniveau (`heeft-niveau`)
 
-Zit op de route én nog eens in het component. Die herhaling is opzet: de pagina
-is meestal bereikbaar met `lezen`, maar de knoppen erop eisen `muteren`. Elke
-actiemethode toetst daarom zelf opnieuw. Een Livewire-actie is een HTTP-request —
-"de knop staat er niet" is geen beveiliging.
+De check zit op de route en nog een keer in het component. Die herhaling is
+bewust. Een pagina is meestal bereikbaar met `lezen`, terwijl de knoppen op die
+pagina `muteren` vereisen. Elke actiemethode toetst daarom zelf opnieuw. Een
+Livewire-actie is een HTTP-request, dus het ontbreken van een knop is geen
+beveiliging.
 
-### Laag 2 — record-scoping (`Recordscope::magAllesZien`)
+### Laag 2: record-scoping (`Recordscope::magAllesZien`)
 
-Op blokken waar de Medewerker `uitvoeren` heeft, volstaat de ladder niet:
-`uitvoeren` impliceert `lezen`, dus een lees-check zou hem andermans gegevens
-tonen. De scope draait het daarom **positief** om: wie `muteren` (CISO),
-`goedkeuren` (Management) of `exporteren` (Auditor) heeft, ziet alles; de rest
-ziet alleen de eigen rijen.
+Op blokken waar de Medewerker `uitvoeren` heeft, volstaat de ladder niet.
+`uitvoeren` omvat `lezen`, dus een leescheck zou de Medewerker ook de gegevens
+van anderen tonen. De scope is daarom **positief** geformuleerd: wie `muteren`
+(CISO), `goedkeuren` (Management) of `exporteren` (Auditor) heeft, ziet alles.
+Alle andere gebruikers zien alleen de eigen rijen.
 
-Precies hiervoor krijgt de Auditor `exporteren` op elk blok met record-scoping.
-Zonder dat zou het onderscheid alleen negatief te maken zijn ("heeft lezen maar
-niet uitvoeren") — en dat klapt stilzwijgend om zodra de rechtenmatrix wijzigt.
+Om precies deze reden krijgt de Auditor `exporteren` op elk blok met
+record-scoping. Zonder dat niveau zou het onderscheid alleen negatief te maken
+zijn, namelijk als "heeft lezen maar niet uitvoeren". Zo'n negatieve regel slaat
+ongemerkt om zodra de rechtenmatrix wijzigt.
 
-### Laag 3 — record-guards op het model
+### Laag 3: record-guards op het model
 
 Waar de norm eigenaarschap of onafhankelijkheid eist, beslist het record zelf:
 
-- **Auditronde** — de bevindingen van een interne ronde legt *de toegewezen
-  auditor* vast, en alleen zolang de ronde in uitvoering is. Na afronding
-  niemand meer, ook de CISO niet. Dat is onafhankelijkheid *afdwingen* in plaats
-  van documenteren.
-- **Corrigerende maatregel** — een Medewerker die eigenaar is, mag zijn eigen
-  maatregel afmelden, terwijl de rest van de CAPA-cyclus `muteren` vraagt.
+- **Auditronde:** de bevindingen van een interne ronde worden vastgelegd door
+  *de toegewezen auditor*, en alleen zolang de ronde in uitvoering is. Na
+  afronding kan niemand de bevindingen nog wijzigen, ook de CISO niet. Zo wordt
+  onafhankelijkheid afgedwongen in plaats van alleen gedocumenteerd.
+- **Corrigerende maatregel:** een Medewerker die eigenaar is van een maatregel,
+  mag die maatregel afmelden. De rest van de CAPA-cyclus vereist `muteren`.
 
-Deze guards staan bewust in het model, niet in de Gate: ze hangen van de *rij*
-af, niet van de rol.
+Deze guards staan bewust in het model en niet in de Gate, omdat ze afhangen van
+de *rij* en niet van de rol.
 
 ## De rechtenmatrix in vogelvlucht
 
@@ -169,24 +175,31 @@ af, niet van de rol.
 | Management review | muteren | — | lezen | **goedkeuren** |
 | Notificaties & integraties | muteren | — | lezen | lezen |
 
-Drie patronen zijn hier zichtbaar. **Melden en afwerken staan laag** (`uitvoeren`
-voor incidenten, taken, bewijs, leesbevestigingen): drempels op melden leveren
-minder meldingen op, niet minder incidenten. **`exporteren` verschijnt precies
-daar waar record-scoping speelt** — het is er niet alleen om te exporteren, maar
-om wie alles mag zien te onderscheiden van wie alleen het eigene ziet. En
-**Management heeft nergens `muteren`**: dat is geen omissie maar de reden dat de
-rol bestaat. Op taken en training staat hij als gewone medewerker in de rij —
-een directeur die zijn eigen e-learning niet hoeft te doen, is geen goed
-voorbeeld. Op `identity-access` staat hij helemaal niet: geen gebruikersbeheer.
+In de matrix zijn drie patronen zichtbaar.
 
-De matrix is geseed vanuit `RolPermissieSeeder`; de canonieke bron is
+**Melden en afwerken hebben een laag niveau.** Incidenten, taken, bewijs en
+leesbevestigingen vereisen `uitvoeren`. Een hoge drempel voor melden levert
+minder meldingen op, maar niet minder incidenten.
+
+**`exporteren` komt precies voor op de blokken met record-scoping.** Het niveau
+dient daar niet alleen voor exporteren, maar vooral om gebruikers die alles mogen
+zien te onderscheiden van gebruikers die alleen de eigen gegevens zien.
+
+**Management heeft nergens `muteren`.** Dat is geen omissie, maar de reden dat de
+rol bestaat. Op taken en training staat Management gelijk aan een gewone
+medewerker, omdat een directeur die de eigen e-learning niet hoeft te doen geen
+goed voorbeeld geeft. Op `identity-access` heeft Management geen rij en dus geen
+gebruikersbeheer.
+
+De matrix wordt geseed vanuit `RolPermissieSeeder`. De canonieke bron is
 `deelproducten/01-identity-access.md` §4.
 
 ## Twee routes staan bewust buiten het model
 
 De **kennisbank** en het **eigen profiel** (`/settings`) kennen geen
-blok-permissie: naslag en je eigen wachtwoord zijn er voor elke ingelogde
-gebruiker. Alles daarbuiten loopt door een autorisatiecheck.
+blok-permissie. Naslag en het beheer van het eigen wachtwoord zijn beschikbaar
+voor elke ingelogde gebruiker. Alle andere routes lopen door een
+autorisatiecheck.
 
 ## De levensloop van een account
 
@@ -201,220 +214,240 @@ gebruiker. Alles daarbuiten loopt door een autorisatiecheck.
                     gedeactiveerd  ◄────────────────────────-┘
 ```
 
-- **Uitnodigen** (CISO): naam, e-mail, rol, optioneel afdeling en vervaldatum.
-  Het account krijgt een onbruikbaar random wachtwoord en status *uitgenodigd*.
-  De uitgenodigde stelt via de link zijn wachtwoord in en koppelt **in datzelfde
-  scherm** meteen zijn authenticator-app; hij is toch al achter zijn scherm bezig.
-  Lukt dat niet — telefoon niet bij de hand — dan is het account gewoon actief en
-  valt hij terug op de respijtperiode hieronder.
-- **De uitnodigingslink** is een signed URL, 7 dagen geldig, met een token dat
-  is afgeleid van de wachtwoordhash. Zodra de uitgenodigde een eigen wachtwoord
-  instelt verandert die hash en is de link vanzelf verbruikt — geen aparte
-  tokentabel met opruimlogica. Mislukt de mail, dan blijft het account bestaan en
-  is er een knop *Uitnodiging opnieuw versturen*.
-- **Een typefout in het adres** herstelt u met *Uitnodiging corrigeren*, naast
-  *opnieuw versturen*. U past naam en e-mailadres aan, en het systeem doet er in
-  dezelfde beweging iets bij dat u niet zou moeten hoeven onthouden: **de oude
-  link sterft**. Dat is geen extra voorzichtigheid maar noodzaak — het token
-  hangt aan de wachtwoordhash, dus zonder die rotatie houdt degene die de mail op
-  het foute adres kreeg zeven dagen lang een werkende link naar het account, en
-  zou *opnieuw versturen* daarna diezelfde link naar het juiste adres sturen.
-  Na een correctie gaat er altijd meteen een nieuwe uitnodiging uit.
+- **Uitnodigen** (CISO): de CISO vult naam, e-mail en rol in, en optioneel een
+  afdeling en een vervaldatum. Het account krijgt een onbruikbaar willekeurig
+  wachtwoord en de status *uitgenodigd*. De uitgenodigde gebruiker stelt via de
+  link een wachtwoord in en koppelt **in hetzelfde scherm** direct een
+  authenticator-app, omdat de gebruiker op dat moment toch al met het account
+  bezig is. Als dat niet lukt, bijvoorbeeld omdat de telefoon niet bij de hand
+  is, is het account toch actief en geldt de respijtperiode die hieronder is
+  beschreven.
+- **De uitnodigingslink** is een signed URL die 7 dagen geldig is, met een token
+  dat is afgeleid van de wachtwoordhash. Zodra de uitgenodigde gebruiker een eigen
+  wachtwoord instelt, verandert die hash en is de link automatisch verbruikt.
+  Daardoor is er geen aparte tokentabel met opruimlogica nodig. Als het versturen
+  van de mail mislukt, blijft het account bestaan en is er een knop *Uitnodiging
+  opnieuw versturen*.
+- **Een typefout in het adres** wordt hersteld met *Uitnodiging corrigeren*, naast
+  *opnieuw versturen*. De CISO past naam en e-mailadres aan, en het systeem voert
+  in dezelfde handeling een extra stap uit die niemand hoeft te onthouden:
+  **de oude link wordt ongeldig**. Die stap is noodzakelijk en geen extra
+  voorzichtigheid. Het token hangt aan de wachtwoordhash. Zonder die rotatie zou
+  de ontvanger op het foute adres zeven dagen lang een werkende link naar het
+  account hebben, en zou *opnieuw versturen* diezelfde link daarna naar het
+  juiste adres sturen. Na een correctie verstuurt het systeem altijd direct een
+  nieuwe uitnodiging.
 
   De knop staat er **alleen bij status *uitgenodigd***, en dat is de kern van de
-  regeling. Was het adres fout, dan heeft de bedoelde persoon nooit kunnen
-  accepteren, dus staat het account per definitie nog open. Staat het op
-  *actief*, dan heeft iemand met dát adres een wachtwoord ingesteld, en gelden
-  andere regels — zie het volgende punt.
+  regeling. Als het adres fout was, heeft de bedoelde persoon de uitnodiging nooit
+  kunnen accepteren, en staat het account per definitie nog open. Als het account
+  op *actief* staat, heeft iemand met dat adres een wachtwoord ingesteld, en
+  gelden andere regels. Die regels staan in het volgende punt.
 
-  Hoort het nieuwe adres al bij een ander account, dan zegt de melding bij wie.
-  Dat adres wordt niet vrijgemaakt, ook niet als dat account gedeactiveerd is:
-  de audit trail van dat account hangt aan die identiteit, en het adres is vaak
-  nog een echte mailbox.
-- **Het adres van een actief account wijzigt u met *E-mailadres wijzigen*.** Een
-  medewerker die trouwt, een domein dat migreert, een adres dat pas na maanden
-  fout blijkt: dat zijn geen fouten waarvoor u een account hoeft weg te gooien.
-  Dat weggooien zou ook duur zijn — aan een account hangen taken, bewijsstukken,
+  Als het nieuwe adres al bij een ander account hoort, noemt de melding dat
+  account. Het adres wordt niet vrijgemaakt, ook niet als het andere account
+  gedeactiveerd is. De audit trail van dat account hangt aan die identiteit, en
+  het adres is vaak nog een bestaande mailbox.
+- **Het adres van een actief account wordt gewijzigd met *E-mailadres
+  wijzigen*.** Een medewerker die trouwt, een domein dat migreert of een adres dat
+  pas na maanden fout blijkt: dat zijn geen redenen om een account te verwijderen.
+  Verwijderen zou ook kostbaar zijn. Aan een account hangen taken, bewijsstukken,
   leesbevestigingen, trainingsresultaten en het personeelsdossier, en een nieuw
-  account erft daar niets van.
+  account neemt daar niets van over.
 
   Deze knop werkt **tegenovergesteld aan *Uitnodiging corrigeren***, en dat
-  verschil is het hele punt:
+  verschil is de kern:
 
   | | *Uitnodiging corrigeren* | *E-mailadres wijzigen* |
   | --- | --- | --- |
   | bij welke status | uitgenodigd | actief |
   | wanneer geldt het nieuwe adres | meteen | pas na bevestiging op het nieuwe adres |
-  | wachtwoord | wordt vervangen (de oude link moet sterven) | blijft ongewijzigd |
+  | wachtwoord | wordt vervangen (de oude link moet ongeldig worden) | blijft ongewijzigd |
   | tweede factor, lopende sessies | n.v.t. | blijven ongewijzigd |
 
-  Bij een ongebruikt account kost een typefout niets. Bij een account dat in
-  gebruik is zou diezelfde typefout de gebruiker buitensluiten: geen inlog, geen
-  wachtwoordherstel, geen notificaties. Daarom verandert er niets tot er op het
-  nieuwe adres is bevestigd. De link is 7 dagen geldig; zolang er niets gebeurt,
-  werkt het huidige adres gewoon door.
+  Bij een ongebruikt account heeft een typefout geen gevolgen. Bij een account
+  dat in gebruik is, zou dezelfde typefout de gebruiker buitensluiten: geen
+  inlog, geen wachtwoordherstel en geen notificaties. Daarom verandert er niets
+  totdat het nieuwe adres is bevestigd. De link is 7 dagen geldig. Zolang er niet
+  is bevestigd, blijft het huidige adres gewoon werken.
 
-  **Het huidige adres krijgt bericht** zodra u de wijziging aanvraagt, met het
-  nieuwe adres half zichtbaar — genoeg om te zien of het domein klopt. Dat is de
-  controle op de andere fout: iemand die u een adreswijziging aanpraat. De
-  bevestiging op het nieuwe adres vangt uw typefouten, dit bericht vangt de
-  gevallen waarin het verzoek zelf niet deugde.
+  **Het huidige adres krijgt een bericht** zodra de wijziging is aangevraagd. In
+  dat bericht is het nieuwe adres gedeeltelijk zichtbaar, genoeg om te zien of
+  het domein klopt. Dit bericht is de controle op een ander soort fout: iemand
+  die de CISO een adreswijziging aanpraat. De bevestiging op het nieuwe adres
+  vangt typefouten, en het bericht aan het huidige adres vangt verzoeken die zelf
+  niet deugen.
 
-  Zolang de wijziging loopt staat dat in de lijst onder de naam, met een knop
-  *Wijziging intrekken*. Blijkt achteraf dat een vreemde erachter zat, dan is
-  intrekken niet genoeg en is **Blokkeren** het antwoord.
-- **Uitnodigingen die niets opleveren melden zichzelf.** Bij een uitgenodigd
-  account staat in de lijst wanneer de uitnodiging is verstuurd, en of de link
-  inmiddels verlopen is; boven de tabel staat het aantal. Dat vangt de typefouten
-  waarover niemand belt — een adres dat netjes bounct levert nooit een
-  telefoontje op, en het account blijft anders eindeloos open staan.
-- **Bij een adres dat lijkt op een bekend domein** verschijnt onder het veld:
-  *Bedoelde u @fruitbv.nl?* Alleen bij een domein dat één of twee tekens afwijkt
-  van een domein dat al bij minstens twee accounts in gebruik is. Geen blokkade
-  en geen bevestiging — u negeert het als u een externe uitnodigt. Er wordt
-  bewust **niet** gewaarschuwd voor een onbekend domein: een auditor of
-  leverancier heeft er legitiem een, en een melding die de helft van de tijd
-  onterecht is wordt weggeklikt zonder gelezen te worden.
-- **Vervaldatum** — de enige statusovergang zónder CISO-handeling. Een dagelijkse
-  taak (`isms:verval-gebruikersaccounts`, 01:00) deactiveert actieve accounts
-  waarvan `vervalt_op` bereikt is. Bedoeld voor precies dat tijdelijke
-  auditor-account dat anders onopgemerkt actief blijft.
-- **Het wachtwoord** moet minimaal **12 tekens** zijn. Verder niets: geen
-  verplichte hoofdletters, cijfers of symbolen. Lengte doet meer tegen raden dan
-  verplichte tekensoorten, en die laatste leveren vooral `Wachtwoord2026!` op —
-  één patroon dat elke aanvaller kent. Er is geen verplichte periodieke
-  wijziging; die dwingt vooral kleine varianten op een oud wachtwoord af.
-- **Tweefactorauthenticatie is verplicht**, voor elke rol. Na uw wachtwoord
-  vraagt het systeem om een code van zes cijfers uit een authenticator-app. U
-  krijgt bij het instellen acht **herstelcodes** — elk één keer bruikbaar, voor
-  als u uw telefoon niet bij de hand heeft. Bent u die ook kwijt, dan zet de
-  CISO uw tweede factor terug; dat komt in de audit trail te staan.
+  Zolang de wijziging loopt, staat dat in de lijst onder de naam, met een knop
+  *Wijziging intrekken*. Als achteraf blijkt dat een onbekende partij achter het
+  verzoek zat, is intrekken niet genoeg en is **Blokkeren** de juiste handeling.
+- **Uitnodigingen zonder resultaat worden gesignaleerd.** Bij een uitgenodigd
+  account toont de lijst wanneer de uitnodiging is verstuurd en of de link
+  inmiddels verlopen is. Boven de tabel staat het aantal. Zo worden typefouten
+  zichtbaar waarover niemand contact opneemt. Een adres dat een bounce oplevert,
+  leidt nooit tot een telefoontje, en zonder dit signaal blijft het account
+  onbeperkt open staan.
+- **Bij een adres dat lijkt op een bekend domein** verschijnt onder het veld de
+  tekst *Bedoelde u @fruitbv.nl?* Die tekst verschijnt alleen bij een domein dat
+  één of twee tekens afwijkt van een domein dat al bij minstens twee accounts in
+  gebruik is. Het is geen blokkade en vraagt geen bevestiging. Bij het uitnodigen
+  van een externe gebruiker kan de tekst worden genegeerd. Het systeem waarschuwt
+  bewust **niet** voor een onbekend domein. Een auditor of leverancier heeft
+  legitiem een ander domein, en een melding die in de helft van de gevallen
+  onterecht is, wordt weggeklikt zonder te worden gelezen.
+- **Vervaldatum:** dit is de enige statusovergang zonder handeling van de CISO.
+  Een dagelijkse taak (`isms:verval-gebruikersaccounts`, 01:00) deactiveert
+  actieve accounts waarvan `vervalt_op` is bereikt. De functie is bedoeld voor
+  het tijdelijke auditoraccount dat anders onopgemerkt actief blijft.
+- **Het wachtwoord** moet minimaal **12 tekens** lang zijn. Er gelden geen andere
+  eisen: geen verplichte hoofdletters, cijfers of symbolen. Lengte beschermt
+  beter tegen raden dan verplichte tekensoorten. Verplichte tekensoorten leveren
+  vooral wachtwoorden als `Wachtwoord2026!` op, en dat patroon kent elke
+  aanvaller. Er is geen verplichte periodieke wijziging, omdat die vooral kleine
+  varianten op een oud wachtwoord oplevert.
+- **Tweefactorauthenticatie is verplicht** voor elke rol. Na het wachtwoord vraagt
+  het systeem om een code van zes cijfers uit een authenticator-app. Bij het
+  instellen krijgt de gebruiker acht **herstelcodes**. Elke code is één keer
+  bruikbaar en is bedoeld voor situaties waarin de telefoon niet beschikbaar is.
+  Als de gebruiker ook de herstelcodes kwijt is, zet de CISO de tweede factor
+  terug. Die handeling komt in de audit trail.
 
-  Wie de app niet meteen bij de uitnodiging koppelt, krijgt veertien dagen
-  respijt, geteld vanaf zijn eerste aanmelding. In die periode staat er een
-  melding op elke pagina en gaan er twee e-mails uit: één een paar dagen vóór de
-  termijn en één zodra hij verstreken is. Daarna komt u niet verder dan het
-  instelscherm — maar u helpt uzelf daar, er is geen beheerder voor nodig. Er is bewust geen uitschakelknop: bij een
-  nieuwe telefoon kiest u *ander apparaat koppelen*, en het oude apparaat blijft
-  werken tot de nieuwe koppeling bevestigd is.
-- **Een foute verificatiecode blokkeert uw account niet.** Vijf pogingen per
-  kwartier, daarna moet u opnieuw inloggen. Blokkeren op een typefout of een
-  telefoon die een halve minuut voorloopt, levert alleen werk op voor de CISO en
-  geen enkele veiligheidswinst — raden op zes cijfers komt met die limiet toch
-  nergens. De poging zelf wordt wél vastgelegd, en apart van een verkeerd
-  wachtwoord: *wachtwoord goed, tweede factor fout* is het signaal dat een
-  wachtwoord gelekt is.
-- **Blokkade, automatisch** — 5 mislukte pogingen binnen 15 minuten blokkeert een
-  *actief* account. Alleen de CISO heft dat op; er is geen automatische
-  ontgrendeling na afkoeling. Let op de keerzijde: de teller loopt op het
-  **ingevoerde e-mailadres**, dus wie een adres kent kan iemand eruit werken. Dat
-  is de bewuste ruil voor een harde grens tegen wachtwoord-raden; de weg terug is
-  een telefoontje naar de CISO.
-- **Blokkade, door de CISO** — de knop *Blokkeren* op `/gebruikers`, voor het
-  geval waarin u een account per direct dicht wilt hebben: een vermoeden van
-  gedeelde of gelekte inloggegevens, een lopend onderzoek. Er hoort een **reden**
-  bij, en die is verplicht — de vraag die later gesteld wordt is niet *of* maar
-  *waarom*. De blokkade werkt meteen: lopende sessies worden beëindigd, en
-  iemand die op dat moment aan het werk is, is er bij zijn volgende klik uit.
+  Een gebruiker die de app niet direct bij de uitnodiging koppelt, krijgt veertien
+  dagen respijt, gerekend vanaf de eerste aanmelding. In die periode staat er een
+  melding op elke pagina en verstuurt het systeem twee e-mails: één een paar
+  dagen vóór het einde van de termijn en één zodra de termijn is verstreken.
+  Daarna kan de gebruiker alleen nog het instelscherm openen. Op dat scherm kan de
+  gebruiker de koppeling zelf voltooien, zonder tussenkomst van een beheerder. Er
+  is bewust geen knop om tweefactorauthenticatie uit te schakelen. Bij een nieuwe
+  telefoon kiest de gebruiker *ander apparaat koppelen*, en het oude apparaat
+  blijft werken totdat de nieuwe koppeling is bevestigd.
+- **Een foute verificatiecode blokkeert het account niet.** Er zijn vijf pogingen
+  per kwartier toegestaan, en daarna moet de gebruiker opnieuw inloggen. Een
+  blokkade op een typefout of op een telefoon die een halve minuut voorloopt,
+  levert alleen werk op voor de CISO en geen veiligheidswinst. Met die limiet is
+  het raden van zes cijfers toch niet haalbaar. De mislukte poging wordt wel
+  vastgelegd, en apart van een verkeerd wachtwoord. De combinatie van een goed
+  wachtwoord en een foute tweede factor is namelijk het signaal dat een
+  wachtwoord is gelekt.
+- **Automatische blokkade:** 5 mislukte pogingen binnen 15 minuten blokkeren een
+  *actief* account. Alleen de CISO kan die blokkade opheffen. Er is geen
+  automatische ontgrendeling na een wachttijd. Deze regel heeft een keerzijde:
+  de teller telt per **ingevoerd e-mailadres**, dus iemand die een adres kent,
+  kan de eigenaar van dat adres buitensluiten. Dat is de bewuste afweging voor een
+  harde grens tegen het raden van wachtwoorden. De weg terug is contact met de
+  CISO.
+- **Blokkade door de CISO:** de knop *Blokkeren* op `/gebruikers` is bedoeld voor
+  situaties waarin een account per direct moet worden afgesloten, zoals een
+  vermoeden van gedeelde of gelekte inloggegevens of een lopend onderzoek. Een
+  **reden** is verplicht, omdat later niet de vraag is of er is geblokkeerd, maar
+  waarom. De blokkade werkt direct: lopende sessies worden beëindigd, en een
+  gebruiker die op dat moment actief is, wordt bij de volgende klik uitgelogd.
 
-  Een blokkade heeft **geen einddatum** en is omkeerbaar: u heft hem zelf op
-  zodra de aanleiding weg is. Een blokkade die vanzelf afloopt zou de maatregel
-  opheffen op een moment dat niemand heeft beoordeeld of dat kan. Gaat iemand uit
-  dienst, kies dan *Deactiveren* — dat is de status die niet terugkomt.
+  Een blokkade heeft **geen einddatum** en is omkeerbaar. De CISO heft de blokkade
+  op zodra de aanleiding is verdwenen. Een blokkade die automatisch afloopt, zou
+  de maatregel opheffen op een moment waarop niemand heeft beoordeeld of dat
+  verantwoord is. Voor een medewerker die uit dienst gaat, is *Deactiveren* de
+  juiste handeling, omdat die status niet terugkeert.
 
-  De statusregel in de lijst laat zien waar een blokkade vandaan komt: *sinds
-  wanneer, door wie, met welke reden*, of *automatisch, na te veel mislukte
-  inlogpogingen*. Dat is wat u nodig heeft op het moment dat u overweegt hem op
-  te heffen. De reden krijgt de betrokkene níet te zien: op het inlogscherm staat
-  alleen dat het account geblokkeerd is en dat hij contact opneemt met de CISO.
-- **Een vreemde heeft de uitnodiging geaccepteerd.** Ging de uitnodiging naar een
-  verkeerd adres en heeft die ontvanger hem geaccepteerd, dan is het account van
-  hém: zijn wachtwoord, zijn tweede factor, zijn herstelcodes, mogelijk een
-  lopende sessie. Het adres wijzigen lost dat niet op — hij zit er nog steeds op.
-  Wat wél werkt is **Blokkeren**: dat zet hem er bij zijn volgende klik uit en
-  beëindigt lopende sessies. Daarna maakt u een nieuw account aan met het juiste
-  adres.
-- **Uzelf blokkeren of deactiveren kan niet.** Zonder die check kan de laatste
-  CISO zichzelf buitensluiten en kan niemand meer accounts beheren — bij een
-  blokkade des te sterker, want opheffen kan alléén een CISO. Meteen ook de
-  garantie dat er altijd iemand over is: wie blokkeert, blijft zelf actief. Een
-  CISO mag een *andere* CISO wel blokkeren.
-- **Inloggen** kan alleen met status *actief*; de andere statussen geven een
-  eigen melding op het inlogscherm.
+  De statusregel in de lijst toont de herkomst van een blokkade: *sinds wanneer,
+  door wie, met welke reden*, of *automatisch, na te veel mislukte
+  inlogpogingen*. Die informatie is nodig bij de afweging om een blokkade op te
+  heffen. De betrokken gebruiker ziet de reden niet. Het inlogscherm meldt alleen
+  dat het account geblokkeerd is en dat de gebruiker contact moet opnemen met de
+  CISO.
+- **Een onbekende partij heeft de uitnodiging geaccepteerd.** Als de uitnodiging
+  naar een verkeerd adres is gegaan en de ontvanger die heeft geaccepteerd, dan
+  beheerst die ontvanger het account: het wachtwoord, de tweede factor, de
+  herstelcodes en mogelijk een lopende sessie. Het adres wijzigen lost dat niet
+  op, omdat de ontvanger dan nog steeds toegang heeft. **Blokkeren** werkt wel:
+  de ontvanger wordt bij de volgende klik uitgelogd en lopende sessies worden
+  beëindigd. Daarna maakt de CISO een nieuw account aan met het juiste adres.
+- **Een gebruiker kan het eigen account niet blokkeren of deactiveren.** Zonder die
+  check zou de laatste CISO zichzelf kunnen buitensluiten, waarna niemand meer
+  accounts kan beheren. Bij een blokkade weegt dat nog zwaarder, omdat alleen een
+  CISO een blokkade kan opheffen. De check garandeert ook dat er altijd iemand
+  overblijft: wie blokkeert, blijft zelf actief. Een CISO mag een *andere* CISO
+  wel blokkeren.
+- **Inloggen** kan alleen met de status *actief*. De andere statussen geven elk
+  een eigen melding op het inlogscherm.
 
-Elke inlogpoging — geslaagd of niet, ook met een onbekend e-mailadres — wordt
-gelogd in `loginpogingen` met tijdstip en IP.
+Elke inlogpoging wordt met tijdstip en IP-adres gelogd in `loginpogingen`. Dat
+geldt voor geslaagde en mislukte pogingen, en ook voor pogingen met een onbekend
+e-mailadres.
 
-### Het eerste account: de kip en het ei
+### Het eerste account
 
-`/gebruikers` vereist een ingelogde CISO, dus de allereerste kan daar niet
-vandaan komen. Die maak je op de commandline:
+`/gebruikers` vereist een ingelogde CISO, dus het allereerste CISO-account kan
+daar niet worden aangemaakt. Dat account wordt op de commandoregel aangemaakt:
 
 ```
 php artisan isms:eerste-ciso <e-mail> <wachtwoord> [naam]
 ```
 
-Dat account is direct *actief* — zo is er voor deze eenmalige stap geen
-mailserver nodig.
+Het account is direct *actief*, zodat er voor deze eenmalige stap geen
+mailserver nodig is.
 
 ## Het personeelsdossier (A.6)
 
-Aan elk account hangt een klein dossier: **NDA getekend op**, **screening**
-(VOG of referentiecheck, met datum) en **accounts ingetrokken op** voor de
-offboarding. Bewijsstukken — de getekende NDA, de VOG — koppel je aan de
-gebruiker.
+Aan elk account hangt een klein dossier met drie gegevens: **NDA getekend op**,
+**screening** (VOG of referentiecheck, met datum) en **accounts ingetrokken op**
+voor de offboarding. Bewijsstukken, zoals de getekende NDA en de VOG, worden aan
+de gebruiker gekoppeld.
 
-Dit zijn **gap-signalen, geen blokkades**. Een actief account zonder afgeronde
-pre-employment blijft gewoon werken, maar telt mee in de teller bovenaan
-`/gebruikers`; hetzelfde geldt voor een gedeactiveerd account waarvan de
-offboarding niet is bevestigd. De reden is praktisch: toegang blokkeren op een
-ontbrekend vinkje maakt van een administratieve achterstand een
-productiestoring, en dan wordt het vinkje gezet zonder dat het klopt.
+Deze gegevens zijn **gap-signalen en geen blokkades**. Een actief account zonder
+afgeronde pre-employment-controle blijft gewoon werken, maar telt mee in de
+teller bovenaan `/gebruikers`. Hetzelfde geldt voor een gedeactiveerd account
+waarvan de offboarding niet is bevestigd. De reden is praktisch. Als toegang
+wordt geblokkeerd op een ontbrekend vinkje, wordt een administratieve achterstand
+een productiestoring, en dan wordt het vinkje gezet zonder dat het klopt.
 
 ## Alles wat met rechten gebeurt, staat in de audit trail
 
 `Gebruiker` en `RolToewijzing` zijn auditeerbaar in het blok `identity-access`.
-Een roltoewijzing logt wie wanneer welke rol kreeg — de kern van A.5.15/5.18.
+Een roltoewijzing legt vast wie wanneer welke rol kreeg. Dat is de kern van
+A.5.15 en A.5.18.
 
-Eén detail dat een beveiligingscontrole is en geen opmaakkeuze: `wachtwoord` en
-`remember_token` staan expliciet uitgesloten van de audit trail. Zonder die
-uitsluiting zou de wachtwoordhash leesbaar belanden in een tabel die de Auditor
-mag inzien.
+Eén detail is een beveiligingscontrole en geen opmaakkeuze: `wachtwoord` en
+`remember_token` zijn expliciet uitgesloten van de audit trail. Zonder die
+uitsluiting zou de wachtwoordhash leesbaar in een tabel staan die de Auditor mag
+inzien.
 
-Let ook op massa-updates: `Model::where(...)->update()` gaat rechtstreeks naar de
-database en vuurt geen Eloquent-events — de wijziging gebeurt wél, maar komt niet
-in de audit trail. Gebruik in code daarom `updateGeaudit()` / `deleteGeaudit()`.
+Massa-updates vragen aandacht. `Model::where(...)->update()` schrijft
+rechtstreeks naar de database en activeert geen Eloquent-events. De wijziging
+wordt wel doorgevoerd, maar komt niet in de audit trail. Code gebruikt daarom
+`updateGeaudit()` en `deleteGeaudit()`.
 
-Hetzelfde geldt voor **koppelingen** tussen records (welk beleid dekt welke
-maatregel, wie zit in welke doelgroep, welke clausules vielen binnen een
-auditronde). Die raken de velden van het record niet aan en bleven daardoor
-buiten de trail; ze worden gelogd, als één regel per
-handeling met de namen van wat erbij kwam en wat eraf ging.
+Hetzelfde geldt voor **koppelingen** tussen records, zoals welk beleid welke
+maatregel dekt, wie in welke doelgroep zit en welke clausules binnen een
+auditronde vielen. Koppelingen wijzigen de velden van het record niet en vielen
+daardoor buiten de trail. Ze worden nu gelogd als één regel per handeling, met de
+namen van wat is toegevoegd en wat is verwijderd.
 
 ## Wat dit model bewust niet doet
 
-Eerlijk zijn hierover is nuttiger dan het verzwijgen:
+Het is nuttiger om de beperkingen te benoemen dan om ze te verzwijgen:
 
-- **Geen rollenbeheer in de UI.** Rollen en de rechtenmatrix zijn
-  referentiedata. Een rol toevoegen of een niveau verschuiven is een
-  seeder-wijziging plus deploy — een gecodereviewde, versiebeheerde handeling in
-  plaats van een klik. Dat is voor een ISMS eerder een kenmerk dan een gebrek,
-  maar het betekent wel dat je het niet ad hoc kunt.
-- **De rol wordt bij uitnodiging gezet en heeft geen wijzigscherm.** Een
-  rolwijziging voor een bestaand account is er nu niet als knop. De afdeling is
+- **Geen rollenbeheer in de UI.** Rollen en de rechtenmatrix zijn referentiedata.
+  Een rol toevoegen of een niveau verschuiven vereist een wijziging in de seeder
+  en een deploy. Dat is een versiebeheerde handeling met code review in plaats
+  van een klik. Voor een ISMS is dat eerder een kenmerk dan een gebrek, maar het
+  betekent wel dat de matrix niet ad hoc te wijzigen is.
+- **De rol wordt bij de uitnodiging ingesteld en heeft geen wijzigscherm.** Voor
+  een bestaand account is er nu geen knop om de rol te wijzigen. De afdeling is
   wel vanuit de lijst te wijzigen.
-- **Geen organisatie-eenheid-scoping op rechten.** De afdeling stuurt
-  leesbevestigingen en doelgroepen aan, niet de autorisatie. Een Medewerker ziet
-  niet "alles van zijn afdeling" — hij ziet het eigene.
-- **Geen tijdelijke rechtenverhoging of delegatie.** Vakantievervanging los je
-  op met een tweede rol of met een account met vervaldatum.
-- **Geen vier-ogen op persoonsniveau.** De functiescheiding tussen CISO en
-  Management zit op *rollen*, niet op personen. Wie beide rollen heeft, stelt op
-  én stelt vast; het systeem verhindert dat niet. Bij een kleine organisatie is
-  dat soms de realiteit, en het gebruikersoverzicht toont alle rollen per
-  persoon zodat een auditor die combinatie zelf kan wegen. "De opsteller mag
-  niet de goedkeurder zijn" zou een guard per record vragen.
-- **Eén tenant.** Er is geen scheiding tussen organisaties in het rechtenmodel.
+- **Geen scoping van rechten op organisatie-eenheid.** De afdeling bepaalt
+  leesbevestigingen en doelgroepen, maar niet de autorisatie. Een Medewerker ziet
+  niet alle gegevens van de eigen afdeling, maar alleen de eigen gegevens.
+- **Geen tijdelijke rechtenverhoging of delegatie.** Vakantievervanging wordt
+  opgelost met een tweede rol of met een account met een vervaldatum.
+- **Geen vier-ogenprincipe op persoonsniveau.** De functiescheiding tussen CISO en
+  Management geldt voor *rollen* en niet voor personen. Een persoon met beide
+  rollen kan zowel opstellen als vaststellen, en het systeem verhindert dat niet.
+  In een kleine organisatie is dat soms onvermijdelijk. Het gebruikersoverzicht
+  toont alle rollen per persoon, zodat een auditor die combinatie zelf kan wegen.
+  Een regel dat de opsteller niet de goedkeurder mag zijn, zou een guard per
+  record vereisen.
+- **Eén tenant.** Het rechtenmodel kent geen scheiding tussen organisaties.
 
 ## Normkoppeling
 
@@ -430,8 +463,9 @@ Eerlijk zijn hierover is nuttiger dan het verzwijgen:
 ## In de applicatie
 
 Het scherm **Gebruikers** (`/gebruikers`) is bereikbaar met `lezen` op
-`identity-access` — dus ook voor Medewerker en Auditor — maar alle knoppen eisen
-`muteren` en zijn daarmee in de praktijk van de CISO. Je vindt er:
+`identity-access`, en dus ook voor de Medewerker en de Auditor. Alle knoppen
+vereisen echter `muteren` en zijn daardoor in de praktijk voorbehouden aan de
+CISO. Het scherm bevat:
 
 - de lijst met **rol(len) als badge**, afdeling, status en de A.6-signalen;
 - **Gebruiker uitnodigen** (naam, e-mail, rol, afdeling, vervaldatum);
@@ -439,12 +473,13 @@ Het scherm **Gebruikers** (`/gebruikers`) is bereikbaar met `lezen` op
 - **Blokkeren** (met verplichte reden), **Deactiveren** en **Blokkade opheffen**;
 - het **personeelsdossier** per gebruiker (NDA, screening, offboarding) met het
   aantal gekoppelde bewijsstukken;
-- bovenaan de tellers voor openstaande pre-employment- en offboarding-gaps.
+- bovenaan de tellers voor openstaande gaps in pre-employment en offboarding.
 
-Het **menu** is rolgevoelig: een item verschijnt alleen als dat blok gebouwd is
-én de gebruiker het vereiste niveau erop heeft. Ziet iemand een item niet, dan is
-dat geen weergavefout maar het rechtenmodel dat zijn werk doet — de bijbehorende
-URL geeft ook rechtstreeks een 403.
+Het **menu** past zich aan de rol aan. Een item verschijnt alleen als het blok
+gebouwd is en de gebruiker het vereiste niveau op dat blok heeft. Als een
+gebruiker een item niet ziet, is dat geen weergavefout, maar het rechtenmodel dat
+werkt zoals bedoeld. De bijbehorende URL geeft bij rechtstreeks openen ook een
+403.
 
 De wijzigingen op accounts en roltoewijzingen zijn terug te vinden onder
 **Bewijs & audit trail → Audit log**, blok `identity-access`.

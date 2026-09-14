@@ -47,8 +47,8 @@ class KennisbankOefeningTest extends TestCase
     /** Slug => de slotkop van het gouden pad, als bewijs dat de opdracht compleet is. */
     private const OEFENINGEN = [
         'kpi-oefening' => '### 14 — Het einde',
-        'audit-oefening' => '### 14 — Wat laat je de auditor zien?',
-        'risico-oefening' => '### 10 — Wat laat je de auditor zien?',
+        'audit-oefening' => '### 14 — Wat krijgt de auditor te zien?',
+        'risico-oefening' => '### 10 — Wat krijgt de auditor te zien?',
     ];
 
     /**

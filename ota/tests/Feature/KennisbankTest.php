@@ -88,7 +88,7 @@ class KennisbankTest extends TestCase
         $this->actingAs($gebruiker)->get('/kennisbank/issues-en-risicos')
             ->assertOk()
             ->assertSee('De twee manieren waarop het misgaat') // markdown → gerenderde h2
-            ->assertSee('er zit een gat in je risicobeoordeling');
+            ->assertSee('er zit een gat in de risicobeoordeling');
     }
 
     public function test_soa_onderbouwing_artikel_rendert(): void
@@ -138,7 +138,7 @@ class KennisbankTest extends TestCase
 
         $this->actingAs($gebruiker)->get('/kennisbank/integraties-en-normeis')
             ->assertOk()
-            ->assertSee('Integraties: welke norm-eis onderbouw je ermee?') // titel uit register
+            ->assertSee('Integraties: welke norm-eis onderbouwt het register?') // titel uit register
             ->assertSee('geen zelfstandige norm-eis'); // markdown → gerenderde tekst
     }
 
@@ -277,7 +277,7 @@ class KennisbankTest extends TestCase
             ->assertOk()
             ->assertSee('De audit trail: wat er in staat, en wat niet')
             ->assertSee('status_gewijzigd')
-            ->assertSee('Wat er bewust níét in staat');
+            ->assertSee('Wat er bewust niet in staat');
 
         // De auditor wil de volledige lijst zien: elke auditeerbare entiteit
         // hoort in de tabel te staan, niet een selectie ervan.
@@ -299,30 +299,11 @@ class KennisbankTest extends TestCase
         $this->assertSame($aliassen, $inTabel);
 
         // Het getal in de inleidende zin telt mee: de tabel eronder werd bij
-        // elke uitbreiding netjes bijgewerkt, maar het woord ervoor bleef staan
+        // elke uitbreiding netjes bijgewerkt, maar het getal ervoor bleef staan
         // — precies zo liep het tot augustus 2026 achter op de werkelijkheid.
         $this->assertStringContainsString(
-            $this->inWoorden(count($aliassen)).' entiteiten schrijven naar de trail',
-            mb_strtolower($markdown),
-        );
-    }
-
-    /**
-     * Het telwoord waarmee de kennisbank een aantal uitschrijft. Uit `intl` en
-     * niet uit een tabel hier, zodat er geen tweede lijst is die zelf weer
-     * achter kan lopen. De zachte afbreekstreepjes die de formatter erin zet
-     * ("een\u{00AD}en\u{00AD}veertig") horen niet in de tekst thuis.
-     */
-    private function inWoorden(int $aantal): string
-    {
-        if (! extension_loaded('intl')) {
-            $this->markTestSkipped('intl ontbreekt; het telwoord is niet te controleren.');
-        }
-
-        return str_replace(
-            "\u{00AD}",
-            '',
-            (new \NumberFormatter('nl', \NumberFormatter::SPELLOUT))->format($aantal),
+            'Er zijn '.count($aliassen).' entiteiten die naar de trail schrijven',
+            $markdown,
         );
     }
 
@@ -423,8 +404,8 @@ class KennisbankTest extends TestCase
 
         $this->actingAs($gebruiker)->get('/kennisbank/ezisms-voor-de-ciso')
             ->assertOk()
-            ->assertSee('EzISMS voor de CISO: past dit bij je?') // titel uit het register
-            ->assertSee('Dit past bij je als')                   // markdown → gerenderde h2
+            ->assertSee('EzISMS voor de CISO: past dit systeem bij de organisatie?') // titel uit het register
+            ->assertSee('Wanneer dit systeem past')              // markdown → gerenderde h2
             ->assertSee('Wat dit systeem uitdrukkelijk niet is')
             // De afbakening tegen CMDB en servicedesk: die verwachting kost bij
             // een demo altijd tijd, dus ze hoort in beide oriëntatiestukken.
@@ -435,7 +416,7 @@ class KennisbankTest extends TestCase
             ->assertOk()
             ->assertSee('EzISMS voor de externe auditor: een rondleiding')
             ->assertSee('Waar wat te vinden is')
-            ->assertSee('Wat er van dit systeem níét te verwachten valt')
+            ->assertSee('Wat er van dit systeem niet te verwachten valt')
             ->assertSee('geen assetmanagementsysteem')
             ->assertSee('geen ticketsysteem');
 
@@ -500,7 +481,7 @@ class KennisbankTest extends TestCase
             ->assertSee('Fase 2 — Kader')
             ->assertSee('Fase 3 — Inhoud')
             ->assertSee('Fase 4 — Ritme')
-            ->assertSee('De drie momenten waarop je Management nodig hebt');
+            ->assertSee('De drie momenten waarop Management nodig is');
     }
 
     /**
@@ -593,9 +574,9 @@ class KennisbankTest extends TestCase
         $antwoord = $this->actingAs($gebruiker)->get('/kennisbank/open-punten')
             ->assertOk()
             ->assertSee('Open punten, bedenkingen en ideeën')   // titel uit het register
-            ->assertSee('Beslissingen die nog aan u zijn')      // markdown → gerenderde h2
+            ->assertSee('Beslissingen die nog open staan')       // markdown → gerenderde h2
             ->assertSee('Ideeën die klaarliggen')
-            ->assertSee('Wat hier níét op hoort');
+            ->assertSee('Wat hier niet op hoort');
 
         // Deze pagina is één en al doorverwijzing. Een dode link is hier erger
         // dan elders: wie een open punt natrekt en op een 404 stuit, gelooft de
@@ -678,7 +659,7 @@ class KennisbankTest extends TestCase
 
         // De ruwe markdown gaat de conversie in, niet de gerenderde HTML:
         // '##' overleeft die conversie niet, dus dit onderscheidt de twee.
-        $this->assertStringContainsString('## De sluitpoort van een incident', $aangeleverd);
+        $this->assertStringContainsString('## De blokkade bij het sluiten van een incident', $aangeleverd);
     }
 
     /**

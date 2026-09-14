@@ -1,125 +1,141 @@
 # Leeswijzer
 
-Een overzicht van de artikelen.
+Deze pagina geeft een overzicht van de artikelen in de kennisbank.
 
 ## Naslag
 
-- **Leeswijzer** — Deze pagina.
-- **[EzISMS voor de CISO: past dit bij je?](/kennisbank/ezisms-voor-de-ciso)** — Wat
-  het systeem wel en niet doet, in tien minuten, zonder techniek. Begin hier als je
-  het nog niet kent.
+- **Leeswijzer** — Dit is de pagina die nu wordt getoond.
+- **[EzISMS voor de CISO: past dit systeem bij de organisatie?](/kennisbank/ezisms-voor-de-ciso)** — Dit
+  artikel beschrijft zonder technische details wat het systeem wel en niet doet. Het
+  artikel is in tien minuten te lezen en is het beginpunt voor lezers die het systeem
+  nog niet kennen.
 - **[Van lege installatie naar draaiend ISMS](/kennisbank/van-lege-installatie-naar-draaiend-isms)**
-  — De vulvolgorde in vier fasen, en waarom die volgorde uitmaakt: wat je te vroeg
-  vult, moet je later overdoen.
+  — Dit artikel beschrijft in vier fasen de volgorde waarin de registers worden
+  gevuld. Die volgorde is van belang, omdat een register dat te vroeg wordt gevuld
+  later opnieuw moet worden ingevuld.
 - **[EzISMS voor de externe auditor: een rondleiding](/kennisbank/ezisms-voor-de-auditor)**
-  — Een kwartiertje inwerken voor wie dit ISMS niet kent: de indeling, waar elke
-  clausule landt, en hoe het bewijs vastligt.
-- **[Sitestructuur](/kennisbank/sitestructuur)** — Een boomdiagram van het hele menu:
-  de hoofdsecties en hun tabbladen, zodat je weet waar iets zit.
+  — Dit artikel is een inwerkstuk van ongeveer een kwartier voor een auditor die dit
+  ISMS niet kent. Het beschrijft de indeling, de plaats van elke clausule en de manier
+  waarop het bewijs is vastgelegd.
+- **[Sitestructuur](/kennisbank/sitestructuur)** — Dit artikel toont het volledige
+  menu als boomdiagram, met de hoofdsecties en hun tabbladen. Het diagram laat zien
+  waar elk onderdeel te vinden is.
 - **[De Cyberbeveiligingswet: waar hij dit systeem raakt](/kennisbank/de-cyberbeveiligingswet-in-het-isms)**
-  — Drie raakvlakken: de instelling die zegt of je eronder valt, de gefaseerde
-  meldtermijnen bij incidenten, en waar de bewaking ophoudt.
-- **[Verantwoording en disclaimer](/kennisbank/verantwoording-en-disclaimer)** —
-  Waarom de normtekst niet wordt meegeleverd, wat de verwijzingen wel en niet waard
-  zijn, en waar je zelf de norm nodig hebt.
+  — Dit artikel beschrijft drie raakvlakken: de instelling die aangeeft of de
+  organisatie onder de wet valt, de gefaseerde meldtermijnen bij incidenten en de
+  grens van de bewaking.
+- **[Verantwoording en disclaimer](/kennisbank/verantwoording-en-disclaimer)** — Dit
+  artikel legt uit waarom de normtekst niet wordt meegeleverd, wat de verwijzingen wel
+  en niet waard zijn en waarvoor de organisatie de norm zelf nodig heeft.
 
 ## Toegang & gebruikers
 
 - **[Gebruikers, rollen en rechten](/kennisbank/gebruikers-rollen-en-rechten)** —
-  Toegang is data en geen code: rol × blok × niveau. Met de drie lagen
-  (autorisatiecheck, record-scoping, record-guards) en de eerlijke lijst van wat het
-  model niet doet.
+  Toegang is in dit systeem data en geen code: een combinatie van rol, blok en niveau.
+  Het artikel beschrijft de drie lagen (autorisatiecheck, record-scoping en
+  record-guards) en somt eerlijk op wat het model niet doet.
 
 ## Risico & SoA
 
-- **[Issues en risico's: wat hoort waar?](/kennisbank/issues-en-risicos)**
-  — Twee clausules, twee vragen: een blijvende conditie scoor je niet, een
-  gebeurtenis die zich kan voordoen wel. Met de toets in één zin en de twee manieren
-  waarop het misgaat.
+- **[Issues en risico's: wat hoort waar?](/kennisbank/issues-en-risicos)** — Issues en
+  risico's komen uit twee clausules en beantwoorden twee verschillende vragen. Een
+  blijvende conditie wordt niet gescoord, en een gebeurtenis die zich kan voordoen
+  wel. Het artikel bevat de toets in één zin en beschrijft de twee manieren waarop het
+  misgaat.
 - **[De SoA onderbouwen: van 'ja' tot restrisico](/kennisbank/soa-onderbouwen-en-restrisico)**
-  — Een sterke motivatie beantwoordt driver, realisatie en bewijs. Plus het netto
-  restrisico per maatregel en de veel-op-veel-realiteit van één maatregel over
-  meerdere deelsystemen.
-- **[Oefening: volg een risico over vier jaar](/kennisbank/risico-oefening)** —
-  Dezelfde stof als oefening in je eigen AI-assistent: één risico van formuleren
-  tot vier peiljaren restrisico, inclusief het jaar dat tegenvalt.
+  — Een sterke motivatie beantwoordt drie vragen: naar de driver, de realisatie en het
+  bewijs. Het artikel behandelt daarnaast het netto restrisico per maatregel en de
+  veel-op-veel-relatie waarin één maatregel meerdere deelsystemen dekt.
+- **[Oefening: volg een risico over vier jaar](/kennisbank/risico-oefening)** — Deze
+  oefening behandelt dezelfde stof in de eigen AI-assistent van de gebruiker. De
+  oefening volgt één risico van de formulering tot vier peiljaren restrisico,
+  inclusief een jaar dat tegenvalt.
 - **[Maatregelclassificatie: uitgangspunt en eigen vaststelling](/kennisbank/maatregelclassificatie)**
-  — De meegeleverde kenmerken zijn een startpunt en geen waarheid; pas je eigen
-  vaststelling maakt er een uitspraak over jóúw organisatie van.
+  — De meegeleverde kenmerken zijn een startpunt en geen vaststaand gegeven. Pas de
+  eigen vaststelling maakt er een uitspraak over de eigen organisatie van.
 
 ## Meten & rapportage
 
-- **[KPI's en meetwaarden](/kennisbank/kpis-en-meetwaarden)** — Het model meet
-  toestand, PDCA vraagt om beweging: daarom een onveranderlijke meetlaag met een
-  catalogus, de metingen zelf en de norm waartegen je ze beoordeelt.
+- **[KPI's en meetwaarden](/kennisbank/kpis-en-meetwaarden)** — Het model meet een
+  toestand, terwijl PDCA om beweging vraagt. Daarom is er een onveranderlijke meetlaag
+  met een catalogus, de metingen zelf en de norm waartegen de metingen worden
+  beoordeeld.
 - **[Een KPI opzetten: een uitgewerkt voorbeeld](/kennisbank/kpi-opzetten-voorbeeld)**
-  — Eén KPI van aanmaken tot afsluiten aan de hand van een casus: de
-  berekeningswijze voluit, een verdedigbare streefwaarde en de maandelijkse routine.
-- **[Oefening: zet zelf een KPI op](/kennisbank/kpi-oefening)** — Dezelfde casus,
-  nu als oefening in je eigen AI-assistent: afwijken mag, je ziet het gevolg
-  maanden later, en je mag terug naar het punt waar je afweek.
-- **[De audit trail: wat er in staat, en wat niet](/kennisbank/de-audit-trail)** —
-  Wie, wat, wanneer en op welk blok — append-only, met naam en omschrijving als
-  momentopname, en een eerlijk antwoord op "hoe hard is append-only?".
-- **[Communicatie en overleg vastleggen](/kennisbank/communicatie-en-overleg)**
-  — Wat, wanneer, met wie en hoe, zonder er een apart project van te maken: de
-  bouwstenen staan er al. Inclusief de val om overleggen als normverplichting te
-  presenteren.
+  — Dit artikel volgt aan de hand van een casus één KPI van aanmaken tot afsluiten.
+  Het beschrijft de volledige berekeningswijze, een verdedigbare streefwaarde en de
+  maandelijkse routine.
+- **[Oefening: zet zelf een KPI op](/kennisbank/kpi-oefening)** — Deze oefening
+  gebruikt dezelfde casus in de eigen AI-assistent van de gebruiker. Afwijken van de
+  casus is toegestaan. Het gevolg van een afwijking wordt maanden later zichtbaar, en
+  de oefening kan terugkeren naar het punt van afwijking.
+- **[De audit trail: wat er in staat, en wat niet](/kennisbank/de-audit-trail)** — De
+  audit trail legt vast wie wat wanneer op welk blok heeft gedaan. De trail is
+  append-only en bewaart naam en omschrijving als momentopname. Het artikel
+  beantwoordt ook de vraag hoe hard die append-only-eigenschap is.
+- **[Communicatie en overleg vastleggen](/kennisbank/communicatie-en-overleg)** — Dit
+  artikel beschrijft hoe wordt vastgelegd wat er wanneer, met wie en hoe wordt
+  gecommuniceerd, zonder er een apart project van te maken, omdat de bouwstenen al
+  aanwezig zijn. Het artikel beschrijft ook de valkuil om overleggen als
+  normverplichting te presenteren.
 
 ## Audits & certificering
 
-- **[Een interne audit opzetten](/kennisbank/interne-audit-opzetten)** — De
-  opbouw cyclus → jaarplan → ronde, de vaste volgorde die met een besliste SoA
-  begint, en de dekkingsmatrix over hoofdstuk 4–10 plus Bijlage A.
-- **[Oefening: zet een auditcyclus op](/kennisbank/audit-oefening)** — Dezelfde
-  stof als oefening in je eigen AI-assistent: van de nulmeting tot een cyclus die
-  op de certificaatdatum begint, met het gevolg van elke misstap erbij.
+- **[Een interne audit opzetten](/kennisbank/interne-audit-opzetten)** — Dit artikel
+  beschrijft de opbouw cyclus → jaarplan → ronde, de vaste volgorde die met een
+  besliste SoA begint en de dekkingsmatrix over hoofdstuk 4–10 plus Bijlage A.
+- **[Oefening: zet een auditcyclus op](/kennisbank/audit-oefening)** — Deze oefening
+  behandelt dezelfde stof in de eigen AI-assistent van de gebruiker. De oefening loopt
+  van de nulmeting tot een cyclus die op de certificaatdatum begint, en toont bij elke
+  misstap het gevolg.
 - **[De externe certificeringsaudit in het ISMS](/kennisbank/externe-certificeringsaudit)**
-  — Het auditrapport blijft de bron van waarheid; je hangt het als bewijs onder de
-  ronde en neemt de punten over als bevindingen, zodat de opvolging in één systeem
-  loopt.
+  — Het auditrapport blijft de bron van waarheid. De organisatie hangt het rapport als
+  bewijs onder de ronde en neemt de punten over als bevindingen, zodat de opvolging in
+  één systeem loopt.
 
 ## Leveranciers & derdenrisico
 
 - **[Een HR-SaaS-leverancier opvoeren](/kennisbank/hr-saas-leverancier-opvoeren)** —
-  Van `kandidaat` tot `beëindigd` aan de hand van één voorbeeld: dienst,
-  classificatie, contracteisen, periodieke beoordeling en de bevestigde teruggave
-  van data.
+  Dit artikel volgt één voorbeeld van `kandidaat` tot `beëindigd`: de dienst, de
+  classificatie, de contracteisen, de periodieke beoordeling en de bevestigde
+  teruggave van data.
 
 ## Incidentbeheer
 
 - **[Incidenten & afwijkingen: statussen en normkoppeling](/kennisbank/incidenten-en-afwijkingen)**
-  — Twee gekoppelde levenscycli, het verschil tussen *opgelost* en *gesloten*, de
-  vier voorwaarden om een dossier te sluiten, en wanneer de externe meldplicht gaat
-  spelen.
+  — Dit artikel beschrijft twee gekoppelde levenscycli, het verschil tussen *opgelost*
+  en *gesloten*, de vier voorwaarden om een dossier te sluiten en het moment waarop de
+  externe meldplicht van toepassing wordt.
 - **[Wijzigingsbeheer: van aankondiging tot evaluatie](/kennisbank/wijzigingsbeheer)**
-  — Waarom A.8.32 erom vraagt en hoe een sjabloon met stappen de route vastlegt —
-  inclusief de spoedroute, waarbij de goedkeuring naar achteraf schuift.
+  — Dit artikel legt uit waarom A.8.32 om wijzigingsbeheer vraagt en hoe een sjabloon
+  met stappen de route vastlegt. Het artikel behandelt ook de spoedroute, waarbij de
+  goedkeuring naar achteraf schuift.
 - **[Wijzigingsbeheer: het register en de sjablonen](/kennisbank/wijzigingsbeheer-schermen)**
-  — De twee tabbladen zelf: wat je in het register ziet, welke drie signalen bovenaan
-  kunnen verschijnen, en hoe je een route instelt.
+  — Dit artikel beschrijft de twee tabbladen zelf: wat het register toont, welke drie
+  signalen bovenaan kunnen verschijnen en hoe een route wordt ingesteld.
 
 ## Techniek & beheer
 
-- **[Beheer: de artisan-commando's](/kennisbank/beheer)** — Alles wat buiten de
-  schermen om draait: de nachtelijke onderhoudstaken, en wat je met de hand geeft bij
-  inrichten, controleren, uitleveren en opruimen.
-- **[De normteksten invoeren](/kennisbank/normteksten-invoeren)** — Heb je de norm
-  gekocht, dan zet je de teksten er zelf in: één JSON-bestand, één commando — en de
-  ingevoerde tekst mag deze installatie niet verlaten.
-- **[Integraties: welke norm-eis onderbouw je ermee?](/kennisbank/integraties-en-normeis)**
+- **[Beheer: de artisan-commando's](/kennisbank/beheer)** — Dit artikel beschrijft
+  alles wat buiten de schermen om draait: de nachtelijke onderhoudstaken en de
+  commando's die met de hand worden gegeven bij inrichten, controleren, uitleveren en
+  opruimen.
+- **[De normteksten invoeren](/kennisbank/normteksten-invoeren)** — Een organisatie
+  die de norm heeft gekocht, voert de teksten zelf in met één JSON-bestand en één
+  commando. De ingevoerde tekst mag deze installatie niet verlaten.
+- **[Integraties: welke norm-eis onderbouwt het register?](/kennisbank/integraties-en-normeis)**
   — Het integratieregister is geen losstaande eis, maar bewijs onder maatregelen die
-  je toch al van toepassing verklaart.
+  de organisatie al van toepassing verklaart.
 - **[Software Bill of Materials (SBOM)](/kennisbank/software-bill-of-materials)** —
-  Alle software waar dit platform op draait, met de exacte versies uit de lockfiles —
-  voor kwetsbaarheidsbeheer en licentieverantwoording.
-- **[Open punten, bedenkingen en ideeën](/kennisbank/open-punten)** — De eerlijke
-  lijst: beslissingen die nog aan jou zijn, bewuste beperkingen die niet weggaan, en
-  ideeën die bedacht maar niet gebouwd zijn.
+  Dit artikel somt alle software op waar dit platform op draait, met de exacte versies
+  uit de lockfiles. De lijst dient voor kwetsbaarheidsbeheer en
+  licentieverantwoording.
+- **[Open punten, bedenkingen en ideeën](/kennisbank/open-punten)** — Dit artikel is
+  de eerlijke lijst van beslissingen die nog bij de gebruiker liggen, bewuste
+  beperkingen die blijven bestaan en ideeën die bedacht maar niet gebouwd zijn.
 
 ## Besluiten & architectuur
 
 - **[Besluit: opslag van bewijzen en beleidsdocumenten](/kennisbank/besluit-opslag-bewijzen-beleidsdocumenten)**
-  — Waarom bewijs in het ISMS zelf staat en niet als URL naar een document elders:
-  integriteitshash, bewaartermijn, toegang via de applicatie en een geregistreerde
-  raadpleging.
+  — Dit artikel legt uit waarom bewijs in het ISMS zelf staat en niet als URL naar een
+  document elders. De redenen zijn de integriteitshash, de bewaartermijn, de toegang
+  via de applicatie en een geregistreerde raadpleging.

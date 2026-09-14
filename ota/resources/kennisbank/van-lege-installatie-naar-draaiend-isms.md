@@ -1,10 +1,11 @@
 # Van lege installatie naar draaiend ISMS
 
-Je hebt de installatie draaien en één CISO-account, gemaakt met
+De uitgangssituatie is een draaiende installatie met één CISO-account, gemaakt met
 `isms:eerste-ciso`. Elk register in het menu staat open, en dat is precies het
-probleem: ze hangen aan elkaar. Begin je bij de risico's, dan mis je het kader
-waartegen je ze zou beoordelen; begin je bij de gebruikers, dan hebben ze geen
-afdeling om bij te horen. Deze pagina geeft de volgorde die dat voorkomt.
+probleem, want de registers hangen van elkaar af. Wie bij de risico's begint,
+mist het kader waartegen die risico's beoordeeld worden. Wie bij de gebruikers
+begint, heeft nog geen afdelingen om ze aan toe te wijzen. Deze pagina beschrijft
+de volgorde die deze problemen voorkomt.
 
 <div class="vulvolgorde" style="margin:1.4rem 0;">
 <!-- De naam staat in aria-label en niet in een title-element: de
@@ -86,11 +87,11 @@ afdeling om bij te horen. Deze pagina geeft de volgorde die dat voorkomt.
 </g>
 <g fill="currentColor" fill-opacity="0.6" font-size="13">
 <text x="164" y="166">afdelingen en locaties</text>
-<text x="381" y="166">mét hun afdeling</text>
+<text x="381" y="166">met hun afdeling</text>
 <text x="164" y="296">issues, belanghebbenden</text>
 <text x="381" y="296">Management activeert</text>
 <text x="598" y="296">drempels, tien niveaus</text>
-<text x="815" y="296">wat BIV bij jou betekent</text>
+<text x="815" y="296">betekenis van BIV hier</text>
 <text x="164" y="426">classificeren op BIV</text>
 <text x="381" y="426">beoordelen tegen kader</text>
 <text x="598" y="426">beslissen + motiveren</text>
@@ -105,148 +106,155 @@ afdeling om bij te horen. Deze pagina geeft de volgorde die dat voorkomt.
 </g>
 <line x1="0" y1="606" x2="1000" y2="606" stroke="currentColor" stroke-opacity="0.3" stroke-width="1.5"/>
 <circle cx="6" cy="632" r="4" fill="var(--color-accent, #5980a6)"/>
-<text x="20" y="636" fill="currentColor" fill-opacity="0.6" font-size="12">Management stelt vast — de CISO kan dit niet zelf. Maak daarom ook direct een management-gebruiker aan.</text>
+<text x="20" y="636" fill="currentColor" fill-opacity="0.6" font-size="12">Management stelt vast; de CISO kan dit niet zelf. Een management-gebruiker is daarom direct nodig.</text>
 </svg>
 </div>
 
 ## Waarom de volgorde uitmaakt
 
-De afhankelijkheden zijn van drie soorten, en ze voelen verschillend aan.
+Er zijn drie soorten afhankelijkheden, en ze gedragen zich verschillend.
 
 De eerste soort is **hard**: een record verwijst naar een ander record, en zonder
-dat andere record kun je het niet opslaan. Een gebruiker draagt een
-organisatie-eenheid; een risico draagt de risicocriteria-versie waaronder het
-beoordeeld is. Deze loop je vanzelf tegen het lijf.
+dat andere record is het niet op te slaan. Een gebruiker draagt een
+organisatie-eenheid, en een risico draagt de versie van de risicocriteria
+waaronder het beoordeeld is. Deze afhankelijkheden blijken vanzelf, omdat het
+opslaan anders mislukt.
 
-De tweede soort is **inhoudelijk**, en die is gevaarlijker, want het systeem laat
-je gewoon doorwerken. Je kunt vandaag vijftig assets classificeren zonder dat er
-één regel in het classificatieschema staat. Het lukt, en het is waardeloos:
-"vertrouwelijk" betekent dan nog niets, en als je die betekenis een maand later
-alsnog vastlegt, blijkt de helft van je stempels niet te kloppen.
+De tweede soort is **inhoudelijk**. Deze soort is gevaarlijker, omdat het systeem
+het werk gewoon laat doorgaan. Het is mogelijk om 50 assets te classificeren
+terwijl er nog geen enkele regel in het classificatieschema staat. Dat lukt, maar
+het resultaat is waardeloos. "Vertrouwelijk" betekent dan nog niets, en als die
+betekenis een maand later alsnog wordt vastgelegd, blijkt de helft van de
+classificaties niet te kloppen.
 
 De derde soort is **procedureel**: Management moet iets vaststellen voordat het
-geldt. Dat kost doorlooptijd die niet van jou is. Zie de laatste paragraaf van
-deze pagina.
+geldt. Dat kost doorlooptijd die de CISO niet zelf in de hand heeft. De laatste
+paragraaf van deze pagina gaat daarop in.
 
 ## Fase 1 — Fundament
 
-**Organisatie-eenheden eerst.** Afdelingen en locaties zijn het skelet waar
-verderop van alles aan hangt: de reikwijdte van de scope-verklaring, de
-eigenaren van assets en risico's, en de doelgroepen voor beleid en trainingen.
+**Organisatie-eenheden eerst.** Afdelingen en locaties vormen het skelet waar
+verderop veel aan hangt: de reikwijdte van de scope-verklaring, de eigenaren van
+assets en risico's, en de doelgroepen voor beleid en trainingen.
 
-**Daarna pas gebruikers en rollen, mét hun afdeling.** Dat "mét" is de reden dat
-deze twee in deze volgorde staan. Een gebruiker zonder organisatie-eenheid valt
-buiten elke doelgroep die op afdeling is gebaseerd, en dat merk je niet meteen:
-hij krijgt gewoon geen leesbevestiging en geen training toegewezen, en niets
-meldt dat er iemand overgeslagen is. Maak eerst de afdelingen, dan de mensen.
+**Daarna pas gebruikers en rollen, met hun afdeling.** De afdeling is de reden dat
+deze twee stappen in deze volgorde staan. Een gebruiker zonder
+organisatie-eenheid valt buiten elke doelgroep die op afdeling is gebaseerd, en
+dat is niet direct zichtbaar. Die gebruiker krijgt geen leesbevestiging en geen
+training toegewezen, en het systeem meldt niet dat er iemand is overgeslagen. De
+afdelingen worden daarom eerst aangemaakt, en de gebruikers daarna.
 
-**Maak in deze fase ook een management-gebruiker aan.** Niet later. De rol
-*Management* heeft op geen enkel blok muteerrecht, maar wél goedkeuringsrecht op
-context en scope, op risico's en SoA, en op beleid — en de CISO heeft dat recht
-juist niet. Dat is de functiescheiding waarvoor de rol bestaat. Zonder zo'n
-account loop je in fase 2 vast op de eerste stap die vastgesteld moet worden.
-Zie [Gebruikers, rollen en rechten](/kennisbank/gebruikers-rollen-en-rechten).
+**In deze fase wordt ook een management-gebruiker aangemaakt.** Dat hoort niet
+later te gebeuren. De rol *Management* heeft op geen enkel blok muteerrecht, maar
+heeft wel goedkeuringsrecht op context en scope, op risico's en SoA, en op beleid.
+De CISO heeft dat recht juist niet. Dat is de functiescheiding waarvoor de rol
+bestaat. Zonder zo'n account loopt fase 2 vast op de eerste stap die vastgesteld
+moet worden. Zie [Gebruikers, rollen en rechten](/kennisbank/gebruikers-rollen-en-rechten).
 
 ## Fase 2 — Kader
 
-Dit is de fase die je het liefst overslaat en die het meeste terugbetaalt. Hier
-leg je vast waartegen je straks alles gaat afmeten.
+Deze fase wordt het vaakst overgeslagen, maar levert het meeste op. In deze fase
+wordt vastgelegd waartegen later alles wordt afgemeten.
 
-**Context: issues en belanghebbenden.** De interne en externe onderwerpen die je
-managementsysteem raken, en de partijen die er iets van vinden. Ze zijn geen
-doel op zich — ze worden gekoppeld aan de scope-verklaring die je hierna maakt.
-Wat wel en niet in dit register hoort, staat in [Issues (§4.1) en risico's
+**Context: issues en belanghebbenden.** Dit zijn de interne en externe onderwerpen
+die het managementsysteem raken, en de partijen die er belang bij hebben. Ze zijn
+geen doel op zich, maar worden gekoppeld aan de scope-verklaring die hierna wordt
+gemaakt. Wat wel en niet in dit register hoort, staat in [Issues (§4.1) en risico's
 (§6.1)](/kennisbank/issues-en-risicos).
 
-**Scope-verklaring versie 1.** Hierin komen de organisatie-eenheden uit fase 1,
-de issues en belanghebbenden die je net hebt vastgelegd, plus de uitsluitingen en
-de koppelvlakken met de buitenwereld. Een verklaring is bewerkbaar zolang hij
-*concept* is; daarna gaat hij naar *ter goedkeuring* en activeert Management hem.
-Wees hier niet perfectionistisch: versie 1 mag ruw zijn. De statusgang
-`concept → ter goedkeuring → actief → vervangen` is er juist op gebouwd dat er
-een versie 2 komt, en een vervangen versie blijft gewoon staan als bewijs van wat
-er destijds gold.
+**Scope-verklaring versie 1.** Deze verklaring bevat de organisatie-eenheden uit
+fase 1, de issues en belanghebbenden die zojuist zijn vastgelegd, en de
+uitsluitingen en koppelvlakken met de buitenwereld. Een verklaring is bewerkbaar
+zolang die de status *concept* heeft. Daarna gaat de verklaring naar *ter
+goedkeuring* en activeert Management haar. Versie 1 hoeft niet perfect te zijn en
+mag ruw zijn. De statusgang `concept → ter goedkeuring → actief → vervangen` gaat
+er juist van uit dat er een versie 2 komt. Een vervangen versie blijft bewaard als
+bewijs van wat er destijds gold.
 
-**Risicocriteria.** Eén versie draagt het hele kader: de risk-appetite-verklaring,
+**Risicocriteria.** Eén versie bevat het hele kader: de risk-appetite-verklaring,
 de rode acceptatiedrempel, de amber waarschuwingsgrens, de leidraad per as en de
-tien niveaudefinities — vijf voor kans, vijf voor impact. De CISO stelt op en
-dient in, Management activeert. Dit móét vóór de risico's uit fase 3, en niet
-alleen omdat het netter is: elk risico legt vast onder wélke versie het beoordeeld
-is. Beoordeel je eerst en stel je het kader daarna vast, dan hangen je scores aan
-niets.
+10 niveaudefinities, namelijk vijf voor kans en vijf voor impact. De CISO stelt
+de versie op en dient die in, en Management activeert haar. Deze stap moet vóór
+de risico's uit fase 3 plaatsvinden. De reden is niet alleen netheid: elk risico
+legt vast onder welke versie het beoordeeld is. Als de risico's eerst worden
+beoordeeld en het kader pas daarna wordt vastgesteld, hebben de scores geen
+grondslag.
 
-**Classificatieschema.** Twaalf regels staan er al: drie dimensies (vertrouwelijkheid,
-integriteit, beschikbaarheid) maal vier niveaus. Vertrouwelijkheid en integriteit
-lopen van *openbaar* tot *geheim*, beschikbaarheid van *niet kritiek* tot
-*bedrijfskritiek*. Wat leeg is gelaten, is precies het deel dat van jouw
-organisatie is: de omschrijving en de omgangsregels per niveau. Vul die in
-voordat je gaat classificeren — anders is "vertrouwelijk" een woord zonder
-afspraak erachter.
+**Classificatieschema.** Het schema bevat al 12 regels: drie dimensies
+(vertrouwelijkheid, integriteit, beschikbaarheid) maal vier niveaus.
+Vertrouwelijkheid en integriteit lopen van *openbaar* tot *geheim*,
+beschikbaarheid van *niet kritiek* tot *bedrijfskritiek*. Het leeg gelaten deel
+is precies het deel dat per organisatie verschilt: de omschrijving en de
+omgangsregels per niveau. Die velden horen ingevuld te zijn voordat het
+classificeren begint. Anders is "vertrouwelijk" een woord zonder afspraak.
 
 ## Fase 3 — Inhoud
 
-Nu pas gaat het over de werkelijkheid van je organisatie, en nu kan dat ook,
-want er ligt een meetlat.
+Pas in deze fase gaat het over de werkelijke situatie van de organisatie. Dat is
+nu ook mogelijk, omdat er een meetlat ligt.
 
-**Systemen en assets, geclassificeerd op BIV.** Met het schema uit fase 2 in de
-hand is dit invulwerk in plaats van improviseren.
+**Systemen en assets, geclassificeerd op BIV.** Met het schema uit fase 2 is dit
+invulwerk in plaats van improvisatie.
 
 **Risico's, beoordeeld tegen het kader.** Een risico hangt aan een asset of aan
-een leverancier, draagt een kans- en impactniveau uit de actieve criteria-versie,
-en heeft een eigenaar. De score volgt uit het kader, niet uit een onderbuikgevoel
-dat per beoordelaar verschilt.
+een leverancier, draagt een kans- en impactniveau uit de actieve versie van de
+criteria, en heeft een eigenaar. De score volgt uit het kader en niet uit een
+gevoel dat per beoordelaar verschilt.
 
-**De Verklaring van Toepasselijkheid: beslissen én motiveren.** Per maatregel
-leg je vast of hij van toepassing is en waaróm. Dat "waarom" is geen formaliteit;
-het is wat een auditor leest. Hoe je een regel opbouwt van driver tot restrisico,
-staat in [De SoA onderbouwen](/kennisbank/soa-onderbouwen-en-restrisico).
+**De Verklaring van Toepasselijkheid: beslissen en motiveren.** Per maatregel
+wordt vastgelegd of de maatregel van toepassing is en waarom. Die motivatie is
+geen formaliteit, want een auditor leest haar. Hoe een regel wordt opgebouwd van
+driver tot restrisico, staat in [De SoA onderbouwen](/kennisbank/soa-onderbouwen-en-restrisico).
 
 **Beleid.** Een beleidsdocument krijgt een bestand en een doelgroep, en de
-doelgroep werkt alleen als fase 1 klopt. De CISO schrijft, Management stelt vast
-— dezelfde scheiding als bij de scope en de criteria.
+doelgroep werkt alleen als fase 1 klopt. De CISO schrijft en Management stelt
+vast. Dat is dezelfde scheiding als bij de scope en de criteria.
 
 ## Fase 4 — Ritme
 
-De eerste drie fasen zijn een project. Deze is er geen: hier zet je het
-herhaalgedrag aan waar de norm om vraagt.
+De eerste drie fasen vormen een project. Deze fase is dat niet. In deze fase
+wordt het terugkerende werk ingericht waar de norm om vraagt.
 
-**Taken en KPI's.** Taken krijgen een eigenaar en een deadline; terugkerende
-taken komen uit sjablonen en worden 's nachts gegenereerd. KPI's krijgen een
+**Taken en KPI's.** Taken krijgen een eigenaar en een deadline. Terugkerende taken
+komen uit sjablonen en worden 's nachts gegenereerd. KPI's krijgen een
 streefwaarde en een signaalwaarde.
 
-Doe de KPI's liever te vroeg dan te laat. De meting draait maandelijks en legt
-per KPI teller en noemer onveranderlijk vast — dat is de bedoeling, maar het
-betekent ook dat je meethistorie niet met terugwerkende kracht te maken is. Een
-KPI die je in juni definieert, heeft over januari tot mei niets te melden, en dat
-gat is later niet meer te vullen. Zie
+De KPI's worden beter te vroeg dan te laat ingericht. De meting draait maandelijks
+en legt per KPI de teller en de noemer onveranderlijk vast. Dat is de bedoeling,
+maar het betekent ook dat meethistorie niet met terugwerkende kracht te maken is.
+Een KPI die in juni wordt gedefinieerd, heeft over januari tot en met mei geen
+gegevens, en dat gat is later niet meer te vullen. Zie
 [KPI's en meetwaarden](/kennisbank/kpis-en-meetwaarden).
 
 **Auditcyclus, en die staat bewust achteraan.** De audit-universe wordt afgeleid
-uit de SoA: elke maatregel die van toepassing is krijgt een auditobject, een
-maatregel die dat niet is krijgt er geen. Zet je de cyclus op voordat de SoA
-beslist is, dan plan je rondes over een lege verzameling. Het commando
-`isms:bereid-auditcyclus-voor` weigert daarom bij een onvolledige SoA, tenzij je
-`--forceer` meegeeft. Doe dat alleen als je weet waarom.
+uit de SoA. Elke maatregel die van toepassing is, krijgt een auditobject, en een
+maatregel die niet van toepassing is, krijgt er geen. Als de cyclus wordt
+opgezet voordat de SoA beslist is, worden er rondes gepland over een lege
+verzameling. Het commando `isms:bereid-auditcyclus-voor` weigert daarom bij een
+onvolledige SoA, tenzij `--forceer` wordt meegegeven. Die optie is alleen bedoeld
+voor wie weet waarom die nodig is.
 
 Voor de opstart is er `--voorbereiding`: één ronde die een nulmeting is en geen
-oordeel. De echte meerjarencyclus begint pas ná de certificeringsaudit. Zie
+oordeel. De echte meerjarencyclus begint pas na de certificeringsaudit. Zie
 [Een interne audit opzetten](/kennisbank/interne-audit-opzetten).
 
-## Wat je gerust later mag doen
+## Wat later kan
 
 Niet alles hoeft in deze volgorde. Leveranciers, incidenten, afwijkingen,
 trainingen en wijzigingsbeheer hebben geen harde voorganger in dit schema en
-kunnen erbij komen wanneer ze aan de orde zijn. Eén nuance: een incident dat je
-vandaag meldt is straks bewijs, en een leverancier die je vandaag opvoert kan
-morgen aan een risico hangen — dus later beginnen is prima, niet beginnen niet.
+kunnen worden toegevoegd wanneer ze aan de orde zijn. Daarbij geldt één
+kanttekening. Een incident dat vandaag wordt gemeld, is later bewijs, en een
+leverancier die vandaag wordt opgevoerd, kan later aan een risico hangen. Later
+beginnen is dus geen probleem, maar niet beginnen wel.
 
-## De drie momenten waarop je Management nodig hebt
+## De drie momenten waarop Management nodig is
 
-De accentstippen in het schema markeren ze: de **scope-verklaring**, de
+De accentstippen in het schema markeren deze momenten: de **scope-verklaring**, de
 **risicocriteria** en het **beleid**. Op alle drie heeft de rol *Management*
-goedkeuringsrecht en de CISO niet, en dat is geen omissie maar het punt: wie het
-opstelt, stelt het niet zelf vast.
+goedkeuringsrecht en de CISO niet. Dat is geen omissie, maar het doel: wie een
+document opstelt, stelt het niet zelf vast.
 
-Praktisch betekent dat twee dingen. Het management-account moet er in fase 1 al
-zijn, en de drie vaststellingen zijn de enige stappen in dit hele traject waar je
-op iemand anders wacht. Plan ze daarom vooruit in plaats van ze tegen te komen.
+In de praktijk heeft dat twee gevolgen. Het management-account moet al in fase 1
+bestaan. Daarnaast zijn de drie vaststellingen de enige stappen in dit hele
+traject waarop de CISO op iemand anders wacht. Die vaststellingen worden daarom
+vooruit gepland in plaats van pas op het moment zelf geregeld.

@@ -1,31 +1,32 @@
 # Wat NEN 7510 toevoegt bovenop ISO 27001
 
 Deze installatie draait op het NEN 7510-profiel. Dit artikel legt uit wat dat
-verandert ten opzichte van een ISO 27001-ISMS, en — belangrijker — **waar de
-grens ligt tussen wat dit platform doet en wat je in je zorgsystemen regelt.**
+profiel verandert ten opzichte van een ISO 27001-ISMS. Belangrijker is dat het
+artikel beschrijft **waar de grens ligt tussen wat dit platform doet en wat de
+organisatie in haar zorgsystemen regelt.**
 
-> **Dit is één van drie normprofielen.** Deze installatie draait NEN 7510; er zijn
-> ook uitvoeringen op ISO 27001 en op de BIO2. Die laatste breidt Bijlage A niet
-> uit in de breedte maar in de diepte — dezelfde 93 maatregelen, met daaronder 118
-> genummerde overheidsmaatregelen. Zie *Wat de BIO toevoegt* in een
-> BIO-installatie; hier is dat artikel niet zichtbaar, omdat het niet over uw norm
-> gaat.
+> **Dit is één van drie normprofielen.** Deze installatie draait NEN 7510. Er zijn
+> ook uitvoeringen op ISO 27001 en op de BIO2. De BIO2 breidt Bijlage A niet uit
+> in de breedte, maar in de diepte: dezelfde 93 maatregelen, met daaronder 118
+> genummerde overheidsmaatregelen. Het artikel *Wat de BIO toevoegt* staat in een
+> BIO-installatie. Hier is dat artikel niet zichtbaar, omdat het niet over de norm
+> van deze installatie gaat.
 
 ## Een superset, geen andere norm
 
-NEN 7510 is geen alternatief voor ISO 27001 maar een uitbreiding erop, toegesneden
-op de zorg. Concreet:
+NEN 7510 is geen alternatief voor ISO 27001, maar een uitbreiding erop die is
+toegesneden op de zorg. Concreet betekent dat het volgende:
 
-- **Hoofdstuk 4 tot en met 10 is dezelfde Harmonized Structure.** Context,
-  leiderschap, planning, ondersteuning, uitvoering, evaluatie, verbetering. Zelfde
-  nummers, zelfde eisen, zelfde volgorde. Alles wat je over §6.1.2 of §9.3 weet
-  uit ISO 27001, geldt hier onveranderd.
-- **De maatregelenbijlage is de 93 ISO-maatregelen plus acht.** De nummering loopt
-  door en botst nergens.
+- **Hoofdstuk 4 tot en met 10 volgen dezelfde Harmonized Structure.** Het gaat om
+  context, leiderschap, planning, ondersteuning, uitvoering, evaluatie en
+  verbetering, met dezelfde nummers, dezelfde eisen en dezelfde volgorde. Alles
+  wat uit ISO 27001 bekend is over §6.1.2 of §9.3, geldt hier onveranderd.
+- **De maatregelenbijlage bestaat uit de 93 ISO-maatregelen plus acht.** De
+  nummering loopt door en botst nergens.
 - **Bij een deel van de bestaande maatregelen staat een zorgspecifieke
-  aanvulling**: dezelfde maatregel, een zwaardere of preciezere eis.
+  aanvulling.** Het is dezelfde maatregel, met een zwaardere of preciezere eis.
 
-Wie ISO 27001 kent, kent het grootste deel van NEN 7510. Wat erbij komt is
+Wie ISO 27001 kent, kent het grootste deel van NEN 7510. De toevoegingen zijn
 zorgspecifiek en overzichtelijk.
 
 ## De acht extra maatregelen
@@ -41,60 +42,62 @@ zorgspecifiek en overzichtelijk.
 | **A.6.9** | Managementtraining | mensgericht |
 | **A.8.35** | Zero trust-beginselen | technologisch |
 
-Ze staan gewoon in de Verklaring van Toepasselijkheid, tussen de andere 93, en je
-beoordeelt ze op dezelfde manier: van toepassing ja/nee, met motivatie.
+Deze maatregelen staan in de Verklaring van Toepasselijkheid tussen de andere 93.
+Ze worden op dezelfde manier beoordeeld: van toepassing ja of nee, met een
+motivatie.
 
-Wat je er **niet** bij krijgt is hun omschrijving — zie hieronder.
+Het systeem levert **geen** omschrijving van deze maatregelen mee. Het onderstaande
+deel legt uit waarom.
 
 ## De zorgspecifieke aanvullingen
 
-Een deel van de bestaande ISO-maatregelen draagt in NEN 7510 een aanvulling.
-Daarvoor is een eigen veld met een eigen kopje in de SoA-modal, los van de
-omschrijving. Dat is met opzet een apart blok: bron, licentiestatus en voorbehoud
-verschillen, en dat hoort zichtbaar te blijven.
+Een deel van de bestaande ISO-maatregelen heeft in NEN 7510 een aanvulling. Daarvoor
+heeft de SoA-modal een eigen veld met een eigen kopje, los van de omschrijving. Dat
+aparte blok is een bewuste keuze. Bron, licentiestatus en voorbehoud verschillen,
+en dat verschil hoort zichtbaar te blijven.
 
-Het veld kent drie toestanden, en dat verschil is functioneel:
+Het veld kent drie toestanden, en elk van die toestanden heeft een eigen betekenis:
 
-| Wat je ziet | Wat het betekent |
+| Weergave | Betekenis |
 |---|---|
 | Geen blok | Deze maatregel heeft geen zorgspecifieke beheersmaatregel. |
-| "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee." | Deze maatregel heeft er wél een. Wat die inhoudt, lees je in de norm. |
-| "Niet ingelezen…" | Er is helemaal niets ingelezen. Dat is een installatiefout: dit hoort meegeleverd te zijn. |
+| "Dit ISMS levert bij deze maatregel geen zorgspecifieke maatregel mee." | Deze maatregel heeft wel een zorgspecifieke beheersmaatregel. De inhoud daarvan staat in de norm. |
+| "Niet ingelezen…" | Er is helemaal niets ingelezen. Dat is een installatiefout, omdat deze gegevens meegeleverd horen te zijn. |
 
-**De lijst wordt meegeleverd, de teksten niet.** Dát een maatregel een
-zorgspecifieke beheersmaatregel heeft is openbaar bekend, dus je ziet meteen bij
-welke 22 van de 101 je de norm erbij moet pakken. Wat er staat, geeft dit systeem
-niet door. Zie [Verantwoording en
-disclaimer](/kennisbank/verantwoording-en-disclaimer) voor het volledige verhaal.
+**De lijst wordt meegeleverd, de teksten niet.** Het is openbaar bekend welke
+maatregelen een zorgspecifieke beheersmaatregel hebben. Het systeem toont daarom
+direct bij welke 22 van de 101 maatregelen de norm erbij nodig is. De inhoud van
+die beheersmaatregelen geeft dit systeem niet door. Het volledige verhaal staat in
+[Verantwoording en disclaimer](/kennisbank/verantwoording-en-disclaimer).
 
-**Bij géén enkele maatregel staat een omschrijving** — ook niet bij de 93 uit
-ISO, en ook niet op een ISO-installatie. Dit systeem levert nergens een eigen
-uitleg van wat een maatregel beoogt; de reden staat op diezelfde pagina. Voor de
-zorgkant kwam daar een tweede reden bij: een ISO-gerichte omschrijving zou de eis
-onderschatten bij precies die maatregelen waar NEN 7510 meer vraagt.
+**Bij geen enkele maatregel staat een omschrijving.** Dat geldt ook voor de 93
+maatregelen uit ISO, en ook op een ISO-installatie. Dit systeem levert nergens een
+eigen uitleg van het doel van een maatregel. De reden staat op dezelfde pagina.
+Voor de zorg komt daar een tweede reden bij: een ISO-gerichte omschrijving zou de
+eis onderschatten, juist bij de maatregelen waar NEN 7510 meer vraagt.
 
-### Zelf invoeren, als je de norm hebt
+### Zelf invoeren, als de norm beschikbaar is
 
-De maatregelteksten voer je in zoals beschreven in [De normteksten
-invoeren](/kennisbank/normteksten-invoeren). Op een zorginstallatie is dat
-**`database/seeders/data/maatregelen-nen7510.json`**, met alle 101 maatregelen.
-De aanvullingen staan in datzelfde bestand, per maatregel in het veld
-`zorgaanvulling` — er is dus geen tweede bestand. Dat veld kent twee waarden:
+De maatregelteksten worden ingevoerd zoals beschreven in [De normteksten
+invoeren](/kennisbank/normteksten-invoeren). Op een zorginstallatie is dat het
+bestand **`database/seeders/data/maatregelen-nen7510.json`**, met alle 101
+maatregelen. De aanvullingen staan in hetzelfde bestand, per maatregel in het veld
+`zorgaanvulling`. Er is dus geen tweede bestand. Dat veld kent twee waarden:
 
-- **22 regels** dragen de mededeling uit de tabel hierboven. Dat zijn precies de
-  maatregelen waar NEN 7510 een zorgspecifieke beheersmaatregel bij geeft.
-  Vervang die zin door de tekst uit de norm.
-- **79 regels** dragen `DO NOT TOUCH`. Daar geeft de norm er géén. Laat die
-  regels staan zoals ze zijn; er iets invullen laat dit systeem iets beweren wat
-  de norm niet zegt.
+- **22 regels** bevatten de mededeling uit de tabel hierboven. Dat zijn precies de
+  maatregelen waarbij NEN 7510 een zorgspecifieke beheersmaatregel geeft. Die zin
+  wordt vervangen door de tekst uit de norm.
+- **79 regels** bevatten `DO NOT TOUCH`. Bij die maatregelen geeft de norm geen
+  zorgspecifieke beheersmaatregel. Deze regels blijven ongewijzigd. Een ingevulde
+  waarde zou het systeem iets laten beweren wat de norm niet zegt.
 
-Zo zie je in de editor aan elke regel wat er moet gebeuren, en op het scherm komt
-geen van beide markeringen: bij een `DO NOT TOUCH`-maatregel blijft het blok
-gewoon weg.
+Zo is in de editor aan elke regel te zien wat er moet gebeuren. Op het scherm
+verschijnt geen van beide markeringen: bij een `DO NOT TOUCH`-maatregel blijft het
+blok weg.
 
-Bij de acht maatregelen die alleen NEN 7510 kent, ís de zorgspecifieke
-beheersmaatregel de maatregel: hun `omschrijving` blijft de mededeling en de
-tekst zet je in `zorgaanvulling`.
+Bij de acht maatregelen die alleen NEN 7510 kent, is de zorgspecifieke
+beheersmaatregel de maatregel zelf. Hun `omschrijving` blijft de mededeling, en de
+tekst komt in `zorgaanvulling`.
 
 Eén commando verwerkt het geheel:
 
@@ -102,95 +105,96 @@ Eén commando verwerkt het geheel:
 php artisan isms:maatregelen
 ```
 
-## De afbakening: wat dit platform níét voor je bouwt
+## De afbakening: wat dit platform niet bouwt
 
-Dit is het punt waarop een verkeerde verwachting het duurst is, dus het staat hier
-en niet onderaan.
+Op dit punt is een verkeerde verwachting het duurst. Daarom staat dit deel hier en
+niet onderaan.
 
-**Een groot deel van wat NEN 7510 vraagt, gaat over de zorgsystemen van je
-organisatie — niet over dit ISMS-platform.** Denk aan:
+**Een groot deel van wat NEN 7510 vraagt, gaat over de zorgsystemen van de
+organisatie en niet over dit ISMS-platform.** Voorbeelden zijn:
 
-- **Cliëntidentificatie (A.5.39).** Dat je zorgontvangers uniek identificeert is
-  een eis aan je EPD en je intakeproces. Dit platform kent geen zorgontvangers.
-- **Het samenvoegen van dubbele dossiers.** Een dossierbeheerproces in je
+- **Cliëntidentificatie (A.5.39).** Het uniek identificeren van zorgontvangers is
+  een eis aan het EPD en het intakeproces. Dit platform kent geen zorgontvangers.
+- **Het samenvoegen van dubbele dossiers.** Dit is een dossierbeheerproces in de
   zorgapplicatie.
-- **Break-glass-toegang.** Noodtoegang tot een dossier buiten de reguliere
-  autorisatie om, mét achteraf-verantwoording. Dat hoort in het systeem dat de
-  dossiers houdt.
+- **Break-glass-toegang.** Dit is noodtoegang tot een dossier buiten de reguliere
+  autorisatie om, met verantwoording achteraf. Die functie hoort in het systeem
+  dat de dossiers beheert.
 - **Tweefactor-authenticatie op het EPD.** Dit ISMS heeft zelf tweefactor, maar
-  dat zegt niets over je zorgapplicaties.
+  dat zegt niets over de zorgapplicaties.
 - **Logging volgens NEN 7513.** Dat is het logboek van toegang tot
-  cliëntdossiers. De audit trail hier legt ISMS-mutaties vast — wie een risico
-  wijzigde, wie een incident sloot. Zie [De audit
+  cliëntdossiers. De audit trail in dit systeem legt ISMS-mutaties vast, zoals wie
+  een risico wijzigde of wie een incident sloot. Zie [De audit
   trail](/kennisbank/de-audit-trail).
 
-Die maatregelen **verdwijnen niet**: ze verschijnen als regels in de SoA, en jij
-motiveert daar hoe je organisatie ze invult. Wat het platform doet is de
-administratie ervan — de verklaring, de koppeling aan risico's, het bewijs, de
-opvolging. Wat het niet doet, is ze uitvoeren.
+Die maatregelen **verdwijnen niet**. Ze verschijnen als regels in de SoA, en daar
+motiveert de organisatie hoe zij ze invult. Het platform verzorgt de administratie
+ervan: de verklaring, de koppeling aan risico's, het bewijs en de opvolging. Het
+platform voert de maatregelen niet uit.
 
 **Dit platform verwerkt zelf geen persoonlijke gezondheidsinformatie.** Dat blijft
-waar, ook in het NEN 7510-profiel. Er zit geen patiëntgegeven in, er komt er geen
-in, en dat is geen tijdelijke toestand maar een ontwerpgrens.
+ook in het NEN 7510-profiel zo. Het systeem bevat geen patiëntgegevens en neemt
+ook geen patiëntgegevens op. Dat is geen tijdelijke toestand, maar een
+ontwerpgrens.
 
-## Wat NEN 7510 níét regelt: de meldplicht
+## Wat NEN 7510 niet regelt: de meldplicht
 
-Een veelgemaakte aanname is dat de norm bepaalt wanneer je een incident extern
-moet melden. Dat doet ze niet.
+Een veelgemaakte aanname is dat de norm bepaalt wanneer een incident extern gemeld
+moet worden. Dat is niet zo.
 
-De meldplicht komt uit de **wet**, niet uit de norm:
+De meldplicht komt uit de **wet** en niet uit de norm:
 
 - de **AVG** verplicht tot melding bij de Autoriteit Persoonsgegevens bij een
   inbreuk in verband met persoonsgegevens;
 - de **Cyberbeveiligingswet** verplicht bepaalde organisaties tot een gefaseerde
   melding bij een significant incident.
 
-Of jij onder die tweede valt, hangt af van je sector en je omvang — niet van welke
-norm je volgt. Daarom is de Cbw-plicht in dit ISMS een **aparte instelling** en
-geen onderdeel van het normprofiel: een zorgaanbieder kan NEN 7510 volgen zonder
-Cbw-plichtig te zijn, en een niet-zorgorganisatie kan Cbw-plichtig zijn zonder
-NEN 7510.
+Of een organisatie onder de Cyberbeveiligingswet valt, hangt af van haar sector en
+omvang en niet van de norm die zij volgt. Daarom is de Cbw-plicht in dit ISMS een
+**aparte instelling** en geen onderdeel van het normprofiel. Een zorgaanbieder kan
+NEN 7510 volgen zonder Cbw-plichtig te zijn, en een niet-zorgorganisatie kan
+Cbw-plichtig zijn zonder NEN 7510 te volgen.
 
-Wat de norm wél toevoegt is maatregel **A.5.43 Incidenten extern melden**: dat je
-het geregeld moet hébben. Hoe je het regelt, en wanneer je moet melden, staat in
-de wet en in je eigen meldprocedure. Zie [Incidenten &
-afwijkingen](/kennisbank/incidenten-en-afwijkingen) voor hoe het ISMS dat
-vastlegt.
+De norm voegt wel maatregel **A.5.43 Incidenten extern melden** toe. Die maatregel
+eist dat het melden geregeld is. Hoe het geregeld wordt en wanneer er gemeld moet
+worden, staat in de wet en in de eigen meldprocedure van de organisatie. Zie
+[Incidenten & afwijkingen](/kennisbank/incidenten-en-afwijkingen) voor de manier
+waarop het ISMS dat vastlegt.
 
 ## De andere zorgstandaarden
 
 NEN 7510 staat niet alleen. Twee normen liggen er dicht tegenaan en worden er
 regelmatig mee verward:
 
-- **NEN 7512** — de vertrouwensbasis voor elektronische gegevensuitwisseling
-  tussen zorgpartijen: welk betrouwbaarheidsniveau een uitwisseling nodig heeft
-  en hoe partijen elkaar authenticeren.
-- **NEN 7513** — het logboek van toegang tot cliëntdossiers: wat je moet
-  vastleggen, hoe lang, en wie het mag inzien.
+- **NEN 7512** is de vertrouwensbasis voor elektronische gegevensuitwisseling
+  tussen zorgpartijen. De norm beschrijft welk betrouwbaarheidsniveau een
+  uitwisseling nodig heeft en hoe partijen elkaar authenticeren.
+- **NEN 7513** is het logboek van toegang tot cliëntdossiers. De norm beschrijft
+  wat vastgelegd moet worden, hoe lang, en wie het mag inzien.
 
-**Geen van beide zit in dit ISMS**, en dat is terecht: ze stellen eisen aan je
-uitwisselingsplatform en je dossiersysteem, niet aan een managementsysteem. Je
-kunt ze wel als eis opvoeren in het eisenregister (bron: wettelijk of
-contractueel) en er maatregelen aan hangen — dan lopen ze mee in de gewone
-ISMS-cyclus zonder dat het platform pretendeert eraan te voldoen. Zie
-[Integraties](/kennisbank/integraties-en-normeis) voor waarom het
-integratieregister géén bewijs onder 7512 of 7513 is.
+**Geen van beide normen zit in dit ISMS**, en dat is terecht. Ze stellen eisen aan
+het uitwisselingsplatform en het dossiersysteem, niet aan een managementsysteem.
+Ze kunnen wel als eis worden opgevoerd in het eisenregister (bron: wettelijk of
+contractueel), met maatregelen eraan gekoppeld. Dan lopen ze mee in de gewone
+ISMS-cyclus, zonder dat het platform pretendeert eraan te voldoen. Zie
+[Integraties](/kennisbank/integraties-en-normeis) voor de reden waarom het
+integratieregister geen bewijs onder 7512 of 7513 is.
 
 ## Certificering en toezicht
 
-Certificering gebeurt tegen **NEN 7510-1** door een instelling die daarvoor is
-geaccrediteerd door de Raad voor Accreditatie, onder het schema **NCS 7510**. Het
-**toezicht** van de Inspectie Gezondheidszorg en Jeugd is iets anders: geen
-certificering, een eigen toetsingskader, andere gevolgen. Dat onderscheid en de
-gevolgen voor je auditadministratie staan in [De externe
-certificeringsaudit](/kennisbank/externe-certificeringsaudit).
+Certificering gebeurt tegen **NEN 7510-1**, onder het schema **NCS 7510**, door een
+instelling die daarvoor door de Raad voor Accreditatie is geaccrediteerd. Het
+**toezicht** van de Inspectie Gezondheidszorg en Jeugd is iets anders. Dat
+toezicht is geen certificering, heeft een eigen toetsingskader en heeft andere
+gevolgen. Dat onderscheid en de gevolgen voor de auditadministratie staan in [De
+externe certificeringsaudit](/kennisbank/externe-certificeringsaudit).
 
 ## Samengevat
 
 | Vraag | Antwoord |
 |---|---|
-| Moet ik mijn H4–H10-inrichting omgooien? | Nee. Identiek aan ISO 27001. |
-| Hoeveel maatregelen? | 101 in plaats van 93. |
-| Krijg ik de normteksten mee? | Nee, en in dit profiel ook de ISO-omschrijvingen niet. |
-| Bouwt dit platform break-glass, cliëntidentificatie of 7513-logging? | Nee. Dat zijn eisen aan je zorgsystemen; hier motiveer je ze. |
-| Bepaalt NEN 7510 mijn meldtermijnen? | Nee. Dat doen de AVG en de Cyberbeveiligingswet. |
+| Verandert de inrichting van H4–H10? | Nee. Die is identiek aan ISO 27001. |
+| Hoeveel maatregelen zijn er? | 101 in plaats van 93. |
+| Levert het systeem de normteksten mee? | Nee, en in dit profiel ook de ISO-omschrijvingen niet. |
+| Bouwt dit platform break-glass, cliëntidentificatie of 7513-logging? | Nee. Dat zijn eisen aan de zorgsystemen. In dit platform worden ze gemotiveerd. |
+| Bepaalt NEN 7510 de meldtermijnen? | Nee. Die volgen uit de AVG en de Cyberbeveiligingswet. |

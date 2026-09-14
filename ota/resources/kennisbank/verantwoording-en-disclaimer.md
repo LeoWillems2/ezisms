@@ -1,138 +1,153 @@
 # Verantwoording en disclaimer
 
 Dit ISMS is gebouwd **zonder dat de normtekst zelf wordt meegeleverd**. Dat is
-geen tekortkoming die nog wordt ingehaald: het is een ontwerpkeuze die bepaalt
-wat dit systeem voor je is en wat het niet is. Deze pagina legt uit wat je hier
-wel en niet mag verwachten, waar de informatie vandaan komt, en waar je zelf de
-norm nodig hebt.
+geen tekortkoming die later nog wordt ingehaald. Het is een ontwerpkeuze die
+bepaalt wat dit systeem voor een organisatie is en wat het niet is. Deze pagina
+beschrijft wat een gebruiker van dit systeem wel en niet mag verwachten, waar de
+informatie vandaan komt en op welke punten de norm zelf nodig is.
 
 ## Waar dit systeem geen vervanging voor is
 
-**Dit is geen kopie van ISO/IEC 27001 en geen samenvatting ervan.** Je kunt je
-organisatie er niet mee certificeren zonder de norm te bezitten en te lezen. Het
-systeem ondersteunt de administratie van een managementsysteem — registers,
-beoordelingen, taken, bewijs, audits, rapportage — maar het vertelt je niet
-gezaghebbend wat de norm van je eist.
+**Dit is geen kopie van ISO/IEC 27001 en geen samenvatting ervan.** Een
+organisatie kan zich met dit systeem niet laten certificeren zonder de norm te
+bezitten en te lezen. Het systeem ondersteunt de administratie van een
+managementsysteem: registers, beoordelingen, taken, bewijs, audits en
+rapportage. Het systeem geeft echter geen gezaghebbend antwoord op de vraag wat
+de norm van de organisatie eist.
 
-Concreet betekent dat:
+Concreet betekent dat het volgende:
 
-- **De verwijzingen zijn een hulpmiddel, geen bewijs.** Als hier "§9.3" of
-  "A.8.16" staat, is dat een aanwijzing waar je in je eigen exemplaar moet
-  kijken. Het is geen garantie dat de tekst daar zegt wat je hier leest.
-- **Wij leveren geen maatregelteksten.** Bij elke maatregel staat de officiële
-  titel en verder de mededeling dat de omschrijving ontbreekt. Dat is met opzet;
-  de volgende sectie legt uit waarom.
-- **"Moeten" en "behoren te" zijn niet altijd hard te maken.** Het onderscheid
-  tussen een eis en een aanbeveling bepaalt of een auditor een afwijking schrijft.
-  Dat onderscheid staat in de norm en nergens anders betrouwbaar. Ga er niet van
-  uit dat de bewoording hier dat verschil correct weergeeft.
+- **De verwijzingen zijn een hulpmiddel en geen bewijs.** Een verwijzing als
+  "§9.3" of "A.8.16" geeft aan waar in het eigen exemplaar van de norm te kijken.
+  De verwijzing garandeert niet dat de normtekst op die plek zegt wat hier staat.
+- **Dit systeem levert geen maatregelteksten.** Bij elke maatregel staan de
+  officiële titel en een mededeling dat de omschrijving ontbreekt. Dat is een
+  bewuste keuze. De sectie *Waarom er geen omschrijving bij de maatregelen staat*
+  beschrijft de reden.
+- **Het verschil tussen "moeten" en "behoren te" is niet altijd vast te
+  stellen.** Het onderscheid tussen een eis en een aanbeveling bepaalt of een
+  auditor een afwijking noteert. Alleen de norm geeft dat onderscheid betrouwbaar
+  weer. De bewoording in dit systeem geeft dat verschil niet noodzakelijk correct
+  weer.
 
-## Wat wél uit openbare bronnen komt
+## Wat wel uit openbare bronnen komt
 
-Veel van wat een ISMS nodig heeft, is publiek en onomstreden. De hoofdstukindeling
-H4–H10, het bestaan van de 93 maatregelen met hun nummers, titels en vier thema's,
-de verplichting van een Verklaring van Toepasselijkheid, de onderwerpen die in een
-directiebeoordeling aan bod komen, de cyclus van afwijking naar corrigerende
-maatregel: dat staat in talloze openbare bronnen, en de vocabulairenorm
-ISO/IEC 27000 is zelfs gratis verkrijgbaar.
+Veel van wat een ISMS nodig heeft, is openbaar en onomstreden. Dat geldt voor de
+hoofdstukindeling H4–H10, het bestaan van de 93 maatregelen met hun nummers,
+titels en vier thema's, de verplichting van een Verklaring van Toepasselijkheid,
+de onderwerpen van een directiebeoordeling en de cyclus van afwijking naar
+corrigerende maatregel. Deze onderwerpen staan in talloze openbare bronnen. De
+vocabulairenorm ISO/IEC 27000 is bovendien gratis verkrijgbaar.
 
-Ook de driejarige certificeringscyclus — initiële audit, twee opvolgingsaudits,
-hercertificering — komt niet uit 27001 zelf maar uit de accreditatieregels voor
-certificerende instellingen, en die zijn openbaar.
+De driejarige certificeringscyclus bestaat uit een initiële audit, twee
+opvolgingsaudits en een hercertificering. Die cyclus komt niet uit ISO 27001
+zelf, maar uit de accreditatieregels voor certificerende instellingen. Die regels
+zijn openbaar.
 
-De **architectuur** van dit systeem is helemaal niet norm-afgeleid: de indeling in
-blokken, het rechtenmodel, de audit trail, de manier waarop bewijs aan records
-hangt. Dat is gewoon softwareontwerp.
+De **architectuur** van dit systeem is op geen enkel punt van de norm afgeleid.
+De indeling in blokken, het rechtenmodel, de audit trail en de manier waarop
+bewijs aan records is gekoppeld, zijn gewoon softwareontwerp.
 
 ## Waarom er geen omschrijving bij de maatregelen staat
 
-Kom je hier vandaan via de Verklaring van Toepasselijkheid, dan is dit de reden.
+Wie deze pagina opent via de link in de Verklaring van Toepasselijkheid, vindt
+hier de reden.
 
-**Bij geen enkele maatregel staat een omschrijving.** Je ziet nummer, titel en
-thema — de rest is leeg tot je hem zelf vult.
+**Bij geen enkele maatregel staat een omschrijving.** Bij elke maatregel staan
+het nummer, de titel en het thema. Het veld voor de omschrijving blijft leeg
+totdat de organisatie het zelf vult.
 
-Tot augustus 2026 stond er bij de 93 ISO-maatregelen een omschrijving in eigen
-woorden, met een voorbehoud eronder. Die zijn weggehaald, en niet omdat er iets
-mis mee was: het waren eigen formuleringen, geschreven vanuit de bedoeling van de
-maatregel, en ze mochten verspreid worden.
+Tot augustus 2026 stond bij de 93 ISO-maatregelen een omschrijving in eigen
+woorden, met een voorbehoud eronder. Die omschrijvingen zijn verwijderd. De reden
+was niet dat er iets mis mee was. Het waren eigen formuleringen, geschreven
+vanuit de bedoeling van de maatregel, en ze mochten worden verspreid.
 
-**Ze zijn weg omdat een eigen omschrijving een interpretatie van de norm is, op
-precies de plek waar een auditor de toepasselijkheid beoordeelt.** Elk verschil
-tussen die tekst en de normtekst is een discussie die jouw organisatie niet hoeft
-te voeren. Het voorbehoud eronder haalde dat niet weg — het meldde alleen dat er
-iets te bediscussiëren viel.
+**De omschrijvingen zijn verwijderd omdat een eigen omschrijving een
+interpretatie van de norm is, op precies de plek waar een auditor de
+toepasselijkheid beoordeelt.** Elk verschil tussen die tekst en de normtekst
+leidt tot een discussie die de organisatie niet hoeft te voeren. Het voorbehoud
+nam dat probleem niet weg. Het voorbehoud meldde alleen dat er iets te
+bediscussiëren viel.
 
-Wat je nu ziet is de officiële titel, en verder een mededeling met een link naar
-deze pagina. Heb je de norm, dan zet je de echte tekst er zelf in; zie [De
-normteksten invoeren](/kennisbank/normteksten-invoeren). Wat jij invoert ís de
-normtekst, en daar hoort geen voorbehoud bij.
+Nu staan bij elke maatregel de officiële titel en een mededeling met een link
+naar deze pagina. Een organisatie die de norm bezit, kan de echte tekst zelf
+invoeren; zie [De normteksten invoeren](/kennisbank/normteksten-invoeren). Wat de
+organisatie zo invoert, is de normtekst zelf, en daar hoort geen voorbehoud bij.
 
 ## Caveat emptor
 
-Er zijn plekken waar openbare bronnen structureel tekortschieten. Wij hebben ze
-liever benoemd dan stilzwijgend ingevuld.
+Op enkele plekken schieten openbare bronnen structureel tekort. Die plekken zijn
+hieronder benoemd in plaats van stilzwijgend ingevuld.
 
-**De attribuuttabellen van ISO 27002.** Elke maatregel heeft daar vijf
-attribuutdimensies. Dit systeem levert er vier mee als *uitgangspunt*, herleid
-uit openbare gegevens en uitdrukkelijk bedoeld om door jou vastgesteld te worden.
-Leg je zelf een classificatie vast, dan komt die naast het uitgangspunt te staan
-en niet eroverheen — zo is altijd te zien wat wij meegaven en wat jullie hebben
-bepaald. De vijfde, beveiligingscapaciteiten, ontbreekt bewust: die toewijzing is
-niet uit openbare bronnen te herleiden en staat alleen in de norm. Zie [Maatregelclassificatie](/kennisbank/maatregelclassificatie) voor het
-volledige verhaal en voor hoe je hem vult als je de norm wél bezit.
+**De attribuuttabellen van ISO 27002.** ISO 27002 kent per maatregel vijf
+attribuutdimensies. Dit systeem levert er vier mee als *uitgangspunt*. Die vier
+zijn herleid uit openbare gegevens en zijn uitdrukkelijk bedoeld om door de
+organisatie te worden vastgesteld. Een classificatie die de organisatie zelf
+vastlegt, komt naast het uitgangspunt te staan en overschrijft het niet. Zo
+blijft altijd zichtbaar wat het systeem meeleverde en wat de organisatie heeft
+bepaald. De vijfde dimensie, beveiligingscapaciteiten, ontbreekt bewust. Die
+toewijzing is niet uit openbare bronnen te herleiden en staat alleen in de norm.
+[Maatregelclassificatie](/kennisbank/maatregelclassificatie) beschrijft het
+volledige verhaal en legt uit hoe een organisatie die de norm bezit, de vijfde
+dimensie vult.
 
 **Exacte sub-lettering.** Verwijzingen tot op letterniveau ("6.1.3 d") zijn
-cosmetisch, maar het is wel het eerste wat een auditor natrekt. Controleer ze
-tegen je eigen exemplaar.
+cosmetisch, maar een auditor controleert juist die verwijzingen als eerste. Deze
+verwijzingen horen te worden gecontroleerd tegen het eigen exemplaar van de norm.
 
 ## Het eigenlijke risico: verifieerbaarheid
 
 Het probleem is niet dat er een deel ontbreekt. Het probleem is dat **een juiste
 en een verzonnen bewering er even stellig uitzien**. Een systeem dat de norm niet
-kan raadplegen, kan ook niet zichtbaar maken wélk deel onzeker is.
+kan raadplegen, kan ook niet zichtbaar maken welk deel onzeker is.
 
-Daarom is de leidende regel bij het bouwen van dit ISMS geweest: liever een gat
-dan een plausibele gok. Een lege dimensie is eerlijk; een verzonnen dimensie gaat
-rondzingen in SoA-onderbouwingen en is achteraf niet meer terug te vinden.
+Daarom was de leidende regel bij het bouwen van dit ISMS: liever een gat dan een
+plausibele gok. Een lege dimensie is eerlijk. Een verzonnen dimensie verspreidt
+zich door SoA-onderbouwingen en is achteraf niet meer op te sporen.
 
-Wat dat voor jou betekent: **behandel elke norm-afgeleide bewering in dit systeem
-als een aanwijzing die je zelf verifieert.** Voor een certificeringstraject is dat
-sowieso werk dat je doet — met of zonder dit systeem.
+Voor de organisatie betekent dat: **elke van de norm afgeleide bewering in dit
+systeem is een aanwijzing die de organisatie zelf verifieert.** Voor een
+certificeringstraject is dat verificatiewerk hoe dan ook nodig, met of zonder dit
+systeem.
 
-Heb je de norm aangeschaft, dan kun je de exacte maatregelteksten uit de norm
-overnemen; [De normteksten invoeren](/kennisbank/normteksten-invoeren) beschrijft
-hoe. Dat mag voor eigen gebruik, maar **dat bestand mag je niet distribueren.**
+Een organisatie die de norm heeft aangeschaft, kan de exacte maatregelteksten uit
+de norm overnemen; [De normteksten invoeren](/kennisbank/normteksten-invoeren)
+beschrijft hoe. Dat is toegestaan voor eigen gebruik, maar **het bestand met die
+teksten mag niet worden verspreid.**
 
 ## En wat het systeem niet kan weten
 
-Een kanttekening in de andere richting, want die is minstens zo belangrijk.
+Er is ook een kanttekening in de andere richting, en die is minstens zo
+belangrijk.
 
 De inrichting van dit systeem is op meerdere punten bijgestuurd door
-praktijkkennis die **nergens in de norm staat**. Dat de interne auditcyclus pas
-echt begint ná de certificeringsaudit. Dat er in de aanloop meerdere auditrondes
-in één jaar vallen. Dat de eerste ronde een nulmeting is en niet een oordeel.
+praktijkkennis die **nergens in de norm staat**. De interne auditcyclus begint
+pas echt na de certificeringsaudit. In de aanloop naar certificering vallen
+meerdere auditrondes in één jaar. De eerste ronde is een nulmeting en geen
+oordeel.
 
-Een systeem dat de norm perfect zou naspreken maar dat soort dingen niet weet,
-levert een ISMS op dat formeel klopt en in de praktijk niet werkt. De norm is de
-ondergrens van wat je moet regelen, niet de handleiding voor hoe je het regelt.
+Een systeem dat de norm perfect navolgt maar zulke praktijkkennis mist, levert
+een ISMS op dat formeel klopt en in de praktijk niet werkt. De norm is de
+ondergrens van wat een organisatie moet regelen, en geen handleiding voor de
+manier waarop.
 
 ## Auteursrecht en verspreiding
 
 ISO- en NEN-normen zijn auteursrechtelijk beschermd en worden per exemplaar in
-licentie gegeven. Dat betekent voor dit systeem:
+licentie gegeven. Voor dit systeem betekent dat het volgende:
 
-- **Er staat geen normtekst in.** Niet in de code, niet in de gegevens, niet in
-  de kennisbank. Bij de maatregelen staat geen omschrijving; zie hierboven.
-- **Referenties, nummers en titels zijn wél gelijk gehouden** aan de norm. Zonder
-  dat werkt de koppeling met een audit niet: een auditor die naar A.5.15 vraagt,
-  moet A.5.15 kunnen vinden.
-- **Norm-eigen gegevens die je zelf toevoegt, blijven van jou en blijven lokaal.**
-  Vul je de capaciteitendimensie aan, dan komt jouw toewijzing in een bestand dat
-  niet in versiebeheer terechtkomt.
+- **Er staat geen normtekst in.** De code, de gegevens en de kennisbank bevatten
+  geen normtekst. Bij de maatregelen staat geen omschrijving; zie hierboven.
+- **Referenties, nummers en titels zijn wel gelijk gehouden** aan de norm. Zonder
+  die gelijkheid werkt de koppeling met een audit niet: een auditor die naar
+  A.5.15 vraagt, moet A.5.15 kunnen vinden.
+- **Norm-eigen gegevens die de organisatie zelf toevoegt, blijven van de
+  organisatie en blijven lokaal.** Een zelf ingevulde capaciteitendimensie komt
+  in een bestand dat niet in versiebeheer terechtkomt.
 
 ## Aansprakelijkheid
 
-Dit systeem wordt geleverd zoals het is. Het geeft geen juridisch advies, geen
-certificeringsgarantie en geen uitspraak over de vraag of jouw organisatie aan
-enige norm voldoet. Die beoordeling is aan jou, je adviseur en uiteindelijk aan
-je certificerende instelling.
+Dit systeem wordt geleverd zoals het is. Het systeem geeft geen juridisch advies,
+geen certificeringsgarantie en geen uitspraak over de vraag of de organisatie aan
+enige norm voldoet. Die beoordeling ligt bij de organisatie zelf, bij haar
+adviseur en uiteindelijk bij haar certificerende instelling.

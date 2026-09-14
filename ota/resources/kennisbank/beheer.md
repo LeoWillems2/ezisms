@@ -1,49 +1,50 @@
 # Beheer: de artisan-commando's
 
-Alles wat dit ISMS buiten de schermen om doet, loopt via één commandoregel. Ze
-draaien vanuit de applicatiemap:
+Alle handelingen die dit ISMS buiten de schermen om uitvoert, lopen via de
+commandoregel. De commando's draaien vanuit de applicatiemap:
 
 ```bash
 cd /pad/naar/ota
 php artisan isms:...
 ```
 
-Er zijn twee soorten: commando's die **vanzelf draaien** (de nachtelijke
-onderhoudstaken) en commando's die u **met de hand** geeft — bij het inrichten,
-bij het uitleveren, of bij het opruimen.
+Er zijn twee soorten commando's. Sommige commando's **draaien automatisch**: dat
+zijn de nachtelijke onderhoudstaken. Andere commando's worden **handmatig**
+gegeven: bij het inrichten, bij het uitleveren of bij het opruimen.
 
 ## Wat vanzelf draait
 
 | Wanneer | Commando | Wat het doet |
 | --- | --- | --- |
 | dagelijks 01:00 | `isms:verval-gebruikersaccounts` | Accounts waarvan de vervaldatum is bereikt, worden gedeactiveerd. |
-| dagelijks 01:30 | `isms:archiveer-bewijsstukken` | Bewijs waarvan de bewaartermijn is verstreken, gaat naar *gearchiveerd*. Er wordt niets verwijderd. |
-| dagelijks 01:15 | `isms:herinner-tweefactor` | Mailt gebruikers van wie de termijn om de tweede factor in te stellen bijna of net verstreken is. Eén mail in de aanloop, één na het verstrijken. |
-| dagelijks 01:45 | `isms:controleer-audittrail` | De keten-hashes over de audit trail worden nagelopen. De uitslag wordt vastgelegd, ook als alles klopt. |
-| dagelijks 02:00 | `isms:genereer-taken` | Terugkerende taken uit de sjablonen, plus signalen voor achterstallige retouren, SoA-beoordelingen en leesbevestigingen. |
-| dagelijks 02:15 | `isms:verloop-taken` | Taken over hun deadline worden *verlopen* en escaleren een niveau. |
-| dagelijks 02:30 | `isms:schoon-raadplegingen` | Registraties van bewijs-downloads ouder dan de bewaartermijn worden verwijderd. Dit verwijdert wél echt. |
-| dagelijks 02:45 | `isms:controleer-hartslag` | Kijkt of alle taken hierboven ook echt gedraaid hebben, en meldt wat er gemist is. |
-| maandelijks, de 1e om 03:00 | `isms:meet-kpis` | De maandelijkse KPI-meting: teller en noemer per KPI, onveranderlijk vastgelegd. |
-| jaarlijks, 31 december 23:00 | `isms:leg-restrisico-vast` | De jaarlijkse restrisico-snapshot per control. |
+| dagelijks 01:30 | `isms:archiveer-bewijsstukken` | Bewijs waarvan de bewaartermijn is verstreken, krijgt de status *gearchiveerd*. Er wordt niets verwijderd. |
+| dagelijks 01:15 | `isms:herinner-tweefactor` | Het commando mailt gebruikers van wie de termijn voor het instellen van de tweede factor bijna of net is verstreken. Er gaat één mail uit vóór het verstrijken en één mail erna. |
+| dagelijks 01:45 | `isms:controleer-audittrail` | De keten-hashes over de audit trail worden gecontroleerd. De uitslag wordt vastgelegd, ook als alles klopt. |
+| dagelijks 02:00 | `isms:genereer-taken` | Het commando maakt terugkerende taken aan uit de sjablonen, plus signalen voor achterstallige retouren, SoA-beoordelingen en leesbevestigingen. |
+| dagelijks 02:15 | `isms:verloop-taken` | Taken waarvan de deadline is verstreken, krijgen de status *verlopen* en escaleren één niveau. |
+| dagelijks 02:30 | `isms:schoon-raadplegingen` | Registraties van bewijs-downloads die ouder zijn dan de bewaartermijn, worden verwijderd. Dit commando verwijdert de gegevens definitief. |
+| dagelijks 02:45 | `isms:controleer-hartslag` | Het commando controleert of alle taken hierboven werkelijk hebben gedraaid, en meldt wat er is gemist. |
+| maandelijks, de 1e om 03:00 | `isms:meet-kpis` | De maandelijkse KPI-meting legt per KPI de teller en de noemer onveranderlijk vast. |
+| jaarlijks, 31 december 23:00 | `isms:leg-restrisico-vast` | Het commando legt de jaarlijkse restrisico-snapshot per control vast. |
 
-De ketencontrole draait vóór de opruimtaken hieronder: zo gaat ze over de trail
-van gisteren en niet half over die van vannacht.
+De ketencontrole draait vóór de opruimtaken. Daardoor controleert ze de trail van
+de vorige dag en niet een half bijgewerkte trail van de lopende nacht.
 
-De volgorde van de twee taakcommando's is niet willekeurig: `genereer-taken`
-draait vóór `verloop-taken`, zodat een taak die vannacht ontstaat met een deadline
-in het verleden dezelfde nacht als verlopen wordt gemarkeerd — in plaats van een
-dag lang ten onrechte "open" te heten.
+De volgorde van de twee taakcommando's is bewust gekozen. `genereer-taken` draait
+vóór `verloop-taken`. Een taak die 's nachts ontstaat met een deadline in het
+verleden, wordt daardoor dezelfde nacht als verlopen gemarkeerd. Anders zou de
+taak een dag lang ten onrechte de status open hebben.
 
 **Deze taken staan in de audit trail op naam van "Systeem (geplande taak)".** Er
-is geen ingelogde gebruiker, en dat hoort zichtbaar te zijn in plaats van
-toegeschreven aan wie toevallig als laatste iets deed.
+is geen ingelogde gebruiker. Dat hoort zichtbaar te zijn, en de handeling hoort
+niet te worden toegeschreven aan de gebruiker die toevallig als laatste iets
+deed.
 
 ### De planning zelf
 
-De planning staat in de code (`routes/console.php`), niet in de crontab. In de
-crontab staat één regel die elke minuut de planner wakker maakt. Zo staat het
-schema op één plek in plaats van twee die uit elkaar lopen.
+De planning staat in de code (`routes/console.php`) en niet in de crontab. De
+crontab bevat één regel die de planner elke minuut start. Zo staat het schema op
+één plek, in plaats van op twee plekken die uit elkaar kunnen lopen.
 
 ```bash
 php artisan schedule:list     # wat staat er gepland, en wanneer
@@ -53,46 +54,49 @@ php artisan schedule:test     # één commando kiezen en nu draaien
 ### Een gemiste nacht
 
 Alle nachtelijke taken zijn **idempotent**: twee keer draaien levert geen dubbele
-taken en geen dubbele metingen op. Een gemiste nacht haalt u gewoon met de hand
-in.
+taken en geen dubbele metingen op. Een gemiste nacht is daarom handmatig in te
+halen.
 
-Bij `isms:meet-kpis` zit er nog iets extra's in. De KPI's die *gebeurtenissen in
-een periode* tellen — nieuwe risico's, statusovergangen, scoredalingen zonder
-bewijs — rekenen vanaf het einde van de vorige meetperiode, niet vanaf een vaste
-maandgrens. Een overgeslagen maand levert dus geen gat maar een langer venster,
-en dat venster staat op de meetrij zelf ("14 in 62 dagen"). Wat er gebeurd is,
-telt mee; alleen het detailniveau is grover.
+`isms:meet-kpis` heeft een aanvullende eigenschap. De KPI's die *gebeurtenissen
+in een periode* tellen, zoals nieuwe risico's, statusovergangen en scoredalingen
+zonder bewijs, rekenen vanaf het einde van de vorige meetperiode en niet vanaf
+een vaste maandgrens. Een overgeslagen maand levert dus geen gat op, maar een
+langer venster. Dat venster staat op de meetrij zelf ("14 in 62 dagen"). Alle
+gebeurtenissen tellen mee; alleen het detailniveau is grover.
 
-## Wat u met de hand draait
+## Wat handmatig wordt gedraaid
 
 ### Inrichten
 
 **`isms:eerste-ciso {email} {wachtwoord} {naam?}`**
-Maakt het eerste, direct actieve CISO-account. Dit is de kip-en-ei-stap: een
-account aanmaken vereist normaal een ingelogde CISO, en die is er bij een verse
-installatie nog niet. Bestaat het e-mailadres al, dan weigert het commando, en
-het wachtwoord moet aan dezelfde eis voldoen als elders: minimaal 12 tekens.
+Dit commando maakt het eerste CISO-account aan, dat direct actief is. Deze stap
+is nodig omdat het aanmaken van een account normaal een ingelogde CISO vereist,
+en een nieuwe installatie heeft nog geen CISO. Als het e-mailadres al bestaat,
+weigert het commando. Het wachtwoord moet aan dezelfde eis voldoen als elders:
+minimaal 12 tekens.
 
-> Let op waar u dit intikt: het wachtwoord staat als argument op de
-> commandoregel en belandt daarmee in de shell-historie. Wijzig het na de eerste
-> aanmelding, of wis de regel.
+> Het wachtwoord staat als argument op de commandoregel en komt daardoor in de
+> shell-historie terecht. Het wachtwoord hoort daarom na de eerste aanmelding te
+> worden gewijzigd, of de regel hoort uit de historie te worden gewist.
 
 **`isms:tweefactor-resetten {email}`**
-Zet de tweefactorauthenticatie van één account terug. Daarna volgt bij de
-volgende aanmelding opnieuw de instelprocedure, met een nieuwe respijtperiode.
+Dit commando zet de tweefactorauthenticatie van één account terug. Bij de
+volgende aanmelding volgt opnieuw de instelprocedure, met een nieuwe
+respijtperiode.
 
-Dit is niet hetzelfde als de knop *Tweefactor resetten* in het
-gebruikersoverzicht — die doet hetzelfde, maar vanaf een scherm. Het commando
-bestaat voor het geval dat er niemand meer bij dat scherm kan: de CISO die zijn
-telefoon én zijn herstelcodes kwijt is. Zonder deze weg is de enige uitweg een
-handmatige `UPDATE` op de database, en dat is precies het soort ingreep dat
-buiten elke logging omgaat. Beide routes komen in de audit trail, met het
-onderscheid erbij: vanaf een scherm staat de naam van de CISO erbij, vanaf de
-commandoregel staat dat vermeld.
+De knop *Tweefactor resetten* in het gebruikersoverzicht doet hetzelfde, maar dan
+vanaf een scherm. Het commando bestaat voor de situatie waarin niemand dat
+scherm meer kan bereiken, bijvoorbeeld wanneer de CISO zowel de telefoon als de
+herstelcodes kwijt is. Zonder dit commando is de enige uitweg een handmatige
+`UPDATE` op de database, en zo'n ingreep valt buiten elke logging. Beide routes
+komen in de audit trail, met het onderscheid erbij: bij de schermroute staat de
+naam van de CISO vermeld, en bij de commandoregel staat vermeld dat de handeling
+via de commandoregel is uitgevoerd.
 
 **`isms:bereid-auditcyclus-voor`**
-Zet een volledige interne-auditcyclus op: programma, jaarplannen, dekkings­verdeling
-over de norm en de geplande rondes. De auditor blijft open — die wijst u zelf toe.
+Dit commando zet een volledige interne-auditcyclus op: het programma, de
+jaarplannen, de verdeling van de dekking over de norm en de geplande rondes. De
+auditor wordt niet ingevuld; die wordt handmatig toegewezen.
 
 | Optie | Wat het doet |
 | --- | --- |
@@ -100,59 +104,62 @@ over de norm en de geplande rondes. De auditor blijft open — die wijst u zelf 
 | `--jaren=` | Aantal jaren in de cyclus. Standaard 3, of 1 bij `--voorbereiding`. |
 | `--voorbereiding` | De opstartfase: één plan met een nulmeting over alles, zonder dekkingsverdeling. |
 | `--naam=` | Naam van het programma. Standaard afgeleid van de aard en het venster. |
-| `--activeer` | Zet het programma meteen op actief in plaats van concept. |
-| `--forceer` | Ga door ook als de SoA nog niet volledig is beslist. |
-| `--vervang` | Ruim een botsende bestaande cyclus eerst op. |
+| `--activeer` | Zet het programma direct op actief in plaats van concept. |
+| `--forceer` | Gaat door, ook als de SoA nog niet volledig is beslist. |
+| `--vervang` | Ruimt eerst een botsende bestaande cyclus op. |
 
-De `--voorbereiding`-variant bestaat omdat de echte auditcyclus pas begint ná de
-certificeringsaudit; daarvóór is er één ronde die een nulmeting is en geen
-oordeel.
+De variant `--voorbereiding` bestaat omdat de echte auditcyclus pas begint na de
+certificeringsaudit. Vóór die audit is er één ronde, en die ronde is een
+nulmeting en geen oordeel.
 
 **`isms:sync-auditobjecten`**
-Brengt de audit-universe in lijn met de SoA: elke maatregel die van toepassing is
-krijgt of houdt een auditobject, een control die dat niet meer is wordt inactief.
-Idempotent, en het meldt hoeveel objecten nieuw zijn — dat zijn de controls die
-mid-cyclus alsnog van toepassing werden en dus in geen enkel programma zitten.
-Die melding ís het punt: zo wordt drift zichtbaar.
+Dit commando brengt de audit-universe in lijn met de SoA. Elke maatregel die van
+toepassing is, krijgt of houdt een auditobject. Een control die niet meer van
+toepassing is, wordt inactief. Het commando is idempotent en meldt hoeveel
+objecten nieuw zijn. Die nieuwe objecten zijn de controls die tijdens de cyclus
+alsnog van toepassing werden en daardoor in geen enkel programma zitten. Die
+melding is het doel van het commando, omdat afwijkingen daardoor zichtbaar
+worden.
 
 **`isms:maatregelen`**
-Leest de maatregelcatalogus opnieuw in. Dit is het commando dat u draait nadat u
-de normteksten hebt ingevoerd; zie [De normteksten
-invoeren](/kennisbank/normteksten-invoeren). Het controleert het bestand eerst
-volledig — is er iets mis, dan gaat er niets naar de database en hoort u wát er
-mis is. Achteraf meldt het hoeveel maatregelen een eigen normtekst hebben en
-hoeveel er nog op de meegeleverde mededeling staan, zodat u ziet of uw werk is
-aangekomen. Idempotent, en het raakt uw SoA-beoordelingen niet aan.
+Dit commando leest de maatregelcatalogus opnieuw in. Het wordt gedraaid nadat de
+normteksten zijn ingevoerd; zie [De normteksten
+invoeren](/kennisbank/normteksten-invoeren). Het commando controleert eerst het
+volledige bestand. Als er een fout in staat, wordt er niets naar de database
+geschreven en meldt het commando wat er fout is. Na afloop meldt het commando
+hoeveel maatregelen een eigen normtekst hebben en hoeveel maatregelen nog de
+meegeleverde mededeling bevatten. Zo is te zien of de ingevoerde teksten zijn
+verwerkt. Het commando is idempotent en laat de SoA-beoordelingen ongemoeid.
 
 | Optie | Wat het doet |
 | --- | --- |
 | `--controleer` | Alleen controleren, niets naar de database schrijven. |
 
 **`isms:overheidsmaatregelen`**
-Alleen in het BIO-profiel. Leest de BIO-overheidsmaatregelen opnieuw in: de
-nummering, de koppeling aan de beheersmaatregel, de status (geldend, vervallen of
-verplaatst) en de reikwijdte van de Cyberbeveiligingswet. Net als bij de
-maatregelcatalogus controleert het het bestand eerst volledig, en achteraf meldt
-het hoeveel verplichtingen een eigen tekst dragen en hoeveel er nog niet
-beoordeeld zijn.
+Dit commando bestaat alleen in het BIO-profiel. Het leest de
+BIO-overheidsmaatregelen opnieuw in: de nummering, de koppeling aan de
+beheersmaatregel, de status (geldend, vervallen of verplaatst) en de reikwijdte
+van de Cyberbeveiligingswet. Net als bij de maatregelcatalogus controleert het
+commando eerst het volledige bestand. Na afloop meldt het hoeveel verplichtingen
+een eigen tekst hebben en hoeveel verplichtingen nog niet zijn beoordeeld.
 
-Dit is ook het commando dat u draait nadat u de BIO-teksten in uw eigen
-installatie hebt gezet — het systeem levert die niet mee, want de BIO staat onder
-een licentie die dat niet toestaat. Zie [Verantwoording en
-disclaimer](/kennisbank/verantwoording-en-disclaimer). Verhuist bij een nieuwe
-BIO-uitgave de beoordeling van een verplaatst nummer mee naar zijn opvolger, en
-markeert beoordelingen die ouder zijn dan een gewijzigde verplichting.
+Dit commando wordt ook gedraaid nadat de BIO-teksten in de eigen installatie zijn
+gezet. Het systeem levert die teksten niet mee, omdat de licentie van de BIO dat
+niet toestaat. Zie [Verantwoording en
+disclaimer](/kennisbank/verantwoording-en-disclaimer). Bij een nieuwe BIO-uitgave
+verhuist het commando de beoordeling van een verplaatst nummer naar de opvolger,
+en markeert het beoordelingen die ouder zijn dan een gewijzigde verplichting.
 
 | Optie | Wat het doet |
 | --- | --- |
 | `--controleer` | Alleen controleren, niets naar de database schrijven. |
 
 **`isms:kenmerken`**
-Leest de meegeleverde uitgangsclassificatie opnieuw in. Draait vanzelf bij elke
-uitrol. Wijzigt daarbij een uitgangswaarde, dan maakt dit commando een taak aan
-voor elke SoA-regel waar ú zelf een classificatie hebt vastgelegd — die regels
-volgen het uitgangspunt namelijk niet meer, en zonder taak zou die correctie u
-stilzwijgend passeren. Zie [De
+Dit commando leest de meegeleverde uitgangsclassificatie opnieuw in. Het draait
+automatisch bij elke uitrol. Als daarbij een uitgangswaarde wijzigt, maakt het
+commando een taak aan voor elke SoA-regel waarop de organisatie zelf een
+classificatie heeft vastgelegd. Die regels volgen het uitgangspunt namelijk niet
+meer, en zonder taak zou de correctie ongemerkt blijven. Zie [De
 maatregelclassificatie](/kennisbank/maatregelclassificatie).
 
 | Optie | Wat het doet |
@@ -160,58 +167,64 @@ maatregelclassificatie](/kennisbank/maatregelclassificatie).
 | `--controleer` | Alleen tonen wat er zou wijzigen, niets schrijven. |
 
 **`isms:capaciteiten {aan|uit|status}`**
-Zet de vijfde attribuutdimensie van ISO 27002 aan of uit. Alleen zinvol als u de
-norm bezit: het systeem levert die dimensie bewust niet mee, omdat de toewijzing
-alleen in de norm staat. Zonder argument toont het commando de huidige stand.
+Dit commando zet de vijfde attribuutdimensie van ISO 27002 aan of uit. Dat is
+alleen zinvol voor een organisatie die de norm bezit. Het systeem levert die
+dimensie bewust niet mee, omdat de toewijzing alleen in de norm staat. Zonder
+argument toont het commando de huidige stand.
 
 ### Controleren
 
 **`isms:controleer-audittrail`**
-Loopt de keten-hashes over de audit trail na: klopt elke schakel, en klopt de
-inhoud van elke regel nog met zijn hash. Draait elke nacht vanzelf; met de hand
-geeft u hem als u het zelf wilt zien, of als een auditor ernaar vraagt.
+Dit commando controleert de keten-hashes over de audit trail: klopt elke schakel,
+en klopt de inhoud van elke regel nog met de bijbehorende hash. Het commando
+draait elke nacht automatisch. Handmatig draaien is nuttig om de uitslag zelf te
+zien, of wanneer een auditor ernaar vraagt.
 
 | Optie | Wat het doet |
 | --- | --- |
-| `--stil` | Alleen de slotregel. Zo staat hij in de planning. |
+| `--stil` | Alleen de slotregel. Zo staat het commando in de planning. |
 | `--vanaf=` | Begin bij dit regelnummer, na een bewuste verzegeling. |
 | `--kop` | Druk alleen de huidige kophash af en stop. |
 
-Bij een breuk meldt het commando het regelnummer, stopt het daar — alles ná een
-breuk wijkt per definitie af — en eindigt het met een foutcode. De uitslag wordt
-altijd vastgelegd, ook als alles klopt: dat de controle elke nacht heeft gelopen
-is zelf het bewijs. Zie [De audit trail](de-audit-trail).
+Bij een breuk meldt het commando het regelnummer, stopt het op die plek en
+eindigt het met een foutcode. Het commando stopt omdat alle regels na een breuk
+per definitie afwijken. De uitslag wordt altijd vastgelegd, ook als alles klopt,
+omdat het feit dat de controle elke nacht heeft gedraaid zelf het bewijs is. Zie
+[De audit trail](de-audit-trail).
 
 **`isms:controleer-hartslag`**
-Kijkt of de geplande taken hierboven ook werkelijk gedraaid hebben. Staat de
-machine een tijd uit, dan draaien ze niet, en het systeem haalt ze niet in — zonder
-deze controle ziet een ISMS dat zes weken heeft stilgelegen er daarna precies zo
-uit als een ISMS dat gewoon doordraaide.
+Dit commando controleert of de geplande taken hierboven werkelijk hebben
+gedraaid. Als de machine een tijd uit staat, draaien de taken niet, en het
+systeem haalt ze niet in. Zonder deze controle ziet een ISMS dat zes weken heeft
+stilgelegen er daarna precies hetzelfde uit als een ISMS dat gewoon heeft
+doorgedraaid.
 
 | Optie | Wat het doet |
 | --- | --- |
-| `--stil` | Alleen de samenvatting. Zo staat hij in de planning en in de uitrol. |
+| `--stil` | Alleen de samenvatting. Zo staat het commando in de planning en in de uitrol. |
 | `--geen-taken` | Wel melden wat er gemist is, maar geen taken aanmaken. |
 
-Niet elk gemist moment weegt even zwaar, en dat is het punt van dit commando. Een
-herstart van een kwartier levert niets op. Een gemiste opruimtaak wordt gemeld,
-maar de volgende nacht haalt hem alsnog in. Een gemiste **maandmeting** van een
-toestand-KPI is onherstelbaar — de stand van 1 september is in oktober niet meer
-op te vragen — en levert een taak op bij de betreffende KPI. Hetzelfde geldt voor
-de jaarlijkse restrisico-snapshot.
+Niet elk gemist moment weegt even zwaar, en dat onderscheid is het doel van dit
+commando. Een herstart van een kwartier levert geen melding op. Een gemiste
+opruimtaak wordt gemeld, maar de volgende nacht haalt die taak de achterstand
+alsnog in. Een gemiste **maandmeting** van een toestand-KPI is niet te herstellen,
+omdat de stand van 1 september in oktober niet meer op te vragen is. Zo'n gemiste
+meting levert een taak op bij de betreffende KPI. Hetzelfde geldt voor de
+jaarlijkse restrisico-snapshot.
 
 Het commando haalt niets in. Een meetpunt met terugwerkende kracht zou de reeks
-onbetrouwbaar maken; het gat wordt zichtbaar gemaakt, niet weggepoetst.
+onbetrouwbaar maken. Het gat wordt daarom zichtbaar gemaakt en niet verborgen.
 
-Hij draait op twee momenten: elke nacht als laatste taak, en bij elke uitrol —
-die twee vangen verschillende dingen. De nachtelijke run merkt dat één taak
-faalde; de uitrol merkt dat de hele machine weg was.
+Het commando draait op twee momenten: elke nacht als laatste taak, en bij elke
+uitrol. Die twee momenten detecteren verschillende problemen. De nachtelijke run
+detecteert dat één taak is mislukt. De uitrol detecteert dat de hele machine
+niet beschikbaar was.
 
 ### Uitleveren
 
 **`isms:exporteer`**
-Schrijft het hele ISMS weg als leesbare Markdown-mapstructuur, bedoeld om over te
-nemen in een ander systeem.
+Dit commando schrijft het hele ISMS weg als een leesbare mapstructuur met
+Markdown-bestanden, bedoeld om over te nemen in een ander systeem.
 
 | Optie | Wat het doet |
 | --- | --- |
@@ -219,48 +232,50 @@ nemen in een ander systeem.
 | `--met-bewijs` | Kopieert de bewijsstukken en beleidsdocumenten mee in `_bewijs/`. |
 | `--met-persoonsgegevens` | Toont volledige namen in plaats van initialen + rol. |
 
-Standaard staan er initialen en rollen in plaats van namen. Dat is een bewuste
-keuze voor de export, die als bestand rondgaat. Voor een **schermkopie** ligt dat
-andersom: die maakt u terwijl de auditor naast u zit en de namen al op het scherm
-ziet staan.
+Standaard bevat de export initialen en rollen in plaats van namen. Dat is een
+bewuste keuze voor de export, omdat die als bestand wordt verspreid. Voor een
+**schermkopie** geldt het omgekeerde. Een schermkopie wordt gemaakt terwijl de
+auditor meekijkt en de namen al op het scherm ziet.
 
-### Opruimen — hier goed kijken
+### Opruimen: hier is voorzichtigheid nodig
 
 **`isms:verwijder-auditdata`**
-Verwijdert alle auditmanagement-gegevens voor een schone start. Vraagt eerst om
-bevestiging.
+Dit commando verwijdert alle gegevens van auditmanagement voor een schone start.
+Het commando vraagt eerst om bevestiging.
 
 | Optie | Wat het doet |
 | --- | --- |
 | `--bevestig` | Direct verwijderen, zonder de interactieve vraag. |
-| `--met-trail` | Verwijder óók de audit-trail-regels van blok auditmanagement. |
-| `--met-universe` | Verwijder óók de auditobjecten (clausules en maatregel-objecten). |
+| `--met-trail` | Verwijdert ook de audit-trail-regels van blok auditmanagement. |
+| `--met-universe` | Verwijdert ook de auditobjecten (clausules en maatregel-objecten). |
 
-`--met-trail` is de zwaarste: die haalt bewijs weg dat er ooit audits waren, en
-breekt de keten-hashes. Het commando verzegelt de keten daarna opnieuw en legt
-vast dat het is gebeurd — maar de trail bewijst vanaf dat moment alleen nog wat
-er ná die handeling gebeurde. Doe dit alleen bij het opnieuw inrichten van een
-omgeving die nog niet in gebruik is.
+`--met-trail` is de zwaarste optie. Die optie verwijdert het bewijs dat er ooit
+audits waren en breekt de keten-hashes. Het commando verzegelt de keten daarna
+opnieuw en legt vast dat de verwijdering heeft plaatsgevonden. Vanaf dat moment
+bewijst de trail alleen nog wat er na die handeling is gebeurd. Deze optie is
+alleen bedoeld voor het opnieuw inrichten van een omgeving die nog niet in
+gebruik is.
 
-> **`isms:demo-vul` wist eerst de héle database.**
+> **`isms:demo-vul` wist eerst de volledige database.**
 >
-> Dit commando vult het systeem met het FruitBV-demoscenario en begint met een
-> volledige leegmaak. Het weigert te draaien buiten een local- of demo-omgeving,
-> maar die grens is een vangnet en geen garantie: draai het nooit op een omgeving
-> waar echte gegevens in staan.
+> Dit commando vult het systeem met het FruitBV-demoscenario en begint met het
+> volledig leegmaken van de database. Het commando weigert te draaien buiten een
+> local- of demo-omgeving. Die grens is een vangnet en geen garantie. Het
+> commando mag nooit draaien op een omgeving met echte gegevens.
 >
 > Opties: `--fixtures=` (andere fixturemap), `--stil` (alleen de samenvatting),
 > `--ontgrendel` (een vergrendeling opheffen die na een afgebroken vulling is
-> blijven hangen).
+> blijven staan).
 
 ## Drie dingen die voor alle commando's gelden
 
-- **Wat een commando wijzigt, komt in de audit trail.** Ook wat 's nachts
-  gebeurt. Zie [De audit trail](de-audit-trail).
+- **Wat een commando wijzigt, komt in de audit trail.** Dat geldt ook voor
+  handelingen die 's nachts plaatsvinden. Zie [De audit trail](de-audit-trail).
 - **Onveranderlijke gegevens blijven onveranderlijk.** `isms:meet-kpis` en
-  `isms:leg-restrisico-vast` schrijven metingen die daarna niet meer herrekend
-  worden — twee keer draaien in dezelfde periode levert geen tweede meting op.
-- **Draaien zonder gevolg is de norm, niet de uitzondering.** Op de twee
-  opruimcommando's hierboven na kunt u elk commando opnieuw geven zonder dat er
-  iets dubbel gebeurt. Twijfelt u of een nachtelijke taak is gelopen, dan is hem
-  nog eens draaien het goedkoopste antwoord.
+  `isms:leg-restrisico-vast` schrijven metingen die daarna niet meer worden
+  herrekend. Twee keer draaien in dezelfde periode levert geen tweede meting op.
+- **Draaien zonder bijwerkingen is de norm en niet de uitzondering.** Met
+  uitzondering van de twee opruimcommando's hierboven kan elk commando opnieuw
+  worden gegeven zonder dat er iets dubbel gebeurt. Bij twijfel of een
+  nachtelijke taak heeft gedraaid, is de taak nog een keer draaien de goedkoopste
+  controle.
