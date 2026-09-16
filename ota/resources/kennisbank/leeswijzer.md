@@ -35,6 +35,13 @@ Deze pagina geeft een overzicht van de artikelen in de kennisbank.
   Het artikel beschrijft de drie lagen (autorisatiecheck, record-scoping en
   record-guards) en somt eerlijk op wat het model niet doet.
 
+## Taken & workflow
+
+- **[Taken: hoe ze ontstaan en hoe ze worden afgerond](/kennisbank/taken)** — Dit
+  artikel beschrijft de vijf routes waarlangs een taak ontstaat, de betekenis van de
+  knoppen in de kolom *Acties* op `/taken` en de gevallen waarin een taak daar niet
+  af te ronden is.
+
 ## Risico & SoA
 
 - **[Issues en risico's: wat hoort waar?](/kennisbank/issues-en-risicos)** — Issues en
@@ -119,6 +126,10 @@ Deze pagina geeft een overzicht van de artikelen in de kennisbank.
   alles wat buiten de schermen om draait: de nachtelijke onderhoudstaken en de
   commando's die met de hand worden gegeven bij inrichten, controleren, uitleveren en
   opruimen.
+- **[Inloggen via een identiteitsprovider](/kennisbank/inloggen-via-een-identiteitsprovider)**
+  — Een installatie kan de aanmelding overlaten aan Microsoft Entra ID of Google
+  Workspace. Dit artikel beschrijft wat daarvoor nodig is, welke instellingen er
+  zijn en wat er bij het beheer op let.
 - **[De normteksten invoeren](/kennisbank/normteksten-invoeren)** — Een organisatie
   die de norm heeft gekocht, voert de teksten zelf in met één JSON-bestand en één
   commando. De ingevoerde tekst mag deze installatie niet verlaten.

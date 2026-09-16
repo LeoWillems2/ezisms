@@ -20,8 +20,13 @@ class Loginpoging extends Model
      * factor (implementatie/01d §7c). Waarden: wachtwoord, totp, herstelcode,
      * status. Bij rijen van vóór 03-08-2026 is hij leeg — invullen zou een
      * bewering doen die niet uit de data volgt.
+     *
+     * Sinds 01j ook `extern_onbekend` en `extern_geweigerd` (§5.3). `methode`
+     * zegt langs welke weg er is ingelogd, en `mfa_bij_idp` legt bij een externe
+     * login vast wat `ISMS_IDP_DWINGT_MFA` op dat moment was (§7.3): een
+     * wijziging in `.env` komt niet in de audit trail.
      */
-    protected $fillable = ['gebruiker_id', 'email_ingevoerd', 'tijdstip', 'succesvol', 'reden', 'ip_adres'];
+    protected $fillable = ['gebruiker_id', 'email_ingevoerd', 'tijdstip', 'succesvol', 'methode', 'mfa_bij_idp', 'reden', 'ip_adres'];
 
     /** @return array<string, string> */
     protected function casts(): array
@@ -29,6 +34,7 @@ class Loginpoging extends Model
         return [
             'tijdstip' => 'datetime',
             'succesvol' => 'boolean',
+            'mfa_bij_idp' => 'boolean',
         ];
     }
 

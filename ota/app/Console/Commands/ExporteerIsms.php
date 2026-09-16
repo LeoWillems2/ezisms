@@ -25,6 +25,7 @@ use App\Models\Leesbevestiging;
 use App\Models\Leverancier;
 use App\Models\Meting;
 use App\Models\OrganisatieEenheid;
+use App\Models\Organisatieprofiel;
 use App\Models\OverheidsmaatregelBeoordeling;
 use App\Models\RestrisicoSnapshot;
 use App\Models\Reviewsessie;
@@ -237,6 +238,7 @@ class ExporteerIsms extends Command
             .'Gegenereerd op **'.now()->lokaal()->format('d-m-Y H:i').'**. Dit is een mens-leesbare '
             .'momentopname om over te nemen in een ander ISMS — **geen** volledige of '
             ."machine-importeerbare kopie.\n\n"
+            .$this->organisatie()
             // De belangrijkste van de drie normstempels (implementatie/00h §5):
             // een export verlaat het systeem, en dan is er niets meer dat de
             // lezer vertelt tegen welke norm deze beoordelingen zijn gemaakt.
@@ -261,12 +263,47 @@ class ExporteerIsms extends Command
         $this->schrijf('00-overzicht.md', $md);
     }
 
+    /**
+     * Van wie dit ISMS is. Zonder dit staat nergens in de export voor welke
+     * organisatie hij gemaakt is, en een export is juist bedoeld om buiten deze
+     * installatie gelezen te worden.
+     *
+     * Altijd opgenomen, ook zonder `--met-persoonsgegevens`: het profiel is wat
+     * de organisatie zelf boven haar VvT en auditrapporten wil hebben staan.
+     *
+     * In een codeblok en niet als citaat: het model belooft dat er niets als
+     * markdown wordt gelezen en dat de regelovergangen blijven staan. Een citaat
+     * voegt de regels van een adres samen en maakt van een `*` een opsomming.
+     */
+    private function organisatie(): string
+    {
+        $naam = trim((string) config('app.organisatie'));
+        $gegevens = trim((string) Organisatieprofiel::huidig()->gegevens);
+
+        if ($naam === '' && $gegevens === '') {
+            return '';
+        }
+
+        $md = '**Organisatie:**'.($naam !== '' ? ' '.$this->cel($naam) : '')."\n\n";
+
+        if ($gegevens !== '') {
+            // Het hek langer dan de langste reeks backticks in de tekst, zodat
+            // die het blok niet vroegtijdig kan sluiten.
+            preg_match_all('/`+/', $gegevens, $reeksen);
+            $langste = max([0, ...array_map('strlen', $reeksen[0])]);
+            $hek = str_repeat('`', max(3, $langste + 1));
+            $md .= "{$hek}text\n{$gegevens}\n{$hek}\n\n";
+        }
+
+        return $md;
+    }
+
     // --- Domeinen -----------------------------------------------------------
 
     private function contextScope(): int
     {
         $md = "# Context & scope\n\n## Scopeverklaringen\n\n";
-        $verklaringen = ScopeVerklaring::with('interfaces')->orderByDesc('versienummer')->get();
+        $verklaringen = ScopeVerklaring::with(['interfaces', 'uitsluitingen'])->orderByDesc('versienummer')->get();
         foreach ($verklaringen as $v) {
             $md .= "### Versie {$v->versienummer} ({$v->status})\n\n"
                 ."- Geldig vanaf: {$this->datum($v->geldig_vanaf)}\n"
@@ -282,6 +319,15 @@ class ExporteerIsms extends Command
                 $md .= "**Interfaces naar buiten de scope**\n\n".$this->tabel(
                     ['Omschrijving', 'Risico-implicatie'],
                     $interfaces->map(fn (ScopeInterface $i) => [$i->omschrijving, $i->risico_implicatie ?? '—'])
+                )."\n";
+            }
+
+            // Uitsluitingen horen bij een versie, net als de interfaces. Als één
+            // lijst onder alle versies herhaalde elke versie haar uitsluitingen,
+            // zonder dat te zien was in welke scope ze golden.
+            if ($v->uitsluitingen->isNotEmpty()) {
+                $md .= "**Uitsluitingen**\n\n".$this->tabel(['Omschrijving', 'Motivatie'],
+                    $v->uitsluitingen->sortBy('id')->map(fn (Uitsluiting $u) => [$u->omschrijving, $u->motivatie ?? '—'])
                 )."\n";
             }
         }
@@ -324,12 +370,6 @@ class ExporteerIsms extends Command
                 $md .= "- {$this->cel($eis->omschrijving)}".($eis->bron ? " _(bron: {$eis->bron})_" : '')."\n";
             }
             $md .= "\n";
-        }
-
-        $uitsluitingen = Uitsluiting::orderBy('id')->get();
-        if ($uitsluitingen->isNotEmpty()) {
-            $md .= "## Uitsluitingen\n\n".$this->tabel(['Omschrijving', 'Motivatie'],
-                $uitsluitingen->map(fn (Uitsluiting $u) => [$u->omschrijving, $u->motivatie ?? '—']));
         }
 
         $this->schrijf('01-context-scope.md', $md);
@@ -485,7 +525,9 @@ class ExporteerIsms extends Command
             $assetNaam = $this->cel($assets->get($r->gekoppeld_asset_id) ?? '—');
             $levNaam = $this->cel($leveranciers->get($r->gekoppeld_leverancier_id) ?? '—');
             $md .= "### {$r->titel} ({$r->status})\n\n"
-                ."- Score: {$r->risicoscore} (kans {$r->kans_niveau} × impact {$r->impact_niveau})\n"
+                .($r->risicoscore === null
+                    ? "- Score: nog niet beoordeeld\n"
+                    : "- Score: {$r->risicoscore} (kans {$r->kans_niveau} × impact {$r->impact_niveau})\n")
                 // Onder welk kader deze score tot stand kwam. Zonder dit is van
                 // een risico dat vorig jaar als aanvaardbaar gold niet meer vast
                 // te stellen tegen welke drempel dat gebeurde (04g §2.6a).
@@ -578,7 +620,11 @@ class ExporteerIsms extends Command
 
         $md = "# Beleid\n\n";
         foreach ($documenten as $d) {
-            $actief = $d->versies->firstWhere('status', 'gepubliceerd') ?? $d->versies->first();
+            // Alleen een versie met status `actief` is de geldende. Dit zocht
+            // eerder op 'gepubliceerd', een status die niet bestaat, en viel dan
+            // terug op de hoogste versie: een concept las als vastgesteld beleid.
+            $actief = $d->versies->firstWhere('status', 'actief');
+            $laatste = $d->versies->first();
             $md .= "## {$d->titel} ({$d->status})\n\n"
                 .($d->type ? "- Type: {$d->type}\n" : '')
                 ."- Eigenaar: {$this->persoonId($d->eigenaar_id)}\n"
@@ -590,6 +636,13 @@ class ExporteerIsms extends Command
                 if ($this->metBewijs && isset($this->bewijsPaden[$actief->bewijsstuk_id])) {
                     $md .= "- Document: [{$this->bewijsPaden[$actief->bewijsstuk_id]}]({$this->bewijsPaden[$actief->bewijsstuk_id]})\n";
                 }
+            } else {
+                $md .= "- Actieve versie: **geen**\n";
+            }
+            // Een herziening die nog loopt, apart benoemd: die is er wel, maar
+            // geldt nog niet.
+            if ($laatste !== null && $laatste->isBewerkbaar()) {
+                $md .= "- In behandeling: versie {$laatste->versienummer} ({$laatste->status})\n";
             }
             $md .= $this->bewijs('beleidsdocument', $d->id, behalve: $actief?->bewijsstuk_id)
                 .($d->omschrijving ? "\n".$this->blok($d->omschrijving)."\n" : '')."\n";
@@ -767,9 +820,14 @@ class ExporteerIsms extends Command
         }
 
         $md .= "## Afwijkingen (§10.2)\n\n";
-        $afwijkingen = Afwijking::with(['grondoorzaken', 'maatregelen'])->orderByDesc('id')->get();
+        $afwijkingen = Afwijking::with(['grondoorzaken', 'maatregelen.toetsen'])->orderByDesc('id')->get();
         foreach ($afwijkingen as $a) {
-            $md .= "### Afwijking #{$a->id} — {$a->bron} ({$a->status})\n\n"
+            // Geen `#id` in de kop: het overzicht belooft dat interne identifiers
+            // wegblijven, en buiten deze installatie zegt dat nummer niets. De
+            // korte omschrijving is ook hoe de audit trail een afwijking noemt.
+            $md .= "### {$this->cel($a->auditOmschrijving())} ({$a->bron}, {$a->status})\n\n"
+                ."- Vastgelegd: {$this->datum($a->created_at)}"
+                .($a->gesloten_op ? " · gesloten: {$this->datum($a->gesloten_op)}" : '')."\n"
                 ."- Eigenaar: {$this->persoonId($a->eigenaar_id)}\n"
                 .($a->omschrijving ? "\n".$this->blok($a->omschrijving)."\n\n" : '');
             foreach ($a->grondoorzaken ?? [] as $g) {
@@ -777,6 +835,16 @@ class ExporteerIsms extends Command
             }
             foreach ($a->maatregelen ?? [] as $c) {
                 $md .= "- Maatregel ({$c->status}".($c->deadline ? ", deadline {$this->datum($c->deadline)}" : '')."): {$this->cel($c->omschrijving)}\n";
+                // §10.2 d: de effectiviteit beoordelen. Alle toetsen en niet
+                // alleen de laatste — een maatregel die eerst niet effectief
+                // bleek, is precies de historie die een auditor wil zien. De
+                // laatste telt (CorrigerendeMaatregel::laatsteToets()).
+                foreach ($c->toetsen->sortBy('uitgevoerd_op') as $t) {
+                    $md .= '  - Effectiviteitstoets '.$this->datum($t->uitgevoerd_op)
+                        .' door '.$this->persoonId($t->uitgevoerd_door_id)
+                        .': **'.str_replace('_', ' ', $t->resultaat).'**'
+                        .($t->toelichting ? ' — '.$this->cel($t->toelichting) : '')."\n";
+                }
             }
             $md .= $this->bewijs('afwijking', $a->id)."\n";
         }
@@ -789,7 +857,13 @@ class ExporteerIsms extends Command
     private function audits(): int
     {
         $md = "# Audits (§9.2)\n\n";
-        $programmas = Auditprogramma::with(['auditplannen.rondes.bevindingen.auditobject', 'auditplannen.rondes.auditobjecten', 'dekkingen.auditobject'])
+        // `.maatregel` bij elk auditobject: de referentie en naam van een
+        // Bijlage A-object komen uit de maatregel, niet uit het object zelf.
+        $programmas = Auditprogramma::with([
+            'auditplannen.rondes.bevindingen.auditobject.maatregel',
+            'auditplannen.rondes.auditobjecten.maatregel',
+            'dekkingen.auditobject.maatregel',
+        ])
             ->orderByDesc('start_datum')->get();
 
         foreach ($programmas as $p) {
@@ -902,7 +976,10 @@ class ExporteerIsms extends Command
         return "### Dekking\n\n".$this->tabel(
             ['Object', 'Soort', 'Interval (jaren)', 'Start in programmajaar', 'Toelichting'],
             $dekkingen->map(fn (AuditprogrammaDekking $d) => [
-                trim(($d->auditobject?->clausule_nummer ?? '').' '.($d->auditobject?->titel ?? '')) ?: '—',
+                // Niet zelf clausule_nummer en titel samenstellen: die zijn bij
+                // een maatregelobject leeg, en dan stond de hele Bijlage A-kant
+                // van de matrix als "—" in de export.
+                $d->auditobject?->auditOmschrijving() ?? '—',
                 $d->auditobject?->soort ?? '—',
                 $d->interval_jaren,
                 $d->gepland_start_programmajaar,
@@ -1163,7 +1240,7 @@ class ExporteerIsms extends Command
             return '';
         }
 
-        $md = "- Overheidsmaatregelen (".Normprofiel::label('naam_kort')."):\n";
+        $md = '- Overheidsmaatregelen ('.Normprofiel::label('naam_kort')."):\n";
 
         foreach ($beoordelingen as $beoordeling) {
             $om = $beoordeling->overheidsmaatregel;
@@ -1224,7 +1301,7 @@ class ExporteerIsms extends Command
      * de bijlage completer laten lijken dan ze is, en dat is precies het document
      * waar een auditor op afgaat.
      *
-     * @param  \Illuminate\Support\Collection<int, SoaRegel>  $regels
+     * @param  Collection<int, SoaRegel>  $regels
      */
     private function uitzonderingen($regels): string
     {
@@ -1269,7 +1346,7 @@ class ExporteerIsms extends Command
         }
 
         if ($rijen === []) {
-            return $md."Geen uitzonderingen: elke beheersmaatregel is van toepassing en elke "
+            return $md.'Geen uitzonderingen: elke beheersmaatregel is van toepassing en elke '
                 ."overheidsmaatregel is als van toepassing beoordeeld.\n\n";
         }
 

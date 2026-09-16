@@ -34,6 +34,12 @@ class GebruikerFactory extends Factory
         return $this->state(fn () => ['status' => 'uitgenodigd']);
     }
 
+    /** Logt in via de externe identiteitsprovider (01j); zonder koppeling. */
+    public function extern(): static
+    {
+        return $this->state(['inlogmethode' => 'extern']);
+    }
+
     public function geblokkeerd(): static
     {
         return $this->state(fn () => ['status' => 'geblokkeerd']);

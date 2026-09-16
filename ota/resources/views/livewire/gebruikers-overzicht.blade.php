@@ -57,6 +57,9 @@
             <flux:table.column>Rol(len)</flux:table.column>
             <flux:table.column>Afdeling</flux:table.column>
             <flux:table.column>Status</flux:table.column>
+            @if ($toontInlogkolom)
+                <flux:table.column>Inloggen</flux:table.column>
+            @endif
             {{-- Niet alleen bediening: dit is de dekkingsgraad van A.8.5, en
                  daarmee het bewijs dat de maatregel is uitgerold (01d §8). --}}
             <flux:table.column>Tweefactor</flux:table.column>
@@ -148,6 +151,19 @@
                             @endif
                         @endif
 
+                        {{-- Actief, logt in via de IdP, maar de koppeling is er
+                             nog niet (01j §10). Hetzelfde onderscheid als "Nog
+                             uitnodigen" hierboven: moet ik hier nog iets doen. --}}
+                        @if ($gebruiker->status === 'actief' && $gebruiker->isExtern() && $gebruiker->externeIdentiteit === null)
+                            <flux:text class="mt-1 block text-xs text-amber-600">
+                                @if ($gebruiker->koppeling_uitgereikt_op)
+                                    Koppellink uitgereikt op {{ $gebruiker->koppeling_uitgereikt_op->lokaal()->format('d-m-Y') }}
+                                @else
+                                    Koppellink nog uitreiken
+                                @endif
+                            </flux:text>
+                        @endif
+
                         {{-- Een lopende adreswijziging (01h §5). Staat hier en niet
                              bij de acties, want het is een eigenschap van het
                              account: het huidige adres erboven is nog steeds het
@@ -177,9 +193,36 @@
                         @endif
                     </flux:table.cell>
 
+                    @if ($toontInlogkolom)
+                        <flux:table.cell>
+                            @if ($gebruiker->isExtern())
+                                {{ $idpNaam }}
+                                @if ($gebruiker->externeIdentiteit?->idp_gebruikersnaam)
+                                    <flux:text class="block text-xs text-zinc-500">{{ $gebruiker->externeIdentiteit->idp_gebruikersnaam }}</flux:text>
+                                    {{-- Signaal, geen blokkade (01j §10): wie de link
+                                         had, bepaalde welk IdP-account is gekoppeld,
+                                         en dit is waar de CISO dat terugziet. Bij Entra
+                                         is een UPN die van het mailadres afwijkt
+                                         gewoon, vandaar alleen een hint. --}}
+                                    @if (str_contains($gebruiker->externeIdentiteit->idp_gebruikersnaam, '@')
+                                        && strcasecmp($gebruiker->externeIdentiteit->idp_gebruikersnaam, $gebruiker->email) !== 0)
+                                        <flux:text class="block text-xs text-amber-600">Wijkt af van het uitnodigingsadres</flux:text>
+                                    @endif
+                                @endif
+                            @else
+                                Wachtwoord
+                            @endif
+                        </flux:table.cell>
+                    @endif
+
                     <flux:table.cell>
                         @if ($gebruiker->tweefactorActief())
                             <flux:badge size="sm" color="green">Actief</flux:badge>
+                        @elseif ($gebruiker->tweefactorVrijgesteldDoorIdp())
+                            {{-- De IdP dwingt de tweede factor af, volgens de
+                                 installatie (01j §7.2). Geen groen: het ISMS heeft
+                                 het niet zelf gezien. --}}
+                            <flux:badge size="sm" color="zinc">Via {{ $idpNaam }}</flux:badge>
                         @elseif ($gebruiker->tweefactorRespijtVerlopen())
                             <flux:badge size="sm" color="red">Respijt verlopen</flux:badge>
                         @elseif ($gebruiker->tweefactor_deadline !== null)
@@ -241,6 +284,22 @@
                                         E-mailadres wijzigen
                                     </flux:button>
                                 @endif
+                                {{-- Overzetten naar de IdP, of opnieuw koppelen (01j §9.1). --}}
+                                @if ($idpIngesteld)
+                                    @if ($gebruiker->isExtern())
+                                        <flux:button size="sm" variant="ghost" icon="link"
+                                            wire:click="reikKoppelingUit({{ $gebruiker->id }})"
+                                            wire:confirm="Koppeling van {{ $gebruiker->naam }} opnieuw uitreiken? De huidige koppeling vervalt en {{ $gebruiker->naam }} kan pas weer inloggen na het koppelen via de nieuwe link.">
+                                            Koppeling opnieuw uitreiken
+                                        </flux:button>
+                                    @else
+                                        <flux:button size="sm" variant="ghost" icon="link"
+                                            wire:click="reikKoppelingUit({{ $gebruiker->id }})"
+                                            wire:confirm="{{ $gebruiker->naam }} overzetten naar {{ $idpNaam }}? Het wachtwoord vervalt meteen, lopende sessies worden beëindigd, en inloggen kan pas weer na het koppelen via de link die {{ $gebruiker->naam }} krijgt.">
+                                            Overzetten naar {{ $idpNaam }}
+                                        </flux:button>
+                                    @endif
+                                @endif
                                 {{-- Niet op de eigen rij: wie blokkeert blijft zelf
                                      actief, en dát is de garantie dat er een CISO
                                      over is om de blokkade weer op te heffen
@@ -295,7 +354,7 @@
                 </flux:table.row>
             @empty
                 <flux:table.row>
-                    <flux:table.cell colspan="9">
+                    <flux:table.cell colspan="{{ $toontInlogkolom ? 10 : 9 }}">
                         <flux:text>Nog geen gebruikers.</flux:text>
                     </flux:table.cell>
                 </flux:table.row>
@@ -309,7 +368,7 @@
                 <flux:heading size="lg">Gebruiker uitnodigen</flux:heading>
                 <flux:subheading>
                     @if ($postkanaal)
-                        De uitgenodigde stelt zelf een wachtwoord in via de mail.
+                        De uitgenodigde neemt het account zelf in gebruik via de mail.
                     @else
                         Er is geen e-mailkanaal ingesteld: u krijgt na het aanmaken een bestand
                         om zelf uit te reiken.
@@ -349,6 +408,17 @@
                         installatie, maak daar dan een tweede account voor aan.
                     </flux:callout.text>
                 </flux:callout>
+            @endif
+
+            {{-- Inlogmethode (01j §6.1). Alleen met een ingestelde IdP; anders is er
+                 niets te kiezen. --}}
+            @if ($idpIngesteld)
+                <flux:radio.group wire:model="inlogmethode" label="Inloggen met">
+                    <flux:radio value="extern" label="{{ $idpNaam }}"
+                        description="De uitgenodigde meldt zich aan met het account van de organisatie." />
+                    <flux:radio value="wachtwoord" label="Wachtwoord"
+                        description="Voor wie geen account bij {{ $idpNaam }} heeft, zoals een externe auditor." />
+                </flux:radio.group>
             @endif
 
             <x-keuzelijst wire:model="afdelingId" label="Afdeling"
@@ -535,9 +605,14 @@
     <flux:modal wire:model.self="toontHandmatigeUitnodiging" class="md:w-[34rem]">
         <div class="space-y-6">
             <div>
-                <flux:heading size="lg">Uitnodiging handmatig uitreiken</flux:heading>
+                @php($isKoppellink = $handmatigeUitnodiging?->status === 'actief')
+                <flux:heading size="lg">{{ $isKoppellink ? 'Koppellink' : 'Uitnodiging' }} handmatig uitreiken</flux:heading>
                 <flux:subheading>
-                    @if ($handmatigeUitnodiging)
+                    @if ($isKoppellink)
+                        Het account van {{ $handmatigeUitnodiging->naam }}
+                        ({{ $handmatigeUitnodiging->email }}) logt voortaan in via {{ $idpNaam }}, maar er is
+                        <strong>geen koppellink verstuurd</strong>.
+                    @elseif ($handmatigeUitnodiging)
                         Het account voor {{ $handmatigeUitnodiging->naam }}
                         ({{ $handmatigeUitnodiging->email }}) is aangemaakt, maar er is
                         <strong>geen uitnodiging verstuurd</strong>.
@@ -572,9 +647,9 @@
             <flux:callout icon="exclamation-triangle" variant="warning">
                 <flux:callout.heading>Deze link is een sleutel</flux:callout.heading>
                 <flux:callout.text>
-                    Wie het bestand heeft, kan dit account activeren. Reik het uit via een kanaal dat
-                    bij een wachtwoord past en verwijder het daarna. De link vervalt na zeven dagen,
-                    of zodra er een wachtwoord mee is ingesteld.
+                    Wie het bestand heeft, kan dit account {{ $isKoppellink ? 'aan een eigen account koppelen' : 'activeren' }}.
+                    Reik het uit via een kanaal dat bij een wachtwoord past en verwijder het daarna. De
+                    link vervalt na zeven dagen, of zodra hij is gebruikt.
                 </flux:callout.text>
             </flux:callout>
 

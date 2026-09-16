@@ -5,11 +5,13 @@ namespace App\Livewire;
 use App\Mail\AdreswijzigingAangevraagd;
 use App\Mail\AdreswijzigingBevestigen;
 use App\Mail\GebruikerUitgenodigd;
+use App\Mail\KoppelingUitgereikt;
 use App\Models\BewijsKoppeling;
 use App\Models\Gebruiker;
 use App\Models\OrganisatieEenheid;
 use App\Models\Rol;
 use App\Support\Domeincontrole;
+use App\Support\Oidc\Configuratie;
 use App\Support\Postkanaal;
 use App\Support\Rolregels;
 use App\Support\Uitnodiging;
@@ -39,6 +41,9 @@ class GebruikersOverzicht extends Component
     public string $afdelingId = '';
 
     public ?string $vervaltOp = null;
+
+    /** `wachtwoord` of `extern` (01j §6.1). Alleen te kiezen met een ingestelde IdP. */
+    public string $inlogmethode = 'wachtwoord';
 
     // Personeelsdossier-modal (A.6): pre-employment + offboarding.
     public bool $toontDossier = false;
@@ -122,6 +127,9 @@ class GebruikersOverzicht extends Component
     {
         $this->vereisMuteren();
         $this->reset(['naam', 'email', 'rolId', 'afdelingId', 'vervaltOp']);
+        // Wie een IdP koppelt, wil die voor de gewone gebruiker; de uitzondering
+        // (een externe auditor, de Administrator) kiest de CISO bewust (01j §6.1).
+        $this->inlogmethode = Configuratie::isIngesteld() ? 'extern' : 'wachtwoord';
         $this->resetValidation();
         $this->toontUitnodigingsformulier = true;
     }
@@ -148,12 +156,17 @@ class GebruikersOverzicht extends Component
             'rolId' => ['required', Rule::exists('rollen', 'id')],
             'afdelingId' => ['nullable', Rule::exists('organisatie_eenheden', 'id')->where('type', OrganisatieEenheid::TYPE_AFDELING)],
             'vervaltOp' => ['nullable', 'date', 'after:today'],
+            // `extern` alleen met een ingestelde IdP: een formulier dat nog openstond
+            // toen de configuratie werd leeggemaakt, mag geen account opleveren
+            // waar niemand in komt.
+            'inlogmethode' => ['required', Rule::in(Configuratie::isIngesteld() ? ['wachtwoord', 'extern'] : ['wachtwoord'])],
         ], attributes: [
             'naam' => 'naam',
             'email' => 'e-mailadres',
             'rolId' => 'rol',
             'afdelingId' => 'afdeling',
             'vervaltOp' => 'vervaldatum',
+            'inlogmethode' => 'inlogmethode',
         ]);
 
         $gebruiker = Gebruiker::create([
@@ -163,6 +176,7 @@ class GebruikersOverzicht extends Component
             // overschreven zodra de uitnodiging geaccepteerd wordt.
             'wachtwoord' => Str::random(32),
             'status' => 'uitgenodigd',
+            'inlogmethode' => $this->inlogmethode,
             'organisatie_eenheid_id' => $this->afdelingId !== '' ? (int) $this->afdelingId : null,
             'vervalt_op' => $this->vervaltOp,
         ]);
@@ -176,7 +190,7 @@ class GebruikersOverzicht extends Component
         $this->verstuurUitnodiging($gebruiker);
 
         $this->toontUitnodigingsformulier = false;
-        $this->reset(['naam', 'email', 'rolId', 'afdelingId', 'vervaltOp']);
+        $this->reset(['naam', 'email', 'rolId', 'afdelingId', 'vervaltOp', 'inlogmethode']);
     }
 
     /**
@@ -603,6 +617,60 @@ class GebruikersOverzicht extends Component
     }
 
     /**
+     * Een actief account overzetten naar de identiteitsprovider, of een bestaande
+     * koppeling vervangen door een nieuwe (01j §9.1).
+     *
+     * Eén actie voor beide, want het is dezelfde handeling: de oude weg naar
+     * binnen dicht, een koppellink de deur uit. Tussen nu en het koppelen kan het
+     * account niet inloggen. Dat is de prijs van de regel dat een extern account
+     * geen werkend wachtwoord heeft, en de bevestiging op het scherm zegt het.
+     *
+     * Een actieve TOTP-koppeling blijft staan, ook als het account hierna is
+     * vrijgesteld: uitzetten zou een tweede factor laten verdwijnen zonder dat
+     * iemand dat besloot. De CISO kan hem resetten.
+     */
+    public function reikKoppelingUit(Gebruiker $gebruiker): void
+    {
+        $this->vereisMuteren();
+
+        if (! Configuratie::isIngesteld()) {
+            session()->flash('fout', 'Er is geen identiteitsprovider ingesteld; een koppeling is niet uit te reiken.');
+
+            return;
+        }
+
+        // Alleen een actief account. Een uitgenodigd account krijgt de uitnodiging
+        // opnieuw, en een geblokkeerd account hoort eerst gedeblokkeerd te worden.
+        if ($gebruiker->status !== 'actief') {
+            return;
+        }
+
+        DB::transaction(function () use ($gebruiker) {
+            $gebruiker->externeIdentiteit()->first()?->delete();
+
+            $gebruiker->update([
+                'inlogmethode' => 'extern',
+                // De oude uitreikdatum hoort bij een link die hierna niet meer
+                // werkt; de nieuwe wordt pas gezet als er iets de deur uit gaat.
+                'koppeling_uitgereikt_op' => null,
+                // Het wachtwoord moet weg, en de nieuwe hash maakt meteen elke
+                // eerder uitgereikte koppellink ongeldig (01g §0).
+                'wachtwoord' => Str::random(32),
+            ]);
+
+            // Een herstellink van vóór het overzetten mag niet alsnog een
+            // wachtwoord zetten (01j §8).
+            DB::table(config('auth.passwords.'.config('auth.defaults.passwords').'.table'))
+                ->where('email', $gebruiker->email)
+                ->delete();
+        });
+
+        $this->beeindigSessies($gebruiker);
+
+        $this->verstuurUitnodiging($gebruiker->refresh());
+    }
+
+    /**
      * Personeelsdossier openen (A.6): NDA, screening en offboarding. Geen harde
      * poort — wat ontbreekt is een gap-signaal, geen blokkade (keuze p14).
      */
@@ -668,16 +736,19 @@ class GebruikersOverzicht extends Component
             return;
         }
 
+        // Een actief account krijgt geen uitnodiging maar een koppellink (01j §9.1).
+        $koppeling = $gebruiker->status === 'actief';
+
         try {
-            Mail::to($gebruiker->email)->send(new GebruikerUitgenodigd($gebruiker));
+            Mail::to($gebruiker->email)->send($koppeling ? new KoppelingUitgereikt($gebruiker) : new GebruikerUitgenodigd($gebruiker));
 
             // Pas hier, en niet vóór de verzending: de kolom registreert dat er
             // post uit is gegaan, niet dat er op een knop is gedrukt. Faalt de
             // mail, dan blijft de oude datum staan en blijft het signaal uit
             // 01g §4 de aandacht vragen — wat dan klopt.
-            $gebruiker->update(['uitnodiging_verstuurd_op' => now(), 'uitnodiging_kanaal' => 'mail']);
+            $this->registreerUitreiking($gebruiker, 'mail');
 
-            session()->flash('melding', "Uitnodiging verstuurd naar {$gebruiker->email}.");
+            session()->flash('melding', ($koppeling ? 'Koppellink' : 'Uitnodiging')." verstuurd naar {$gebruiker->email}.");
         } catch (\Throwable $e) {
             // Het account is al aangemaakt; alleen de mail faalde. Dat expliciet
             // melden is beter dan een 500 waarna de CISO niet weet wat er wel
@@ -706,7 +777,7 @@ class GebruikersOverzicht extends Component
         // en in die tijd kan de uitnodiging geaccepteerd zijn — dezelfde
         // controle als bij `corrigeren()`. Een link uitreiken naar een account
         // dat inmiddels van iemand is, hoort niet te kunnen.
-        if ($gebruiker === null || $gebruiker->status !== 'uitgenodigd') {
+        if ($gebruiker === null || ! Uitnodiging::isUitTeReiken($gebruiker)) {
             $this->toontHandmatigeUitnodiging = false;
             session()->flash('fout', 'Deze uitnodiging is niet meer uit te reiken; het account is inmiddels in gebruik of verwijderd.');
 
@@ -718,8 +789,7 @@ class GebruikersOverzicht extends Component
 
         // Pas nadat de tekst er zonder fout staat, net als bij de schermkopie:
         // een mislukte brief is niet uitgereikt.
-        $gebruiker->update(['uitnodiging_verstuurd_op' => now(), 'uitnodiging_kanaal' => 'bestand']);
-        $gebruiker->schrijfAuditregel('gewijzigd', oud: null, nieuw: ['uitnodiging' => 'als bestand uitgereikt']);
+        $this->registreerUitreiking($gebruiker, 'bestand');
 
         $this->toontHandmatigeUitnodiging = false;
         session()->flash('melding', "Uitnodigingsbestand voor {$gebruiker->naam} klaargezet. Reik het uit via een kanaal dat bij een wachtwoord past.");
@@ -731,11 +801,34 @@ class GebruikersOverzicht extends Component
         );
     }
 
+    /**
+     * Vastleggen dat er een link is uitgereikt. Een uitnodiging heeft daar eigen
+     * kolommen voor (01i §2); een koppellink heeft een datum, en het kanaal staat
+     * in de auditregel (01j §9.1).
+     */
+    private function registreerUitreiking(Gebruiker $gebruiker, string $kanaal): void
+    {
+        if ($gebruiker->status === 'actief') {
+            $gebruiker->update(['koppeling_uitgereikt_op' => now()]);
+            $gebruiker->schrijfAuditregel('gewijzigd', oud: null, nieuw: [
+                'koppeling' => $kanaal === 'mail' ? 'koppellink uitgereikt per mail' : 'koppellink als bestand uitgereikt',
+            ]);
+
+            return;
+        }
+
+        $gebruiker->update(['uitnodiging_verstuurd_op' => now(), 'uitnodiging_kanaal' => $kanaal]);
+
+        if ($kanaal === 'bestand') {
+            $gebruiker->schrijfAuditregel('gewijzigd', oud: null, nieuw: ['uitnodiging' => 'als bestand uitgereikt']);
+        }
+    }
+
     public function render()
     {
         // geblokkeerdDoor mee: de statuskolom noemt wie er geblokkeerd heeft, en
         // dat zou anders een query per rij zijn.
-        $gebruikers = Gebruiker::with('rollen', 'afdeling', 'geblokkeerdDoor')->orderBy('naam')->get();
+        $gebruikers = Gebruiker::with('rollen', 'afdeling', 'geblokkeerdDoor', 'externeIdentiteit')->orderBy('naam')->get();
 
         $handmatig = $this->toontHandmatigeUitnodiging && $this->handmatigeUitnodigingId !== null && $this->magMuteren()
             ? Gebruiker::find($this->handmatigeUitnodigingId)
@@ -762,6 +855,12 @@ class GebruikersOverzicht extends Component
             // elke publieke methode is vanaf de client aan te roepen.
             'handmatigeUitnodiging' => $handmatig,
             'handmatigeUitnodigingslink' => $handmatig !== null ? Uitnodiging::link($handmatig) : null,
+            // Inloggen via de identiteitsprovider (01j §10). De kolom blijft
+            // staan zolang er externe accounts zijn, ook als de configuratie is
+            // leeggemaakt: dan moet zichtbaar zijn welke accounts vastzitten.
+            'idpIngesteld' => Configuratie::isIngesteld(),
+            'idpNaam' => Configuratie::weergavenaam(),
+            'toontInlogkolom' => Configuratie::isIngesteld() || $gebruikers->contains->isExtern(),
             // Rapportagesignalen (A.6): actieve accounts zonder afgeronde
             // pre-employment, en gedeactiveerde zonder bevestigde offboarding.
             'preEmploymentGaps' => $gebruikers->filter->preEmploymentGap()->count(),

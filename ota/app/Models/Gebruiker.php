@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -47,6 +48,8 @@ class Gebruiker extends Authenticatable
         'uitnodiging_kanaal',
         'nieuw_email',
         'nieuw_email_aangevraagd_op',
+        'inlogmethode',
+        'koppeling_uitgereikt_op',
     ];
 
     /**
@@ -87,6 +90,7 @@ class Gebruiker extends Authenticatable
             'email_geverifieerd_op' => 'datetime',
             'uitnodiging_verstuurd_op' => 'datetime',
             'nieuw_email_aangevraagd_op' => 'datetime',
+            'koppeling_uitgereikt_op' => 'datetime',
             'laatst_ingelogd_op' => 'datetime',
             'geblokkeerd_op' => 'datetime',
             'vervalt_op' => 'date',
@@ -188,6 +192,23 @@ class Gebruiker extends Authenticatable
     public function loginpogingen(): HasMany
     {
         return $this->hasMany(Loginpoging::class, 'gebruiker_id');
+    }
+
+    /** De koppeling met de externe identiteitsprovider, als die er is (01j §2). */
+    public function externeIdentiteit(): HasOne
+    {
+        return $this->hasOne(ExterneIdentiteit::class, 'gebruiker_id');
+    }
+
+    /**
+     * Logt dit account in via de externe identiteitsprovider (01j §0)?
+     *
+     * Zegt niets over of de koppeling er al is: een extern account kan tijdelijk
+     * zonder zijn, tussen overzetten en koppelen (§9).
+     */
+    public function isExtern(): bool
+    {
+        return $this->inlogmethode === 'extern';
     }
 
     /**
@@ -411,6 +432,27 @@ class Gebruiker extends Authenticatable
         return $this->isActief();
     }
 
+    /**
+     * Waarom dit account niet binnenkomt, voor wie de identiteit al bewezen heeft
+     * — met het juiste wachtwoord, of via de identiteitsprovider (01j §5.2).
+     *
+     * De reden van een handmatige blokkade komt hier bewust niet te staan: die is
+     * geschreven voor de CISO, over iemand die op dat moment verdacht wordt — en
+     * dit is de plek waar niet vaststaat dat de rechthebbende meeleest (01f §5).
+     */
+    public function inlogweigering(): string
+    {
+        return match ($this->status) {
+            'geblokkeerd' => $this->blokkadeIsHandmatig()
+                ? 'Dit account is geblokkeerd. Neem contact op met de CISO.'
+                : 'Dit account is geblokkeerd wegens te veel mislukte inlogpogingen. Neem contact op met de CISO.',
+            'gedeactiveerd' => 'Dit account is niet meer actief.',
+            default => $this->isExtern()
+                ? 'Meld u eerst aan via de uitnodigingslink die u heeft ontvangen.'
+                : 'Stel eerst een wachtwoord in via de uitnodigingslink die u heeft ontvangen.',
+        };
+    }
+
     public function initials(): string
     {
         return static::initialenVan($this->naam);
@@ -495,6 +537,25 @@ class Gebruiker extends Authenticatable
     public function tweefactorActief(): bool
     {
         return $this->hasEnabledTwoFactorAuthentication();
+    }
+
+    /**
+     * De identiteitsprovider neemt de tweede factor over (01j §7): een extern
+     * account op een installatie die verklaart dat de IdP MFA afdwingt.
+     *
+     * Een verklaring en geen controle per login — Google levert geen betrouwbare
+     * `amr`-claim, dus een controle op het token zou voor de helft van de
+     * providers niets toetsen.
+     */
+    public function tweefactorVrijgesteldDoorIdp(): bool
+    {
+        return $this->isExtern() && config('tweefactor.idp_dwingt_af');
+    }
+
+    /** Moet dit account een tweede factor bij het ISMS zelf hebben? */
+    public function tweefactorVereist(): bool
+    {
+        return config('tweefactor.afdwingen') && ! $this->tweefactorVrijgesteldDoorIdp();
     }
 
     /** Respijt verlopen: er is een deadline én die ligt in het verleden. */

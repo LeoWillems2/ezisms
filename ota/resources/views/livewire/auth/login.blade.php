@@ -58,19 +58,13 @@ new #[Layout('components.layouts.auth')] class extends Component {
             ]);
 
             throw ValidationException::withMessages([
-                'email' => match ($gebruiker->status) {
-                    // De reden van een handmatige blokkade komt hier bewust niet
-                    // te staan: die is geschreven voor de CISO, over iemand die
-                    // op dat moment verdacht wordt — en dit is de ene plek waar
-                    // niet vaststaat dat de rechthebbende meeleest (01f §5).
-                    'geblokkeerd' => $gebruiker->blokkadeIsHandmatig()
-                        ? 'Dit account is geblokkeerd. Neem contact op met de CISO.'
-                        : 'Dit account is geblokkeerd wegens te veel mislukte inlogpogingen. Neem contact op met de CISO.',
-                    'gedeactiveerd' => 'Dit account is niet meer actief.',
-                    default => 'Stel eerst een wachtwoord in via de uitnodigingslink die u heeft ontvangen.',
-                },
+                'email' => $gebruiker->inlogweigering(),
             ]);
         }
+
+        // Een afgebroken externe login kan deze sleutel hebben laten staan; dan
+        // zou deze wachtwoordlogin als externe login in de lijst komen (01j §5.3).
+        Session::forget('inloggen.methode');
 
         // Tweede factor: nog niet inloggen, alleen onthouden wie er aan de beurt
         // is (implementatie/01d §7a). Bewust géén `Session::regenerate()` hier —
@@ -145,6 +139,19 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
+
+    {{-- Inloggen via de identiteitsprovider (01j §5.1). Een gewone link en
+         bewust zonder wire:navigate: Livewire haalt een pagina met navigate op
+         via fetch, en een fetch naar de IdP loopt vast op CORS. De melding van
+         een mislukte externe login komt als fout op `email` terug en staat dus
+         onder het e-mailveld hieronder. --}}
+    @if (\App\Support\Oidc\Configuratie::isIngesteld())
+        <flux:button href="{{ route('extern.doorsturen') }}" class="w-full">
+            Inloggen met {{ \App\Support\Oidc\Configuratie::weergavenaam() }}
+        </flux:button>
+
+        <flux:separator text="of met e-mailadres en wachtwoord" />
+    @endif
 
     <form wire:submit="login" class="flex flex-col gap-6">
         <flux:input wire:model="email" label="E-mailadres" type="email" name="email" required autofocus autocomplete="email" />

@@ -105,6 +105,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'tijdstip' => now(),
             'succesvol' => false,
             'reden' => $this->herstelcode ? 'herstelcode' : 'totp',
+            'methode' => Session::get('inloggen.methode', 'wachtwoord'),
             'ip_adres' => request()->ip(),
         ]);
 

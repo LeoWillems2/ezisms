@@ -6,11 +6,108 @@ blijven de bron, dit bestand is de leesbare vorm ervan.
 **Versienummers.** De eerste cijferreeks springt bij een breuk in wat het product
 ís — V2.0.0 markeert het punt waarop de repo uitleverbaar werd. Het tweede cijfer
 telt uitgaven met nieuwe functionaliteit, het derde is voor correcties op een
-uitgave die al buiten staat. Tot nu toe zijn er twee zulke correcties geweest: V2.2.1
-en V3.5.1.
+uitgave die al buiten staat. Tot nu toe zijn er drie zulke correcties geweest: V2.2.1,
+V3.5.1 en V3.5.2.
 
 Elke uitgave is een annotated tag; `git tag -l --format='%(contents)' V2.9.0`
 geeft de oorspronkelijke tekst.
+
+---
+
+## V3.6.0 — inloggen met het account van de organisatie
+
+*16-09-2026*
+
+Een installatie kan de aanmelding voortaan overlaten aan de identiteitsprovider
+van de organisatie: Microsoft Entra ID, Google Workspace of een andere provider
+die OpenID Connect spreekt. Dat was tot nu toe uitgesloten; de architectuur hield
+er wel rekening mee.
+
+**De aanmelding verhuist, de rest niet.** Accounts ontstaan nog steeds alleen
+door een uitnodiging van de CISO, en rollen, rechten en de statussen blijven in
+het ISMS. Groepen en rollen van de provider worden niet gelezen, en er wordt
+niets gesynchroniseerd. Blokkeren en deactiveren blijven doorslaggevend: een
+account dat in het ISMS geblokkeerd staat, komt ook via de provider niet binnen.
+
+**De inlogmethode hoort bij het account.** Bij het uitnodigen kiest de CISO
+tussen een wachtwoord en de identiteitsprovider. Dat onderscheid is nodig, omdat
+niet iedereen een account bij die provider heeft: een ingehuurde auditor, het
+eerste CISO-account en soms de Administrator loggen in met een wachtwoord. De
+koppeling hangt aan de vaste identifier bij de provider en niet aan het
+e-mailadres, omdat een adres in een token niet gegarandeerd geverifieerd is.
+
+**Een account dat via de provider inlogt, heeft geen bruikbaar wachtwoord.**
+Wachtwoordherstel verstuurt niets, het wachtwoordscherm is er niet, en mislukte
+wachtwoordpogingen blokkeren zo'n account niet. Anders zou een wachtwoord een weg
+om de provider heen zijn: langs de tweede factor daar en langs de uitschakeling
+bij uitdiensttreding.
+
+**De tweede factor.** Standaard geldt de tweefactorplicht van het ISMS ook voor
+deze accounts. Verklaart de organisatie dat de provider zelf een tweede factor
+afdwingt (`ISMS_IDP_DWINGT_MFA`), dan vervalt die plicht voor die accounts.
+Het ISMS controleert die verklaring niet, dus legt elke aanmelding vast wat de
+instelling op dat moment was. Zo blijft achteraf te zien waarop het systeem
+vertrouwde.
+
+**Voor de beheerder.** Het nieuwe kennisbankartikel *Inloggen via een
+identiteitsprovider* beschrijft de app-registratie, alle instellingen en wat er
+per provider anders is. `isms:extern-inloggen-controleren` controleert de
+koppeling zonder testaccount en drukt de redirect-URI af die in de registratie
+moet staan. Valt de provider weg, dan zet `isms:inlogmethode-wachtwoord` één
+account terug op een wachtwoord; dat werkt ook zonder mailserver.
+
+Deze uitgave is getoetst tegen een echte Google Workspace-koppeling: koppelen,
+inloggen, opnieuw koppelen en de tweefactorstap. Daarnaast bewaakt een nieuwe
+test dat elke instelbare sleutel uit een voorbeeldbestand ook werkelijk in de
+container terechtkomt, in beide richtingen — een fout die stil blijft tot iemand
+hem probeert in te vullen.
+
+Migratie `000070` voegt de inlogmethode, de tabel met externe identiteiten en
+twee kolommen op de inlogpogingen toe.
+
+---
+
+## V3.5.2 — een export die weer klopt
+
+*15-09-2026*
+
+Een correctie op `isms:exporteer`, met daarnaast een kennisbankartikel over taken
+en twee kortere teksten op het dashboard.
+
+**De export is nagelopen op een gevuld ISMS.** De tests slaagden, maar een
+proefexport van het demo-ISMS liet zien dat de uitvoer op een aantal plekken niet
+meer klopte met de applicatie. Er zijn vier fouten hersteld:
+
+- De dekkingstabel van het auditprogramma toonde bij elk Bijlage A-object een
+  streepje in plaats van de maatregel. Daardoor was uit de export niet op te maken
+  welke maatregelen in de cyclus waren afgesproken.
+- Bij beleid zocht de export naar een versiestatus die niet bestaat. Als actieve
+  versie verscheen daardoor altijd de hoogste versie, ook als die nog concept of
+  ter goedkeuring was. Alleen een actieve versie heet nu zo; een lopende herziening
+  staat apart als *In behandeling*.
+- Uitsluitingen stonden als één lijst onder alle scopeversies, zodat elke versie
+  haar uitsluitingen herhaalde zonder dat te zien was bij welke scope ze hoorden.
+  Ze staan nu onder hun eigen versie, net als de interfaces.
+- De effectiviteitstoetsen van corrigerende maatregelen (§10.2 d) ontbraken. Ze
+  staan nu onder hun maatregel, inclusief een eerdere toets met de uitkomst *niet
+  effectief*.
+
+**Wat er verder in de export veranderde.** Het overzicht noemt de organisatie,
+met de gegevens uit het organisatieprofiel. Een risico zonder score heet *nog niet
+beoordeeld*. Een afwijking heet naar haar korte omschrijving in plaats van naar
+haar interne nummer, met de datum van vastlegging en sluiting eronder; het
+overzicht belooft dat interne identifiers wegblijven.
+
+**Een kennisbankartikel over taken.** Het artikel beschrijft de vijf routes
+waarlangs een taak ontstaat, hoe beheerde taken vanzelf sluiten, verdwijnen of
+verschuiven, de knoppen in de kolom Acties op /taken en de gevallen waarin een
+taak daar niet af te ronden is. Het staat in de nieuwe categorie *Taken &
+workflow* en in de drie leeswijzers.
+
+**Kortere teksten op het dashboard.** De signalen over een teruggevallen of
+herstelde KPI zijn ingekort. Naast de koppen Signalen en Leesbevestiging staat
+niet langer *wat aandacht vraagt*, en de toelichting onder Leesbevestiging is
+vervallen.
 
 ---
 

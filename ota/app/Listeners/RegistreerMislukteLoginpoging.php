@@ -38,6 +38,14 @@ class RegistreerMislukteLoginpoging
             return;
         }
 
+        // Bij een extern account valt er geen wachtwoord te raden. De teller zou
+        // alleen een ander de mogelijkheid geven het account te blokkeren door
+        // vijf keer het adres met een willekeurig wachtwoord in te tikken
+        // (01j §5.3). De poging hierboven is wel vastgelegd.
+        if ($gebruiker->isExtern()) {
+            return;
+        }
+
         $recenteMislukkingen = Loginpoging::where('email_ingevoerd', $email)
             ->where('succesvol', false)
             ->where('tijdstip', '>=', now()->subMinutes(self::VENSTER_MINUTEN))

@@ -5,7 +5,7 @@ op productie afhankelijk is. Bedoeld voor kwetsbaarheidsbeheer en
 licentie-verantwoording (ISO 27001 A.5.19–5.21 leveranciers-/ketenrisico,
 A.8.8 technische kwetsbaarheden).
 
-- **Peildatum:** 2026-08-18
+- **Peildatum:** 2026-09-15
 - **Applicatie:** ISMS-ondersteuningsplatform (Laravel, map `ota/`)
 - **Bron van de versies:** `composer.lock` en `package-lock.json` (exacte,
   vastgezette versies), aangevuld met de op de server aangetroffen systeemsoftware.
@@ -28,17 +28,17 @@ wordt op een aparte HAProxy getermineerd; nginx praat onversleuteld daarachter.
 
 | Component | Versie | Rol | Licentie |
 |---|---|---|---|
-| Besturingssysteem | Ubuntu 24.04.3 LTS | Basis onder alle systeempakketten hieronder | Distributie — diverse licenties |
-| Linux-kernel | 7.0.0-28-generic | Kernel | GPL-2.0 |
-| PHP | 8.4.22 (vereist `^8.2`) | Applicatie-runtime | PHP License 3.01 |
-| nginx | 1.24.0 (Ubuntu) | Webserver / reverse proxy | BSD-2-Clause |
+| Besturingssysteem | Ubuntu 26.04 LTS | Basis onder alle systeempakketten hieronder | Distributie — diverse licenties |
+| Linux-kernel | 7.0.0-30-generic | Kernel | GPL-2.0 |
+| PHP | 8.5.4 (vereist `^8.2`) | Applicatie-runtime | PHP License 3.01 |
+| nginx | 1.28.3 (Ubuntu) | Webserver / reverse proxy | BSD-2-Clause |
 | HAProxy | *(aparte server)* | TLS-terminatie vóór nginx | GPL-2.0-or-later |
-| MySQL | 8.0.46 | Relationele database | GPL-2.0 (+ commercieel) |
-| pandoc | 3.10.1 | Schermkopie voor de auditor naar Word (12h); RTF→HTML-preview (blok 5/6) | GPL-2.0-or-later |
-| fonts-dejavu-core | 2.37-8 | Lettertype voor de matrixafbeelding in de auditorkopie (12h §7a) | Bitstream Vera / Arev |
+| MySQL | 8.4.11 | Relationele database | GPL-2.0 (+ commercieel) |
+| pandoc | 3.10.2 | Schermkopie voor de auditor naar Word (12h); RTF→HTML-preview (blok 5/6) | GPL-2.0-or-later |
+| fonts-dejavu-core | 2.37-8build1 | Lettertype voor de matrixafbeelding in de auditorkopie (12h §7a) | Bitstream Vera / Arev |
 | cron | systeem | Draait `schedule:run` (taken, KPI's, archivering) | systeempakket |
-| Node.js | 20.20.2 | Build-toolchain (alleen build-time) | MIT (+ overige) |
-| npm | 10.8.2 | Package-manager frontend (build-time) | Artistic-2.0 |
+| Node.js | 22.22.1 | Build-toolchain (alleen build-time) | MIT (+ overige) |
+| npm | 9.2.0 | Package-manager frontend (build-time) | Artistic-2.0 |
 
 Versies van systeempakketten volgen de distributie; houd ze via de
 OS-updatecyclus actueel — ze staan los van de lockfiles. De eerste regel is
@@ -68,7 +68,7 @@ Dev: `phpunit/phpunit`, `laravel/pint`, `mockery/mockery`, `fakerphp/faker`,
 
 ---
 
-## 3. PHP — alle productiepakketten (100)
+## 3. PHP — alle productiepakketten (101)
 
 Volledig uitgerold op productie (`composer install --no-dev`).
 
@@ -84,6 +84,7 @@ Volledig uitgerold op productie (`composer install --no-dev`).
 | `doctrine/lexer` | 3.0.1 | MIT |
 | `dragonmantank/cron-expression` | 3.6.0 | MIT |
 | `egulias/email-validator` | 4.0.4 | MIT |
+| `firebase/php-jwt` | 7.1.1 | BSD-3-Clause |
 | `fruitcake/php-cors` | 1.4.0 | MIT |
 | `graham-campbell/result-type` | 1.1.4 | MIT |
 | `guzzlehttp/guzzle` | 7.15.1 | MIT |
@@ -263,7 +264,7 @@ melden meerdere licenties).
 | Licentie | Aantal |
 |---|---|
 | MIT | 98 |
-| BSD-3-Clause | 33 |
+| BSD-3-Clause | 34 |
 | BSD-2-Clause | 2 |
 | GPL-2.0-only | 2 |
 | GPL-3.0-only | 2 |

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ExternInloggen;
 use App\Livewire\Actions\Logout;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -30,6 +31,17 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     Volt::route('confirm-password', 'auth.confirm-password')
         ->name('password.confirm');
+});
+
+// Inloggen via de externe identiteitsprovider (implementatie/01j §4). Buiten de
+// `guest`-groep: de callback dient ook het herbevestigen door een ingelogde
+// gebruiker. Zonder ingestelde IdP geven beide routes 404.
+Route::middleware('throttle:20,1')->group(function () {
+    Route::get('auth/extern', [ExternInloggen::class, 'doorsturen'])
+        ->name('extern.doorsturen');
+
+    Route::get('auth/extern/callback', [ExternInloggen::class, 'callback'])
+        ->name('extern.callback');
 });
 
 Route::post('logout', Logout::class)

@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Gebruiker;
+use App\Support\Oidc\Configuratie;
 use App\Support\Uitnodiging;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -30,6 +31,9 @@ class GebruikerUitgenodigd extends Mailable
             with: [
                 'link' => Uitnodiging::link($this->gebruiker),
                 'geldigheidDagen' => Uitnodiging::GELDIGHEID_DAGEN,
+                // Een extern account kiest geen wachtwoord maar meldt zich aan
+                // bij de identiteitsprovider (01j §6.1).
+                'idpNaam' => $this->gebruiker->isExtern() ? Configuratie::weergavenaam() : null,
             ],
         );
     }

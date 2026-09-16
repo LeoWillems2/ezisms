@@ -128,6 +128,14 @@ final class Kennisartikelen
             'categorie' => 'Toegang & gebruikers',
             'bestand' => 'gebruikers-rollen-en-rechten.md',
         ],
+        // Profielloos: de takenengine en de bronnen van taken zijn in alle
+        // drie de profielen gelijk, en de tekst noemt geen maatregelnummers
+        // behalve A.8.32, dat onder elk profiel het terugvalplan onderbouwt.
+        'taken' => [
+            'titel' => 'Taken: hoe ze ontstaan en hoe ze worden afgerond',
+            'categorie' => 'Taken & workflow',
+            'bestand' => 'taken.md',
+        ],
         'issues-en-risicos' => [
             'titel' => "Issues (§4.1) en risico's (§6.1): wat hoort waar?",
             'categorie' => 'Risico & SoA',
@@ -258,6 +266,16 @@ final class Kennisartikelen
             'titel' => "Beheer: de artisan-commando's",
             'categorie' => 'Techniek & beheer',
             'bestand' => 'beheer.md',
+        ],
+        // Naast het beheerartikel en niet erin: het inrichten van een koppeling
+        // met een identiteitsprovider is werk van een beheerder, maar het raakt
+        // aan het toegangsmodel en aan een beheersmaatregel die de CISO moet
+        // onderbouwen (A.8.5). Bewust profielloos — de koppeling is gelijk in
+        // elk profiel.
+        'inloggen-via-een-identiteitsprovider' => [
+            'titel' => 'Inloggen via een identiteitsprovider',
+            'categorie' => 'Techniek & beheer',
+            'bestand' => 'inloggen-via-een-identiteitsprovider.md',
         ],
         'normteksten-invoeren' => [
             'titel' => 'De normteksten invoeren',

@@ -59,6 +59,32 @@ class KennisbankTest extends TestCase
             ->assertSee('incidentmeldplicht');
     }
 
+    public function test_takenartikel_rendert(): void
+    {
+        $gebruiker = Gebruiker::factory()->create();
+
+        $this->actingAs($gebruiker)->get('/kennisbank/taken')
+            ->assertOk()
+            ->assertSee('De knoppen in de kolom Acties')
+            ->assertSee('Wanneer een taak niet via /taken te sluiten is');
+    }
+
+    /**
+     * Het takenartikel noemt de knoppen en de blokkademelding bij naam. Een
+     * hernoemde knop op het scherm hoort het artikel mee te nemen.
+     */
+    public function test_het_takenartikel_citeert_bestaande_schermteksten(): void
+    {
+        $scherm = file_get_contents(resource_path('views/livewire/taken-overzicht.blade.php'));
+        $artikel = file_get_contents(resource_path('kennisbank/taken.md'));
+
+        foreach (['Start toets', 'Oppakken', 'Voltooien', 'Goedkeuren', 'Afkeuren', 'Heropenen',
+            'Bewerken', 'Nieuwe taak', 'Nog niet af te ronden', 'Alleen mijn taken', 'Geen eigenaar'] as $tekst) {
+            $this->assertStringContainsString($tekst, $scherm, "'{$tekst}' staat niet meer op /taken.");
+            $this->assertStringContainsString($tekst, $artikel, "Het takenartikel noemt '{$tekst}' niet.");
+        }
+    }
+
     public function test_sbom_artikel_rendert_uit_de_projectroot(): void
     {
         $gebruiker = Gebruiker::factory()->create();

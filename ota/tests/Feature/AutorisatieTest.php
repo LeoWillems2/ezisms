@@ -306,11 +306,12 @@ class AutorisatieTest extends TestCase
         // Wat buiten de matrix valt: alles wat geen ISMS-scherm is. De
         // instellingenpagina's staan bewust buiten de blok-permissies
         // (implementatie/05 §4) en hebben hun eigen test hierboven; de
-        // aanmeldschermen — inclusief de tweefactor-challenge (01d §7b) — horen
+        // aanmeldschermen — inclusief de tweefactor-challenge (01d §7b) en de
+        // doorverwijzing naar en van de identiteitsprovider (01j §4) — horen
         // bij het inloggen en niet bij de rechtenmatrix.
         $buitenBeeld = [
             '/', 'up', 'login', 'forgot-password', 'confirm-password', 'settings',
-            'tweefactor-challenge',
+            'tweefactor-challenge', 'auth/extern', 'auth/extern/callback',
         ];
 
         $schermen = collect(Route::getRoutes())

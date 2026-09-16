@@ -373,7 +373,82 @@ autorisatiecheck.
 
 Elke inlogpoging wordt met tijdstip en IP-adres gelogd in `loginpogingen`. Dat
 geldt voor geslaagde en mislukte pogingen, en ook voor pogingen met een onbekend
-e-mailadres.
+e-mailadres. Elke poging vermeldt ook de weg: met een wachtwoord of via de
+identiteitsprovider.
+
+### Inloggen via de identiteitsprovider
+
+Een installatie kan worden gekoppeld aan de identiteitsprovider van de
+organisatie, zoals Microsoft Entra ID of Google Workspace. Het systeem gebruikt
+daarvoor OpenID Connect. Zonder die koppeling verandert er niets aan het
+inlogscherm of aan het uitnodigen. De koppeling wordt ingesteld in de omgeving
+van de installatie en niet in een scherm; zie
+[Inloggen via een identiteitsprovider](inloggen-via-een-identiteitsprovider).
+
+- **De inlogmethode hoort bij het account.** Bij het uitnodigen kiest de CISO
+  tussen *Wachtwoord* en de identiteitsprovider. De identiteitsprovider is de
+  standaard. Een wachtwoord blijft nodig voor wie geen account bij de
+  identiteitsprovider heeft: een ingehuurde auditor, de eerste CISO uit
+  `isms:eerste-ciso`, en soms de Administrator.
+- **Accounts ontstaan nog steeds alleen via een uitnodiging.** Iemand die zich
+  bij de identiteitsprovider aanmeldt zonder uitnodiging, krijgt geen account.
+  De uitnodiging is het moment waarop de CISO de rol toekent, de vervaldatum
+  zet en het personeelsdossier start.
+- **Koppelen vervangt het instellen van een wachtwoord.** De uitgenodigde
+  gebruiker opent de link, meldt zich aan bij de identiteitsprovider en is
+  daarmee ingelogd. Het account staat vanaf dat moment op *actief*.
+- **De koppeling hangt aan de identiteit bij de identiteitsprovider, niet aan het
+  e-mailadres.** Bij Google kan iedereen een account met een willekeurig adres
+  aanmaken, en bij Entra ID is het adres in het token niet gegarandeerd
+  geverifieerd. Het systeem slaat het adres dat de identiteitsprovider meegeeft
+  alleen op om te tonen. Wijkt dat adres af van het uitnodigingsadres, dan staat
+  er een hint in de lijst. Die hint is geen blokkade, omdat een
+  gebruikersnaam in Entra ID vaak legitiem afwijkt van het mailadres.
+- **Een extern account heeft geen bruikbaar wachtwoord.** *Wachtwoord vergeten*
+  verstuurt niets, het wachtwoordscherm onder de instellingen ontbreekt, en een
+  hersteltoken van vóór het overzetten zet geen wachtwoord meer. Een wachtwoord
+  zou een weg om de identiteitsprovider heen zijn: langs de tweede factor van de
+  identiteitsprovider en langs de uitschakeling bij uitdiensttreding. Om dezelfde
+  reden blokkeren mislukte wachtwoordpogingen een extern account niet; er valt
+  geen wachtwoord te raden.
+- **Blokkeren en deactiveren blijven werken zoals hierboven beschreven.** Het
+  systeem controleert de status na elke aanmelding bij de identiteitsprovider.
+  Een account dat in de identiteitsprovider is uitgeschakeld, komt ook niet meer
+  binnen. Een lopende sessie in het ISMS loopt dan wel door tot die verloopt;
+  "Aangemeld blijven" bestaat daarom niet voor een extern account.
+- **Overzetten en opnieuw koppelen.** Een actief wachtwoordaccount wordt met
+  *Overzetten naar* de identiteitsprovider omgezet. Het wachtwoord vervalt
+  meteen, lopende sessies worden beëindigd en de gebruiker krijgt een koppellink,
+  per mail of als bestand. Tot de koppeling is gelegd, kan het account niet
+  inloggen. *Koppeling opnieuw uitreiken* vervangt een bestaande koppeling, bijvoorbeeld
+  als die aan het verkeerde account bij de identiteitsprovider is gelegd.
+  De weg terug naar een wachtwoord loopt alleen via de commandoregel
+  (`isms:inlogmethode-wachtwoord`), omdat die weg nodig is wanneer de
+  identiteitsprovider wegvalt en de CISO dan vaak zelf niet kan inloggen.
+
+**De tweede factor bij de identiteitsprovider.** Standaard geldt de
+tweefactorplicht ook voor een extern account. De installatie kan verklaren dat
+de identiteitsprovider zelf een tweede factor afdwingt (`ISMS_IDP_DWINGT_MFA`).
+Een extern account hoeft dan in het ISMS geen authenticator-app te koppelen, en
+de kolom Tweefactor toont *Via* de identiteitsprovider. Wachtwoordaccounts op
+dezelfde installatie houden de plicht.
+
+Die instelling is een verklaring van de organisatie en geen controle door het
+systeem. Het ISMS kan niet zien of de identiteitsprovider werkelijk een tweede
+factor vraagt. De onderbouwing hoort daarom als beheersmaatregel in het ISMS:
+een Conditional Access-regel in Entra ID of verplichte verificatie in twee
+stappen in Google Workspace, met bewijs bij de maatregel voor veilige
+authenticatie (A.8.5). Een wijziging van de instelling komt niet in de audit
+trail, omdat die in de omgeving van de installatie staat. Elke externe login
+legt daarom vast wat de instelling op dat moment was.
+
+Een extern account dat de tweefactorplicht wel heeft, bevestigt wijzigingen op
+het tweefactorscherm met een recente aanmelding bij de identiteitsprovider in
+plaats van met een wachtwoord.
+
+Het is verstandig de koppeling ook in het integratieregister vast te leggen, als
+koppeling van het type *identiteit*. Dan staat in het ISMS zelf dat de
+authenticatie van een deel van de accounts bij een externe partij ligt.
 
 ### Het eerste account
 
@@ -448,6 +523,10 @@ Het is nuttiger om de beperkingen te benoemen dan om ze te verzwijgen:
   Een regel dat de opsteller niet de goedkeurder mag zijn, zou een guard per
   record vereisen.
 - **Eén tenant.** Het rechtenmodel kent geen scheiding tussen organisaties.
+- **Geen rechten uit de identiteitsprovider.** Groepen en rollen uit Entra ID of
+  Google Workspace worden niet gelezen, en accounts worden niet automatisch
+  gedeactiveerd bij uitdiensttreding. Het toekennen van rechten blijft een
+  handeling in het ISMS, zodat die in de eigen audit trail staat.
 
 ## Normkoppeling
 

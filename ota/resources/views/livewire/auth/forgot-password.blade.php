@@ -24,7 +24,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
         // hoort de uitnodigingslink te gebruiken.
         $gebruiker = Gebruiker::where('email', $this->email)->first();
 
-        if ($gebruiker?->magInloggen()) {
+        // Ook niet voor een extern account: een wachtwoord is daar een weg om de
+        // IdP heen, langs haar MFA en langs de uitschakeling bij
+        // uitdiensttreding (01j §8). Dezelfde melding hieronder, anders lekt dit
+        // formulier welke accounts extern zijn.
+        if ($gebruiker?->magInloggen() && ! $gebruiker->isExtern()) {
             Password::sendResetLink($this->only('email'));
         }
 

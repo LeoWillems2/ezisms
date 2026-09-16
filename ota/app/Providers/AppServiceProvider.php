@@ -21,6 +21,7 @@ use App\Models\CorrigerendeMaatregel;
 use App\Models\Dienst;
 use App\Models\Doelgroep;
 use App\Models\Effectiviteitstoets;
+use App\Models\ExterneIdentiteit;
 use App\Models\Gebruiker;
 use App\Models\Grondoorzaak;
 use App\Models\Incident;
@@ -29,9 +30,9 @@ use App\Models\IntegratieAdapter;
 use App\Models\KpiDefinitie;
 use App\Models\Leesbevestiging;
 use App\Models\Leverancier;
-use App\Models\OverheidsmaatregelBeoordeling;
 use App\Models\Leveranciersbeoordeling;
 use App\Models\Notificatieregel;
+use App\Models\OverheidsmaatregelBeoordeling;
 use App\Models\RestrisicoSnapshot;
 use App\Models\Reviewsessie;
 use App\Models\Risico;
@@ -321,6 +322,8 @@ class AppServiceProvider extends ServiceProvider
         Relation::enforceMorphMap([
             'gebruiker' => Gebruiker::class,
             'rol_toewijzing' => RolToewijzing::class,
+            // Koppeling met de externe identiteitsprovider (01j §2).
+            'externe_identiteit' => ExterneIdentiteit::class,
             'scope_verklaring' => ScopeVerklaring::class,
             'uitsluiting' => Uitsluiting::class,
             'asset' => Asset::class,

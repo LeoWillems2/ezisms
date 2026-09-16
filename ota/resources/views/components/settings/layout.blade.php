@@ -2,7 +2,10 @@
     <div class="mr-10 w-full pb-4 md:w-[220px]">
         <flux:navlist>
             <flux:navlist.item href="{{ route('settings.profile') }}" wire:navigate>Profiel</flux:navlist.item>
-            <flux:navlist.item href="{{ route('settings.password') }}" wire:navigate>Wachtwoord</flux:navlist.item>
+            {{-- Een extern account heeft geen wachtwoord dat het kent (01j §8). --}}
+            @unless (auth()->user()?->isExtern())
+                <flux:navlist.item href="{{ route('settings.password') }}" wire:navigate>Wachtwoord</flux:navlist.item>
+            @endunless
             <flux:navlist.item href="{{ route('settings.tweefactor') }}" wire:navigate>Tweefactor</flux:navlist.item>
             <flux:navlist.item href="{{ route('settings.appearance') }}" wire:navigate>Weergave</flux:navlist.item>
         </flux:navlist>

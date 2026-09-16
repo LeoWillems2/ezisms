@@ -150,9 +150,6 @@
         <div class="blueprint p-5">
             <div class="mb-1 flex flex-wrap items-baseline justify-between gap-2">
                 <flux:heading size="lg">Signalen</flux:heading>
-                <flux:text class="font-mono text-xs text-zinc-500">
-                    wat aandacht vraagt
-                </flux:text>
             </div>
             <flux:subheading class="mb-4">
                 Niet de score maar de afwijking. Een terugval of een dip die zich herstelt is
@@ -453,14 +450,7 @@
         <div class="blueprint p-5">
             <div class="mb-1 flex flex-wrap items-baseline justify-between gap-2">
                 <flux:heading size="lg">Leesbevestiging</flux:heading>
-                <flux:text class="font-mono text-xs text-zinc-500">
-                    wat aandacht vraagt
-                </flux:text>
             </div>
-            <flux:subheading class="mb-4">
-                Teller én noemer, geen kaal percentage: 100% zegt niets zolang de doelgroep
-                leeg kan zijn.
-            </flux:subheading>
 
             @forelse ($leesbevestiging->aandacht as $regel)
                 @php

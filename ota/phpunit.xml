@@ -34,6 +34,7 @@
             <file>tests/Feature/AdreswijzigingTest.php</file>
             <file>tests/Feature/TweefactorTest.php</file>
             <file>tests/Feature/LoginTest.php</file>
+            <file>tests/Feature/ExternInloggenTest.php</file>
             <file>tests/Feature/ActiefAccountTest.php</file>
             <file>tests/Feature/WachtwoordHerstelTest.php</file>
             <file>tests/Feature/GebruikerKeuzelijstTest.php</file>
@@ -155,6 +156,10 @@
              ISMS_CBW_PLICHTIG=true in een .env liet vijf incidenttests omvallen
              voordat dit hier stond. -->
         <env name="ISMS_CBW_PLICHTIG" value="false"/>
+        <!-- Idem (01j §7): met ISMS_IDP_DWINGT_MFA=true in een .env viel de
+             vrijstelling voor externe accounts over de hele suite aan, en die
+             hoort per test gezet te worden. -->
+        <env name="ISMS_IDP_DWINGT_MFA" value="false"/>
         <env name="ISMS_NORM" value="iso27001"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>

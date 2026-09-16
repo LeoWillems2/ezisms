@@ -93,6 +93,18 @@ komen in de audit trail, met het onderscheid erbij: bij de schermroute staat de
 naam van de CISO vermeld, en bij de commandoregel staat vermeld dat de handeling
 via de commandoregel is uitgevoerd.
 
+**`isms:inlogmethode-wachtwoord {email}`**
+Dit commando zet een account dat via de identiteitsprovider inlogt terug op een
+wachtwoord. De koppeling wordt verwijderd en het commando drukt een link af
+waarmee de gebruiker een wachtwoord instelt. Die link werkt zonder mailserver en
+is 60 minuten geldig.
+
+Het commando bestaat voor de situatie waarin de identiteitsprovider wegvalt,
+bijvoorbeeld door een verlopen client secret of een beëindigd tenant. De CISO
+kan dan vaak zelf niet inloggen. Daarom heeft deze handeling geen knop in het
+gebruikersoverzicht. De audit trail vermeldt dat de wijziging via de
+commandoregel is uitgevoerd.
+
 **`isms:bereid-auditcyclus-voor`**
 Dit commando zet een volledige interne-auditcyclus op: het programma, de
 jaarplannen, de verdeling van de dekking over de norm en de geplande rondes. De
@@ -191,6 +203,19 @@ eindigt het met een foutcode. Het commando stopt omdat alle regels na een breuk
 per definitie afwijken. De uitslag wordt altijd vastgelegd, ook als alles klopt,
 omdat het feit dat de controle elke nacht heeft gedraaid zelf het bewijs is. Zie
 [De audit trail](de-audit-trail).
+
+**`isms:extern-inloggen-controleren`**
+Dit commando controleert de koppeling met de identiteitsprovider zonder dat er
+een testaccount nodig is. Het leest de configuratie, haalt het
+discovery-document en de sleutelset op, en drukt de redirect-URI af die in de
+app-registratie bij de identiteitsprovider moet staan. Een verschil in die URI
+achter de TLS-terminatie wordt zo zichtbaar vóór de eerste gebruiker zich
+aanmeldt. Het client secret zelf is alleen met een echte login te controleren.
+Als `OIDC_CLIENT_SECRET_VERLOOPT_OP` is ingevuld, waarschuwt het commando 30
+dagen voordat het secret verloopt.
+
+De instellingen zelf, en wat er per provider anders is, staan in
+[Inloggen via een identiteitsprovider](inloggen-via-een-identiteitsprovider).
 
 **`isms:controleer-hartslag`**
 Dit commando controleert of de geplande taken hierboven werkelijk hebben

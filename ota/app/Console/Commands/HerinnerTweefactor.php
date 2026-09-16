@@ -47,6 +47,9 @@ class HerinnerTweefactor extends Command
             ->whereNotNull('tweefactor_deadline')
             ->whereNull('two_factor_confirmed_at')
             ->whereDate('tweefactor_deadline', '<=', now()->addDays(self::VOORAANKONDIGING_DAGEN))
+            // Een account dat is vrijgesteld omdat de IdP de tweede factor
+            // afdwingt, hoeft niets in te stellen (01j §7.2).
+            ->when(config('tweefactor.idp_dwingt_af'), fn ($query) => $query->where('inlogmethode', 'wachtwoord'))
             ->get();
 
         $verstuurd = 0;

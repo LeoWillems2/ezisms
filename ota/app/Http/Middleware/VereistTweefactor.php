@@ -27,17 +27,22 @@ class VereistTweefactor
         'settings.tweefactor',
         'tweefactor.challenge',
         'password.confirm',
+        // Een extern account dat niet is vrijgesteld, bevestigt op het
+        // instelscherm via de IdP in plaats van met een wachtwoord (01j §7.5).
+        // Zonder deze twee stuurt de middleware de terugkeer van de IdP weer
+        // naar het instelscherm, dat opnieuw naar de IdP stuurt.
+        'extern.doorsturen',
+        'extern.callback',
     ];
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (! config('tweefactor.afdwingen')) {
-            return $next($request);
-        }
-
         $gebruiker = $request->user();
 
-        if ($gebruiker === null || $gebruiker->tweefactorActief()) {
+        // `tweefactorVereist()` en niet alleen `tweefactor.afdwingen`: een extern
+        // account kan zijn vrijgesteld omdat de IdP de tweede factor afdwingt
+        // (01j §7.1).
+        if ($gebruiker === null || ! $gebruiker->tweefactorVereist() || $gebruiker->tweefactorActief()) {
             return $next($request);
         }
 

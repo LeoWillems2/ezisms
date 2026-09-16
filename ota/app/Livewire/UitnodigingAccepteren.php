@@ -2,13 +2,17 @@
 
 namespace App\Livewire;
 
+use App\Http\Controllers\ExternInloggen;
 use App\Models\Gebruiker;
+use App\Support\Oidc\Aanvraag;
+use App\Support\Oidc\Configuratie;
 use App\Support\Uitnodiging;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
 use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 /**
@@ -26,11 +30,24 @@ use Livewire\Component;
  * Alles gebeurt in dit ene component en niet via een doorverwijzing: de
  * uitnodigingslink is ná het instellen van het wachtwoord verbruikt (de token
  * hangt aan de wachtwoord-hash), dus een tweede pagina zou onbereikbaar zijn.
+ *
+ * **Een extern account koppelt in plaats van een wachtwoord te kiezen**
+ * (implementatie/01j §6.2). Eén knop naar de identiteitsprovider; de callback
+ * activeert het account en logt meteen in. Hetzelfde scherm dient ook de
+ * koppellink voor een actief account zonder koppeling (§9.1), onder de route
+ * `koppeling.accepteren`.
  */
 #[Layout('components.layouts.auth')]
 class UitnodigingAccepteren extends Component
 {
     public Gebruiker $gebruiker;
+
+    /**
+     * Voor de koppelaanvraag. Locked, al zou een gewijzigde waarde niets
+     * opleveren: de callback controleert het token opnieuw.
+     */
+    #[Locked]
+    public string $token = '';
 
     public string $wachtwoord = '';
 
@@ -38,7 +55,7 @@ class UitnodigingAccepteren extends Component
 
     public string $code = '';
 
-    /** wachtwoord → tweefactor → klaar */
+    /** wachtwoord → tweefactor → klaar, of koppelen bij een extern account */
     public string $stap = 'wachtwoord';
 
     /** @var list<string>|null */
@@ -49,13 +66,50 @@ class UitnodigingAccepteren extends Component
         // Een verlopen of hergebruikte link moet een begrijpelijke melding
         // opleveren in plaats van een kale 403 (§8).
         abort_unless(Uitnodiging::tokenIsGeldig($gebruiker, $token), 403, 'Deze uitnodigingslink is niet meer geldig.');
-        abort_unless($gebruiker->status === 'uitgenodigd', 403, 'Deze uitnodiging is al gebruikt.');
+
+        // Een actief account komt hier alleen binnen met een koppellink: extern
+        // en nog zonder koppeling (01j §9.1).
+        abort_unless(
+            $gebruiker->status === 'uitgenodigd' || ExternInloggen::linkIsTeKoppelen($gebruiker, $token),
+            403,
+            'Deze uitnodiging is al gebruikt.',
+        );
 
         $this->gebruiker = $gebruiker;
+        $this->token = $token;
+
+        if ($gebruiker->isExtern()) {
+            $this->stap = 'koppelen';
+        }
+    }
+
+    /**
+     * Naar de identiteitsprovider (01j §6.2). Geen `navigate`: dat haalt de
+     * pagina met fetch op, en dat loopt bij de IdP vast op CORS.
+     */
+    public function koppelen(): void
+    {
+        abort_unless($this->gebruiker->isExtern() && Configuratie::isIngesteld(), 403);
+
+        $aanvraag = Aanvraag::koppelen($this->gebruiker, $this->token);
+        $url = ExternInloggen::autorisatieUrlOfNull($aanvraag);
+
+        if ($url === null) {
+            $this->addError('koppelen', ExternInloggen::nietMogelijk());
+
+            return;
+        }
+
+        $aanvraag->bewaar();
+
+        $this->redirect($url);
     }
 
     public function opslaan(EnableTwoFactorAuthentication $inschakelen): void
     {
+        // Een extern account krijgt geen wachtwoord dat iemand kent (01j §0).
+        abort_if($this->gebruiker->isExtern(), 403);
+
         $this->validate([
             'wachtwoord' => ['required', 'string', 'confirmed:wachtwoord_bevestiging', Password::defaults()],
         ], attributes: ['wachtwoord' => 'wachtwoord']);
@@ -126,6 +180,9 @@ class UitnodigingAccepteren extends Component
 
     public function render()
     {
-        return view('livewire.uitnodiging-accepteren');
+        return view('livewire.uitnodiging-accepteren', [
+            'idpIngesteld' => Configuratie::isIngesteld(),
+            'idpNaam' => Configuratie::weergavenaam(),
+        ]);
     }
 }

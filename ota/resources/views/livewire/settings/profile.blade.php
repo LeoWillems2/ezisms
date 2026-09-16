@@ -1,5 +1,6 @@
 <?php
 
+use App\Support\Oidc\Configuratie;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -16,6 +17,8 @@ new #[Layout('components.layouts.app')] class extends Component {
     public string $rollen = '';
     public string $status = '';
 
+    public ?string $aangemeldVia = null;
+
     public function mount(): void
     {
         $gebruiker = Auth::user();
@@ -24,6 +27,13 @@ new #[Layout('components.layouts.app')] class extends Component {
         $this->email = $gebruiker->email;
         $this->rollen = $gebruiker->rollen->pluck('naam')->implode(', ');
         $this->status = ucfirst($gebruiker->status);
+
+        // Een extern account: waarmee het is gekoppeld (01j §8).
+        if ($gebruiker->isExtern()) {
+            $identiteit = $gebruiker->externeIdentiteit;
+            $this->aangemeldVia = Configuratie::weergavenaam()
+                .($identiteit?->idp_gebruikersnaam ? ' als '.$identiteit->idp_gebruikersnaam : ($identiteit ? '' : ' (nog niet gekoppeld)'));
+        }
     }
 }; ?>
 
@@ -36,6 +46,9 @@ new #[Layout('components.layouts.app')] class extends Component {
             <flux:input :value="$email" label="E-mailadres" type="email" readonly />
             <flux:input :value="$rollen" label="Rol(len)" type="text" readonly />
             <flux:input :value="$status" label="Status" type="text" readonly />
+            @if ($aangemeldVia)
+                <flux:input :value="$aangemeldVia" label="Aangemeld via" type="text" readonly />
+            @endif
 
             <flux:text>
                 Kloppen uw naam of e-mailadres niet? Neem contact op met de CISO —

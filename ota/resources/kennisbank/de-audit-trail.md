@@ -49,12 +49,13 @@ niet.
 
 ## Alle entiteiten die een regel opleveren
 
-Er zijn 45 entiteiten die naar de trail schrijven. Per blok:
+Er zijn 46 entiteiten die naar de trail schrijven. Per blok:
 
 | Blok | Entiteit | Waarover de regels gaan |
 | --- | --- | --- |
 | Identity, Access & Rollen | `gebruiker` | Account aangemaakt, uitgenodigd, gedeactiveerd, geblokkeerd, A.6-velden (NDA, screening, offboarding) |
 | Identity, Access & Rollen | `rol_toewijzing` | Wie wanneer welke rol kreeg, en van wie |
+| Identity, Access & Rollen | `externe_identiteit` | Aan welk account bij de identiteitsprovider een account gekoppeld is, en wanneer dat veranderde |
 | Context & Scope | `scope_verklaring` | Scopetekst, versie, indienen en activeren |
 | Context & Scope | `uitsluiting` | Uitgesloten maatregelen met motivatie |
 | Asset & Informatie-classificatie | `asset` | Registratie, classificatie (BIV), eigenaarschap, afstoten |

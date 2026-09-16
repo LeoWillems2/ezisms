@@ -85,6 +85,16 @@ services:
       ISMS_CBW_PLICHTIG:      ${ISMS_CBW_PLICHTIG:-false}
       ISMS_2FA_AFDWINGEN:     ${ISMS_2FA_AFDWINGEN:-true}
       ISMS_2FA_RESPIJT_DAGEN: ${ISMS_2FA_RESPIJT_DAGEN:-14}
+      # Inloggen via de identiteitsprovider (implementatie/01j §1). Leeg ⇒ uit.
+      # Het secret gaat via de omgeving, net als MAIL_PASSWORD en DB_PASSWORD.
+      OIDC_ISSUER:            ${OIDC_ISSUER:-}
+      OIDC_CLIENT_ID:         ${OIDC_CLIENT_ID:-}
+      OIDC_CLIENT_SECRET:     ${OIDC_CLIENT_SECRET:-}
+      OIDC_CLIENT_SECRET_VERLOOPT_OP: ${OIDC_CLIENT_SECRET_VERLOOPT_OP:-}
+      OIDC_WEERGAVENAAM:      ${OIDC_WEERGAVENAAM:-}
+      OIDC_SUBJECT_CLAIM:     ${OIDC_SUBJECT_CLAIM:-sub}
+      OIDC_DOMEIN:            ${OIDC_DOMEIN:-}
+      ISMS_IDP_DWINGT_MFA:    ${ISMS_IDP_DWINGT_MFA:-false}
       # ISMS_DEMO=ja zet APP_ENV=demo én ISMS_2FA_AFDWINGEN=false én vult het
       # ISMS met het FruitBV-scenario. Eén schakelaar, want die instellingen
       # kloppen alleen in combinatie; de entrypoint zet ze (00n §0.2).

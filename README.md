@@ -16,13 +16,15 @@
 - Demo-omgevingen draaien maximaal 14 dagen.
 
 
-# Laatste nieuws
+# Laatste nieuws #
 
-AI assisted gouden pad oefeningen:
+## AI assisted gouden pad oefeningen: ##
 - Hoe zet ik een correcte KPI cyclus op.
 - Hoe zet ik een goede interne audit op.
 - Hoe zet ik een risico-trend op.
 
+## OIDC support ##
+- OIDC support voor Entra ID en Google Workspace
 
 # VMhost of bare metal requirements: #
 

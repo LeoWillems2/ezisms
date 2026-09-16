@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Gebruiker;
+use App\Support\Oidc\Configuratie;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -34,8 +35,11 @@ final class Uitnodigingsbrief
         $link = Uitnodiging::link($this->gebruiker);
         $geldigTot = Carbon::now()->addDays(Uitnodiging::GELDIGHEID_DAGEN);
 
+        $koppeling = $this->gebruiker->status === 'actief';
+        $idp = Configuratie::weergavenaam();
+
         $regels = [
-            'Uitnodiging voor het ISMS van '.config('app.name'),
+            ($koppeling ? 'Koppellink voor het ISMS van ' : 'Uitnodiging voor het ISMS van ').config('app.name'),
             '',
             $this->veld('Uitgereikt op', Carbon::now()->lokaal()->format('d-m-Y H:i')),
             $this->veld('Uitgereikt door', auth()->user()?->naam ?? '—'),
@@ -45,14 +49,23 @@ final class Uitnodigingsbrief
             $this->veld('Rol(len)', $this->gebruiker->rollen->pluck('naam')->join(', ') ?: '—'),
             $this->veld('Afdeling', $this->gebruiker->afdeling?->naam ?? '—'),
             '',
-            'Uitnodigingslink (geldig tot '.$geldigTot->lokaal()->format('d-m-Y H:i').'):',
+            ($koppeling ? 'Koppellink' : 'Uitnodigingslink').' (geldig tot '.$geldigTot->lokaal()->format('d-m-Y H:i').'):',
             $link,
             '',
-            'Open de link, stel een wachtwoord in en het account is actief. De link',
-            'werkt eenmalig: zodra het wachtwoord is ingesteld, vervalt hij.',
+            // Een extern account kiest geen wachtwoord (01j §6.1).
+            ...($this->gebruiker->isExtern()
+                ? [
+                    "Open de link en meld u aan met uw {$idp}-account. Dat account wordt",
+                    'aan dit ISMS-account gekoppeld. De link werkt eenmalig: zodra de',
+                    'koppeling er is, vervalt hij.',
+                ]
+                : [
+                    'Open de link, stel een wachtwoord in en het account is actief. De link',
+                    'werkt eenmalig: zodra het wachtwoord is ingesteld, vervalt hij.',
+                ]),
             '',
             'Behandel dit bestand als een wachtwoord. Wie het heeft, kan dit account',
-            'activeren.',
+            $koppeling ? 'aan een eigen account koppelen.' : 'activeren.',
         ];
 
         return implode("\n", $regels)."\n";
@@ -60,7 +73,9 @@ final class Uitnodigingsbrief
 
     public function bestandsnaam(): string
     {
-        return 'uitnodiging-'.Str::slug($this->gebruiker->naam).'-'.Carbon::now()->format('Ymd').'.txt';
+        $soort = $this->gebruiker->status === 'actief' ? 'koppellink-' : 'uitnodiging-';
+
+        return $soort.Str::slug($this->gebruiker->naam).'-'.Carbon::now()->format('Ymd').'.txt';
     }
 
     private function veld(string $label, string $waarde): string

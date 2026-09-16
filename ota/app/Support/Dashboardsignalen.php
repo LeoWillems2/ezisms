@@ -204,8 +204,7 @@ final class Dashboardsignalen
                 $this->voegToe(
                     'let-op',
                     $trend->definitie->naam.' ging achteruit',
-                    'De laatste meting staat lager dan de vorige. Een terugval is geen fout in '
-                        .'de meting — het is de reden dat er gemeten wordt.',
+                    'De laatste meting staat lager dan de vorige.',
                     $this->uitkomstLabel($trend),
                 );
             }
@@ -217,8 +216,7 @@ final class Dashboardsignalen
                 $this->voegToe(
                     'goed',
                     $trend->definitie->naam.': ingezakt en hersteld',
-                    'Zo\'n dip is bewijs dat de Check-fase daadwerkelijk meet, geen smet op '
-                        .'het ISMS.',
+                    'Een dip is bewijs dat de Check-fase daadwerkelijk meet.',
                     round($herstel['dieptepunt']).'% → '.round($herstel['nu']).'%',
                 );
             }

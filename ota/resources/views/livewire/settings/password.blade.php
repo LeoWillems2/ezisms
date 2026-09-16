@@ -15,8 +15,22 @@ new #[Layout('components.layouts.app')] class extends Component {
     public string $wachtwoord = '';
     public string $wachtwoord_bevestiging = '';
 
+    /**
+     * Een extern account heeft geen wachtwoord dat de gebruiker kent, en hoort er
+     * ook geen te krijgen: dat zou een weg om de identiteitsprovider heen zijn
+     * (01j §8).
+     */
+    public function mount(): void
+    {
+        if (Auth::user()->isExtern()) {
+            $this->redirectRoute('settings.profile', navigate: true);
+        }
+    }
+
     public function updatePassword(): void
     {
+        abort_if(Auth::user()->isExtern(), 403);
+
         try {
             $validated = $this->validate([
                 'huidig_wachtwoord' => ['required', 'string', 'current_password'],

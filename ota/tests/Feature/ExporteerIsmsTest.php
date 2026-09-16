@@ -2,13 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Models\Afwijking;
 use App\Models\Asset;
 use App\Models\AssetToewijzing;
+use App\Models\Auditobject;
+use App\Models\Auditprogramma;
+use App\Models\AuditprogrammaDekking;
 use App\Models\Beleidsdocument;
 use App\Models\Beleidsversie;
 use App\Models\Besluit;
 use App\Models\BewijsKoppeling;
 use App\Models\Bewijsstuk;
+use App\Models\CorrigerendeMaatregel;
+use App\Models\Effectiviteitstoets;
 use App\Models\Gebruiker;
 use App\Models\Incident;
 use App\Models\Issue;
@@ -16,6 +22,7 @@ use App\Models\KpiDefinitie;
 use App\Models\Leesbevestiging;
 use App\Models\Maatregel;
 use App\Models\Meting;
+use App\Models\Organisatieprofiel;
 use App\Models\Reviewsessie;
 use App\Models\Risico;
 use App\Models\RisicocriteriaVersie;
@@ -515,6 +522,155 @@ class ExporteerIsmsTest extends TestCase
         File::deleteDirectory($this->doel);
         $this->artisan('isms:exporteer', ['--doel' => $this->doel, '--met-persoonsgegevens' => true])->assertSuccessful();
         $this->assertStringContainsString('Directeur Pietersen', File::get($this->exportMap().'/01-context-scope.md'));
+    }
+
+    /**
+     * De dekkingsmatrix bouwde de objectnaam uit clausule_nummer en titel, en
+     * die zijn bij een maatregelobject leeg: de hele Bijlage A-kant stond als
+     * "—" in de export.
+     */
+    public function test_de_dekkingsmatrix_noemt_ook_de_maatregelobjecten(): void
+    {
+        $programma = Auditprogramma::factory()->create();
+        $maatregel = Maatregel::factory()->create(['annex_a_referentie' => '8.13', 'naam' => 'Back-up van informatie']);
+
+        foreach ([Auditobject::factory()->create(['clausule_nummer' => '9.2', 'titel' => 'Interne audit']),
+            Auditobject::factory()->maatregel($maatregel->id)->create()] as $object) {
+            AuditprogrammaDekking::create([
+                'auditprogramma_id' => $programma->id,
+                'auditobject_id' => $object->id,
+                'interval_jaren' => 3,
+                'gepland_start_programmajaar' => 1,
+            ]);
+        }
+
+        $this->artisan('isms:exporteer', ['--doel' => $this->doel])->assertSuccessful();
+        $md = File::get($this->exportMap().'/07-audits.md');
+
+        $this->assertStringContainsString('| 9.2 Interne audit | clausule |', $md);
+        $this->assertStringContainsString('| A.8.13 Back-up van informatie | maatregel |', $md);
+    }
+
+    /** Uitsluitingen hoorden bij geen enkele versie en stonden er daardoor dubbel in. */
+    public function test_uitsluitingen_staan_bij_hun_scopeversie(): void
+    {
+        foreach ([1 => 'vervangen', 2 => 'actief'] as $nummer => $status) {
+            $verklaring = ScopeVerklaring::factory()->create(['versienummer' => $nummer, 'status' => $status]);
+            $verklaring->uitsluitingen()->create([
+                'omschrijving' => 'De kantoorautomatisering.',
+                'motivatie' => "Motivatie van versie {$nummer}.",
+            ]);
+        }
+
+        $this->artisan('isms:exporteer', ['--doel' => $this->doel])->assertSuccessful();
+        $md = File::get($this->exportMap().'/01-context-scope.md');
+
+        $this->assertSame(1, substr_count($md, 'Motivatie van versie 1.'));
+        $this->assertSame(1, substr_count($md, 'Motivatie van versie 2.'));
+        // Elke uitsluiting onder haar eigen versiekop: versie 2 staat bovenaan.
+        $this->assertMatchesRegularExpression('/### Versie 2.*Motivatie van versie 2\..*### Versie 1.*Motivatie van versie 1\./s', $md);
+    }
+
+    /**
+     * §10.2 d: of een corrigerende maatregel werkte. Alle toetsen gaan mee, ook
+     * een eerdere "niet effectief" — dat is de historie, niet ruis.
+     */
+    public function test_effectiviteitstoetsen_hangen_onder_hun_maatregel(): void
+    {
+        $toetser = Gebruiker::factory()->create(['naam' => 'Jan de Vries']);
+        $maatregel = CorrigerendeMaatregel::factory()->voltooid()->create(['omschrijving' => 'Hersteltest inplannen.']);
+        Effectiviteitstoets::factory()->nietEffectief()->create([
+            'corrigerende_maatregel_id' => $maatregel->id,
+            'uitgevoerd_op' => '2026-03-01',
+            'uitgevoerd_door_id' => $toetser->id,
+            'toelichting' => 'Test niet uitgevoerd.',
+        ]);
+        Effectiviteitstoets::factory()->create([
+            'corrigerende_maatregel_id' => $maatregel->id,
+            'uitgevoerd_op' => '2026-06-01',
+            'uitgevoerd_door_id' => $toetser->id,
+            'toelichting' => 'Restore geslaagd.',
+        ]);
+
+        $this->artisan('isms:exporteer', ['--doel' => $this->doel])->assertSuccessful();
+        $md = File::get($this->exportMap().'/06-incidenten-en-afwijkingen.md');
+
+        $this->assertMatchesRegularExpression(
+            '/Hersteltest inplannen\.\n  - Effectiviteitstoets 01-03-2026 door JdV[^\n]*\*\*niet effectief\*\* — Test niet uitgevoerd\.\n'
+            .'  - Effectiviteitstoets 01-06-2026 door JdV[^\n]*\*\*effectief\*\* — Restore geslaagd\./',
+            $md,
+        );
+        $this->assertStringNotContainsString('Jan de Vries', $md);
+    }
+
+    /** Zonder profiel stond nergens in de export voor welke organisatie hij was. */
+    public function test_het_overzicht_noemt_de_organisatie_letterlijk(): void
+    {
+        config(['app.organisatie' => 'Fruit BV']);
+        // Een `*` en een backtick-reeks: het blok moet beide ongemoeid laten.
+        Organisatieprofiel::create(['gegevens' => "Fruit BV\n* Havenstraat 1\nKvK ```12345678```"]);
+
+        $this->artisan('isms:exporteer', ['--doel' => $this->doel])->assertSuccessful();
+        $md = File::get($this->exportMap().'/00-overzicht.md');
+
+        $this->assertStringContainsString("**Organisatie:** Fruit BV\n\n````text\nFruit BV\n* Havenstraat 1\nKvK ```12345678```\n````\n", $md);
+    }
+
+    public function test_zonder_organisatiegegevens_geen_organisatieregel(): void
+    {
+        config(['app.organisatie' => '']);
+
+        $this->artisan('isms:exporteer', ['--doel' => $this->doel])->assertSuccessful();
+
+        $this->assertStringNotContainsString('**Organisatie:**', File::get($this->exportMap().'/00-overzicht.md'));
+    }
+
+    public function test_een_risico_zonder_score_heet_nog_niet_beoordeeld(): void
+    {
+        Risico::factory()->create(['titel' => 'Nog te scoren', 'kans_niveau' => null, 'impact_niveau' => null]);
+
+        $this->artisan('isms:exporteer', ['--doel' => $this->doel])->assertSuccessful();
+        $md = File::get($this->exportMap().'/03-risico-en-soa.md');
+
+        $this->assertStringContainsString('- Score: nog niet beoordeeld', $md);
+        $this->assertStringNotContainsString('(kans  × impact )', $md);
+    }
+
+    /**
+     * De export zocht op de status 'gepubliceerd', die niet bestaat, en viel
+     * terug op de hoogste versie. Een concept v3 las dan als het geldende beleid.
+     */
+    public function test_alleen_de_actieve_beleidsversie_heet_actief(): void
+    {
+        $document = Beleidsdocument::factory()->create(['titel' => 'Toegangsbeleid']);
+        Beleidsversie::factory()->create(['beleidsdocument_id' => $document->id, 'versienummer' => '2', 'status' => 'actief']);
+        Beleidsversie::factory()->create(['beleidsdocument_id' => $document->id, 'versienummer' => '3', 'status' => 'ter_goedkeuring']);
+
+        $nieuw = Beleidsdocument::factory()->create(['titel' => 'Cryptografiebeleid']);
+        Beleidsversie::factory()->create(['beleidsdocument_id' => $nieuw->id, 'versienummer' => '1', 'status' => 'concept']);
+
+        $this->artisan('isms:exporteer', ['--doel' => $this->doel])->assertSuccessful();
+        $md = File::get($this->exportMap().'/04-beleid.md');
+
+        $this->assertMatchesRegularExpression('/## Toegangsbeleid.*- Actieve versie: 2.*- In behandeling: versie 3 \(ter_goedkeuring\)/s', $md);
+        $this->assertStringNotContainsString('Actieve versie: 3', $md);
+        $this->assertMatchesRegularExpression('/## Cryptografiebeleid.*- Actieve versie: \*\*geen\*\*\n- In behandeling: versie 1 \(concept\)/s', $md);
+    }
+
+    /** Het overzicht belooft geen interne identifiers; de afwijkingskop had er een. */
+    public function test_een_afwijking_heet_naar_haar_omschrijving_en_niet_naar_haar_id(): void
+    {
+        $afwijking = Afwijking::factory()->create([
+            'bron' => 'audit_bevinding',
+            'omschrijving' => 'De hersteltest van de back-up is niet aantoonbaar uitgevoerd.',
+        ]);
+
+        $this->artisan('isms:exporteer', ['--doel' => $this->doel])->assertSuccessful();
+        $md = File::get($this->exportMap().'/06-incidenten-en-afwijkingen.md');
+
+        $this->assertStringContainsString('### De hersteltest van de back-up is niet aantoonbaar uitgevoerd. (audit_bevinding, open)', $md);
+        $this->assertStringContainsString('- Vastgelegd: '.$afwijking->created_at->format('d-m-Y'), $md);
+        $this->assertStringNotContainsString("#{$afwijking->id}", $md);
     }
 
     public function test_met_bewijs_kopieert_bestanden(): void

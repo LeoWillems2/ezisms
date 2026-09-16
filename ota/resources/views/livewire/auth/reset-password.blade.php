@@ -45,8 +45,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
             ],
             function ($gebruiker) {
                 // Een geldig token van vóór een deactivering/blokkade mag geen
-                // toegang teruggeven.
-                if (! $gebruiker->magInloggen()) {
+                // toegang teruggeven. Evenmin een token van vóór het overzetten
+                // naar de identiteitsprovider: dan wordt dit een weg om de IdP
+                // heen (01j §8).
+                if (! $gebruiker->magInloggen() || $gebruiker->isExtern()) {
                     return;
                 }
 

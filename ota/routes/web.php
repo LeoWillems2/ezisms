@@ -76,6 +76,14 @@ Route::get('uitnodiging/{gebruiker}/{token}', UitnodigingAccepteren::class)
     ->middleware('signed')
     ->name('uitnodiging.accepteren');
 
+// Hetzelfde scherm voor een actief account dat (opnieuw) aan de externe
+// identiteitsprovider gekoppeld moet worden (implementatie/01j §9.1). Een eigen
+// pad zodat de mail en de brief niet "uitnodiging" zeggen over een account dat
+// al bestaat.
+Route::get('koppeling/{gebruiker}/{token}', UitnodigingAccepteren::class)
+    ->middleware('signed')
+    ->name('koppeling.accepteren');
+
 // Idem voor het bevestigen van een nieuw e-mailadres bij een actief account
 // (implementatie/01h §7). Het scherm toont een knop; deze route muteert niets
 // bij het openen, want linkscanners van mailfilters volgen hem.

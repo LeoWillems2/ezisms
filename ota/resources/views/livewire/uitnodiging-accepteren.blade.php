@@ -1,5 +1,33 @@
 <div class="flex flex-col gap-6">
-    @if ($stap === 'wachtwoord')
+    @if ($stap === 'koppelen')
+        {{-- Extern account (01j §6.2): koppelen in plaats van een wachtwoord. --}}
+        <x-auth-header
+            title="Account koppelen"
+            description="Meld u aan met uw {{ $idpNaam }}-account om uw ISMS-account in gebruik te nemen." />
+
+        <div class="rounded-lg border border-zinc-200 p-4 text-sm">
+            <div class="font-medium">{{ $gebruiker->naam }}</div>
+            <div class="text-zinc-500">{{ $gebruiker->email }}</div>
+        </div>
+
+        @error('koppelen')
+            <flux:callout variant="danger" icon="exclamation-triangle" heading="{{ $message }}" />
+        @enderror
+
+        @if ($idpIngesteld)
+            <flux:button variant="primary" wire:click="koppelen" class="w-full">
+                Aanmelden met {{ $idpNaam }}
+            </flux:button>
+
+            <flux:text class="text-xs">
+                Het account waarmee u zich aanmeldt, wordt aan dit ISMS-account gekoppeld. U logt
+                daarna altijd op die manier in; een wachtwoord voor het ISMS heeft u niet nodig.
+            </flux:text>
+        @else
+            <flux:callout variant="warning" icon="exclamation-triangle"
+                heading="Aanmelden via een identiteitsprovider is op deze installatie niet ingesteld. Neem contact op met de CISO." />
+        @endif
+    @elseif ($stap === 'wachtwoord')
         <x-auth-header
             title="Wachtwoord instellen"
             description="Kies een wachtwoord om uw ISMS-account te activeren." />
