@@ -28,7 +28,6 @@
 
 # VMhost of bare metal requirements: #
 
-
 Je zet altijd eerst een ontwikkelomgeving op. Dat staat hieronder.
 
 - Ubuntu 26.04
