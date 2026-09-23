@@ -13,6 +13,7 @@ use App\Models\Auditronde;
 use App\Models\Beleidsdocument;
 use App\Models\Beleidsversie;
 use App\Models\Beoordelingsniveau;
+use App\Models\Beveiligingssignaal;
 use App\Models\Bevinding;
 use App\Models\BewijsKoppeling;
 use App\Models\Bewijsstuk;
@@ -383,6 +384,9 @@ class AppServiceProvider extends ServiceProvider
             'wijziging' => Wijziging::class,
             'wijzigingssjabloon' => Wijzigingssjabloon::class,
             'sjabloonstap' => Sjabloonstap::class,
+            // 01l: een signaal van de bewaking op inloggegevens. Auditeerbaar,
+            // want de trailregel is het bewijs dat er gemonitord is.
+            'beveiligingssignaal' => Beveiligingssignaal::class,
         ]);
     }
 }

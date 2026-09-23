@@ -86,6 +86,18 @@ final class Simulatie
             : throw DemoFixtureFout::bij('tijdlijn', "'{$sleutel}' is geen gebruiker");
     }
 
+    /** De CISO van het scenario (`personen.json`, sleutel `ciso`). */
+    public function ciso(): Gebruiker
+    {
+        return $this->gebruiker($this->fixtures->cisoSleutel());
+    }
+
+    /** De genoemde gebruiker, of de CISO als de tijdlijn niemand noemt. */
+    public function gebruikerOfCiso(?string $sleutel): Gebruiker
+    {
+        return $sleutel === null ? $this->ciso() : $this->gebruiker($sleutel);
+    }
+
     public function onthoudWachtwoord(string $sleutel, string $wachtwoord): void
     {
         $this->wachtwoorden[$sleutel] = $wachtwoord;

@@ -285,6 +285,59 @@ class TweefactorTest extends TestCase
         $this->assertSame('totp', $poging->reden);
     }
 
+    /**
+     * Dezelfde beslissing, via een andere weg: de blokkadeteller telde alle
+     * mislukte pogingen op het e-mailadres, en de challenge schrijft zijn
+     * mislukkingen met dat adres weg. Vier foute codes en één verkeerd getypt
+     * wachtwoord blokkeerden het account dan alsnog (review p98).
+     */
+    public function test_foute_codes_tellen_niet_mee_voor_de_wachtwoordblokkade(): void
+    {
+        [$gebruiker] = $this->metTweefactor();
+
+        session(['tweefactor.gebruiker_id' => $gebruiker->id]);
+        $challenge = Volt::test('auth.tweefactor-challenge');
+
+        foreach (range(1, 4) as $poging) {
+            $challenge->set('code', '000000')->call('verifieren');
+        }
+
+        Volt::test('auth.login')
+            ->set(['email' => $gebruiker->email, 'password' => 'verkeerd-wachtwoord'])
+            ->call('login');
+
+        $this->assertSame(5, Loginpoging::where('email_ingevoerd', $gebruiker->email)->where('succesvol', false)->count());
+        $this->assertSame('actief', $gebruiker->fresh()->status);
+
+        // Vijf foute wachtwoorden blokkeren nog wel.
+        foreach (range(1, 4) as $poging) {
+            Volt::test('auth.login')
+                ->set(['email' => $gebruiker->email, 'password' => 'verkeerd-wachtwoord'])
+                ->call('login');
+        }
+
+        $this->assertSame('geblokkeerd', $gebruiker->fresh()->status);
+    }
+
+    /**
+     * Na het wachtwoord draagt de sessie "het wachtwoord is goed". Een
+     * opgedrongen sessie-id mag die toestand niet erven (sessiefixatie).
+     */
+    public function test_de_sessie_krijgt_een_nieuwe_id_voor_de_challenge(): void
+    {
+        [$gebruiker] = $this->metTweefactor();
+
+        $voor = session()->getId();
+
+        Volt::test('auth.login')
+            ->set(['email' => $gebruiker->email, 'password' => self::WACHTWOORD])
+            ->call('login')
+            ->assertRedirect(route('tweefactor.challenge'));
+
+        $this->assertNotSame($voor, session()->getId());
+        $this->assertSame($gebruiker->id, session('tweefactor.gebruiker_id'));
+    }
+
     public function test_te_veel_foute_codes_sturen_terug_naar_login_zonder_blokkade(): void
     {
         [$gebruiker] = $this->metTweefactor();

@@ -67,11 +67,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
         Session::forget('inloggen.methode');
 
         // Tweede factor: nog niet inloggen, alleen onthouden wie er aan de beurt
-        // is (implementatie/01d §7a). Bewust géén `Session::regenerate()` hier —
-        // die hoort bij het moment van authenticatie, en dat is het slagen van
-        // de challenge; er is nu ook nog geen sessie om te beschermen.
+        // is (implementatie/01d §7a). Wél al een nieuwe sessie-id: deze sessie
+        // draagt vanaf nu "het wachtwoord is goed". Wie het slachtoffer vooraf
+        // een sessie-id kon opdringen (sessiefixatie), zat anders na diens
+        // wachtwoord op de challenge en hoefde alleen nog de code te raden. Na
+        // het slagen van de challenge volgt nog een regeneratie.
         if ($gebruiker->tweefactorActief()) {
             RateLimiter::clear($this->throttleKey());
+            Session::regenerate();
 
             Session::put('tweefactor.gebruiker_id', $gebruiker->id);
             Session::put('tweefactor.remember', $this->remember);

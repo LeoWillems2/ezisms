@@ -211,13 +211,13 @@ class AutorisatieTest extends TestCase
      * niets doen.
      *
      * **Eén rij verdient aandacht:** de Auditor krijgt 403 op /bewijsstukken,
-     * /taken, /beleid, /incidenten en /mijn-trainingen. Die schermen staan op
-     * `uitvoeren` omdat de Medewerker er meldt, uploadt of bevestigt, en
-     * `exporteren` klimt de ladder niet op. In de componenttests ziet dezelfde
-     * Auditor daar juist álle rijen. Deze tabel legt vast wat het systeem
-     * vandaag doet, niet wat het zou moeten doen; dat laatste is een besluit en
-     * hangt samen met de openstaande vraag of de Auditor `uitvoeren` hoort te
-     * krijgen.
+     * /taken, /incidenten en /mijn-trainingen. Die schermen staan op
+     * `uitvoeren` omdat de Medewerker er meldt of uploadt, en `exporteren` klimt
+     * de ladder niet op. In de componenttests ziet dezelfde Auditor daar juist
+     * álle rijen. Deze tabel legt vast wat het systeem vandaag doet, niet wat
+     * het zou moeten doen. Op /beleid is het besluit genomen (23-09-2026): de
+     * Auditor kreeg `uitvoeren` om zijn eigen leesbevestiging af te leggen. De
+     * overige vier wachten nog op dezelfde vraag.
      */
     private const SCHERMEN = [
         //                                          CISO Auditor Management Medewerker Administrator
@@ -233,7 +233,7 @@ class AutorisatieTest extends TestCase
         '/beheer/export' => [403, 403, 403, 403, 200],
         '/beheer/toetsen' => [403, 403, 403, 403, 200],
         '/belanghebbenden' => [200, 200, 200, 200, 403],
-        '/beleid' => [200, 403, 200, 200, 403],
+        '/beleid' => [200, 200, 200, 200, 403],
         '/bewijsstukken' => [200, 403, 200, 200, 403],
         // 200 voor de Administrator, en dat is geen gat: het dashboard heeft
         // bewust geen autorisatiecheck op blokniveau (elk paneel checkt zijn

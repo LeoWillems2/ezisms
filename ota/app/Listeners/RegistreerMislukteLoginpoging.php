@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Models\Gebruiker;
 use App\Models\Loginpoging;
+use App\Support\Beveiligingsbewaking;
 use Illuminate\Auth\Events\Failed;
 
 /**
@@ -46,8 +47,13 @@ class RegistreerMislukteLoginpoging
             return;
         }
 
+        // Alleen foute wachtwoorden. Een foute tweede factor blokkeert niet
+        // (01d §1, beslissing 4), en de challenge schrijft zijn mislukkingen
+        // met hetzelfde e-mailadres weg: zonder dit filter blokkeerden vier foute
+        // codes plus één verkeerd getypt wachtwoord het account alsnog.
         $recenteMislukkingen = Loginpoging::where('email_ingevoerd', $email)
             ->where('succesvol', false)
+            ->where('reden', 'wachtwoord')
             ->where('tijdstip', '>=', now()->subMinutes(self::VENSTER_MINUTEN))
             ->count();
 
@@ -56,6 +62,11 @@ class RegistreerMislukteLoginpoging
             // veld is het verschil met een handmatige blokkade, en bepaalt de
             // melding op het loginscherm (implementatie/01f §6).
             $gebruiker->blokkeer(door: null);
+
+            // Use case B (01l §4). Alleen hier en niet in `blokkeer()`: een
+            // handmatige blokkade door de CISO staat al in de trail, met de
+            // CISO als actor, en is geen signaal.
+            Beveiligingsbewaking::naBlokkade($gebruiker, request()->ip());
         }
     }
 }

@@ -105,6 +105,7 @@ class LoginTest extends TestCase
             'gebruiker_id' => $gebruiker->id,
             'email_ingevoerd' => $gebruiker->email,
             'succesvol' => false,
+            'reden' => 'wachtwoord',
             'tijdstip' => now()->subMinutes(2),
         ]);
 
@@ -124,6 +125,7 @@ class LoginTest extends TestCase
             'gebruiker_id' => $gebruiker->id,
             'email_ingevoerd' => $gebruiker->email,
             'succesvol' => false,
+            'reden' => 'wachtwoord',
             'tijdstip' => now()->subMinutes(20),
         ]);
 

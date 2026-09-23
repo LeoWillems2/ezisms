@@ -42,7 +42,7 @@ final class TrainingHandlers
             $deelnemer = $sim->gebruiker($sleutel);
             $magZelf = Gate::forUser($deelnemer)->allows('heeft-niveau', ['bewustzijn-training', 'uitvoeren']);
 
-            Handelt::als($magZelf ? $deelnemer : $sim->gebruiker('ciske'))
+            Handelt::als($magZelf ? $deelnemer : $sim->ciso())
                 ->mits('heeft-niveau', ['bewustzijn-training', $magZelf ? 'uitvoeren' : 'muteren'])
                 ->bij("M{$maand}/training_ronde/{$g['module']}/{$sleutel}")
                 ->doe(fn () => Trainingsvoltooiing::create([
@@ -64,7 +64,7 @@ final class TrainingHandlers
             return $sim->fixtures()->model($def['sleutel']);
         }
 
-        $module = Handelt::als($sim->gebruiker('ciske'))
+        $module = Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['bewustzijn-training', 'muteren'])
             ->bij("M{$maand}/trainingsmodule/{$def['sleutel']}")
             ->doe(function () use ($def, $sim) {

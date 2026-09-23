@@ -29,6 +29,16 @@
     }
   ],
 
+  "motivaties": {
+    "per_thema": {
+      "organisatorisch": "Van toepassing: FruitBV legt deze beheersing organisatorisch vast; de uitwerking volgt in beleid en procedures.",
+      "mensgericht": "Van toepassing: de maatregel raakt de medewerkers en de ZZP-beheerders met toegang tot FruitCloud.",
+      "fysiek": "Van toepassing via het datacenter van WortelNet en het kantoor in Barendrecht; de uitvoering ligt deels bij de hostingpartij.",
+      "technologisch": "Van toepassing op de productieomgeving van FruitCloud en de onderliggende infrastructuur."
+    },
+    "per_referentie": {}
+  },
+
   "beoordelingsgolven": [
     {
       "maand": 3,

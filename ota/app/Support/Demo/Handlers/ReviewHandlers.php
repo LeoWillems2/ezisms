@@ -34,7 +34,7 @@ final class ReviewHandlers
 
         $this->controleerAantallen($g, $def);
 
-        $sessie = Handelt::als($sim->gebruiker('ciske'))
+        $sessie = Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['management-review-verbetercyclus', 'muteren'])
             ->bij("M{$maand}/directiebeoordeling/{$g['sleutel']} (voorbereiden)")
             ->doe(function () use ($g, $def, $sim) {

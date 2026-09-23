@@ -14,6 +14,82 @@ geeft de oorspronkelijke tekst.
 
 ---
 
+## V3.8.0 — een demo voor NEN 7510
+
+*23-09-2026*
+
+Het gevulde demo-ISMS bestond alleen voor ISO 27001. Onder NEN 7510 is er nu een
+eigen scenario, en de Auditor kan zelf de leesbevestiging van beleid afleggen.
+
+**ZorgZeker.** `isms:demo-vul` kiest het scenario bij het normprofiel: FruitBV
+voor iso27001, ZorgZeker voor nen7510. ZorgZeker BV is een jeugdzorgorganisatie
+met vijf accounts en een SoA over alle 101 maatregelen; de acht zorgspecifieke
+maatregelen hebben een eigen motivatie. Voor bio2 is er geen scenario en blijft
+het commando weigeren. Dezelfde keuze zit in `deploy.sh`, `deploy-docker.sh` en
+de entrypoint van de container: `ISMS_DEMO=ja` gaat nu ook samen met
+`ISMS_NORM=nen7510`.
+
+**Leesbevestiging.** De Auditor krijgt het recht om zijn eigen leesbevestiging af
+te leggen, op */beleid*. Alleen daar: eigen training, taken, bewijsstukken en
+incidenten blijven voor hem dicht. De Administrator valt buiten de doelgroep van
+beleidsdocumenten. Hij kan het ISMS niet in en dus niet lezen wat hij zou
+bevestigen; hij kreeg leestaken die hij niet kon afronden, en zijn open
+bevestiging haalde de graad omlaag.
+
+**Correctie.** De demotests schreven de inloggegevens van de demo-accounts naar de
+echte `storage/`. Dat gebeurt niet meer.
+
+Geen migratie. Het nieuwe recht van de Auditor komt uit `RolPermissieSeeder`,
+en die draait bij elke uitrol mee.
+
+---
+
+## V3.7.0 — bewaking van inloggegevens
+
+*19-09-2026*
+
+EzISMS bewaakt voortaan de inlogpogingen op tekenen van misbruik van
+inloggegevens. Dat is het monitoringdeel van BIO2-maatregel 5.17.01, die naast
+MFA vraagt om gedefinieerde use cases, onder meer voor inlogpogingen van
+ongebruikelijke plekken en pieken in mislukte pogingen.
+
+**Vijf situaties.** Elke inlogpoging wordt direct beoordeeld op een piek in
+mislukte pogingen over alle accounts, een automatische blokkade, een herhaald
+foute tweede factor na een goed wachtwoord, een login vanaf een netwerk dat nieuw
+is voor het account, en een geslaagde login na meerdere mislukte pogingen. De
+definitie staat in het kennisbankartikel *Gebruikers, rollen en rechten*.
+
+**Waar een signaal heen gaat.** Elk signaal komt in de audit trail, op naam van
+*Systeem (beveiligingsbewaking)* en niet op naam van wie er net inlogde. Is
+`ISMS_SYSLOG_HOST` ingesteld, dan gaat het daarnaast naar die syslogserver
+(facility `authpriv`, UDP of TCP). Anders gaat het per mail naar alle actieve
+CISO's. Nooit naar allebei. Het systeem reageert niet zelf; de opvolging is aan
+de CISO. `isms:beveiligingssignaal-proef` controleert het kanaal.
+
+**Het echte IP-adres.** Achter een TLS-terminator legde het systeem bij elke
+inlogpoging het adres van de proxy vast. Met `ISMS_VERTROUWDE_PROXIES` gelooft
+het systeem de kop `X-Forwarded-For` van die adressen, en staat het adres van de
+bezoeker in de registratie. De proxy moet die kop meesturen; bij HAProxy is dat
+`option forwardfor`. Zonder deze instelling kan de bewaking een login vanaf een
+onbekend netwerk niet herkennen.
+
+**Twee correcties in het inloggen.** Foute verificatiecodes telden mee voor de
+accountblokkade, zodat vier foute codes en één verkeerd getypt wachtwoord een
+account blokkeerden. De blokkade telt nu alleen foute wachtwoorden. Daarnaast
+krijgt de sessie een nieuwe id zodra het wachtwoord of de identiteitsprovider
+akkoord is, en niet pas na de tweede factor.
+
+**Toetsen.** De afgeschermde toetspagina laat de token uit de URL niet meer
+weglekken via een formulier naar buiten, een `<base>`-element of de
+Referer-kop.
+
+Migratie `000071` voegt de tabel met beveiligingssignalen en twee indexen op de
+inlogpogingen toe. Bij een Docker-installatie: kopieer het compose-bestand
+opnieuw uit de nieuwe boom, anders bereiken de nieuwe instellingen de container
+niet.
+
+---
+
 ## V3.6.0 — inloggen met het account van de organisatie
 
 *16-09-2026*

@@ -329,9 +329,10 @@ autorisatiecheck.
   vastgelegd, en apart van een verkeerd wachtwoord. De combinatie van een goed
   wachtwoord en een foute tweede factor is namelijk het signaal dat een
   wachtwoord is gelekt.
-- **Automatische blokkade:** 5 mislukte pogingen binnen 15 minuten blokkeren een
-  *actief* account. Alleen de CISO kan die blokkade opheffen. Er is geen
-  automatische ontgrendeling na een wachttijd. Deze regel heeft een keerzijde:
+- **Automatische blokkade:** 5 foute wachtwoorden binnen 15 minuten blokkeren een
+  *actief* account. Foute verificatiecodes tellen daarbij niet mee. Alleen de
+  CISO kan die blokkade opheffen. Er is geen automatische ontgrendeling na een
+  wachttijd. Deze regel heeft een keerzijde:
   de teller telt per **ingevoerd e-mailadres**, dus iemand die een adres kent,
   kan de eigenaar van dat adres buitensluiten. Dat is de bewuste afweging voor een
   harde grens tegen het raden van wachtwoorden. De weg terug is contact met de
@@ -450,6 +451,47 @@ Het is verstandig de koppeling ook in het integratieregister vast te leggen, als
 koppeling van het type *identiteit*. Dan staat in het ISMS zelf dat de
 authenticatie van een deel van de accounts bij een externe partij ligt.
 
+### Bewaking van inloggegevens
+
+Het systeem beoordeelt elke inlogpoging op het moment dat die wordt vastgelegd,
+en herkent vijf situaties die op misbruik van inloggegevens kunnen wijzen. Deze
+lijst is de definitie van de use cases die BIO2-maatregel 5.17.01 vraagt, met
+"inlogpogingen van ongebruikelijke plekken" en "pieken in mislukte
+inlogpogingen" als verplichte onderdelen.
+
+| Situatie | Wanneer | Ernst |
+| --- | --- | --- |
+| Piek in mislukte pogingen | 20 of meer mislukte pogingen binnen 10 minuten, over alle accounts samen | warning |
+| Account door het systeem geblokkeerd | De automatische blokkade na 5 mislukte pogingen is ingegaan | warning |
+| Tweede factor herhaald fout | Drie foute verificatiecodes of herstelcodes voor hetzelfde account binnen 15 minuten, na een goed wachtwoord | alert |
+| Login vanaf een nieuw netwerk | Een geslaagde login vanaf een netwerk (een IPv4-/24 of IPv6-/48) dat de afgelopen 90 dagen niet bij een geslaagde login van dit account voorkwam | notice |
+| Geslaagd na mislukkingen | Een geslaagde login na drie of meer mislukte pogingen op hetzelfde account binnen 15 minuten | warning |
+
+Pogingen op een account dat niet actief is, tellen niet mee. Een handmatige
+blokkade door de CISO is geen signaal, omdat die al met de CISO als actor in de
+audit trail staat. De eerste login ooit van een account levert geen signaal
+"nieuw netwerk" op, omdat er dan nog geen basislijn is. Adressen van de eigen
+proxy tellen ook niet als basislijn.
+
+Hetzelfde signaal komt niet vaker dan eens per venster: eens per uur voor een
+piek, voor een foute tweede factor en voor een geslaagde login na mislukkingen,
+eens per kwartier voor een blokkade, en eens per dag per account en netwerk voor
+een nieuw netwerk. De pogingen zelf staan altijd in de registratie van
+loginpogingen.
+
+Elk signaal komt als entiteit `beveiligingssignaal` in de audit trail, op naam
+van *Systeem (beveiligingsbewaking)*. Daarnaast gaat het signaal naar de
+syslogserver van de organisatie als die is ingesteld, en anders per mail naar
+alle actieve CISO's. Het systeem stuurt nooit naar allebei. De gebruiker over
+wie het signaal gaat, krijgt geen bericht. Met wisselende thuisadressen zou die
+melding zo vaak komen dat ze niet meer wordt gelezen.
+
+Het systeem reageert niet zelf op een signaal. De passende actie, zoals het
+account blokkeren of een incident registreren, is een beslissing van de CISO.
+Een automatische blokkade op IP-adres zou een aanvaller een middel geven om
+legitieme gebruikers buiten te sluiten. Het inrichten van het kanaal staat in
+[Beheer](beheer).
+
 ### Het eerste account
 
 `/gebruikers` vereist een ingelogde CISO, dus het allereerste CISO-account kan
@@ -537,6 +579,7 @@ Het is nuttiger om de beperkingen te benoemen dan om ze te verzwijgen:
 | Beheer van toegangsrechten, uitnodiging en blokkade | A.5.16, A.5.17, A.8.2 |
 | NDA, screening, offboarding | A.6.1, A.6.2, A.6.5 |
 | Loginpogingen en audit trail | A.8.5, A.8.15 |
+| Bewaking van inloggegevens | A.5.17, A.8.15, A.8.16; BIO2 5.17.01 |
 | Onafhankelijkheid van de interne auditor | 9.2, A.5.3 |
 
 ## In de applicatie

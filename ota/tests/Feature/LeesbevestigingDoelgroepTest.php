@@ -111,6 +111,37 @@ class LeesbevestigingDoelgroepTest extends TestCase
             ->whereIn('status', Taak::OPENSTAAND)->count());
     }
 
+    /**
+     * De Administrator heeft geen toegang tot de inhoud van het ISMS en kan dus
+     * niet bevestigen. Hij hoort daarom niet bij de doelgroep: geen leestaak die
+     * hij niet kan afronden, en geen open bevestiging die de graad omlaag haalt
+     * zonder dat iemand er iets aan kan doen.
+     */
+    public function test_de_administrator_valt_buiten_de_doelgroep(): void
+    {
+        $medewerker = $this->medewerkerOp($this->verkoop);
+        $administrator = Gebruiker::factory()->metRol('Administrator')->opAfdeling($this->verkoop)->create();
+
+        $document = $this->actiefDocumentVoor($this->verkoop);
+        $this->artisan('isms:genereer-taken')->assertSuccessful();
+
+        $this->assertSame([$medewerker->id], $document->doelgroepGebruikerIds());
+        $this->assertFalse($document->isInDoelgroep($administrator));
+        $this->assertTrue($document->isInDoelgroep($medewerker));
+        $this->assertSame(
+            [$medewerker->id],
+            Taak::where('soort', 'beleid-leesbevestiging')->pluck('eigenaar_id')->all(),
+        );
+
+        Leesbevestiging::create([
+            'beleidsversie_id' => $document->actieveVersie->id,
+            'gebruiker_id' => $medewerker->id,
+            'bevestigd_op' => now(),
+        ]);
+
+        $this->assertSame(100, $document->fresh()->bevestigingsgraad());
+    }
+
     // --- Bevestigingsgraad & bevestigen ------------------------------------
 
     public function test_bevestigingsgraad_rekent_met_de_doelgroep(): void

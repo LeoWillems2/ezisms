@@ -35,6 +35,18 @@ trait Auditeerbaar
         return [];
     }
 
+    /**
+     * Voor een model dat altijd door het systeem wordt aangemaakt, ook midden
+     * in een verzoek van een ingelogde gebruiker (implementatie/01l §7). Een
+     * naam = de regel komt op naam van die systeemactor, zonder gebruiker_id.
+     * `null` = de gewone regel: de ingelogde gebruiker, of 'Systeem (geplande
+     * taak)' op de console.
+     */
+    public function auditSysteemactor(): ?string
+    {
+        return null;
+    }
+
     /** Leesbare momentopname voor in de logregel (§3b). */
     public function auditOmschrijving(): string
     {
@@ -91,14 +103,15 @@ trait Auditeerbaar
             return;
         }
 
-        $gebruiker = auth()->user();
+        $systeem = $this->auditSysteemactor();
+        $gebruiker = $systeem === null ? auth()->user() : null;
 
         AuditLogregel::create([
             'tijdstip' => now(),
             'gebruiker_id' => $gebruiker?->getKey(),
             // Console-commando's draaien zonder ingelogde gebruiker; zonder deze
             // fallback faalt de dagelijkse taak op een niet-nullable kolom.
-            'gebruiker_naam' => $gebruiker?->naam ?? 'Systeem (geplande taak)',
+            'gebruiker_naam' => $systeem ?? $gebruiker?->naam ?? 'Systeem (geplande taak)',
             'blok_naam' => $this->auditBlok(),
             'entiteit_type' => $this->getMorphClass(),
             'entiteit_id' => $this->getKey(),

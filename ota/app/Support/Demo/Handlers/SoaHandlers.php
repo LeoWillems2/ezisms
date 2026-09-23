@@ -39,7 +39,7 @@ final class SoaHandlers
     }
 
     /**
-     * Een beoordelingsgolf: het opgegeven aandeel van de 93 regels krijgt een
+     * Een beoordelingsgolf: het opgegeven aandeel van de regels krijgt een
      * oordeel. Alleen nog onbesliste regels — een tweede golf herbevestigt de
      * eerste niet.
      */
@@ -50,13 +50,15 @@ final class SoaHandlers
         $tot = (int) ceil($regels->count() * $golf['aandeel']);
         $nietVanToepassing = collect($sim->fixtures()->lijst('soa', 'niet_van_toepassing'))
             ->keyBy('referentie');
+        $motivaties = $sim->fixtures()->bestand('soa')['motivaties']
+            ?? throw DemoFixtureFout::bij('soa', 'geen motivaties opgegeven');
 
         // De CISO beoordeelt de SoA; er staat geen `door` in de tijdlijn omdat
         // dat bij elke golf dezelfde persoon is.
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['risico-soa', 'muteren'])
             ->bij("M{$maand}/soa_golf {$g['golf']}")
-            ->doe(function () use ($regels, $tot, $nietVanToepassing) {
+            ->doe(function () use ($regels, $tot, $nietVanToepassing, $motivaties) {
                 foreach ($regels->take($tot) as $regel) {
                     if ($regel->van_toepassing !== null) {
                         continue;
@@ -73,7 +75,7 @@ final class SoaHandlers
                         ]
                         : [
                             'van_toepassing' => true,
-                            'motivatie' => $this->motivatie($regel),
+                            'motivatie' => $this->motivatie($regel, $motivaties),
                             'beleidreferentie' => $this->beleidreferentie($regel),
                             'laatst_beoordeeld_op' => now(),
                         ]);
@@ -87,7 +89,7 @@ final class SoaHandlers
         $golf = $this->golf($sim, 'implementatiegolven', (int) $g['golf']);
         $regels = $this->opVolgorde()->filter(fn (SoaRegel $r) => $r->van_toepassing === true)->values();
 
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['risico-soa', 'muteren'])
             ->bij("M{$maand}/soa_implementatiegolf {$g['golf']}")
             ->doe(function () use ($regels, $golf) {
@@ -174,25 +176,32 @@ final class SoaHandlers
     }
 
     /**
-     * De onderbouwing. Waar al beleid aan de regel hangt, verwijst de motivatie
-     * daarnaar; anders naar de reden waarom het thema FruitBV raakt. Dat is wat
-     * een SoA-motivatie hoort te doen — verwijzen naar waar het geregeld is,
-     * niet de maatregel herhalen.
+     * De onderbouwing, uit `soa.json`. Een motivatie voor precies dit
+     * maatregelnummer gaat voor: die beschrijft hoe de organisatie deze ene
+     * maatregel invult, en is daarmee specifieker dan alles wat hieronder
+     * afgeleid wordt. Daarna: waar al beleid aan de regel hangt, verwijst de
+     * motivatie daarnaar; anders naar de reden waarom het thema de organisatie
+     * raakt. Dat is wat een SoA-motivatie hoort te doen — verwijzen naar waar
+     * het geregeld is, niet de maatregel herhalen.
+     *
+     * @param  array{per_referentie?: array<string, string>, per_thema: array<string, string>}  $motivaties
      */
-    private function motivatie(SoaRegel $regel): string
+    private function motivatie(SoaRegel $regel, array $motivaties): string
     {
+        $referentie = $regel->maatregel->annex_a_referentie;
+
+        if (isset($motivaties['per_referentie'][$referentie])) {
+            return $motivaties['per_referentie'][$referentie];
+        }
+
         $document = $this->document($regel);
 
         if ($document !== null) {
             return "Van toepassing. Uitgewerkt in {$document->titel}.";
         }
 
-        return match ($regel->maatregel->thema) {
-            'organisatorisch' => 'Van toepassing: FruitBV legt deze beheersing organisatorisch vast; de uitwerking volgt in beleid en procedures.',
-            'mensgericht' => 'Van toepassing: de maatregel raakt de medewerkers en de ZZP-beheerders met toegang tot FruitCloud.',
-            'fysiek' => 'Van toepassing via het datacenter van WortelNet en het kantoor in Barendrecht; de uitvoering ligt deels bij de hostingpartij.',
-            default => 'Van toepassing op de productieomgeving van FruitCloud en de onderliggende infrastructuur.',
-        };
+        return $motivaties['per_thema'][$regel->maatregel->thema]
+            ?? throw DemoFixtureFout::bij('soa/motivaties', "geen motivatie voor thema '{$regel->maatregel->thema}'");
     }
 
     private function beleidreferentie(SoaRegel $regel): ?string

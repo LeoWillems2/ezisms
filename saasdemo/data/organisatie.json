@@ -6,6 +6,8 @@
     "sleutels": "Elke entiteit heeft een `sleutel` die alleen binnen de fixtures geldt; de motor vertaalt die naar database-id's."
   },
 
+  "normprofiel": "iso27001",
+
   "organisatie": {
     "naam": "FruitBV",
     "gegevens": "Fruit BV\nKersenstraat 45",

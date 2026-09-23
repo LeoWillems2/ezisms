@@ -11,6 +11,7 @@ use App\Models\Leverancier;
 use App\Models\OrganisatieEenheid;
 use App\Models\Risico;
 use App\Models\ScopeVerklaring;
+use App\Models\SoaRegel;
 use App\Models\Systeem;
 use App\Models\Trainingsmodule;
 use App\Support\ToetsBestanden;
@@ -41,9 +42,9 @@ class DemoVulTest extends TestCase
     {
         parent::setUp();
 
-        // Het commando weigert buiten local/demo, en in zorgmodus; beide
-        // weigeringen toetst een eigen test hieronder, de rest van dit bestand
-        // heeft een omgeving én een profiel nodig waarin de motor mág draaien.
+        // Het commando weigert buiten local/demo, en fixtures die niet bij het
+        // profiel horen; beide weigeringen toetst een eigen test hieronder. De
+        // rest van dit bestand draait de FruitBV-fixtures, dus op iso27001.
         $this->app['env'] = 'local';
         config()->set('norm.actief', 'iso27001');
 
@@ -51,6 +52,9 @@ class DemoVulTest extends TestCase
         // Ook de toetsen-disk: de demo zet er een toetsbestand op, en dat hoort
         // niet in de echte storage/ van wie de suite draait terecht te komen.
         Storage::fake(ToetsBestanden::DISK);
+        // En `local`: daar landen de inloggegevens. Zonder nep-schijf overschrijft
+        // elke vulling hier het bestand in de echte storage/ van wie de suite draait.
+        Storage::fake('local');
 
         $this->map = $this->fixturesTot(2);
     }
@@ -225,31 +229,32 @@ class DemoVulTest extends TestCase
     }
 
     /**
-     * De simulatiemotor is ISO-only (nen7510-opzet.md §4.8), en dat moet een
-     * expliciete weigering zijn en geen stilzwijgende aanname. Zonder deze
-     * controle draait de demo gewoon door op een zorginstallatie en levert ze een
-     * compleet ogend ISMS op met 101 in plaats van 93 SoA-regels, acht daarvan
-     * onbeoordeeld en overal een lege maatregelomschrijving. Gemeten: met
-     * `ISMS_NORM=nen7510` was dit de enige inhoudelijke fout in de hele suite.
+     * NEN 7510 heeft een eigen scenario (ZorgZeker), maar de FruitBV-fixtures
+     * horen daar niet op. Zonder deze controle draait de demo gewoon door en
+     * levert ze een compleet ogend ISMS op met 101 in plaats van 93 SoA-regels,
+     * acht daarvan onbeoordeeld. De fixtures zeggen zelf voor welk profiel ze
+     * zijn; dat is wat hier geweigerd wordt, en niet het profiel.
      */
     #[Group('nen7510')]
-    public function test_de_demo_weigert_op_een_zorginstallatie(): void
+    public function test_fixtures_van_een_ander_profiel_worden_geweigerd(): void
     {
         config()->set('norm.actief', 'nen7510');
+        $bestaand = Gebruiker::factory()->create();
 
         $this->artisan('isms:demo-vul', ['--fixtures' => $this->map])
-            ->expectsOutputToContain('draait niet op een NEN 7510-installatie')
+            ->expectsOutputToContain("geschreven voor het profiel 'iso27001'")
             ->assertFailed();
 
         // Niets aangeraakt: de weigering komt vóór het legen van de database.
-        $this->assertSame(0, Gebruiker::count());
+        $this->assertTrue($bestaand->exists());
+        $this->assertSame(1, Gebruiker::count());
     }
 
     /**
-     * Dezelfde weigering onder de BIO, en dit is precies het geval waarvoor de
-     * controle op `is('iso27001')` en niet op een capaciteit staat: de BIO deelt
-     * de 93 beheersmaatregelen met ISO, dus aan de controlset is dit profiel niet
-     * te herkennen. Wat het scenario zou laten liggen zijn de 118
+     * De BIO heeft geen scenario, en dit is precies het geval waarvoor de
+     * keuze op het profiel en niet op een capaciteit staat: de BIO deelt de 93
+     * beheersmaatregelen met ISO, dus aan de controlset is dit profiel niet te
+     * herkennen. Wat het scenario zou laten liggen zijn de 118
      * overheidsmaatregelen eronder — en inhoudelijk is FruitBV een fruithandel
      * en geen gemeente (00q §10).
      */
@@ -259,10 +264,75 @@ class DemoVulTest extends TestCase
         config()->set('norm.actief', 'bio2');
 
         $this->artisan('isms:demo-vul', ['--fixtures' => $this->map])
-            ->expectsOutputToContain('draait niet op een BIO2-installatie')
+            ->expectsOutputToContain('heeft geen scenario voor een BIO2-installatie')
             ->assertFailed();
 
         $this->assertSame(0, Gebruiker::count());
+    }
+
+    /**
+     * De CISO is geen vaste naam meer in de motor maar een aanwijzing in de
+     * fixtures. Een aanwijzing die niet klopt, moet falen vóór het legen: de
+     * eerste plek waar de motor hem nodig heeft, ligt erna.
+     */
+    public function test_een_ciso_zonder_de_rol_ciso_faalt_voor_het_legen(): void
+    {
+        $bestaand = Gebruiker::factory()->create();
+        $this->pasAan($this->map, 'personen', function (array $personen) {
+            $personen['ciso'] = 'aurelius';
+
+            return $personen;
+        });
+
+        $this->artisan('isms:demo-vul', ['--fixtures' => $this->map])
+            ->expectsOutputToContain('geen CISO aangewezen')
+            ->assertFailed();
+
+        $this->assertSame(1, Gebruiker::count());
+        $this->assertTrue($bestaand->exists());
+    }
+
+    public function test_fixtures_zonder_normprofiel_worden_geweigerd(): void
+    {
+        $this->pasAan($this->map, 'organisatie', function (array $organisatie) {
+            unset($organisatie['normprofiel']);
+
+            return $organisatie;
+        });
+
+        $this->artisan('isms:demo-vul', ['--fixtures' => $this->map])
+            ->expectsOutputToContain('geen normprofiel opgegeven')
+            ->assertFailed();
+    }
+
+    /**
+     * Een motivatie voor één maatregelnummer gaat voor op de algemene tekst
+     * per thema — ook als er al beleid aan de regel hangt. Zo krijgen de
+     * zorgspecifieke maatregelen in het ZorgZeker-scenario hun eigen
+     * onderbouwing.
+     */
+    public function test_een_motivatie_per_maatregel_gaat_voor_op_die_per_thema(): void
+    {
+        $map = $this->fixturesTot(3);
+        $this->pasAan($map, 'soa', function (array $soa) {
+            $soa['motivaties']['per_referentie']['5.1'] = 'Eigen motivatie voor 5.1.';
+
+            return $soa;
+        });
+
+        try {
+            $this->artisan('isms:demo-vul', ['--fixtures' => $map, '--stil' => true])->assertSuccessful();
+
+            $regels = SoaRegel::with('maatregel')->where('van_toepassing', true)->get()
+                ->keyBy(fn (SoaRegel $r) => $r->maatregel->annex_a_referentie);
+
+            $this->assertSame('Eigen motivatie voor 5.1.', $regels['5.1']->motivatie);
+            // De rest houdt de afgeleide tekst: een verwijzing naar het beleid,
+            // of de tekst per thema uit dezelfde fixture.
+            $this->assertNotSame('Eigen motivatie voor 5.1.', $regels['5.2']->motivatie);
+        } finally {
+            $this->ruimOp($map);
+        }
     }
 
     public function test_een_tweede_vulling_wordt_geweigerd_zolang_de_vergrendeling_staat(): void
@@ -379,6 +449,15 @@ class DemoVulTest extends TestCase
         file_put_contents($doel.'/tijdlijn.json', json_encode($tijdlijn, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         return $doel;
+    }
+
+    /** Past één fixture-bestand in een gekopieerde map aan. */
+    private function pasAan(string $map, string $bestand, callable $pas): void
+    {
+        $pad = "{$map}/{$bestand}.json";
+        $inhoud = $pas(json_decode(file_get_contents($pad), true));
+
+        file_put_contents($pad, json_encode($inhoud, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
     }
 
     private function ruimOp(string $map): void

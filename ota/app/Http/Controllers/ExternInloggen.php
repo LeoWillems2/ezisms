@@ -276,6 +276,10 @@ class ExternInloggen extends Controller
         // De challenge alleen als TOTP actief is — net als na het wachtwoord.
         // Wat §7 regelt is de plicht, niet de vraag.
         if ($gebruiker->tweefactorActief()) {
+            // Nieuwe sessie-id vóór de challenge, om dezelfde reden als na het
+            // wachtwoord (login.blade.php): de sessie draagt nu "de IdP heeft
+            // ja gezegd".
+            Session::regenerate();
             Session::put('tweefactor.gebruiker_id', $gebruiker->id);
             Session::put('tweefactor.remember', false);
 

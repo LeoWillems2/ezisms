@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Beleidsversie;
+use App\Models\Beveiligingssignaal;
 use App\Models\Risico;
 use App\Models\Systeemhartslag;
 use App\Models\Taak;
@@ -35,6 +36,7 @@ final class Dashboardsignalen
         bool $magRisicoLezen,
         bool $magSoaLezen,
         ?Leesbevestigingsstand $leesbevestiging = null,
+        bool $isCiso = false,
     ): self {
         $bouwer = new self;
 
@@ -60,6 +62,13 @@ final class Dashboardsignalen
         // hoort iedereen te zien die het dashboard mag openen
         // (implementatie/00m §11).
         $bouwer->onderbrokenBewaking();
+
+        // Alleen de CISO: die is de ontvanger als er geen syslog is, en dus
+        // degene die het kanaal moet laten inrichten (implementatie/01l §8).
+        if ($isCiso) {
+            $bouwer->onbezorgdeBeveiligingssignalen();
+        }
+
         $bouwer->nietTeBerekenen();
 
         return $bouwer;
@@ -308,6 +317,35 @@ final class Dashboardsignalen
             'Geplande controles zijn niet uitgevoerd; wat daardoor niet meer te meten is, staat als '
                 .($open === 1 ? 'taak' : $open.' taken').' in de takenlijst.',
             (string) $open,
+        );
+    }
+
+    /**
+     * Signalen van de bewaking op inloggegevens die nergens heen konden: geen
+     * syslogserver, en geen mailkanaal of geen actieve CISO (01l §6.1). Ze
+     * staan dan alleen in de audit trail, en daar kijkt niemand vanzelf.
+     * Wie wél een kanaal heeft, kijkt in dat kanaal; daar hoort dit paneel niet
+     * nog een tweede melding van te maken.
+     */
+    private function onbezorgdeBeveiligingssignalen(): void
+    {
+        $aantal = Beveiligingssignaal::query()
+            ->where('kanaal', 'geen')
+            ->where('tijdstip', '>=', now()->subDays(7))
+            ->count();
+
+        if ($aantal === 0) {
+            return;
+        }
+
+        $this->voegToe(
+            'kritiek',
+            $aantal === 1
+                ? 'Een beveiligingssignaal kon nergens heen'
+                : $aantal.' beveiligingssignalen konden nergens heen',
+            'De bewaking op misbruik van inloggegevens zag iets, maar er is geen syslogserver '
+                .'en geen mailkanaal ingesteld. Het signaal staat alleen in de audit trail.',
+            (string) $aantal,
         );
     }
 

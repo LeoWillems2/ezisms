@@ -56,7 +56,7 @@ final class AuditHandlers
 
     private function bereidVoor(array $g, int $maand, Simulatie $sim, bool $voorbereiding): void
     {
-        Handelt::als($sim->gebruiker($g['door'] ?? 'ciske'))
+        Handelt::als($sim->gebruikerOfCiso($g['door'] ?? null))
             ->mits('heeft-niveau', ['auditmanagement', 'muteren'])
             ->bij("M{$maand}/{$g['sleutel']}")
             ->doe(function () use ($g, $maand, $sim, $voorbereiding) {
@@ -101,7 +101,7 @@ final class AuditHandlers
      */
     private function auditronde(array $g, int $maand, Simulatie $sim): void
     {
-        $ciso = $sim->gebruiker('ciske');
+        $ciso = $sim->ciso();
         $auditor = isset($g['auditor']) ? $sim->gebruiker($g['auditor']) : null;
 
         $ronde = Handelt::als($ciso)
@@ -240,7 +240,7 @@ final class AuditHandlers
     {
         $ronde->load(['auditobjecten', 'bevindingen']);
 
-        $gesprokenMet = $sim->gebruiker($g['gesproken_met'] ?? 'ciske');
+        $gesprokenMet = $sim->gebruikerOfCiso($g['gesproken_met'] ?? null);
         $gaten = $sim->fixtures()->bestand('audits')['niet_toegekomen'][$g['sleutel']] ?? [];
 
         $onbekend = array_diff(
@@ -300,7 +300,7 @@ final class AuditHandlers
      */
     private function legBevindingenVast(array $g, Simulatie $sim, Auditronde $ronde): void
     {
-        $gesprokenMet = $sim->gebruiker($g['gesproken_met'] ?? 'ciske');
+        $gesprokenMet = $sim->gebruikerOfCiso($g['gesproken_met'] ?? null);
 
         $definities = $sim->fixtures()->bestand('audits')['bevindingen'][$g['sleutel']]
             ?? throw DemoFixtureFout::bij('audits/bevindingen', "geen bevindingen voor '{$g['sleutel']}'");

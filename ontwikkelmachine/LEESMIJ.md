@@ -201,7 +201,11 @@ sudo systemctl reload nginx
 Pas daarna `user`/`group` in het poolbestand en `root`/`server_name` in de vhost
 aan als de nieuwe machine een ander account of een andere hostnaam gebruikt. De
 vhost laat alleen HAProxy en localhost toe; staat de TLS-terminatie op een ander
-adres, dan moet het `allow`-regeltje mee.
+adres, dan moet het `allow`-regeltje mee, en ook `ISMS_VERTROUWDE_PROXIES` in
+`ota/.env`. Dat is de lijst proxy's waarvan de applicatie `X-Forwarded-For`
+gelooft (implementatie/01l §2). Hierzonder komt het adres van HAProxy in de
+inlogregistratie en niet dat van de bezoeker. HAProxy moet de kop dan ook
+meesturen (`option forwardfor`).
 
 Zet een back-up van de vhost **nooit** in `sites-enabled/`: nginx laadt die map
 met een glob, en een kopie levert een tweede serverblok voor dezelfde

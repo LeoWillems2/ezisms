@@ -5,7 +5,8 @@ namespace App\Support\Demo;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Leest `saasdemo/data/*.json` en houdt bij welk model bij welke fixture-sleutel
+ * Leest de fixtures van een scenario (`saasdemo/data/*.json` voor FruitBV,
+ * `zorgdemo/data/*.json` voor ZorgZeker) en houdt bij welk model bij welke fixture-sleutel
  * hoort.
  *
  * De sleutels gelden alleen binnen de fixtures; database-id's zijn pas bekend
@@ -70,6 +71,38 @@ final class Fixtures
                 throw DemoFixtureFout::bij($this->map, "{$vereist}.json ontbreekt");
             }
         }
+
+        // Beide hier en niet pas bij het eerste gebruik: dat eerste gebruik ligt
+        // ná het legen van de database.
+        if (! is_string($this->data['organisatie']['normprofiel'] ?? null)) {
+            throw DemoFixtureFout::bij('organisatie', 'geen normprofiel opgegeven');
+        }
+
+        $ciso = $this->data['personen']['ciso'] ?? null;
+        $gebruiker = collect($this->lijst('personen', 'gebruikers'))->firstWhere('sleutel', $ciso);
+
+        if ($gebruiker === null || ($gebruiker['rol'] ?? null) !== 'CISO') {
+            throw DemoFixtureFout::bij('personen', 'geen CISO aangewezen, of de aangewezen gebruiker heeft niet de rol CISO');
+        }
+    }
+
+    /**
+     * Het normprofiel waarvoor deze fixtures geschreven zijn. Een scenario
+     * beoordeelt de maatregelen van één norm; op een ander profiel toont het een
+     * compleet ogend ISMS met de verkeerde norm.
+     */
+    public function normprofiel(): string
+    {
+        return $this->data['organisatie']['normprofiel'];
+    }
+
+    /**
+     * De sleutel van de CISO: de gebruiker die het meeste werk doet en die
+     * handelt waar de tijdlijn geen `door` noemt.
+     */
+    public function cisoSleutel(): string
+    {
+        return $this->data['personen']['ciso'];
     }
 
     /** @return array<string, mixed> */

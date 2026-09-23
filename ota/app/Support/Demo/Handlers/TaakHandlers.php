@@ -66,7 +66,7 @@ final class TaakHandlers
             return;
         }
 
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['taken-workflow-engine', 'muteren'])
             ->bij("M{$maand}/taken afwerken")
             ->doe(function () use ($taken) {
@@ -143,7 +143,7 @@ final class TaakHandlers
             return;
         }
 
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['taken-workflow-engine', 'muteren'])
             ->bij("M{$maand}/taak_afronden/{$naam}")
             ->doe(function () use ($g, $taak) {

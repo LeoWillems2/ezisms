@@ -46,7 +46,7 @@ final class OrganisatieHandlers
         $this->borgOrganisatieprofiel($sim);
         $this->borgEenheden($sim);
 
-        $eersteRonde = ! $sim->fixtures()->kent('ciske');
+        $eersteRonde = ! $sim->fixtures()->kent($sim->fixtures()->cisoSleutel());
 
         foreach ($g['sleutels'] as $sleutel) {
             $def = $sim->fixtures()->definitie('personen', 'gebruikers', $sleutel);
@@ -90,7 +90,7 @@ final class OrganisatieHandlers
                 continue;
             }
 
-            Handelt::als($sim->gebruiker('ciske'))
+            Handelt::als($sim->ciso())
                 ->mits('heeft-niveau', ['identity-access', 'muteren'])
                 ->bij("M{$maand}/gebruikers_aanmaken/{$sleutel}")
                 ->doe($maak);
@@ -240,7 +240,7 @@ final class OrganisatieHandlers
             ? $sim->fixtures()->model($g['koppeling'])
             : null;
 
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['bewijsrepository-audit-trail', 'muteren'])
             ->bij("M{$maand}/bewijsstuk")
             ->doe(fn () => $sim->bewijs()->maak($g['titel'], $g['toelichting'] ?? null, $koppeling));

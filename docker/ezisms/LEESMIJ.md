@@ -59,6 +59,32 @@ De applicatie luistert op **poort 81** van de host (`HTTP_POORT`). Zet uw HAProx
 daarnaartoe; die termineert de TLS en stuurt `X-Forwarded-Proto: https` mee.
 Zonder die header bouwt de applicatie `http://`-links op.
 
+Zet ook `ISMS_VERTROUWDE_PROXIES` op het adres van die HAProxy, en laat HAProxy
+`X-Forwarded-For` meesturen (`option forwardfor`). Alleen van de adressen in die
+lijst gelooft de applicatie dat doorgestuurde adres. Zonder deze instelling
+staat bij elke inlogpoging het adres van de HAProxy en niet dat van de bezoeker,
+en kan de bewaking van inloggegevens (§7) een login vanaf een onbekend netwerk
+niet herkennen. Welk adres de container als afzender ziet, hangt af van waar de
+HAProxy staat:
+
+- **op een andere machine**: het eigen adres van die machine; Docker laat het
+  bronadres van verkeer van buiten ongemoeid;
+- **op dezelfde host**, verbonden met `localhost:81`: dan loopt het verkeer via
+  de proxy van Docker zelf, en ziet de container de gateway van het
+  bridge-netwerk (meestal `172.x.0.1`). Zet dan het subnet in de lijst,
+  bijvoorbeeld `172.16.0.0/12`.
+
+Controleer na de eerste login van buiten welk adres er is vastgelegd:
+
+```bash
+docker compose exec app runuser -u www-data -- env HOME=/tmp php /opt/ezisms/artisan tinker \
+    --execute 'echo App\Models\Loginpoging::latest("id")->value("ip_adres");'
+```
+
+Staat daar het adres van de HAProxy of van de gateway, dan klopt de lijst niet,
+of stuurt HAProxy de kop niet mee. Zet nooit `*`: dan kan elke bezoeker zelf
+kiezen welk adres er wordt vastgelegd, en de applicatie negeert die waarde.
+
 `APP_URL` bepaalt daarnaast of het sessiecookie `secure` krijgt: bij `https://`
 gaat het cookie alleen over een beveiligde verbinding, bij `http://` niet — en
 dan zegt de container dat bij elke start in het log. Zet `APP_URL` dus op de URL
@@ -142,10 +168,12 @@ zetten in `.env` en `docker compose up -d` doen (zie §7 — géén `restart`).
 
 ### Het ISMS gevuld bekijken
 
-`ISMS_DEMO=ja` vult een **verse** installatie met het FruitBV-demoscenario: 23
-maanden aan gebeurtenissen, gebruikers, risico's en bewijsstukken. Die ene
-schakelaar zet meteen `APP_ENV=demo` en `ISMS_2FA_AFDWINGEN=false`, en eist
-`ISMS_NORM=iso27001` — het scenario hoort bij de 93 maatregelen van ISO 27001.
+`ISMS_DEMO=ja` vult een **verse** installatie met het demoscenario van het
+normprofiel: FruitBV (een groothandel in groenten en fruit) bij `iso27001`,
+ZorgZeker (een jeugdzorgaanbieder) bij `nen7510`. Beide met 23 maanden aan
+gebeurtenissen, gebruikers, risico's en bewijsstukken. Die ene schakelaar zet
+meteen `APP_ENV=demo` en `ISMS_2FA_AFDWINGEN=false`. Voor `bio2` is er geen
+scenario.
 De inloggegevens komen in `demo-inloggegevens.txt` naast het bestand hierboven.
 
 Het vullen **wist de hele database** en gebeurt daarom alleen bij een lege. Op
@@ -349,6 +377,25 @@ database.
 Bij het opnieuw aanmaken van een container (`up -d` na een wijziging, of een
 upgrade) begint dit log leeg. `data/` blijft ongemoeid.
 
+**De bewaking van inloggegevens.** De applicatie herkent vijf situaties die op
+misbruik van inloggegevens kunnen wijzen, zoals een piek in mislukte pogingen of
+een login vanaf een netwerk dat nieuw is voor het account (kennisbank:
+*Gebruikers, rollen en rechten*). Elk signaal komt in de audit trail. Is
+`ISMS_SYSLOG_HOST` ingesteld, dan gaat het daarnaast naar die syslogserver
+(facility `authpriv`, standaard UDP-poort 514), en anders per mail naar de
+actieve CISO's. Controleer het kanaal na het instellen:
+
+```bash
+docker compose exec app runuser -u www-data -- \
+    php /opt/ezisms/artisan isms:beveiligingssignaal-proef
+```
+
+Het verkeer naar de syslogserver gaat de container uit via het bridge-netwerk.
+Docker laat dat standaard toe, maar een firewall op de host of in het netwerk
+misschien niet. Bij UDP meldt het commando geen fout als het pakket onderweg
+verdwijnt: kijk op de syslogserver of het proefbericht is aangekomen. Met
+`ISMS_DEMO=ja` staat de bewaking uit.
+
 **Bekende beperking.** `php artisan isms:capaciteiten aan` schrijft zijn
 instelling naar het `.env` *in de container*, en die is vluchtig: bij de
 eerstvolgende `up --build` is de wijziging weg. Zet de vijfde attribuutdimensie
@@ -362,7 +409,7 @@ de container draait, maar is `unhealthy`. Het log zegt waarom.
 
 **Een instelling die niet kan.** Een `APP_KEY` die afwijkt van de bewaarde, een
 `ISMS_NORM` die de normstempel tegenspreekt, `ISMS_DEMO=ja` op een
-`nen7510`-installatie, of een compose-bestand van de andere databasevariant
+`bio2`-installatie, of een compose-bestand van de andere databasevariant
 (§1): de container meldt het en blijft wachten in plaats van eindeloos te
 herstarten. Bij deze fouten wordt niet drie keer opnieuw geprobeerd — opnieuw
 proberen kan er niets aan veranderen. Herstel `.env` en doe

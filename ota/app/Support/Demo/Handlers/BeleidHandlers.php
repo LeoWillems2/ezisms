@@ -43,7 +43,7 @@ final class BeleidHandlers
     {
         $def = $sim->fixtures()->definitie('beleid', 'documenten', $g['document']);
         $versieDef = $this->versiedefinitie($def, (int) $g['versie']);
-        $ciso = $sim->gebruiker('ciske');
+        $ciso = $sim->ciso();
 
         $versie = Handelt::als($ciso)
             ->mits('heeft-niveau', ['beleid-maatregelbeheer', 'muteren'])
@@ -132,9 +132,10 @@ final class BeleidHandlers
                 continue;
             }
 
-            // De Auditor-rol heeft geen `uitvoeren` op dit blok en kan dus geen
-            // eigen bevestiging vastleggen. Overslaan in plaats van namens hem
-            // tekenen — zie de notitie bij TrainingHandlers.
+            // Wie geen `uitvoeren` op dit blok heeft (de Administrator; tot
+            // 23-09-2026 ook de Auditor), kan geen eigen bevestiging vastleggen.
+            // Overslaan in plaats van namens hem tekenen — zie de notitie bij
+            // TrainingHandlers.
             if (! Gate::forUser($gebruiker)->allows('heeft-niveau', ['beleid-maatregelbeheer', 'uitvoeren'])) {
                 continue;
             }

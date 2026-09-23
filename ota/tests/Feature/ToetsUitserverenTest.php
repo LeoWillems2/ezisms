@@ -116,6 +116,26 @@ class ToetsUitserverenTest extends TestCase
         $this->assertStringContainsString("style-src 'self' 'unsafe-inline'", $csp);
     }
 
+    /**
+     * De token staat in de URL van de toets. Een formulier dat naar buiten
+     * post, een `<base>` die de relatieve callback verlegt of een Referer-kop
+     * zou hem meenemen; die drie wegen zijn dicht. Zichzelf laten navigeren kan
+     * een toets nog wel, want dat kan CSP niet tegenhouden (Toetsrespons).
+     */
+    public function test_de_token_lekt_niet_via_formulier_base_of_referer(): void
+    {
+        $this->actingAs(Gebruiker::factory()->metRol('CISO')->create());
+
+        foreach ([route('toetsen.tonen', $this->opdracht()->token), route('toetsen.voorbeeld', self::FIXTURE)] as $url) {
+            $respons = $this->get($url);
+            $csp = $respons->headers->get('Content-Security-Policy');
+
+            $this->assertStringContainsString("form-action 'self'", $csp);
+            $this->assertStringContainsString("base-uri 'none'", $csp);
+            $this->assertSame('no-referrer', $respons->headers->get('Referrer-Policy'));
+        }
+    }
+
     public function test_een_onbekende_token_geeft_404(): void
     {
         $this->get(route('toetsen.tonen', 'bestaat-niet'))->assertNotFound();

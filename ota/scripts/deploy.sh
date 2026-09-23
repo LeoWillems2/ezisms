@@ -87,7 +87,8 @@ Gebruik: deploy.sh <tarbal> <doelpad> [opties]
   --geen-migraties      migraties overslaan (doe ze dan met de hand, ná een dump)
   --seeddata=release    seeddata uit de tarbal laten winnen van de installatie
   --herstel-cron        crontabregel herschrijven zoals dit script hem bedoelt
-  --demo-vul            vul het ISMS met het FruitBV-demoscenario. WIST EERST DE
+  --demo-vul            vul het ISMS met het demoscenario van het profiel (FruitBV
+                        voor iso27001, ZorgZeker voor nen7510). WIST EERST DE
                         HELE DATABASE. Alleen als APP_ENV local of demo is; zonder
                         deze optie wordt er op zo'n installatie om bevestiging
                         gevraagd, en zonder terminal overgeslagen.
@@ -1323,7 +1324,8 @@ migreer_en_seed() {
 # ── Demo-inhoud ──────────────────────────────────────────────────────────────
 #
 # GEDEELD MET deploy-docker.sh :: demo_vullen() — daar zonder de vraag
-# `isms:demo-vul` bouwt het FruitBV-scenario op: 23 maanden aan gebeurtenissen,
+# `isms:demo-vul` bouwt het demoscenario van het profiel op (FruitBV voor
+# iso27001, ZorgZeker voor nen7510): 23 maanden aan gebeurtenissen,
 # gebruikers, risico's, bewijsstukken. Het commando begint met het legen van
 # alle tabellen en zet daarna de referentiedata terug met db:seed — dus ook de
 # maatregelen, inclusief eventuele eigen normtekst uit shared/seeddata. Draai
@@ -1351,26 +1353,24 @@ isms:demo-vul draait alleen in 'local' of 'demo', want het wist de hele database
 
     stap "Demo-inhoud"
 
+    # Het scenario hoort bij het profiel: FruitBV bij ISO 27001, ZorgZeker bij
+    # NEN 7510. Een tarbal van vóór de zorgdemo kent alleen `demofixtures`, en
+    # dat is het ISO-scenario — vandaar de terugval, en alleen daar.
     local map fixtures
-    map=$(manifest_waarde demofixtures)
+    map=$(manifest_waarde "demofixtures_$NORM_ENV")
+    if [[ -z $map && $NORM_ENV == iso27001 ]]; then
+        map=$(manifest_waarde demofixtures)
+    fi
     fixtures="$RELEASE/$map"
+
+    # Geen scenario voor dit profiel (bio2), of een tarbal zonder fixtures: dat
+    # hoeft niet de hele uitrol te kosten, tenzij er uitdrukkelijk om gevraagd is.
     if [[ -z $map || ! -d $fixtures ]]; then
         if [[ $DEMO == ja ]]; then
-            fout "--demo-vul kan niet: deze tarbal bevat geen demofixtures.
-Bouw hem opnieuw met een builddistr.sh die saasdemo/data meelevert."
+            fout "--demo-vul kan niet: deze tarbal bevat geen demoscenario voor $NORM_ENV.
+Scenario's zijn er voor iso27001 (FruitBV) en nen7510 (ZorgZeker)."
         fi
-        waarschuw "deze tarbal bevat geen demofixtures; vullen wordt overgeslagen"
-        return 0
-    fi
-
-    # Het scenario is geschreven voor de 93 maatregelen van ISO 27001. Onder
-    # NEN 7510 weigert het commando; dat hoeft niet de hele uitrol te kosten.
-    if [[ $NORM_ENV != iso27001 ]]; then
-        if [[ $DEMO == ja ]]; then
-            fout "--demo-vul kan niet op een $NORM_ENV-installatie.
-Het FruitBV-scenario hoort bij de controlset van ISO 27001."
-        fi
-        waarschuw "profiel is $NORM_ENV; het demoscenario is ISO-only en wordt overgeslagen"
+        waarschuw "geen demoscenario voor $NORM_ENV in deze tarbal; vullen wordt overgeslagen"
         return 0
     fi
 
@@ -1385,7 +1385,7 @@ Het FruitBV-scenario hoort bij de controlset van ISO 27001."
         cat <<EOF
 
    APP_ENV is '$APP_ENV'. Dit script kan het ISMS vullen met het
-   FruitBV-demoscenario.
+   demoscenario voor $NORM_ENV ($map).
 
    $(printf '\033[1m')Daarbij wordt eerst de hele database geleegd.$(printf '\033[0m') Alles wat er nu in
    staat — gebruikers, beoordelingen, bewijs — is daarna weg. De

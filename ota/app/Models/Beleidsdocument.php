@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\Auditeerbaar;
 use App\Support\Recordscope;
+use App\Support\Rolregels;
 use Database\Factories\BeleidsdocumentFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -113,6 +114,14 @@ class Beleidsdocument extends Model
      * bevestigingsgraad en de waarschuwingen rekenen hiermee, zodat ze niet uit
      * elkaar kunnen lopen.
      *
+     * **De Administrator valt erbuiten** (23-09-2026). Hij heeft geen toegang
+     * tot de inhoud van het ISMS (01e) en kan dus niet lezen wat hij zou moeten
+     * bevestigen. Telde hij mee, dan stond hij bij elk document voor zijn
+     * afdeling als open, kreeg hij leestaken die hij niet kon afronden, en
+     * haalde hij de bevestigingsgraad omlaag zonder dat iemand er iets aan kon
+     * doen. Hem het recht geven om te bevestigen zou hem wél inzage geven, en
+     * dat is wat de rol niet is.
+     *
      * @return list<int>
      */
     public function doelgroepGebruikerIds(): array
@@ -125,6 +134,7 @@ class Beleidsdocument extends Model
 
         return Gebruiker::where('status', 'actief')
             ->whereIn('organisatie_eenheid_id', $afdelingIds)
+            ->whereDoesntHave('rollen', fn ($q) => $q->where('naam', Rolregels::EXCLUSIEF))
             ->pluck('id')
             ->all();
     }
@@ -139,6 +149,12 @@ class Beleidsdocument extends Model
         if ($gebruiker === null
             || $gebruiker->status !== 'actief'
             || $gebruiker->organisatie_eenheid_id === null) {
+            return false;
+        }
+
+        // Dezelfde uitzondering als in doelgroepGebruikerIds(), zodat de twee
+        // niet uit elkaar kunnen lopen.
+        if ($gebruiker->rollen()->where('naam', Rolregels::EXCLUSIEF)->exists()) {
             return false;
         }
 

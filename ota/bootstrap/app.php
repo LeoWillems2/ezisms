@@ -5,6 +5,7 @@ use App\Http\Middleware\VereistTweefactor;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -28,6 +29,15 @@ return Application::configure(basePath: dirname(__DIR__))
         // CSP-sandbox en dus in een opake origin; het terugmelden is daarmee een
         // cross-origin verzoek geworden en heeft die koppen nodig. Alles wat
         // daarvoor nodig was, staat in config/cors.php.
+
+        // Van een vertrouwde proxy alleen X-Forwarded-For geloven; wélke proxy's
+        // dat zijn, staat in config/trustedproxy.php (implementatie/01l §2).
+        // Niet _PROTO: het HTTPS-besef komt al uit nginx (`fastcgi_param
+        // HTTPS`), en een tweede bron ervoor is een tweede plek om te
+        // vergeten. Niet _HOST: de host komt uit APP_URL, en een geloofde
+        // X-Forwarded-Host opent precies de hostheader-route die de vhost
+        // dichtzet.
+        $middleware->trustProxies(headers: Request::HEADER_X_FORWARDED_FOR);
 
         // Twee afdwingingen op de web-groep en niet op een routegroep, zodat een
         // route die later wordt toegevoegd er niet buiten valt:

@@ -6,6 +6,8 @@
     "let_op": "De twee ZZP-beheerders staan hier als gebruiker en NIET in het leveranciersregister; ze vallen in scope wegens productietoegang."
   },
 
+  "ciso": "ciske",
+
   "gebruikers": [
     {
       "sleutel": "ciske",

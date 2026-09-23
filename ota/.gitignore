@@ -5,6 +5,9 @@
 /public/storage
 /storage/*.key
 /storage/pail
+# Aparte storage voor een demo-installatie op de werkboom (LARAVEL_STORAGE_PATH):
+# bevat demobewijs en gegenereerde wachtwoorden.
+/storage-zorgdemo/
 /vendor
 .DS_Store
 .env

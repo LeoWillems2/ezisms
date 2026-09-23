@@ -117,8 +117,17 @@ services:
       OIDC_SUBJECT_CLAIM:     ${OIDC_SUBJECT_CLAIM:-sub}
       OIDC_DOMEIN:            ${OIDC_DOMEIN:-}
       ISMS_IDP_DWINGT_MFA:    ${ISMS_IDP_DWINGT_MFA:-false}
+      # Van welke proxy X-Forwarded-For geloofd wordt (implementatie/01l §2).
+      # Leeg ⇒ niemand; het adres van de proxy komt dan in de inlogregistratie.
+      ISMS_VERTROUWDE_PROXIES: ${ISMS_VERTROUWDE_PROXIES:-}
+      # Bewaking van inloggegevens (implementatie/01l §10). Host leeg ⇒ mail.
+      ISMS_SYSLOG_HOST:       ${ISMS_SYSLOG_HOST:-}
+      ISMS_SYSLOG_POORT:      ${ISMS_SYSLOG_POORT:-514}
+      ISMS_SYSLOG_PROTOCOL:   ${ISMS_SYSLOG_PROTOCOL:-udp}
+      ISMS_BEWAKING_AAN:      ${ISMS_BEWAKING_AAN:-true}
       # ISMS_DEMO=ja zet APP_ENV=demo én ISMS_2FA_AFDWINGEN=false én vult het
-      # ISMS met het FruitBV-scenario. Eén schakelaar, want die instellingen
+      # ISMS met het scenario van het profiel (FruitBV voor iso27001, ZorgZeker
+      # voor nen7510). Eén schakelaar, want die instellingen
       # kloppen alleen in combinatie; de entrypoint zet ze (00n §0.2).
       ISMS_DEMO:              ${ISMS_DEMO:-nee}
       # Leeg ⇒ er wordt geen account aangemaakt en het slotscherm toont het

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Beveiligingsbewaking;
 use Database\Factories\LoginpogingFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +26,11 @@ class Loginpoging extends Model
      * zegt langs welke weg er is ingelogd, en `mfa_bij_idp` legt bij een externe
      * login vast wat `ISMS_IDP_DWINGT_MFA` op dat moment was (§7.3): een
      * wijziging in `.env` komt niet in de audit trail.
+     *
+     * `ip_adres` is sinds 19-09-2026 het adres van de bezoeker, mits de
+     * TLS-terminator in `ISMS_VERTROUWDE_PROXIES` staat. Daarvóór stond er
+     * achter HAProxy het adres van de proxy (01l §2); die rijen zijn niet
+     * herschreven, en de bewaking telt ze niet als basislijn (01l §2.3).
      */
     protected $fillable = ['gebruiker_id', 'email_ingevoerd', 'tijdstip', 'succesvol', 'methode', 'mfa_bij_idp', 'reden', 'ip_adres'];
 
@@ -36,6 +42,17 @@ class Loginpoging extends Model
             'succesvol' => 'boolean',
             'mfa_bij_idp' => 'boolean',
         ];
+    }
+
+    /**
+     * Elke poging langs de bewaking (implementatie/01l §1, beslissing 1). Op
+     * het model en niet in elke schrijver: zo vangt één hook het wachtwoordpad,
+     * de 2FA-challenge en de externe callback, en straks ook de passkeys uit
+     * 01k. De bewaking gooit nooit; een fout daarin laat het inloggen door.
+     */
+    protected static function booted(): void
+    {
+        static::created(fn (self $poging) => Beveiligingsbewaking::naPoging($poging));
     }
 
     public function gebruiker(): BelongsTo

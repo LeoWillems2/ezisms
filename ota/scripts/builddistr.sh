@@ -13,8 +13,8 @@
 #      staat van versiebeheer: `git archive` leest uit de commit en niet uit de
 #      werkkopie, dus een lokaal ingevulde normtekst reist niet mee. Een
 #      handmatige uitsluitlijst zou je moeten onthouden bij te werken; git weet
-#      het al. Eén ding komt van buiten ota/: de demofixtures van het
-#      FruitBV-scenario, die apart geëxporteerd worden.
+#      het al. Eén ding komt van buiten ota/: de demofixtures van de
+#      demoscenario's (DEMOSCENARIOS), die apart geëxporteerd worden.
 #   2. Daarna volgt een copyrightcontrole op wat er dan nog ligt. Sinds
 #      11-08-2026 is dit de énige plek waar die regel nog afgedwongen wordt: de
 #      pre-commit hook die de commit bewaakte is verwijderd. Deze controle staat
@@ -136,18 +136,24 @@ git -C "$REPO" archive --format=tar "$REF:ota" | tar -x -C "$BOOM"
 meld "$(find "$BOOM" -type f | wc -l) bestanden uit versiebeheer"
 
 # De demofixtures staan buiten ota/ en vallen dus buiten de export hierboven.
-# Een tweede archive haalt ze op; ze belanden op dezelfde plek in de boom, zodat
-# deploy.sh ze met --fixtures= kan aanwijzen.
-if git -C "$REPO" rev-parse --verify --quiet "$REF:$DEMOFIXTURES_BRON" >/dev/null; then
-    mkdir -p "$BOOM/$DEMOFIXTURES_DOEL"
-    git -C "$REPO" archive --format=tar "$REF:$DEMOFIXTURES_BRON" \
-        | tar -x -C "$BOOM/$DEMOFIXTURES_DOEL"
-    DEMOFIXTURES=$(find "$BOOM/$DEMOFIXTURES_DOEL" -type f | wc -l)
-    meld "$DEMOFIXTURES demofixtures uit $DEMOFIXTURES_BRON"
-else
-    DEMOFIXTURES=0
-    waarschuw "$DEMOFIXTURES_BRON zit niet in $REF; deze tarbal kan geen demo vullen"
-fi
+# Een tweede archive per scenario haalt ze op; ze belanden op dezelfde plek in
+# de boom, zodat de uitrolscripts ze met --fixtures= kunnen aanwijzen.
+DEMOFIXTURES=0           # alle scenario's samen, voor de samenvatting
+DEMOMAPPEN=""            # <profiel>=<pad>, één per regel, voor het manifest
+for scenario in "${DEMOSCENARIOS[@]}"; do
+    profiel=${scenario%%:*}
+    bron=${scenario#*:}
+    if git -C "$REPO" rev-parse --verify --quiet "$REF:$bron" >/dev/null; then
+        mkdir -p "$BOOM/$bron"
+        git -C "$REPO" archive --format=tar "$REF:$bron" | tar -x -C "$BOOM/$bron"
+        aantal=$(find "$BOOM/$bron" -type f | wc -l)
+        DEMOFIXTURES=$((DEMOFIXTURES + aantal))
+        DEMOMAPPEN+="$profiel=$bron"$'\n'
+        meld "$aantal demofixtures voor $profiel uit $bron"
+    else
+        waarschuw "$bron zit niet in $REF; deze tarbal kan geen $profiel-demo vullen"
+    fi
+done
 
 # Hetzelfde voor de Docker-subboom. Die moet vóór stap 3 in de boom staan: het
 # opruimen van de versiebeheersporen hoort ook de .gitignore hierin te pakken.
@@ -315,10 +321,11 @@ NODE_VERSIE="$NODE_VERSIE" GEBOUWD="$GEBOUWD" \
 EXTENSIES="$(printf '%s\n' "${PHP_EXTENSIES[@]}")" \
 VARIANTEN="$(printf '%s\n' "${DB_VARIANTEN[@]}")" \
 SKELET="$STORAGE_SKELET" \
-DEMOMAP="$DEMOFIXTURES_DOEL" DEMOAANTAL="$DEMOFIXTURES" \
+DEMOMAPPEN="$DEMOMAPPEN" DEMOAANTAL="$DEMOFIXTURES" \
 DOCKERMAP="$DOCKER_DOEL" DOCKERAANTAL="$DOCKERBESTANDEN" \
 python3 - >"$BOOM/MANIFEST.json" <<'PY'
 import json, os, subprocess
+DEMO = dict(regel.split("=", 1) for regel in os.environ["DEMOMAPPEN"].splitlines() if regel)
 print(json.dumps({
     "manifest_versie":        int(os.environ["MANIFEST_VERSIE"]),
     "naam":                   os.environ["PAKKETNAAM"],
@@ -344,8 +351,14 @@ print(json.dumps({
     "gebouwd":                json.loads(os.environ["GEBOUWD"]),
     # Waar de demofixtures in de boom staan, en hoeveel het er zijn. Nul betekent
     # dat deze tarbal geen demo kan vullen; deploy.sh meldt dat dan zo.
-    "demofixtures":           os.environ["DEMOMAP"] if int(os.environ["DEMOAANTAL"]) else "",
+    #
+    # Per profiel een eigen platte sleutel (`demofixtures_<profiel>`), zodat de
+    # uitrolscripts hem met dezelfde manifest_waarde lezen als de rest.
+    # `demofixtures` zelf blijft het ISO-scenario: uitrolscripts van vóór de
+    # NEN 7510-demo lezen alleen die sleutel, en weigerden al elk ander profiel.
+    "demofixtures":           DEMO.get("iso27001", ""),
     "demofixtures_aantal":    int(os.environ["DEMOAANTAL"]),
+    **{f"demofixtures_{profiel}": pad for profiel, pad in DEMO.items()},
     # Waar de bouwstenen van de Docker-uitrol in de boom staan. Nul betekent dat
     # deze tarbal alleen op bare metal uitgerold kan worden.
     "docker":                 os.environ["DOCKERMAP"] if int(os.environ["DOCKERAANTAL"]) else "",

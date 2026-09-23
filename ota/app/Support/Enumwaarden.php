@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Asset;
 use App\Models\AuditLogregel;
+use App\Models\Beveiligingssignaal;
 use App\Models\Concerns\Waardenbewaking;
 use App\Models\Contractclausule;
 use App\Models\Gebruiker;
@@ -88,6 +89,8 @@ final class Enumwaarden
             'beleidsdocumenten.type' => ['beleid', 'procedure'],
             'beleidsversies.status' => ['concept', 'ter_goedkeuring', 'actief', 'vervangen'],
             'beoordelingsniveaus.as' => ['kans', 'impact'],
+            'beveiligingssignalen.kanaal' => ['syslog', 'mail', 'geen'],
+            'beveiligingssignalen.soort' => array_keys(Beveiligingssignaal::SOORTEN),
             'bevindingen.status' => ['open', 'non_conformiteit_gestart', 'gesloten'],
             'bevindingen.type' => [
                 'non_conformiteit_major', 'non_conformiteit_minor', 'observatie',

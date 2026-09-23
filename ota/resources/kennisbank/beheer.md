@@ -217,6 +217,34 @@ dagen voordat het secret verloopt.
 De instellingen zelf, en wat er per provider anders is, staan in
 [Inloggen via een identiteitsprovider](inloggen-via-een-identiteitsprovider).
 
+**`isms:beveiligingssignaal-proef`**
+Dit commando stuurt een proefsignaal langs het kanaal van de bewaking op misbruik
+van inloggegevens, en meldt welk kanaal dat is. Zonder dit commando is het
+inrichten alleen te controleren door 20 keer verkeerd in te loggen. Het proefsignaal
+komt niet in de audit trail, omdat een proef geen waarneming is.
+
+Het kanaal volgt uit de instellingen. Als `ISMS_SYSLOG_HOST` is gevuld, gaan de
+signalen naar die syslogserver, met facility `authpriv`, en gaat er geen mail. De
+poort staat in `ISMS_SYSLOG_POORT` (standaard 514) en het protocol in
+`ISMS_SYSLOG_PROTOCOL` (`udp` of `tcp`, standaard `udp`). Zonder syslogserver gaan
+de signalen per mail naar alle actieve gebruikers met de rol CISO. Zonder
+mailkanaal of zonder actieve CISO komen de signalen alleen in de audit trail en in
+het applicatielog, en eindigt het commando met een foutcode. Het dashboard van de
+CISO toont dan hoeveel signalen nergens heen konden.
+
+UDP geeft geen bevestiging. Of een signaal is aangekomen, is alleen op de
+syslogserver te zien. Bij TCP valt een geweigerde verbinding terug op mail.
+
+De bewaking vergelijkt IP-adressen. Achter een TLS-terminator zoals HAProxy is
+daarvoor `ISMS_VERTROUWDE_PROXIES` nodig: het adres van die proxy, of een subnet
+in CIDR-notatie. Alleen van die adressen gelooft het systeem de kop
+`X-Forwarded-For`. Zonder deze instelling legt het systeem bij elke inlogpoging
+het adres van de proxy vast in plaats van dat van de bezoeker. De vijf situaties
+die de bewaking herkent, staan in
+[Gebruikers, rollen en rechten](gebruikers-rollen-en-rechten#bewaking-van-inloggegevens).
+`ISMS_BEWAKING_AAN=false` zet de bewaking uit. Dat is alleen bedoeld voor een
+demo-opstelling.
+
 **`isms:controleer-hartslag`**
 Dit commando controleert of de geplande taken hierboven werkelijk hebben
 gedraaid. Als de machine een tijd uit staat, draaien de taken niet, en het
@@ -283,10 +311,12 @@ gebruik is.
 
 > **`isms:demo-vul` wist eerst de volledige database.**
 >
-> Dit commando vult het systeem met het FruitBV-demoscenario en begint met het
-> volledig leegmaken van de database. Het commando weigert te draaien buiten een
-> local- of demo-omgeving. Die grens is een vangnet en geen garantie. Het
-> commando mag nooit draaien op een omgeving met echte gegevens.
+> Dit commando vult het systeem met het demoscenario van het normprofiel: FruitBV
+> bij ISO 27001, ZorgZeker bij NEN 7510. Voor de BIO bestaat geen scenario. Het
+> commando begint met het volledig leegmaken van de database én van de
+> bewijsopslag, ook de bestanden die niet bij de database horen. Het weigert te
+> draaien buiten een local- of demo-omgeving. Die grens is een vangnet en geen
+> garantie. Het commando mag nooit draaien op een omgeving met echte gegevens.
 >
 > Opties: `--fixtures=` (andere fixturemap), `--stil` (alleen de samenvatting),
 > `--ontgrendel` (een vergrendeling opheffen die na een afgebroken vulling is

@@ -25,12 +25,9 @@ use App\Models\Verbeteractie;
 use App\Models\Wijziging;
 use App\Support\Audittrailketen;
 use App\Support\Demo\Klok;
-use App\Support\ToetsBestanden;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Tests\Feature\Concerns\VultDemoEenKeer;
 use Tests\TestCase;
 
 /**
@@ -42,75 +39,32 @@ use Tests\TestCase;
  * fout — tenzij het scenario zelf niet kan kloppen, en dan wordt het scenario
  * aangepast met een aantekening.
  *
- * De volledige tijdlijn wordt één keer gevuld en daarna toetst elke methode een
- * deel van de eindstand; opnieuw vullen per methode is de tijd niet waard. Het
+ * De volledige tijdlijn wordt één keer gevuld (`VultDemoEenKeer`) en daarna
+ * toetst elke methode een deel van de eindstand. Het
  * mechanisme zelf (autorisatie, klok, foutafhandeling) staat in `DemoVulTest`,
  * op een verkorte tijdlijn.
  */
 class DemoEindstandTest extends TestCase
 {
     use RefreshDatabase;
+    use VultDemoEenKeer;
 
-    /** Eén vulling per proces; zie de toelichting bij setUp(). */
-    private static bool $gevuld = false;
-
-    /**
-     * Vult de tijdlijn één keer en laat elke test daarop draaien
-     * (implementatie/00f §2).
-     *
-     * `RefreshDatabase` migreert één keer per proces en zet elke test in een
-     * transactie die terugrolt. Vullen in `setUp()` betekende dus vijftien keer
-     * 23 maanden simulatie: 85 seconden voor dit ene bestand. De haken die
-     * daarvoor bedoeld lijken helpen niet — `afterRefreshingDatabase()` draait
-     * alsnog per test, en `migrateDatabases()` vuurt alleen voor de eerste
-     * testklasse in het proces.
-     *
-     * Daarom: uit de transactie stappen, vullen, en er weer in. De vulling
-     * overleeft daarmee de rollback na elke test; de test zelf draait in zijn
-     * eigen transactie erbovenop.
-     *
-     * **De prijs staat in `Tests\TestCase`:** de gevulde tabellen blijven ook ná
-     * deze klasse staan. Die bewaking faalt luidruchtig als een andere klasse
-     * erna begint, in plaats van stilletjes op FruitBV-gegevens te toetsen.
-     */
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Geen databasestaat: dit hoort per test schoon te zijn.
-        Storage::fake('bewijs');
-        // Ook de toetsen-disk: de demo zet er een toetsbestand op, en dat hoort
-        // niet in de echte storage/ van wie de suite draait terecht te komen.
-        Storage::fake(ToetsBestanden::DISK);
+        $this->vulDemoEenKeer();
+    }
 
-        if (self::$gevuld) {
-            return;
-        }
-
-        $this->app['env'] = 'local';
-
-        // De simulatiemotor is ISO-only en het commando weigert in zorgmodus
-        // (nen7510-opzet.md §4.8). Expliciet zetten, zodat dit bestand ook
-        // overeind blijft bij een run met ISMS_NORM=nen7510 — die run is de
-        // controle of de applicatie profielvast is (00k §3).
+    /**
+     * Dit zijn de FruitBV-fixtures, en die weigert het commando op elk ander
+     * profiel dan iso27001. Expliciet zetten, zodat dit bestand ook overeind
+     * blijft bij een run met ISMS_NORM=nen7510 — die run is de controle of de
+     * applicatie profielvast is (00k §3).
+     */
+    protected function zetDemoProfiel(): void
+    {
         config()->set('norm.actief', 'iso27001');
-
-        // De vulling gebruikt `truncate()` en geen `migrate:fresh`; op sqlite
-        // compileert dat naar DELETE FROM en blijft het binnen één verbinding.
-        // Op MySQL zou TRUNCATE een impliciete commit geven — de suite draait op
-        // sqlite, maar dat is geen vanzelfsprekendheid.
-        DB::rollBack();
-
-        // Zonder de opgevangen uitvoer meldt een mislukte vulling alleen "exit
-        // code 1", en dan begint het zoeken pas. De motor zegt zelf precies bij
-        // welke maand en welke gebeurtenis hij is gestopt.
-        $exit = $this->withoutMockingConsoleOutput()
-            ->artisan('isms:demo-vul', ['--stil' => true]);
-
-        self::$gevuld = true;
-        DB::beginTransaction();
-
-        $this->assertSame(0, $exit, "Het vullen is mislukt:\n".Artisan::output());
     }
 
     protected function tearDown(): void
@@ -270,17 +224,13 @@ class DemoEindstandTest extends TestCase
     /**
      * "Twee leesbevestigingen staan open."
      *
-     * De twee uit `beleid.json` staan er inderdaad. Daarnaast ontbreken de
-     * bevestigingen van de interne auditor, en dat is géén fout in de motor: de
-     * Auditor-rol heeft geen `uitvoeren` op `beleid-maatregelbeheer` en kan dus
-     * geen leesbevestiging afleggen. Namens hem tekenen is geen optie — een
-     * leesbevestiging kan alleen de lezer zelf afleggen. Zolang die rechtenkeuze
-     * staat, hoort dit gat er te zijn; wordt hij herzien, dan faalt deze test en
-     * hoort hij aangepast te worden.
+     * Precies de twee uit `beleid.json`, en verder niets. Tot 23-09-2026 stonden
+     * hier ook alle bevestigingen van de interne auditor open: de Auditor-rol
+     * had geen `uitvoeren` op `beleid-maatregelbeheer`. Sinds hij dat recht wél
+     * heeft, bevestigt hij zelf — namens hem tekenen was nooit een optie.
      */
     public function test_de_openstaande_leesbevestigingen_zijn_die_uit_het_scenario(): void
     {
-        $auditor = Gebruiker::where('naam', 'Aurelius Aardappel')->firstOrFail();
         $open = [];
 
         foreach (Beleidsversie::where('status', 'actief')->with('document')->get() as $versie) {
@@ -295,21 +245,15 @@ class DemoEindstandTest extends TestCase
             }
         }
 
-        $namen = collect($open)->pluck(1);
+        $this->assertEqualsCanonicalizing([
+            ['Procedure incidentbeheer', 'Piet Peer'],
+            ['Informatiebeveiligingsbeleid', 'Kees Karot'],
+        ], $open);
 
-        $this->assertContains('Piet Peer', $namen->all());
-        $this->assertContains('Kees Karot', $namen->all());
-
-        // Alles wat verder openstaat is van de auditor, om de reden hierboven.
-        $overig = collect($open)
-            ->reject(fn (array $regel) => in_array($regel[1], ['Piet Peer', 'Kees Karot'], true))
-            ->pluck(1)
-            ->unique();
-
-        $this->assertSame(
-            [$auditor->naam],
-            $overig->values()->all(),
-            'Onverwachte openstaande leesbevestigingen: '.$overig->implode(', '),
+        $auditor = Gebruiker::where('naam', 'Aurelius Aardappel')->firstOrFail();
+        $this->assertTrue(
+            Leesbevestiging::where('gebruiker_id', $auditor->id)->exists(),
+            'De interne auditor hoort zijn eigen leesbevestigingen af te leggen.',
         );
 
         $this->assertGreaterThan(0, Leesbevestiging::count(), 'Er hoort wél bevestigd te zijn.');

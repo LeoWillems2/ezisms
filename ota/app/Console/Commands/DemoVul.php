@@ -17,7 +17,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Vult het ISMS met het demo-scenario van FruitBV (`saasdemo/scenario.md`).
+ * Vult het ISMS met het demoscenario dat bij het normprofiel hoort: FruitBV
+ * voor ISO 27001 (`saasdemo/scenario.md`), ZorgZeker voor NEN 7510
+ * (`zorgdemo/scenario.md`).
  *
  * **Begint met het volledig legen van de database.** De enige beveiliging is een
  * omgevingsblokkade op `local` en `demo`: geen bevestigingsvraag en geen
@@ -25,8 +27,9 @@ use Illuminate\Support\Facades\Storage;
  * Dat is een bewuste keuze uit `saasdemo/scenario.md` §11.6 — draai dit nooit op
  * een omgeving met echte data.
  *
- * **De simulatiemotor is ISO-only** (nen7510-opzet.md §4.8). Op elk ander
- * normprofiel weigert dit commando; zie de toelichting bij die controle.
+ * **Eén scenario per profiel.** Op een profiel zonder scenario (de BIO) weigert
+ * dit commando, en fixtures van het ene profiel vullen het andere niet; zie de
+ * toelichting bij die controles.
  *
  * Het commando is dun: alles wat een beslissing neemt staat in
  * `App\Support\Demo`, waar het te testen is.
@@ -34,7 +37,7 @@ use Illuminate\Support\Facades\Storage;
 class DemoVul extends Command
 {
     protected $signature = 'isms:demo-vul
-        {--fixtures= : Map met de fixtures (standaard ../saasdemo/data)}
+        {--fixtures= : Map met de fixtures (standaard het scenario van het normprofiel)}
         {--stil : Toon alleen de samenvatting}
         {--ontgrendel : Hef een blijven hangen vergrendeling van een afgebroken vulling op}';
 
@@ -46,7 +49,19 @@ class DemoVul extends Command
 
     private const BESTAND = 'demo-inloggegevens.txt';
 
-    protected $description = 'Vult het ISMS met het FruitBV-demoscenario (WIST EERST DE HELE DATABASE; alleen local/demo)';
+    /**
+     * Het scenario per normprofiel, met de standaardmap van de fixtures
+     * (relatief aan de applicatie). Een profiel dat hier niet staat, heeft geen
+     * demo.
+     *
+     * @var array<string, array{naam: string, map: string}>
+     */
+    private const SCENARIO = [
+        'iso27001' => ['naam' => 'FruitBV', 'map' => '../saasdemo/data'],
+        'nen7510' => ['naam' => 'ZorgZeker', 'map' => '../zorgdemo/data'],
+    ];
+
+    protected $description = 'Vult het ISMS met het demoscenario van het normprofiel (WIST EERST DE HELE DATABASE; alleen local/demo)';
 
     public function handle(): int
     {
@@ -56,46 +71,51 @@ class DemoVul extends Command
             return self::FAILURE;
         }
 
-        // Expliciet weigeren en niet stilzwijgend aannemen (nen7510-opzet.md
-        // §4.8). Het scenario is geschreven voor de controlset van ISO 27001 en
-        // vult alleen die; wat een ander profiel daarnaast kent blijft leeg. Een
-        // demonstratie die de verkeerde norm laat zien is erger dan geen
-        // demonstratie.
+        // Welk scenario bij welk profiel hoort. Een profiel zonder scenario
+        // weigert expliciet en neemt niet stilzwijgend een ander aan: een
+        // scenario beoordeelt de maatregelen van één norm, en wat een ander
+        // profiel daarnaast kent blijft dan leeg. Een demonstratie die de
+        // verkeerde norm laat zien is erger dan geen demonstratie.
         //
-        // **`is()` en niet `heeft()`, anders dan 00k §1 voorschreef.** Dat
-        // voorschrift ging ervan uit dat een derde profiel een eigen controlset
-        // zou meebrengen; de BIO doet dat juist niet — dezelfde 93
-        // beheersmaatregelen, met 118 overheidsmaatregelen eronder. Een controle
-        // op capaciteiten had die dus doorgelaten. Voor een commando dat begint
-        // met het wissen van de hele database is de veilige kant: alles weigeren
-        // wat niet het profiel is waarvoor het scenario geschreven is. Dan valt
-        // een vierde profiel er vanzelf ook buiten. Gelijk aan wat de
-        // Docker-entrypoint al deed bij `ISMS_DEMO=ja` (00n §0.2).
-        if (! Normprofiel::is('iso27001')) {
-            // Alleen de geldende verplichtingen tellen mee: een vervallen of
-            // verplaatst nummer blijft staan als referentie en is niets wat de
-            // demo had moeten beoordelen.
-            $telling = Maatregel::count().' beheersmaatregelen';
+        // **Op het profiel en niet op een capaciteit** (00k §1 schreef het
+        // laatste voor). De BIO heeft dezelfde 93 beheersmaatregelen als
+        // ISO 27001, met 118 overheidsmaatregelen eronder; een controle op
+        // capaciteiten had het FruitBV-scenario daar doorgelaten. Voor een
+        // commando dat begint met het wissen van de hele database is de veilige
+        // kant: alleen de profielen met een eigen scenario.
+        $scenario = self::SCENARIO[Normprofiel::actief()] ?? null;
 
-            if (Normprofiel::heeft('overheidsmaatregelen')) {
-                $telling .= ' plus '.Overheidsmaatregel::where('status', 'geldend')->count()
-                    .' overheidsmaatregelen';
-            }
-
-            $this->error('isms:demo-vul draait niet op een '.Normprofiel::label('naam_kort').'-installatie.');
-            $this->line('Het FruitBV-scenario is geschreven voor de 93 maatregelen van ISO 27001 en vult');
-            $this->line('alleen die. Hier telt de norm '.$telling.';');
-            $this->line('wat het scenario niet aanraakt blijft onbeoordeeld — de demo zou een compleet');
-            $this->line('ogend ISMS met de verkeerde norm tonen.');
-            $this->line('Zet ISMS_NORM=iso27001 op een aparte demo-installatie.');
+        if ($scenario === null) {
+            $this->weigerProfiel();
 
             return self::FAILURE;
         }
 
-        $map = $this->option('fixtures') ?: base_path('../saasdemo/data');
+        $map = $this->option('fixtures') ?: base_path($scenario['map']);
 
         if (! is_dir($map)) {
             $this->error("Fixtures-map niet gevonden: {$map}");
+
+            return self::FAILURE;
+        }
+
+        // Ingelezen vóór het legen: fixtures die niet kloppen, of die voor een
+        // ander profiel geschreven zijn, laten de database zoals hij was.
+        try {
+            $fixtures = Fixtures::uit($map);
+        } catch (DemoFixtureFout $e) {
+            $this->error('Fixtures ongeldig: '.$e->getMessage());
+
+            return self::FAILURE;
+        }
+
+        // `--fixtures` kan naar een scenario van een ander profiel wijzen; de
+        // standaardmap hierboven kan dat niet, maar de fixtures zeggen zelf
+        // waarvoor ze geschreven zijn en dat is de controle die telt.
+        if (! Normprofiel::is($fixtures->normprofiel())) {
+            $this->error("Deze fixtures zijn geschreven voor het profiel '{$fixtures->normprofiel()}'; "
+                ."deze installatie draait op '".Normprofiel::actief()."'.");
+            $this->line('Een scenario beoordeelt de maatregelen van één norm. Kies de fixtures die bij dit profiel horen.');
 
             return self::FAILURE;
         }
@@ -133,7 +153,7 @@ class DemoVul extends Command
 
         try {
             $simulatie = new Simulatie(
-                Fixtures::uit($map),
+                $fixtures,
                 new Klok,
                 new Bewijsgenerator,
                 function (string $regel, bool $nieuweRegel = true) {
@@ -165,6 +185,27 @@ class DemoVul extends Command
         $this->samenvatting($simulatie, microtime(true) - $start);
 
         return self::SUCCESS;
+    }
+
+    /** Geen scenario voor dit profiel: zeg waarom, en wat er wél kan. */
+    private function weigerProfiel(): void
+    {
+        // Alleen de geldende verplichtingen tellen mee: een vervallen of
+        // verplaatst nummer blijft staan als referentie en is niets wat de demo
+        // had moeten beoordelen.
+        $telling = Maatregel::count().' beheersmaatregelen';
+
+        if (Normprofiel::heeft('overheidsmaatregelen')) {
+            $telling .= ' plus '.Overheidsmaatregel::where('status', 'geldend')->count()
+                .' overheidsmaatregelen';
+        }
+
+        $this->error('isms:demo-vul heeft geen scenario voor een '.Normprofiel::label('naam_kort').'-installatie.');
+        $this->line('Een scenario is geschreven voor de maatregelen van één norm en vult alleen die.');
+        $this->line('Hier telt de norm '.$telling.'; wat geen scenario aanraakt blijft');
+        $this->line('onbeoordeeld — de demo zou een compleet ogend ISMS met de verkeerde norm tonen.');
+        $this->line('Scenario\'s zijn er voor: '.collect(self::SCENARIO)
+            ->map(fn (array $s, string $profiel) => "{$s['naam']} (ISMS_NORM={$profiel})")->implode(', ').'.');
     }
 
     /**

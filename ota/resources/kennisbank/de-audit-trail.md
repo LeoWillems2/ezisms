@@ -30,6 +30,12 @@ Als de gebruiker **Systeem (geplande taak)** is, dan is de wijziging uitgevoerd
 door een dagelijkse taak en niet door een mens. Voorbeelden zijn het vervallen van
 accounts en het archiveren van bewijsstukken.
 
+Als de gebruiker **Systeem (beveiligingsbewaking)** is, dan heeft de bewaking op
+misbruik van inloggegevens een signaal vastgelegd. Zo'n regel ontstaat midden in
+het verzoek van iemand die inlogt, maar staat bewust niet op diens naam. Bij een
+overgenomen account zou de trail het signaal anders toeschrijven aan de aanvaller
+over wie het signaal gaat.
+
 ## De vijf acties
 
 | Actie | Wanneer |
@@ -49,12 +55,13 @@ niet.
 
 ## Alle entiteiten die een regel opleveren
 
-Er zijn 46 entiteiten die naar de trail schrijven. Per blok:
+Er zijn 47 entiteiten die naar de trail schrijven. Per blok:
 
 | Blok | Entiteit | Waarover de regels gaan |
 | --- | --- | --- |
 | Identity, Access & Rollen | `gebruiker` | Account aangemaakt, uitgenodigd, gedeactiveerd, geblokkeerd, A.6-velden (NDA, screening, offboarding) |
 | Identity, Access & Rollen | `rol_toewijzing` | Wie wanneer welke rol kreeg, en van wie |
+| Identity, Access & Rollen | `beveiligingssignaal` | Een waarneming van mogelijk misbruik van inloggegevens: een piek in mislukte pogingen, een systeemblokkade, een herhaald foute tweede factor, een login vanaf een nieuw netwerk of een geslaagde login na mislukkingen. Eén regel per signaal, bij het aanmaken |
 | Identity, Access & Rollen | `externe_identiteit` | Aan welk account bij de identiteitsprovider een account gekoppeld is, en wanneer dat veranderde |
 | Context & Scope | `scope_verklaring` | Scopetekst, versie, indienen en activeren |
 | Context & Scope | `uitsluiting` | Uitgesloten maatregelen met motivatie |

@@ -74,7 +74,7 @@ final class AfwijkingHandlers
         // ook zes dagen later in de audit trail te staan.
         $sim->klok()->naDagen((int) ($g['opgelost_na_dagen'] ?? 0), $maand);
 
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['incident-afwijkingenbeheer', 'muteren'])
             ->bij("M{$maand}/incident_oplossen/{$g['sleutel']}")
             ->doe(function () use ($g, $incident, $sim) {
@@ -98,6 +98,18 @@ final class AfwijkingHandlers
 
                 if ($g['extern_meldingsplichtig'] ?? false) {
                     Meldplicht::stelVast($incident->fresh(), $incident->fresh()->meldgrondslagen());
+
+                    // Optioneel: de melding is gedaan, zoveel uur na kennisname.
+                    // Zonder deze sleutel blijft de verplichting openstaan — dat
+                    // is de stand van het FruitBV-incident, en die blijft zo.
+                    if (isset($g['gemeld_na_uren'])) {
+                        foreach ($incident->meldingen()->get() as $melding) {
+                            $melding->update([
+                                'gemeld_op' => $incident->kennisname_op->copy()->addHours((int) $g['gemeld_na_uren']),
+                                'toelichting' => $g['melding_toelichting'] ?? null,
+                            ]);
+                        }
+                    }
                 }
 
                 // Geen afwijking? Dan hoort er een besluit te liggen dát er geen
@@ -108,7 +120,7 @@ final class AfwijkingHandlers
                         'geen_afwijking_reden' => $g['geen_afwijking_reden'] ?? null,
                         'status' => 'gesloten',
                         'gesloten_op' => now(),
-                        'gesloten_door_id' => $sim->gebruiker('ciske')->id,
+                        'gesloten_door_id' => $sim->ciso()->id,
                     ]);
                 }
             });
@@ -116,7 +128,7 @@ final class AfwijkingHandlers
 
     private function afwijking(array $g, int $maand, Simulatie $sim): void
     {
-        $afwijking = Handelt::als($sim->gebruiker('ciske'))
+        $afwijking = Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['incident-afwijkingenbeheer', 'muteren'])
             ->bij("M{$maand}/afwijking/{$g['sleutel']}")
             ->doe(function () use ($g, $maand, $sim) {
@@ -175,7 +187,7 @@ final class AfwijkingHandlers
     {
         $afwijking = $sim->fixtures()->model($g['afwijking']);
 
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['incident-afwijkingenbeheer', 'muteren'])
             ->bij("M{$maand}/corrigerende_maatregel_voltooien/{$g['afwijking']}")
             ->doe(function () use ($g, $afwijking) {
@@ -195,7 +207,7 @@ final class AfwijkingHandlers
     private function effectiviteitstoets(array $g, int $maand, Simulatie $sim): void
     {
         $afwijking = $sim->fixtures()->model($g['afwijking']);
-        $ciso = $sim->gebruiker('ciske');
+        $ciso = $sim->ciso();
 
         Handelt::als($ciso)
             ->mits('heeft-niveau', ['incident-afwijkingenbeheer', 'muteren'])

@@ -194,6 +194,7 @@ class Dashboard extends Component
             // Dezelfde lijn als de twee vlaggen hierboven: de check staat in het
             // component, niet nog eens in de signaalbouwer.
             leesbevestiging: $stand,
+            isCiso: (bool) auth()->user()?->heeftRol('CISO'),
         )->alle();
     }
 

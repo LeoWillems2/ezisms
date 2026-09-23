@@ -75,10 +75,14 @@ class RolPermissieSeeder extends Seeder
             // Management krijgt naast `goedkeuren` ook `uitvoeren`: een
             // directeur bevestigt zijn eigen leesbevestigingen, en /beleid
             // staat op dat niveau omdat bevestigen een schrijfhandeling is.
+            // De Auditor krijgt `uitvoeren` om dezelfde reden (23-09-2026): hij
+            // valt onder het beleid en hoort zijn eigen leesbevestiging af te
+            // leggen. Namens hem tekenen kan niet, en zonder dit recht stond hij
+            // bij elk document voor zijn afdeling als open.
             'beleid-maatregelbeheer' => [
                 'CISO' => ['muteren'],
                 'Medewerker' => ['uitvoeren'],
-                'Auditor' => ['lezen', 'exporteren'],
+                'Auditor' => ['lezen', 'uitvoeren', 'exporteren'],
                 'Management' => ['uitvoeren', 'goedkeuren'],
             ],
             // Zelfde patroon als bewijs en taken: de Medewerker meldt (een

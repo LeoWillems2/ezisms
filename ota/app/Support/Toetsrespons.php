@@ -62,9 +62,22 @@ final class Toetsrespons
      * anders te liggen, dan is de uitweg de host expliciet noemen — let dan op dat
      * config('app.url') en de werkelijke host uiteen kunnen lopen, want de TLS
      * termineert op een HAProxy ervóór.
+     *
+     * `form-action 'self'` omdat de sandbox formulieren toestaat
+     * (`allow-forms`), en `default-src` geldt niet voor waar een formulier heen
+     * post: zonder deze regel stuurt een toets zijn formulier, met de token in de
+     * URL, naar elke willekeurige host. `base-uri 'none'` zodat een `<base>` de
+     * relatieve callback-URL niet naar een andere host kan verleggen. De
+     * bestaande toetsen gebruiken geen van beide.
+     *
+     * Wat CSP níét kan dichtzetten: een toets die zichzelf naar een andere host
+     * laat navigeren (`location = …`). `navigate-to` is uit de specificatie
+     * gehaald. Een toetsbestand moet dus even betrouwbaar zijn als wie het
+     * plaatst.
      */
     public const BRONNEN = "default-src 'self'; img-src 'self' data:; font-src 'self' data:; "
-        ."style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'";
+        ."style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'; "
+        ."form-action 'self'; base-uri 'none'";
 
     public static function voor(string $html): Response
     {
@@ -76,6 +89,9 @@ final class Toetsrespons
             // Een toets hoort nergens in een cache te blijven hangen: de URL
             // draagt de token van één deelnemer.
             'Cache-Control' => 'private, no-store',
+            // Anders reist de URL, en dus de token, als Referer mee met elk
+            // verzoek dat de toets doet, en met een navigatie naar buiten.
+            'Referrer-Policy' => 'no-referrer',
         ]);
     }
 }

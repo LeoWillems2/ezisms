@@ -77,7 +77,7 @@ final class WijzigingHandlers
 
     private function neemInBehandeling(Wijziging $wijziging, array $def, int $maand, Simulatie $sim): void
     {
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['wijzigingsbeheer', 'muteren'])
             ->bij("M{$maand}/wijziging_in_behandeling/{$def['sleutel']}")
             ->doe(function () use ($wijziging, $def, $sim) {
@@ -127,7 +127,7 @@ final class WijzigingHandlers
             $uitkomst = $def['goedkeuringen'][(string) $stap->volgorde] ?? null;
             $doorCiso = in_array($stap->staptype, ['goedkeuring', 'evaluatie'], true);
 
-            Handelt::als($sim->gebruiker($doorCiso ? 'ciske' : $def['aangemeld_door']))
+            Handelt::als($doorCiso ? $sim->ciso() : $sim->gebruiker($def['aangemeld_door']))
                 ->mits('heeft-niveau', ['wijzigingsbeheer', 'uitvoeren'])
                 ->bij("M{$maand}/wijziging_stap/{$def['sleutel']}/{$stap->volgorde}")
                 ->doe(function () use ($wijziging, $stap, $uitkomst) {
@@ -154,7 +154,7 @@ final class WijzigingHandlers
             return;
         }
 
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['wijzigingsbeheer', 'muteren'])
             ->bij("M{$maand}/wijziging_sluiten/{$def['sleutel']}")
             ->doe(fn () => Wijzigingsdossier::sluit(

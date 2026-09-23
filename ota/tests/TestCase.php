@@ -7,25 +7,20 @@ use App\Models\Gebruiker;
 use App\Models\RisicocriteriaVersie;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
-use Tests\Feature\DemoEindstandTest;
+use Tests\Feature\Concerns\VultDemoEenKeer;
 
 abstract class TestCase extends BaseTestCase
 {
     /**
-     * De klasse die bewust buiten haar transactie om vult (implementatie/00f §2)
-     * en de tabellen dus gevuld achterlaat.
-     */
-    private const VULT_BUITEN_DE_TRANSACTIE = DemoEindstandTest::class;
-
-    /**
      * Bewaakt dat een testklasse met een lege database begint.
      *
-     * `DemoEindstandTest` vult één keer buiten de transactie om — dat scheelt 79
-     * seconden, maar de gevulde tabellen overleven die klasse. Draait er daarna
-     * nog een klasse in hetzelfde proces, dan toetst die stilzwijgend op
-     * FruitBV-gegevens. Vandaag gaat dat goed omdat `demo` de laatste suite in
-     * `phpunit.xml` is; deze controle zorgt dat het opvalt zodra dat verandert,
-     * in plaats van dat een test om onbegrijpelijke redenen omvalt.
+     * De eindstandtests van de demo (`VultDemoEenKeer`) vullen één keer buiten
+     * de transactie om — dat scheelt per klasse ruim een minuut, maar de gevulde
+     * tabellen overleven die klasse. Draait er daarna nog een gewone klasse in
+     * hetzelfde proces, dan toetst die stilzwijgend op demogegevens. Vandaag gaat
+     * dat goed omdat `demo` de laatste suite in `phpunit.xml` is; deze controle
+     * zorgt dat het opvalt zodra dat verandert, in plaats van dat een test om
+     * onbegrijpelijke redenen omvalt.
      */
     protected function setUp(): void
     {
@@ -49,16 +44,17 @@ abstract class TestCase extends BaseTestCase
         // de vreemdste plaatsen om.
         RisicocriteriaVersie::vergeet();
 
-        if (static::class === self::VULT_BUITEN_DE_TRANSACTIE
-            || ! in_array(RefreshDatabase::class, class_uses_recursive(static::class), true)) {
+        $traits = class_uses_recursive(static::class);
+
+        if (in_array(VultDemoEenKeer::class, $traits, true)
+            || ! in_array(RefreshDatabase::class, $traits, true)) {
             return;
         }
 
         $this->assertSame(0, Gebruiker::count(), sprintf(
-            '%s begint met een gevulde database. Waarschijnlijk draait %s in ditzelfde proces vóór deze '
-            .'klasse; die suite hoort als laatste in phpunit.xml te staan.',
+            '%s begint met een gevulde database. Waarschijnlijk draait een eindstandtest van de demo '
+            .'(VultDemoEenKeer) in ditzelfde proces vóór deze klasse; die suite hoort als laatste in phpunit.xml te staan.',
             class_basename(static::class),
-            class_basename(self::VULT_BUITEN_DE_TRANSACTIE),
         ));
     }
 

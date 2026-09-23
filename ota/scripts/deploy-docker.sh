@@ -868,7 +868,8 @@ EOF
 
 # ── GEDEELD MET deploy.sh :: demo_vullen(), zonder de interactieve vraag ─────
 #
-# `isms:demo-vul` bouwt het FruitBV-scenario op: 23 maanden aan gebeurtenissen,
+# `isms:demo-vul` bouwt het demoscenario van het profiel op (FruitBV voor
+# iso27001, ZorgZeker voor nen7510): 23 maanden aan gebeurtenissen,
 # gebruikers, risico's, bewijsstukken. Het commando begint met het legen van
 # alle tabellen en zet daarna de referentiedata terug met db:seed — dus ook de
 # maatregelen, inclusief eventuele eigen normtekst uit seeddata/. Draai het
@@ -891,20 +892,20 @@ demo_vullen() {
 
     stap "Demo-inhoud"
 
-    # Het scenario is geschreven voor de 93 maatregelen van ISO 27001. Onder
-    # NEN 7510 weigert het commando. De entrypoint kapt dit al vóór de migratie
-    # af (00n §9.4); dit is de tweede grendel voor wie het script met de hand
-    # start.
-    [[ $NORM_ENV == iso27001 ]] \
-        || fataal "ISMS_DEMO=ja kan niet op een $NORM_ENV-installatie.
-Het FruitBV-scenario hoort bij de controlset van ISO 27001."
-
+    # Het scenario hoort bij het profiel: FruitBV bij ISO 27001, ZorgZeker bij
+    # NEN 7510. Een pakket van vóór de zorgdemo kent alleen `demofixtures`, en
+    # dat is het ISO-scenario — vandaar de terugval, en alleen daar. Een profiel
+    # zonder scenario (bio2) kapt de entrypoint al vóór de migratie af (00n
+    # §9.4); dit is de tweede grendel voor wie het script met de hand start.
     local map fixtures
-    map=$(manifest_waarde demofixtures)
+    map=$(manifest_waarde "demofixtures_$NORM_ENV")
+    if [[ -z $map && $NORM_ENV == iso27001 ]]; then
+        map=$(manifest_waarde demofixtures)
+    fi
     fixtures="$APP/$map"
     [[ -n $map && -d $fixtures ]] \
-        || fataal "ISMS_DEMO=ja kan niet: dit pakket bevat geen demofixtures.
-Bouw de tarbal opnieuw met een builddistr.sh die saasdemo/data meelevert."
+        || fataal "ISMS_DEMO=ja kan niet: dit pakket bevat geen demoscenario voor $NORM_ENV.
+Scenario's zijn er voor iso27001 (FruitBV) en nen7510 (ZorgZeker)."
 
     artisan isms:demo-vul --fixtures="$fixtures"
     DEMO_GEVULD=ja

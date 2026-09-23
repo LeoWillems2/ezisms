@@ -92,16 +92,23 @@ ZORGLEEG="DO NOT TOUCH"
 BIOTEKST="Dit ISMS levert bij deze overheidsmaatregel geen tekst mee."
 
 # ── Demofixtures ─────────────────────────────────────────────────────────────
-# Het FruitBV-scenario waarmee `isms:demo-vul` een gevuld ISMS opbouwt. Deze
-# bestanden staan búiten ota/ en komen dus niet mee met de export hierboven; ze
-# worden apart geëxporteerd naar dezelfde plek in de boom.
+# De scenario's waarmee `isms:demo-vul` een gevuld ISMS opbouwt, één per
+# normprofiel: FruitBV voor ISO 27001, ZorgZeker voor NEN 7510. Deze bestanden
+# staan búiten ota/ en komen dus niet mee met de export hierboven; ze worden
+# apart geëxporteerd naar dezelfde plek in de boom.
 #
 # Ze gaan in elke tarbal mee, ook in een die naar een klant gaat. Het is eigen
-# materiaal over een verzonnen bedrijf, het weegt niets, en de alternatieve
-# opzet — een bouwvlag — levert een tarbal op waarvan je achteraf niet meer ziet
-# of de demo erin zit. deploy.sh gebruikt ze alleen als APP_ENV local of demo is.
-DEMOFIXTURES_BRON="saasdemo/data"
-DEMOFIXTURES_DOEL="saasdemo/data"
+# materiaal over verzonnen bedrijven, het weegt niets, en de alternatieve opzet
+# — een bouwvlag — levert een tarbal op waarvan je achteraf niet meer ziet of de
+# demo erin zit. De uitrolscripts gebruiken ze alleen als APP_ENV local of demo
+# is, en kiezen het scenario bij het profiel.
+#
+# <profiel>:<pad in de repo>. Het pad in de boom is hetzelfde. Een profiel dat
+# hier niet staat (bio2) heeft geen demo.
+DEMOSCENARIOS=(
+    "iso27001:saasdemo/data"
+    "nen7510:zorgdemo/data"
+)
 
 # ── Docker-subboom ───────────────────────────────────────────────────────────
 # De bouwstenen van de Docker-uitrol: Dockerfile, compose.yml, entrypoint,

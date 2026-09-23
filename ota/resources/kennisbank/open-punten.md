@@ -209,6 +209,20 @@ overschrijft, kan een bezoeker de header zelf meesturen, en beschouwt de
 applicatie een onversleutelde HTTP-verbinding als beveiligd. Het plan om hiervan
 een keuze te maken ligt klaar (zie hieronder).
 
+**De bewaking van inloggegevens signaleert en reageert niet.** Het systeem
+herkent vijf situaties die op misbruik van inloggegevens kunnen wijzen (zie
+[Gebruikers, rollen en rechten](gebruikers-rollen-en-rechten#bewaking-van-inloggegevens)),
+maar blokkeert daarop niets zelf. Een automatische blokkade op IP-adres zou een
+aanvaller een middel geven om legitieme gebruikers buiten te sluiten. De opvolging
+ligt bij de CISO, en is alleen aantoonbaar als die in de SIEM of in een incident
+wordt vastgelegd. Daarnaast gelden drie beperkingen. Een "ongebruikelijke plek" is
+een netwerk dat nieuw is voor het account en geen ander land, omdat geolocatie
+een externe database met licentie vraagt. Over UDP is niet te zien of een signaal
+de syslogserver heeft bereikt. De registratie van inlogpogingen kent geen
+bewaartermijn, terwijl de bewaking zelf maar 90 dagen terugkijkt. Pogingen die het
+loginscherm weigert, omdat er al vijf waren met hetzelfde e-mailadres vanaf
+hetzelfde IP-adres, worden niet vastgelegd en tellen dus niet mee.
+
 ## Ideeën die klaarliggen
 
 Deze ideeën zijn bedacht en soms uitgewerkt, maar niet gebouwd. Ze staan hier
@@ -259,6 +273,7 @@ met de vraag of er nog iets mee moet gebeuren.
 | Toetsbestanden zijn publiek bereikbaar | Dit is bewust zo en blijft zo. De token zorgt voor de beveiliging, niet de onvindbaarheid van het bestand. Sinds 11 augustus 2026 staan de bestanden niet meer in de webmap, maar worden ze door de applicatie geserveerd in een afgeschermde omgeving. Dat verandert niets aan wie erbij kan, maar wel aan wat een toets kan. |
 | Tweefactor bij de uitnodiging | Een nieuwe gebruiker koppelt de authenticator-app direct bij het instellen van het wachtwoord (3 augustus 2026). De respijtperiode geldt alleen voor accounts die al bestonden. |
 | Keten-hashing van de audit trail | Gebouwd op 3 augustus 2026. Wat nog ontbreekt, staat hierboven bij *Wie bewaart de kophash?* |
+| Ontvangers van beveiligingssignalen | Besloten op 19 september 2026. Zonder syslogserver gaan de signalen per mail naar alle actieve CISO's. Er is geen apart adres voor een SOC, omdat een SOC aan syslog hoort te hangen. Met een syslogserver gaat er geen mail, ook niet bij het zwaarste signaal. De gebruiker over wie een signaal gaat, krijgt geen bericht, omdat een melding die bij elk nieuw thuisadres komt niet meer wordt gelezen. Pogingen die het loginscherm weigert, worden niet vastgelegd: de registratie zou juist tijdens een aanval het hardst groeien, en een aanval op een bestaand account of met wisselende adressen wordt al herkend. |
 | Routes voor alle soorten wijzigingen | Geleverd op 12 augustus 2026. Elk van de vijf soorten (leveranciersrelease, configuratie, infrastructuur, ingebruikname, afvoer) heeft een sjabloon. Daardoor is geen enkele soort meer alleen via de spoedroute te kiezen. |
 
 ## Wat hier niet op hoort

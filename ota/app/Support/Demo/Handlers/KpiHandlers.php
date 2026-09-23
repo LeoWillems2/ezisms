@@ -53,7 +53,7 @@ final class KpiHandlers
 
         $this->normenVastgesteld = true;
 
-        Handelt::als($sim->gebruiker('ciske'))
+        Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['management-review-verbetercyclus', 'muteren'])
             ->bij("M{$maand}/kpi-normen vaststellen")
             ->doe(function () use ($normen) {
@@ -86,7 +86,7 @@ final class KpiHandlers
                 continue;
             }
 
-            Handelt::als($sim->gebruiker('ciske'))
+            Handelt::als($sim->ciso())
                 ->mits('heeft-niveau', ['management-review-verbetercyclus', 'muteren'])
                 ->bij("M{$maand}/handmatig meetpunt {$def['sleutel']}")
                 ->doe(fn () => $this->legVast($def, $meting));

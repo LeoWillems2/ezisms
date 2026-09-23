@@ -5,7 +5,7 @@
 # Kort en dom. De volgorde is wat telt:
 #
 #   0. blokkade      staat er een BLOKKADE, dan starten we niets (00n §9.7)
-#   0b. demoprofiel  ISMS_DEMO=ja zet APP_ENV en 2FA in één keer goed (00n §0.2)
+#   0b. demoprofiel  ISMS_DEMO=ja zet APP_ENV, 2FA en de inlogbewaking in één keer goed (00n §0.2)
 #   1. mappen        het skelet op de bind mount aanleggen
 #   2. eigendom      chown, idempotent, ongeacht welke uid de host gebruikt
 #   3. wachten op db PDO-lus (depends_on is niet genoeg)
@@ -128,7 +128,7 @@ fi
 #  0b. Het demoprofiel
 # ═════════════════════════════════════════════════════════════════════════════
 # `isms:demo-vul` stelt drie eisen tegelijk — APP_ENV is local of demo, het
-# profiel is iso27001, en het commando wist eerst de hele database — en in een
+# profiel heeft een scenario, en het commando wist eerst de hele database — en in een
 # demo wil je bovendien geen 2FA-koppeling voor elk wegwerpaccount. Vier
 # instellingen die alleen in combinatie kloppen, dus één schakelaar die ze alle
 # vier zet (00n §0.2). Eén knop die niet half om kan staan.
@@ -137,21 +137,26 @@ fi
 # 5, anders bakt config:cache 'production' in en weigert het commando alsnog.
 #
 # De weigering op een verkeerd profiel zit hier ook, en dus vóór de migratie:
-# ISMS_DEMO=ja met een ander profiel dan iso27001 stopt met een leesbare melding
-# in plaats van straks halverwege een gevulde database (00n §9.4).
+# ISMS_DEMO=ja met een profiel zonder scenario stopt met een leesbare melding
+# in plaats van straks halverwege een gevulde database (00n §9.4). Scenario's
+# zijn er voor iso27001 (FruitBV) en nen7510 (ZorgZeker); GEDEELD MET
+# DEMOSCENARIOS in ota/scripts/distr-gemeenschappelijk.sh.
 
 if [[ ${ISMS_DEMO:-nee} == ja ]]; then
-    if [[ ${ISMS_NORM:-} != iso27001 ]]; then
+    if [[ ${ISMS_NORM:-} != iso27001 && ${ISMS_NORM:-} != nen7510 ]]; then
         blokkeer_en_wacht "             ISMS_DEMO=ja gaat niet samen met ISMS_NORM=${ISMS_NORM:-<leeg>}.
-             Het FruitBV-demoscenario is geschreven voor de controlset van
-             ISO 27001; onder een ander normprofiel toont het de verkeerde.
+             Er is een demoscenario voor iso27001 (FruitBV) en voor nen7510
+             (ZorgZeker); voor dit normprofiel niet.
 
-             Kies er één: ISMS_DEMO=nee, of ISMS_NORM=iso27001.
+             Kies: ISMS_DEMO=nee, of ISMS_NORM=iso27001 of nen7510.
              Daarna:  docker compose up -d"
     fi
     export APP_ENV=demo
     export ISMS_2FA_AFDWINGEN=false
-    waarschuw "ISMS_DEMO=ja — APP_ENV=demo en 2FA uit. Geen opstelling voor echte gegevens."
+    # Iedereen logt er met dezelfde wegwerpaccounts van overal in; de bewaking
+    # zou alleen ruis naar de mailbox van de demo-CISO sturen (01l §10).
+    export ISMS_BEWAKING_AAN=false
+    waarschuw "ISMS_DEMO=ja — APP_ENV=demo, 2FA en de inlogbewaking uit. Geen opstelling voor echte gegevens."
 fi
 
 # ═════════════════════════════════════════════════════════════════════════════
