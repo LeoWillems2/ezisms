@@ -25,7 +25,14 @@ class RolPermissieSeeder extends Seeder
     public function run(): void
     {
         $matrix = [
-            'identity-access' => ['CISO' => ['muteren'], 'Medewerker' => ['lezen'], 'Auditor' => ['lezen']],
+            // Geen rij voor de Medewerker. De spec (deelproducten/01 §4) gaf
+            // hem `lezen` voor "eigen profiel", maar dat profiel staat onder
+            // /settings en vraagt geen blokrecht. Het enige wat de rij
+            // ontsloot, was het volledige gebruikersoverzicht: rollen, status
+            // en laatste login van iedereen (Chrometoets 24-09-2026, B9).
+            // Bestaande installaties: migratie 000073 haalt de rij weg — dit
+            // seeder voegt alleen toe.
+            'identity-access' => ['CISO' => ['muteren'], 'Auditor' => ['lezen']],
             'context-scope' => [
                 'CISO' => ['muteren'],
                 'Medewerker' => ['lezen'],

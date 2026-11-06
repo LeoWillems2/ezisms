@@ -15,7 +15,7 @@
 
     {{-- 1. Kop met de geldende versie prominent. --}}
     <div class="blueprint p-5">
-        <div class="flex items-start justify-between gap-4">
+        <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <flux:heading size="xl">{{ $beleidsdocument->titel }}</flux:heading>
                 <flux:subheading>
@@ -102,6 +102,84 @@
             </div>
         @endif
     </div>
+
+    {{-- 1b. Herziening zonder nieuwe versie (A.5.1). Een auditor vraagt
+         niet of het document veranderd is, maar of het beoordeeld is: wie,
+         wanneer, met welke conclusie. --}}
+    @if ($actieveVersie)
+        {{-- Vaste wire:keys op alles wat na "Vastleggen" verschijnt of
+             verdwijnt: zonder die sleutels bleef na het opslaan het formulier
+             mét de oude foutmelding staan naast de knop, en ontbrak de
+             historietabel tot een herlaadbeurt. --}}
+        <div class="blueprint p-5" wire:key="herziening-blok">
+            <div class="mb-2 flex items-center justify-between gap-4">
+                <flux:heading size="lg">Herziening</flux:heading>
+                @if ($this->magHerzien() && ! $toontHerzieningFormulier)
+                    <flux:button size="sm" icon="check" wire:click="nieuweHerziening">Herziening vastleggen</flux:button>
+                @endif
+            </div>
+
+            <flux:text wire:key="herziening-termijn-{{ $actieveVersie->volgende_herziening_gepland?->toDateString() ?? 'geen' }}">
+                @if ($actieveVersie->volgende_herziening_gepland)
+                    Volgende herziening van v{{ $actieveVersie->versienummer }}:
+                    <strong>{{ $actieveVersie->volgende_herziening_gepland->format('d-m-Y') }}</strong>
+                    @if ($actieveVersie->herzieningVerstreken())
+                        <flux:badge size="sm" color="red" class="ms-1">verstreken</flux:badge>
+                    @endif
+                @else
+                    Voor v{{ $actieveVersie->versienummer }} is geen herziening gepland.
+                @endif
+            </flux:text>
+
+            @if ($this->magHerzien())
+                <flux:text class="mt-1 text-sm">
+                    Beoordeeld en nog passend? Leg dat hier vast met de reden; de herzieningstaak sluit
+                    en de termijn schuift door. Moet het beleid inhoudelijk veranderen, maak dan een
+                    nieuwe versie: de taak vervalt zodra die gepubliceerd is.
+                </flux:text>
+            @endif
+
+            @if ($toontHerzieningFormulier)
+                <div class="mt-4 rounded-lg bg-zinc-50 p-4" wire:key="herziening-formulier">
+                    <div class="grid gap-4 md:grid-cols-2">
+                        <flux:textarea wire:model="herzieningToelichting" label="Conclusie en reden"
+                            class="md:col-span-2"
+                            description="Waarom kan het beleid ongewijzigd blijven? Bijvoorbeeld: welke ontwikkelingen, incidenten of auditbevindingen u heeft meegewogen." />
+                        <flux:input wire:model="herzieningVolgende" type="date" label="Volgende herziening" />
+                    </div>
+
+                    <div class="mt-4 flex gap-2">
+                        <flux:button variant="primary" wire:click="legHerzieningVast"
+                            wire:confirm="De herziening vastleggen? Dit komt in de audit trail en kan niet ongedaan worden gemaakt.">
+                            Vastleggen
+                        </flux:button>
+                        <flux:button variant="ghost" wire:click="sluitHerzieningFormulier">Annuleren</flux:button>
+                    </div>
+                </div>
+            @endif
+
+            @if ($herzieningen->isNotEmpty())
+                <flux:table class="mt-4" wire:key="herziening-historie-{{ $herzieningen->count() }}">
+                    <flux:table.columns>
+                        <flux:table.column>Beoordeeld</flux:table.column>
+                        <flux:table.column>Door</flux:table.column>
+                        <flux:table.column>Conclusie</flux:table.column>
+                        <flux:table.column>Volgende</flux:table.column>
+                    </flux:table.columns>
+                    <flux:table.rows>
+                        @foreach ($herzieningen as $herziening)
+                            <flux:table.row wire:key="herziening-{{ $herziening->id }}">
+                                <flux:table.cell>{{ $herziening->beoordeeld_op->lokaal()->format('d-m-Y') }}</flux:table.cell>
+                                <flux:table.cell>{{ $herziening->beoordelaar?->naam ?? '—' }}</flux:table.cell>
+                                <flux:table.cell class="whitespace-normal">{{ $herziening->toelichting }}</flux:table.cell>
+                                <flux:table.cell>{{ $herziening->volgende_herziening_gepland->format('d-m-Y') }}</flux:table.cell>
+                            </flux:table.row>
+                        @endforeach
+                    </flux:table.rows>
+                </flux:table>
+            @endif
+        </div>
+    @endif
 
     {{-- 2. Versies. --}}
     <div class="blueprint p-5">

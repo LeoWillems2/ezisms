@@ -1,5 +1,5 @@
 {{-- Gedeelde sub-navigatie voor blok 6 (Bewijsrepository & Audit Trail). --}}
-<flux:navbar class="mb-2">
+<flux:navbar class="mb-2 max-w-full overflow-x-auto">
     <flux:navbar.item :href="route('bewijsstukken.index')" :current="request()->routeIs('bewijsstukken.*')" wire:navigate>
         Bewijsstukken
     </flux:navbar.item>

@@ -636,6 +636,15 @@ class ExporteerIsms extends Command
                 if ($this->metBewijs && isset($this->bewijsPaden[$actief->bewijsstuk_id])) {
                     $md .= "- Document: [{$this->bewijsPaden[$actief->bewijsstuk_id]}]({$this->bewijsPaden[$actief->bewijsstuk_id]})\n";
                 }
+                if ($actief->volgende_herziening_gepland) {
+                    $md .= "- Volgende herziening: {$this->datum($actief->volgende_herziening_gepland)}\n";
+                }
+                // Herzieningen zonder nieuwe versie: het bewijs bij A.5.1 dat
+                // het beleid op tijd beoordeeld is, ook als het niet veranderde.
+                foreach ($actief->herzieningen()->orderByDesc('beoordeeld_op')->get() as $h) {
+                    $md .= "- Herzien {$this->datum($h->beoordeeld_op)} door {$this->persoonId($h->beoordeeld_door_id)}: "
+                        .str_replace("\n", ' ', $h->toelichting)."\n";
+                }
             } else {
                 $md .= "- Actieve versie: **geen**\n";
             }

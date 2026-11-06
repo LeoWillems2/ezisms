@@ -35,6 +35,7 @@ final class BeleidHandlers
     {
         return [
             'beleid_publiceren' => $this->beleidPubliceren(...),
+            'beleid_herzien' => $this->beleidHerzien(...),
             'leesbevestigingen_uitzetten' => $this->leesbevestigingenUitzetten(...),
         ];
     }
@@ -95,6 +96,37 @@ final class BeleidHandlers
      * vraagt, wordt door de doelgroep bevestigd. Vanaf nu doet elke publicatie
      * dat meteen zelf.
      */
+    /**
+     * De jaarlijkse beoordeling van de geldende versie, zonder nieuwe versie
+     * (A.5.1). Zonder deze gebeurtenis stonden op M22 tien van de dertien
+     * FruitBV-documenten over hun herzieningstermijn, met verlopen taken bij de
+     * CISO (Chrometoets 24-09-2026, D2). Via het model, zodat de observer de
+     * taak sluit en de termijn doorzet — dezelfde weg als het scherm.
+     */
+    private function beleidHerzien(array $g, int $maand, Simulatie $sim): void
+    {
+        $document = $sim->fixtures()->model($g['document']);
+        $door = isset($g['door']) ? $sim->gebruiker($g['door']) : $sim->ciso();
+
+        Handelt::als($door)
+            ->mits('heeft-niveau', ['beleid-maatregelbeheer', 'muteren'])
+            ->bij("M{$maand}/beleid_herzien/{$g['document']}")
+            ->doe(function () use ($document, $g, $maand) {
+                $versie = $document->actieveVersie()->first();
+
+                if ($versie === null) {
+                    throw new DemoFixtureFout("M{$maand}/beleid_herzien/{$g['document']}: geen actieve versie om te herzien.");
+                }
+
+                $versie->herzieningen()->create([
+                    'beoordeeld_door_id' => auth()->id(),
+                    'beoordeeld_op' => now(),
+                    'toelichting' => $g['toelichting'],
+                    'volgende_herziening_gepland' => now()->addYear(),
+                ]);
+            });
+    }
+
     private function leesbevestigingenUitzetten(array $g, int $maand, Simulatie $sim): void
     {
         $this->bevestigingenLopen = true;

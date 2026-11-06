@@ -4,8 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Afwijking;
 use App\Models\AuditLogregel;
+use App\Models\Auditplan;
 use App\Models\Auditronde;
 use App\Models\Beleidsversie;
+use App\Models\Bevinding;
 use App\Models\Gebruiker;
 use App\Models\Incident;
 use App\Models\KpiDefinitie;
@@ -297,5 +299,26 @@ class ZorgdemoEindstandTest extends TestCase
 
         $this->assertTrue($uitkomst->intact, 'Keten gebroken bij logregel '.$uitkomst->kapotte_id.'.');
         $this->assertGreaterThan(1000, $uitkomst->regels);
+    }
+
+    /**
+     * De demo-verbeteringen na de Chrometoets (24-09-2026), in één keer voor
+     * ZorgZeker: bewijs bij de SoA, herzien beleid op één bewuste achterstand
+     * na (clear desk), afgehandelde observaties, vastgestelde jaarplannen.
+     */
+    public function test_de_demo_verbeteringen_gelden_ook_voor_zorgzeker(): void
+    {
+        $metBewijs = SoaRegel::where('implementatiestatus', 'geimplementeerd')
+            ->whereIn('id', fn ($q) => $q->select('entiteit_id')->from('bewijs_koppelingen')->where('entiteit_type', 'soa_regel'))
+            ->count();
+        $this->assertSame(83, $metBewijs);
+
+        $over = Beleidsversie::with('document')->where('status', 'actief')->get()
+            ->filter(fn (Beleidsversie $v) => $v->herzieningVerstreken())
+            ->map(fn ($v) => $v->document->titel)->values()->all();
+        $this->assertSame(['Clear desk- en printbeleid'], $over);
+
+        $this->assertSame(5, Bevinding::where('status', '!=', 'gesloten')->count());
+        $this->assertSame(2, Auditplan::where('status', 'concept')->count());
     }
 }

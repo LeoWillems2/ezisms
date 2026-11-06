@@ -3,6 +3,7 @@
 namespace App\Support\Demo\Handlers;
 
 use App\Models\Beleidsdocument;
+use App\Models\BewijsKoppeling;
 use App\Models\SoaRegel;
 use App\Support\Demo\DemoFixtureFout;
 use App\Support\Demo\Handelt;
@@ -92,7 +93,7 @@ final class SoaHandlers
         Handelt::als($sim->ciso())
             ->mits('heeft-niveau', ['risico-soa', 'muteren'])
             ->bij("M{$maand}/soa_implementatiegolf {$g['golf']}")
-            ->doe(function () use ($regels, $golf) {
+            ->doe(function () use ($regels, $golf, $sim) {
                 foreach ($regels as $index => $regel) {
                     $status = match (true) {
                         $index < $golf['geimplementeerd'] => 'geimplementeerd',
@@ -104,7 +105,41 @@ final class SoaHandlers
                         $regel->update(['implementatiestatus' => $status]);
                     }
                 }
+
+                $this->legImplementatiebewijsVast($regels, (int) ($golf['met_bewijs'] ?? 0), $sim);
             });
+    }
+
+    /**
+     * Implementatiebewijs bij de eerste `met_bewijs` geïmplementeerde regels.
+     * Zonder dit stond de KPI "Geïmplementeerde regels met bewijs" de hele
+     * demo op 0 (Chrometoets 24-09-2026, D1). Bewust niet bij álle regels: het
+     * bewijs loopt achter op de implementatie, en een vlakke 100% is net zo
+     * ongeloofwaardig als een vlakke 0.
+     *
+     * Eén bewijsstuk per regel, en een regel die er al een heeft krijgt er geen
+     * tweede: een volgende golf vult alleen aan.
+     *
+     * @param  Collection<int, SoaRegel>  $regels  op volgorde, alleen de toepasselijke
+     */
+    private function legImplementatiebewijsVast(Collection $regels, int $metBewijs, Simulatie $sim): void
+    {
+        $alGekoppeld = BewijsKoppeling::where('entiteit_type', (new SoaRegel)->getMorphClass())
+            ->pluck('entiteit_id')
+            ->all();
+
+        foreach ($regels->take($metBewijs) as $regel) {
+            if ($regel->implementatiestatus !== 'geimplementeerd' || in_array($regel->id, $alGekoppeld, true)) {
+                continue;
+            }
+
+            $ref = 'A.'.$regel->maatregel->annex_a_referentie;
+            $sim->bewijs()->maak(
+                "Implementatiebewijs {$ref}",
+                "Aantoonbare uitvoering van beheersmaatregel {$ref}: werkinstructie, configuratie of registratie.",
+                $regel,
+            );
+        }
     }
 
     private function soaHerbeoordelen(array $g, int $maand, Simulatie $sim): void

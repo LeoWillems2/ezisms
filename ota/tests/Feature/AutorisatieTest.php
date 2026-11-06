@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Blok;
 use App\Models\Gebruiker;
+use App\Models\Rol;
+use App\Models\RolPermissie;
 use App\Support\Recordscope;
 use Database\Seeders\BlokSeeder;
 use Database\Seeders\RisicocriteriaSeeder;
@@ -144,11 +147,61 @@ class AutorisatieTest extends TestCase
         $this->assertFalse(Gate::forUser($zonderRol)->allows('heeft-niveau', ['identity-access', 'lezen']));
     }
 
-    public function test_medewerker_mag_het_gebruikersoverzicht_bekijken(): void
+    public function test_medewerker_ziet_het_gebruikersoverzicht_niet(): void
     {
+        // Tot 24-09-2026 wel: de rij `lezen` op identity-access was bedoeld
+        // voor het eigen profiel, maar ontsloot het overzicht van iedereen —
+        // rollen, status, laatste login (Chrometoets, B9).
         $medewerker = Gebruiker::factory()->metRol('Medewerker')->create();
 
-        $this->actingAs($medewerker)->get('/gebruikers')->assertOk();
+        $this->actingAs($medewerker)->get('/gebruikers')->assertForbidden();
+        $this->actingAs($medewerker)->get('/dashboard')
+            ->assertOk()
+            ->assertDontSee(route('gebruikers.index'));
+    }
+
+    public function test_wijzigingsbeheer_staat_in_het_menu_van_wie_het_register_mag_lezen(): void
+    {
+        // Menu en route op hetzelfde niveau (`lezen`). Stond het menu op
+        // `uitvoeren`, dan kwam Management er alleen via de URL in (B8).
+        $directeur = Gebruiker::factory()->metRol('Management')->create();
+
+        $this->actingAs($directeur)->get('/dashboard')
+            ->assertOk()
+            ->assertSee(route('wijzigingen.index'));
+    }
+
+    public function test_de_applicatie_spreekt_nederlands(): void
+    {
+        // Tot 24-09-2026 stond de locale op `en` zonder lang/-map: Engelse
+        // validatiemeldingen en <html lang="en"> (Chrometoets, B4). Vast in
+        // config/app.php, zodat een oude .env hem niet terugzet.
+        $this->assertSame('nl', app()->getLocale());
+
+        $fout = validator(['bestand' => 'x'], ['bestand' => 'required|integer'])->errors()->first('bestand');
+        $this->assertSame('Het veld bestand moet een geheel getal zijn.', $fout);
+
+        $ciso = Gebruiker::factory()->metRol('CISO')->create();
+        $this->actingAs($ciso)->get('/dashboard')
+            ->assertOk()
+            ->assertSee('<html lang="nl"', false)
+            ->assertSee('Uitloggen')
+            ->assertDontSee('Log Out');
+    }
+
+    public function test_migratie_haalt_het_leesrecht_van_de_medewerker_op_bestaande_installaties_weg(): void
+    {
+        // Het seeder voegt alleen toe; zonder de migratie bleef de rij staan.
+        $rol = Rol::where('naam', 'Medewerker')->value('id');
+        $blok = Blok::where('code', 'identity-access')->value('id');
+        RolPermissie::create(['rol_id' => $rol, 'blok_id' => $blok, 'niveau' => 'lezen']);
+
+        $medewerker = Gebruiker::factory()->metRol('Medewerker')->create();
+        $this->assertTrue(Gate::forUser($medewerker)->allows('heeft-niveau', ['identity-access', 'lezen']));
+
+        (require database_path('migrations/0001_01_01_000073_medewerker_zonder_gebruikersoverzicht.php'))->up();
+
+        $this->assertFalse(Gate::forUser($medewerker->fresh())->allows('heeft-niveau', ['identity-access', 'lezen']));
     }
 
     public function test_gebruiker_zonder_leesrecht_wordt_geweerd_van_gebruikersoverzicht(): void
@@ -241,7 +294,9 @@ class AutorisatieTest extends TestCase
         // heen — zie AdministratorTest (01e §2.3).
         '/dashboard' => [200, 200, 200, 200, 200],
         '/doelgroepen' => [200, 200, 403, 403, 403],
-        '/gebruikers' => [200, 200, 403, 200, 403],
+        // De Medewerker is er sinds 24-09-2026 uit (B9): zijn eigen profiel
+        // staat onder /settings.
+        '/gebruikers' => [200, 200, 403, 403, 403],
         '/incidenten' => [200, 403, 200, 200, 403],
         '/integraties' => [200, 200, 200, 403, 403],
         '/issues' => [200, 200, 200, 200, 403],

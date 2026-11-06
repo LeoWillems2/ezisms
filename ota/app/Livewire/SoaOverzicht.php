@@ -12,6 +12,7 @@ use App\Support\Normprofiel;
 use App\Support\Overheidsmaatregeldekking;
 use App\Support\Schermkopie;
 use App\Support\Schermkopiebijlage;
+use App\Support\Soaselectie;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -588,41 +589,9 @@ class SoaOverzicht extends Component
      */
     private function gefilterdeMaatregelen(): Collection
     {
-        return Maatregel::query()
-            // Blok 5: alleen ACTIEF beleid telt als onderbouwing. Een concept
-            // of ingetrokken document zou de dekking te rooskleurig maken.
-            ->with(['soaRegel.beleidsdocumenten' => fn ($q) => $q->where('status', 'actief')])
-            // Plan 04c: de restrisico-rollup per control leidt af uit de
-            // gekoppelde behandelingen (max restrisico + distinct risico's).
-            ->with('soaRegel.risicobehandelingen')
-            // Alleen in een BIO-installatie: voor de kolom, de uitklapbare
-            // regellaag en de bijlage bij de schermkopie. 93 maatregelen die elk
-            // hun verplichtingen opzoeken is anders 93 queries — en zonder
-            // `.overheidsmaatregel` erbij nog eens 118, want de nummers zitten
-            // niet in de beoordeling maar in de referentiedata erachter.
-            ->when(Normprofiel::heeft('overheidsmaatregelen'), fn ($q) => $q->with([
-                'soaRegel.overheidsmaatregelBeoordelingen.overheidsmaatregel',
-                'soaRegel.overheidsmaatregelBeoordelingen.bewijsKoppelingen',
-            ]))
-            ->when($this->filterThema !== '', fn ($q) => $q->where('thema', $this->filterThema))
-            ->when($this->filterStatus !== '', fn ($q) => $q->whereHas(
-                'soaRegel',
-                fn ($sub) => $sub->where('implementatiestatus', $this->filterStatus)
-            ))
-            ->when($this->alleenOnbeslist, fn ($q) => $q->whereHas(
-                'soaRegel',
-                fn ($sub) => $sub->whereNull('van_toepassing')
-            ))
-            ->get()
-            // Numeriek sorteren op '5.10' vs '5.9' vergt database-specifieke SQL
-            // (SUBSTRING_INDEX/CAST); bij 93 rijen is sorteren in PHP simpeler
-            // en werkt het op zowel MySQL als de sqlite-testdatabase.
-            ->sortBy(function (Maatregel $maatregel) {
-                [$hoofdstuk, $sub] = array_pad(explode('.', $maatregel->annex_a_referentie, 2), 2, '0');
-
-                return (int) $hoofdstuk * 1000 + (int) $sub;
-            })
-            ->values();
+        // De query staat in Soaselectie, zodat de assistenttool `maatregelstatus`
+        // dezelfde rijen ziet (implementatie/14b §4.3).
+        return Soaselectie::maatregelen($this->filterThema, $this->filterStatus, $this->alleenOnbeslist);
     }
 
     public function statusLabel(string $status): string

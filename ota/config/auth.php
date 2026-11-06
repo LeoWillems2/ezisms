@@ -42,6 +42,13 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        // Bearer-tokens van Passport, alleen voor /mcp (implementatie/14b §4.1).
+        // Geen sessie: een MCP-client stuurt bij elk verzoek zijn token mee.
+        'api' => [
+            'driver' => 'passport',
+            'provider' => 'users',
+        ],
     ],
 
     /*

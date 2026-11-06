@@ -8,6 +8,7 @@ use App\Models\Trainingsmodule;
 use App\Support\Koppeling;
 use App\Support\Recordscope;
 use App\Support\ToetsBestanden;
+use App\Support\Trainingsstand;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -147,26 +148,12 @@ class TrainingenOverzicht extends Component
         // de preview-check, zodat de map de enige waarheid blijft (§8).
         $beschikbareToetsen = ToetsBestanden::beschikbaar();
 
-        // Afgeleide kolommen per module (§5): graad en aantal verlopen leden.
-        // Verlopen = doelgroepleden met wél een voltooiing maar geen geldige.
+        // Afgeleide kolommen per module (§5): graad en aantal verlopen leden,
+        // via Trainingsstand zodat de assistenttool hetzelfde rekent (14b §4.3).
         $rijen = $modules->map(function (Trainingsmodule $module) use ($beschikbareToetsen) {
-            $doelgroepIds = $module->doelgroepGebruikerIds();
-            $grootte = count($doelgroepIds);
-
-            $geldigeIds = $grootte
-                ? $module->voltooiingen()->geldig()->whereIn('gebruiker_id', $doelgroepIds)
-                    ->distinct()->pluck('gebruiker_id')
-                : collect();
-            $ooitIds = $grootte
-                ? $module->voltooiingen()->whereIn('gebruiker_id', $doelgroepIds)
-                    ->distinct()->pluck('gebruiker_id')
-                : collect();
-
             return [
                 'module' => $module,
-                'graad' => $grootte ? (int) round($geldigeIds->count() / $grootte * 100) : null,
-                'doelgroepGrootte' => $grootte,
-                'verlopen' => $ooitIds->diff($geldigeIds)->count(),
+                ...Trainingsstand::moduleCijfers($module),
                 // Preview alleen als het toetsbestand ook echt op schijf staat: een
                 // opgeslagen naam kan verwijzen naar een inmiddels verwijderd
                 // bestand, en dan zou de preview een 404 opleveren.
@@ -181,15 +168,9 @@ class TrainingenOverzicht extends Component
             'doelgroepen' => Doelgroep::orderBy('naam')->get(),
             'beleidsdocumenten' => Beleidsdocument::orderBy('titel')->get(['id', 'titel']),
             'toetsen' => $beschikbareToetsen,
-            // Rapportagesignaal (§15): een verplichting zonder publiek is een gap.
-            'modulesZonderDoelgroep' => Trainingsmodule::where('actief', true)
-                ->whereDoesntHave('doelgroepen')->count(),
-            // Een toets-module die nooit is uitgezet is niet af te ronden
-            // (geen zelfregistratie, geen toets) — het gat dat de enkele bron
-            // van waarheid nog openlaat (§8).
-            'toetsModulesNietUitgezet' => Trainingsmodule::where('actief', true)
-                ->whereNotNull('toets_bestand')
-                ->whereDoesntHave('toetsopdrachten')->count(),
+            // Rapportagesignalen (§15, §8), zie Trainingsstand.
+            'modulesZonderDoelgroep' => Trainingsstand::modulesZonderDoelgroep(),
+            'toetsModulesNietUitgezet' => Trainingsstand::toetsModulesNietUitgezet(),
         ]);
     }
 }

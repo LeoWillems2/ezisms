@@ -75,7 +75,26 @@ final class Klok
         $dag = min($this->dagInMaand, self::LAATSTE_DAG);
         $this->dagInMaand += self::STAP;
 
-        return $this->zet($this->datum($maand, $dag));
+        return $this->zet($this->werkdagochtend($this->datum($maand, $dag)));
+    }
+
+    /**
+     * Een handeling van een mens valt op een werkdagochtend in de weergavetijd
+     * (config `tijd.weergave`), niet om middernacht UTC. Tot 24-09-2026 stond
+     * alles in de demo op 00:00 UTC en toonde het scherm "01:00" of "02:00" bij
+     * elke melding en elke login (Chrometoets, D7).
+     *
+     * Alleen de gebeurtenissen: de maandafsluiting (metingen, takenronde) blijft
+     * om middernacht, want die draait in het echt ook 's nachts. De minuten
+     * variëren met de dag, zodat niet elk tijdstip precies 09:00 is.
+     */
+    private function werkdagochtend(CarbonImmutable $dag): CarbonImmutable
+    {
+        return CarbonImmutable::create(
+            $dag->year, $dag->month, $dag->day,
+            9, ($dag->day * 7) % 50, 0,
+            config('tijd.weergave'),
+        )->utc();
     }
 
     /**

@@ -121,7 +121,9 @@
 
                         @if ($delta !== null && $basis !== null && $laatste !== null)
                             @php
-                                $maanden = $basis->gemeten_op->diffInMonths($laatste->gemeten_op);
+                                // Afgerond: Carbon 3 geeft een float, en een meting halverwege
+                                // de maand leverde "vs. 12.774193548387 mnd" op.
+                                $maanden = (int) round($basis->gemeten_op->diffInMonths($laatste->gemeten_op));
                                 $kleur = match ($richting) {
                                     'op' => 'text-green-700',
                                     'neer' => 'text-red-600',
@@ -457,7 +459,10 @@
                     $kapot = $regel['reden'] === Leesbevestigingsstand::REDEN_GEEN_DOELGROEP;
                     $stijl = $vlagStijl[$kapot || $regel['verstreken'] ? 'kritiek' : 'let-op'];
                 @endphp
-                <div class="grid grid-cols-[18px_1fr_auto] items-start gap-3 border-t border-zinc-100 py-2.5 first:border-t-0"
+                {{-- minmax(0,1fr) en niet 1fr: een lange documenttitel is één
+                     woord ("Informatiebeveiligingsbeleid") en duwde de teller op
+                     een telefoon buiten beeld. --}}
+                <div class="grid grid-cols-[18px_minmax(0,1fr)_auto] items-start gap-3 border-t border-zinc-100 py-2.5 first:border-t-0"
                     wire:key="lb-{{ $regel['document']->id }}">
                     {{-- Zelfde vlagmarkering als het signalenpaneel: kleur draagt
                          nooit alleen de betekenis, er staat een glyph in en de
@@ -466,7 +471,7 @@
                         style="background: {{ $stijl['bg'] }}; color: {{ $stijl['ink'] }}"
                         aria-hidden="true">{{ $stijl['glyph'] }}</span>
 
-                    <div>
+                    <div class="[overflow-wrap:anywhere]">
                         <flux:link :href="route('beleid.detail', $regel['document'])" wire:navigate
                             class="font-medium">
                             {{ $regel['document']->titel }}

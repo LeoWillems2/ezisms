@@ -26,9 +26,9 @@ final class Dekkingsspreiding
      *
      * De volgorde van de groepen komt uit `volgorde` en niet uit de binnenkomende
      * verzameling. Dat is geen detail: het commando haalt de objecten op
-     * `orderBy('volgorde')` op en het scherm op `orderBy('groep')` — alfabetisch,
-     * dus "10 Verbetering" vóór "4 Context" — en dan geeft dezelfde formule twee
-     * verschillende verdelingen. De klasse bepaalt de volgorde zelf, zodat elke
+     * `orderBy('volgorde')` op, en de schermen deden tot 24-09-2026
+     * `orderBy('groep')` — alfabetisch, dus "10 Verbetering" vóór "4 Context" —
+     * en dan geeft dezelfde formule twee verschillende verdelingen. De klasse bepaalt de volgorde zelf, zodat elke
      * aanroeper hetzelfde antwoord krijgt.
      *
      * @param  Collection<int, Auditobject>  $objecten

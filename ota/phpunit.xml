@@ -130,6 +130,23 @@
                  wat er het huis uit gaat en daarmee hier. -->
             <file>tests/Feature/DocumentvoettekstTest.php</file>
         </testsuite>
+        <!-- Assistenttoegang via MCP (implementatie/14b). Een eigen suite: de
+             tests zetten ISMS_ASSISTENT vóór het opstarten van de applicatie,
+             en raken toegang, autorisatie en meerdere registers tegelijk. -->
+        <testsuite name="assistent">
+            <file>tests/Feature/AssistenttoegangTest.php</file>
+            <file>tests/Feature/AssistenttoegangUitTest.php</file>
+            <file>tests/Feature/AssistentBestandenTest.php</file>
+            <file>tests/Feature/AssistentBeheerTest.php</file>
+            <file>tests/Feature/AssistentKpiReeksTest.php</file>
+            <file>tests/Feature/AssistentIncidentenTest.php</file>
+            <file>tests/Feature/AssistentOpenActiesTest.php</file>
+            <file>tests/Feature/AssistentSoaRisicosTest.php</file>
+            <file>tests/Feature/AssistentBewijsBeleidTest.php</file>
+            <file>tests/Feature/AssistentLeveranciersTest.php</file>
+            <file>tests/Feature/AssistentAuditDekkingTest.php</file>
+            <file>tests/Feature/AssistentTrainingEnBewustzijnTest.php</file>
+        </testsuite>
         <testsuite name="demo">
             <file>tests/Feature/DemoVulTest.php</file>
             <file>tests/Feature/DemoEindstandTest.php</file>
@@ -167,6 +184,9 @@
              in de .env van een demo-opstelling vielen zes tweefactortests om. -->
         <env name="ISMS_2FA_AFDWINGEN" value="true"/>
         <env name="ISMS_NORM" value="iso27001"/>
+        <!-- Uit, zoals bij een verse installatie. AssistenttoegangTest zet hem
+             zelf aan vóór het opstarten (implementatie/14b §12). -->
+        <env name="ISMS_ASSISTENT" value="false"/>
         <env name="MAIL_MAILER" value="array"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="QUEUE_CONNECTION" value="sync"/>

@@ -3,12 +3,14 @@
 namespace App\Support;
 
 use App\Models\Asset;
+use App\Models\AssistentAanroep;
 use App\Models\AuditLogregel;
 use App\Models\Beveiligingssignaal;
 use App\Models\Concerns\Waardenbewaking;
 use App\Models\Contractclausule;
 use App\Models\Gebruiker;
 use App\Models\OverheidsmaatregelBeoordeling;
+use App\Models\Raadpleging;
 use App\Models\Reviewsessie;
 use App\Models\Sjabloonstap;
 use App\Models\Systeem;
@@ -71,6 +73,8 @@ final class Enumwaarden
             'assets.status' => ['geregistreerd', 'actief', 'buiten_gebruik', 'afgestoten'],
             'assets.type' => ['informatie', 'systeem_of_dienst', 'hardware'],
             'assets.vertrouwelijkheidsniveau' => ['openbaar', 'intern', 'vertrouwelijk', 'geheim'],
+            'assistent_aanroepen.soort' => AssistentAanroep::SOORTEN,
+            'assistent_aanroepen.uitkomst' => AssistentAanroep::UITKOMSTEN,
             'audit_ketencontroles.soort' => ['controle', 'verzegeld'],
             'audit_logregels.actie' => AuditLogregel::ACTIES,
             'auditobjecten.soort' => ['clausule', 'maatregel'],
@@ -126,6 +130,7 @@ final class Enumwaarden
             'organisatie_eenheden.type' => ['afdeling', 'locatie', 'proces'],
             'overheidsmaatregel_beoordelingen.status' => array_keys(OverheidsmaatregelBeoordeling::STATUS_LABELS),
             'overheidsmaatregelen.status' => ['geldend', 'vervallen', 'verplaatst'],
+            'raadplegingen.kanaal' => Raadpleging::KANALEN,
             'reviewsessies.status' => ['gepland', 'gehouden'],
             'risicobehandelingen.behandeloptie' => [
                 'mitigeren', 'accepteren', 'overdragen', 'vermijden',

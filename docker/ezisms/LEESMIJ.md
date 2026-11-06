@@ -189,7 +189,8 @@ host, standaard `./data` naast `compose.yml`:
 data/
 ├── isms_export/         wat `isms:exporteer` oplevert
 ├── app/
-│   ├── storage/         bewijsstukken, toetsbestanden, logs, audit trail
+│   ├── storage/         bewijsstukken, toetsbestanden, logs, audit trail,
+│                        de OAuth-sleutels van de assistenttoegang (oauth/)
 │   ├── database/        ezisms.sqlite — het ISMS zelf
 │   ├── seeddata/        eigen, gelicentieerde normtekst
 │   └── installatie/     de APP_KEY, de normstempel, de dumps, de opstartlogs
@@ -395,6 +396,25 @@ Docker laat dat standaard toe, maar een firewall op de host of in het netwerk
 misschien niet. Bij UDP meldt het commando geen fout als het pakket onderweg
 verdwijnt: kijk op de syslogserver of het proefbericht is aangekomen. Met
 `ISMS_DEMO=ja` staat de bewaking uit.
+
+**Een AI-assistent laten koppelen.** Standaard uit. Met `ISMS_ASSISTENT=true` in
+`.env` en daarna `docker compose up -d` kunnen gebruikers een assistent zoals
+Claude Code of claude.ai koppelen op `https://<APP_URL>/mcp`. Welke rollen dat
+mogen, kiest de CISO daarna in het ISMS onder *Notificatie & Integratie →
+Assistenttoegang*; standaard geen enkele. Het sleutelpaar waarmee de tokens worden
+getekend, maakt de container bij de eerste start aan in `storage/oauth/`. Dat
+hoort bij de back-up, net als de `APP_KEY`. Weer uitzetten:
+
+```bash
+# eerst ISMS_ASSISTENT=false in .env, dan:
+docker compose up -d
+docker compose exec app runuser -u www-data -- php /opt/ezisms/artisan isms:assistent-opruimen --alles
+```
+
+Een connector in claude.ai verbindt vanuit de infrastructuur van de aanbieder,
+niet vanaf de computer van de gebruiker. Is het ISMS alleen vanaf uw eigen
+netwerk bereikbaar, dan werkt Claude Code wel en zo'n connector niet. Zie het
+kennisbankartikel *Assistenttoegang via MCP*.
 
 **Bekende beperking.** `php artisan isms:capaciteiten aan` schrijft zijn
 instelling naar het `.env` *in de container*, en die is vluchtig: bij de

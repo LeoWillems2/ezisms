@@ -11,6 +11,7 @@ use App\Livewire\AfwijkingDetail;
 use App\Livewire\AfwijkingenOverzicht;
 use App\Livewire\AssetDetail;
 use App\Livewire\AssetsOverzicht;
+use App\Livewire\AssistenttoegangBeheer;
 use App\Livewire\AuditLogOverzicht;
 use App\Livewire\AuditProgrammaBeheer;
 use App\Livewire\AuditrondeDetail;
@@ -59,6 +60,7 @@ use App\Livewire\UitnodigingAccepteren;
 use App\Livewire\WijzigingDetail;
 use App\Livewire\WijzigingenOverzicht;
 use App\Livewire\WijzigingssjablonenBeheer;
+use App\Support\Assistent\Configuratie;
 use App\Support\Navigatie;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -319,6 +321,11 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware("can:heeft-niveau,'notificatie-integratielaag','lezen'")->group(function () {
         Route::get('notificaties', NotificatieBeheer::class)->name('notificaties.index');
         Route::get('integraties', IntegratieRegister::class)->name('integraties.index');
+        // Alleen als de assistenttoegang aan staat (implementatie/14b §8.1);
+        // net als routes/ai.php gelezen bij route:cache.
+        if (Configuratie::isAan()) {
+            Route::get('assistenttoegang', AssistenttoegangBeheer::class)->name('assistenttoegang.index');
+        }
     });
 
     // Installatiebeheer (implementatie/01e). Geen ISMS-blok maar een
@@ -359,6 +366,10 @@ Route::middleware(['auth'])->group(function () {
     // Tweefactor hoort in dezelfde groep: het zijn de eigen inloggegevens,
     // geen blok-permissie (implementatie/01d §6).
     Volt::route('settings/tweefactor', 'settings.tweefactor')->name('settings.tweefactor');
+    // De eigen gekoppelde assistenten (implementatie/14b §8.2).
+    if (Configuratie::isAan()) {
+        Volt::route('settings/assistenten', 'settings.assistenten')->name('settings.assistenten');
+    }
 });
 
 require __DIR__.'/auth.php';

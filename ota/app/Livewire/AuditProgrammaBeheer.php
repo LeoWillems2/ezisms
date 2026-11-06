@@ -302,7 +302,7 @@ class AuditProgrammaBeheer extends Component
             return;
         }
 
-        $objecten = Auditobject::actief()->orderBy('groep')->orderBy('volgorde')->get();
+        $objecten = Auditobject::actief()->orderBy('volgorde')->orderBy('id')->get();
         $verdeling = Dekkingsspreiding::perGroep($objecten, $programma->aantal_jaren);
 
         foreach ($objecten as $object) {
@@ -352,8 +352,8 @@ class AuditProgrammaBeheer extends Component
         if ($programma !== null) {
             $objecten = Auditobject::actief()
                 ->with('maatregel')
-                ->orderBy('groep')
                 ->orderBy('volgorde')
+                ->orderBy('id')
                 ->get();
 
             $dekkingen = $programma->dekkingen()->get()->keyBy('auditobject_id');

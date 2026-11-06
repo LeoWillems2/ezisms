@@ -313,17 +313,18 @@ class DashboardTest extends TestCase
     }
 
     /**
-     * Blok 12 §4 wil het signaal "scoredaling zonder gekoppeld bewijs". Dat kan
-     * nog niet, en dat hoort in het scherm te staan en niet alleen in het plan.
+     * Tot 24-09-2026 stond hier een vaste regel "Scoredaling zonder onderliggend
+     * bewijs — nog niet gemeten", uit de tijd dat de Act-metingen niet bestonden.
+     * Sinds 12g meet de KPI `scoredaling_zonder_bewijs` precies dat, en sprak de
+     * regel het dashboard tegen (Chrometoets, D10).
      */
-    public function test_het_onberekenbare_signaal_staat_er_met_de_reden_bij(): void
+    public function test_het_verouderde_onberekenbaar_signaal_is_weg(): void
     {
         $ciso = Gebruiker::factory()->metRol('CISO')->create();
 
         $this->actingAs($ciso)->get('/dashboard')
             ->assertOk()
-            ->assertSee('nog niet gemeten')
-            ->assertSee('audit');
+            ->assertDontSee('Scoredaling zonder onderliggend bewijs — nog niet gemeten');
     }
 
     public function test_risicosignalen_blijven_weg_zonder_risico_inzage(): void

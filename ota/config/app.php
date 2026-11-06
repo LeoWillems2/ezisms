@@ -111,9 +111,14 @@ return [
     |
     */
 
-    'locale' => env('APP_LOCALE', 'en'),
+    // Vast op Nederlands en niet uit .env. Elke schermtekst staat hard in het
+    // Nederlands; de locale bepaalt alleen nog de meldingen van Laravel zelf
+    // (lang/nl) en Carbon. Uit .env gelezen bleef een bestaande installatie na
+    // een uitrol op de `APP_LOCALE=en` uit haar eigen .env staan — en toonde
+    // "The bestand field must be a file of type: …" (Chrometoets 24-09-2026, B4).
+    'locale' => 'nl',
 
-    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
+    'fallback_locale' => 'en',
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 

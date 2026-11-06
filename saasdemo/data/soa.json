@@ -3,7 +3,8 @@
     "wat": "De Statement of Applicability: welke maatregelen niet van toepassing zijn, en in welke golven de rest wordt beoordeeld en geïmplementeerd.",
     "bron": "saasdemo/scenario.md §7",
     "let_op": "De 93 maatregelen zelf komen uit MaatregelSeeder; dit bestand beschrijft alleen de beoordeling erop. De SoA wordt bewust in twee slagen gevuld (M3 en M4), zodat de Plan-KPI zichtbaar oploopt in plaats van meteen op 100% te staan.",
-    "eindstand": "88 van toepassing, 5 niet van toepassing; van de toepasselijke ~80 geïmplementeerd en ~8 in uitvoering."
+    "eindstand": "88 van toepassing, 5 niet van toepassing; van de toepasselijke ~80 geïmplementeerd en ~8 in uitvoering.",
+    "met_bewijs": "Per implementatiegolf: hoeveel geïmplementeerde regels (op volgorde) een implementatiebewijs hebben. Het bewijs loopt bewust een paar regels achter op de implementatie; eindstand 76 van 80."
   },
 
   "niet_van_toepassing": [
@@ -53,11 +54,11 @@
   ],
 
   "implementatiegolven": [
-    { "maand": 5, "geimplementeerd": 35, "toelichting": "Eerste implementatieslag; ~40% van de toepasselijke regels." },
-    { "maand": 8, "geimplementeerd": 55, "toelichting": "Na de interne audit van M7 en de hersteltest van M8." },
-    { "maand": 10, "geimplementeerd": 70, "toelichting": "Gaten dichten vóór de certificeringsaudit fase 2; ~79%." },
-    { "maand": 13, "geimplementeerd": 74, "toelichting": "Corrigerende maatregelen op de twee externe minors afgerond." },
-    { "maand": 20, "geimplementeerd": 80, "toelichting": "Jaarlijkse SoA-herziening; twee regels van 'in uitvoering' naar 'geïmplementeerd'. Eindstand ~91% van de toepasselijke regels." }
+    { "maand": 5, "geimplementeerd": 35, "met_bewijs": 30, "toelichting": "Eerste implementatieslag; ~40% van de toepasselijke regels." },
+    { "maand": 8, "geimplementeerd": 55, "met_bewijs": 50, "toelichting": "Na de interne audit van M7 en de hersteltest van M8." },
+    { "maand": 10, "geimplementeerd": 70, "met_bewijs": 64, "toelichting": "Gaten dichten vóór de certificeringsaudit fase 2; ~79%." },
+    { "maand": 13, "geimplementeerd": 74, "met_bewijs": 70, "toelichting": "Corrigerende maatregelen op de twee externe minors afgerond." },
+    { "maand": 20, "geimplementeerd": 80, "met_bewijs": 76, "toelichting": "Jaarlijkse SoA-herziening; twee regels van 'in uitvoering' naar 'geïmplementeerd'. Eindstand ~91% van de toepasselijke regels." }
   ],
 
   "eigen_classificatie": {

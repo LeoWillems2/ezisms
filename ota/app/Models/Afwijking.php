@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\Auditeerbaar;
+use App\Support\Recordscope;
 use Database\Factories\AfwijkingFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 /**
@@ -54,6 +57,24 @@ class Afwijking extends Model
     public function grondoorzaken(): HasMany
     {
         return $this->hasMany(Grondoorzaak::class);
+    }
+
+    /**
+     * Zonder volledige inzage alleen de afwijkingen waarvan de gebruiker
+     * eigenaar is, of waarvan hij een corrigerende maatregel draagt
+     * (Chrometoets 24-09-2026, B1). Stond tot implementatie/14b inline in
+     * `AfwijkingDetail::mount`; een scope, zodat het detailscherm en de
+     * assistenttoegang dezelfde regel lezen.
+     */
+    public function scopeZichtbaar(Builder $query): Builder
+    {
+        return $query->unless(
+            Recordscope::magAllesZien('incident-afwijkingenbeheer'),
+            fn (Builder $q) => $q->where(fn (Builder $w) => $w
+                ->where('eigenaar_id', Auth::id())
+                ->orWhereHas('maatregelen', fn (Builder $m) => $m->where('eigenaar_id', Auth::id()))
+            )
+        );
     }
 
     public function maatregelen(): HasMany

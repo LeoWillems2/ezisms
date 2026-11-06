@@ -669,7 +669,7 @@ class AuditrondeDetail extends Component
             fn (Gebruiker $g) => [$g->id => $g->anoniemLabel()]
         );
 
-        $objecten = $ronde->auditobjecten->sortBy([['groep', 'asc'], ['volgorde', 'asc']])->values();
+        $objecten = $ronde->auditobjecten->sortBy([['volgorde', 'asc'], ['id', 'asc']])->values();
 
         $bevindingen = $ronde->bevindingen()->with(['auditobject', 'afwijking'])->orderBy('id')->get();
         $open = $bevindingen->reject(fn (Bevinding $b) => $b->isGesloten())->count();
@@ -788,7 +788,7 @@ class AuditrondeDetail extends Component
         // uitklap wegbergt. Splitsen op de opgeslagen scope; het herschikken
         // volgt bij de volgende render (na 'Planning opslaan').
         $auditobjecten = Auditobject::actief()->with('maatregel')
-            ->orderBy('groep')->orderBy('volgorde')
+            ->orderBy('volgorde')->orderBy('id')
             ->get()
             ->mapWithKeys(fn (Auditobject $o) => [$o->id => $o->refCode().' '.$o->omschrijving()]);
         $gekozenIds = array_map('intval', $this->scopeObjecten);

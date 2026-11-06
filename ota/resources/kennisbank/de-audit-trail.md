@@ -55,12 +55,13 @@ niet.
 
 ## Alle entiteiten die een regel opleveren
 
-Er zijn 47 entiteiten die naar de trail schrijven. Per blok:
+Er zijn 49 entiteiten die naar de trail schrijven. Per blok:
 
 | Blok | Entiteit | Waarover de regels gaan |
 | --- | --- | --- |
-| Identity, Access & Rollen | `gebruiker` | Account aangemaakt, uitgenodigd, gedeactiveerd, geblokkeerd, A.6-velden (NDA, screening, offboarding) |
+| Identity, Access & Rollen | `gebruiker` | Account aangemaakt, uitgenodigd, gedeactiveerd, geblokkeerd, A.6-velden (NDA, screening, offboarding), het intrekken van een gekoppelde AI-assistent |
 | Identity, Access & Rollen | `rol_toewijzing` | Wie wanneer welke rol kreeg, en van wie |
+| Identity, Access & Rollen | `rol_permissie` | Welke rol op welk blok welk niveau heeft, en wanneer dat veranderde. In de praktijk gaat het om het aan- en uitzetten van de assistenttoegang per rol |
 | Identity, Access & Rollen | `beveiligingssignaal` | Een waarneming van mogelijk misbruik van inloggegevens: een piek in mislukte pogingen, een systeemblokkade, een herhaald foute tweede factor, een login vanaf een nieuw netwerk of een geslaagde login na mislukkingen. Eén regel per signaal, bij het aanmaken |
 | Identity, Access & Rollen | `externe_identiteit` | Aan welk account bij de identiteitsprovider een account gekoppeld is, en wanneer dat veranderde |
 | Context & Scope | `scope_verklaring` | Scopetekst, versie, indienen en activeren |
@@ -82,6 +83,7 @@ Er zijn 47 entiteiten die naar de trail schrijven. Per blok:
 | Beleid & Maatregelbeheer | `beleidsdocument` | Titel, eigenaar, bevestigingsplicht, doelgroep |
 | Beleid & Maatregelbeheer | `beleidsversie` | Versies, vaststellen, publiceren, intrekken |
 | Beleid & Maatregelbeheer | `leesbevestiging` | Wie welk beleid heeft bevestigd |
+| Beleid & Maatregelbeheer | `beleidsherziening` | Herziening zonder nieuwe versie: wie, wanneer, conclusie, volgende termijn |
 | Incident- & Afwijkingenbeheer | `incident` | Melding, categorie, statusverloop, sluiten |
 | Incident- & Afwijkingenbeheer | `incident_melding` | Externe meldplicht: welke verplichting, welke termijn, wanneer afgevinkt |
 | Incident- & Afwijkingenbeheer | `afwijking` | Registratie, herkomst, sluiten |

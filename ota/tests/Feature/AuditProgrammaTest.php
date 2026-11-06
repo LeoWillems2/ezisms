@@ -311,6 +311,25 @@ class AuditProgrammaTest extends TestCase
         $this->assertNotSame('uitgevoerd', $cellen[$onbehandeld->id][1]);
     }
 
+    public function test_dekkingsmatrix_toont_de_hoofdstukken_in_numerieke_volgorde(): void
+    {
+        // `groep` is tekst; erop sorteren zette "10 Verbetering" vóór
+        // "4 Context" (Chrometoets 24-09-2026, B3). `volgorde` loopt over alle
+        // groepen heen op en is de sleutel.
+        $this->seed(AuditobjectClausuleSeeder::class);
+        $programma = Auditprogramma::factory()->create(['start_datum' => '2024-01-01', 'aantal_jaren' => 3]);
+
+        $groepen = Livewire::actingAs($this->ciso)
+            ->test(Dekkingsmatrix::class)
+            ->set('programmaId', $programma->id)
+            ->viewData('groepen')
+            ->keys()
+            ->all();
+
+        $this->assertSame('4 Context', $groepen[0]);
+        $this->assertSame('10 Verbetering', end($groepen));
+    }
+
     public function test_kpi_telt_alleen_afgeronde_rondes(): void
     {
         $programma = Auditprogramma::factory()->create(['start_datum' => '2024-01-01', 'aantal_jaren' => 3]);

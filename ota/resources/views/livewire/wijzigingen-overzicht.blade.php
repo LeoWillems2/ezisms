@@ -1,7 +1,7 @@
 <div class="flex h-full w-full flex-1 flex-col gap-6">
     @include('partials.wijzigingen-subnav')
 
-    <div class="flex items-start justify-between gap-4">
+    <div class="flex flex-wrap items-start justify-between gap-4">
         <div>
             <flux:heading size="xl">Wijzigingsbeheer</flux:heading>
             <flux:subheading>

@@ -2,9 +2,8 @@
 
 namespace App\Livewire;
 
-use App\Models\Toetsopdracht;
 use App\Models\Trainingsmodule;
-use Illuminate\Support\Collection;
+use App\Support\Trainingsstand;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -43,54 +42,17 @@ class MijnTrainingen extends Component
 
     public function render()
     {
+        // De afleiding staat in Trainingsstand, zodat de assistenttool dezelfde
+        // eigen-trainingenlijst geeft (14b §4.3).
         $gebruiker = auth()->user();
-        $doelgroepIds = $gebruiker->doelgroepen()->pluck('doelgroepen.id');
-
-        $modules = Trainingsmodule::query()
-            ->where('actief', true)
-            ->whereHas('doelgroepen', fn ($q) => $q->whereIn('doelgroepen.id', $doelgroepIds))
-            ->orderBy('titel')
-            ->get();
-
-        $rijen = $modules->map(fn (Trainingsmodule $module) => [
-            'module' => $module,
-            'status' => $module->statusVoor($gebruiker),
-            'toets' => $module->toetsopdrachten()
-                ->whereHas('taak', fn ($q) => $q->where('eigenaar_id', $gebruiker->id))
-                ->latest('id')
-                ->first(),
-        ]);
 
         return view('livewire.mijn-trainingen', [
-            'rijen' => $rijen,
-            'losseToetsen' => $this->losseToetsen(),
+            'rijen' => Trainingsstand::eigenModules($gebruiker),
+            // Toetsen die zonder module zijn uitgezet (`/toetsen/uitzetten`, bron
+            // 'los'). Zonder deze lijst is zo'n toets op deze pagina onvindbaar:
+            // de modulelijst loopt via de doelgroepen, en een losse toets hangt
+            // per definitie niet aan een module.
+            'losseToetsen' => Trainingsstand::losseToetsen($gebruiker),
         ]);
-    }
-
-    /**
-     * Toetsen die zonder module zijn uitgezet (`/toetsen/uitzetten`, bron 'los').
-     *
-     * Zonder deze lijst is zo'n toets op deze pagina onvindbaar: de modulelijst
-     * hierboven loopt via de doelgroepen, en een losse toets hangt per definitie
-     * niet aan een module. De ontvanger zag hem dan alleen nog op /taken, tussen
-     * al het andere werk.
-     *
-     * Eén rij per toetsbestand — de nieuwste. Een toets kan namelijk opnieuw
-     * worden uitgezet zodra de vorige is afgerond, en dan hoort de lijst de
-     * huidige stand te tonen en geen historie.
-     *
-     * @return Collection<int, Toetsopdracht>
-     */
-    private function losseToetsen(): Collection
-    {
-        return Toetsopdracht::query()
-            ->with('taak')
-            ->whereNull('trainingsmodule_id')
-            ->whereHas('taak', fn ($q) => $q->where('eigenaar_id', auth()->id()))
-            ->latest('id')
-            ->get()
-            ->unique('toets_bestand')
-            ->sortBy(fn (Toetsopdracht $opdracht) => $opdracht->taak?->deadline)
-            ->values();
     }
 }

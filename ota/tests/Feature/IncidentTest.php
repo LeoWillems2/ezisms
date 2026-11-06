@@ -89,6 +89,28 @@ class IncidentTest extends TestCase
         $this->actingAs($this->ciso)->get('/afwijkingen')->assertOk();
     }
 
+    public function test_medewerker_opent_alleen_de_afwijking_waar_hij_bij_betrokken_is(): void
+    {
+        // De route staat op `uitvoeren`, zodat hij zijn eigen corrigerende
+        // maatregel kan afronden. Tot 24-09-2026 opende hij daarmee elke
+        // afwijking via het id (Chrometoets, B1). Via `get()` en niet via
+        // Livewire::test(), zodat de route-middleware meedoet.
+        $medewerker = Gebruiker::factory()->metRol('Medewerker')->create();
+        $andermans = Afwijking::factory()->create(['eigenaar_id' => $this->ciso->id]);
+        $eigen = Afwijking::factory()->create(['eigenaar_id' => $medewerker->id]);
+        $metMaatregel = Afwijking::factory()->create(['eigenaar_id' => $this->ciso->id]);
+        CorrigerendeMaatregel::factory()->for($metMaatregel, 'afwijking')->create(['eigenaar_id' => $medewerker->id]);
+
+        $this->actingAs($medewerker)->get('/afwijkingen/'.$andermans->id)->assertNotFound();
+        $this->actingAs($medewerker)->get('/afwijkingen/'.$eigen->id)->assertOk();
+        $this->actingAs($medewerker)->get('/afwijkingen/'.$metMaatregel->id)->assertOk();
+
+        // Volledige inzage blijft: de CISO en Management (die `exporteren` heeft).
+        $directeur = Gebruiker::factory()->metRol('Management')->create();
+        $this->actingAs($this->ciso)->get('/afwijkingen/'.$andermans->id)->assertOk();
+        $this->actingAs($directeur)->get('/afwijkingen/'.$andermans->id)->assertOk();
+    }
+
     // --- Afgeleide status (§5) ---------------------------------------------
 
     public function test_afwijkingstatus_volgt_grondoorzaak_en_maatregel(): void

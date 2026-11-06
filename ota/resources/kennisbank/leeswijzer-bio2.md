@@ -134,6 +134,10 @@ Deze pagina geeft een overzicht van de artikelen in de kennisbank.
   — Een installatie kan de aanmelding overlaten aan Microsoft Entra ID of Google
   Workspace. Dit artikel beschrijft wat daarvoor nodig is, welke instellingen er
   zijn en wat er bij het beheer op let.
+- **[Assistenttoegang via MCP](/kennisbank/assistenttoegang)** — Een gebruiker kan
+  een AI-assistent koppelen die namens die gebruiker in het ISMS leest. Dit artikel
+  beschrijft wie mag koppelen, wat de assistent kan opvragen, waar de gegevens heen
+  gaan en wat er wordt vastgelegd.
 - **[De normteksten invoeren](/kennisbank/normteksten-invoeren)** — Een organisatie
   die de norm heeft gekocht, voert de teksten zelf in met één JSON-bestand en één
   commando. De ingevoerde tekst mag deze installatie niet verlaten.

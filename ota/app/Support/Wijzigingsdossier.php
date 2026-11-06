@@ -100,7 +100,8 @@ final class Wijzigingsdossier
             return;
         }
 
-        $verschil = $vorige->diffInDays($geplandOp, absolute: false);
+        // Carbon 3 geeft een float; zonder cast is `=== 0` nooit waar.
+        $verschil = (int) round($vorige->diffInDays($geplandOp, absolute: false));
 
         if ($verschil === 0) {
             return;

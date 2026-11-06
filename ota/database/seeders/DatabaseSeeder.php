@@ -39,6 +39,7 @@ class DatabaseSeeder extends Seeder
             NotificatieregelSeeder::class,
             AuditobjectClausuleSeeder::class,
             WijzigingssjabloonSeeder::class,
+            AssistenttoegangSeeder::class,
             // Als laatste: de startlijn van de schedulerbewaking
             // (implementatie/00m §3). Hij hangt niet aan de andere seeders, maar
             // hoort wél ná de migraties én ná een eventuele verse vulling te

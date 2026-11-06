@@ -1,6 +1,6 @@
 {{-- Gedeelde sub-navigatie voor blok 7 (Taken & Workflow). Sjablonen zijn
      beheer en dus alleen zichtbaar met muteerrecht. --}}
-<flux:navbar class="mb-2">
+<flux:navbar class="mb-2 max-w-full overflow-x-auto">
     <flux:navbar.item :href="route('taken.index')" :current="request()->routeIs('taken.index')" wire:navigate>
         Taken
     </flux:navbar.item>

@@ -20,11 +20,18 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Passport\Contracts\OAuthenticatable;
+use Laravel\Passport\HasApiTokens;
 
-class Gebruiker extends Authenticatable
+/**
+ * `OAuthenticatable` en `HasApiTokens` voor de assistenttoegang
+ * (implementatie/14b §3): een Passport-token hoort bij een gebruiker, en
+ * daarna werkt elke autorisatiecheck zoals in de UI.
+ */
+class Gebruiker extends Authenticatable implements OAuthenticatable
 {
     /** @use HasFactory<GebruikerFactory> */
-    use Auditeerbaar, HasFactory, Notifiable, TwoFactorAuthenticatable, Waardenbewaking;
+    use Auditeerbaar, HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable, Waardenbewaking;
 
     protected $table = 'gebruikers';
 

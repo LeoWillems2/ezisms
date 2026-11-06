@@ -698,8 +698,6 @@ ISMS_CBW_PLICHTIG=false
 # Gebruik \`php artisan isms:capaciteiten aan\`.
 ISMS_CAPACITEITEN=false
 
-APP_LOCALE=en
-APP_FALLBACK_LOCALE=en
 APP_FAKER_LOCALE=en_US
 APP_MAINTENANCE_DRIVER=file
 

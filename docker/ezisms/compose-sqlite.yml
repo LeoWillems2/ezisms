@@ -95,6 +95,10 @@ services:
       OIDC_SUBJECT_CLAIM:     ${OIDC_SUBJECT_CLAIM:-sub}
       OIDC_DOMEIN:            ${OIDC_DOMEIN:-}
       ISMS_IDP_DWINGT_MFA:    ${ISMS_IDP_DWINGT_MFA:-false}
+      # Assistenttoegang via MCP (implementatie/14b). Uit tenzij gezet; de
+      # sleutelmap zet de entrypoint zelf (ISMS_OAUTH_SLEUTELS).
+      ISMS_ASSISTENT:         ${ISMS_ASSISTENT:-false}
+      ISMS_ASSISTENT_REDIRECTS: ${ISMS_ASSISTENT_REDIRECTS:-https://claude.ai}
       # Van welke proxy X-Forwarded-For geloofd wordt (implementatie/01l §2).
       # Leeg ⇒ niemand; het adres van de proxy komt dan in de inlogregistratie.
       ISMS_VERTROUWDE_PROXIES: ${ISMS_VERTROUWDE_PROXIES:-}

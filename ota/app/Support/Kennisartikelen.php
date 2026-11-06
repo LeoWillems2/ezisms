@@ -277,6 +277,15 @@ final class Kennisartikelen
             'categorie' => 'Techniek & beheer',
             'bestand' => 'inloggen-via-een-identiteitsprovider.md',
         ],
+        // Naast het identiteitsproviderartikel: ook een koppeling die een
+        // beheerder aanzet en waarvan de CISO de gegevensstroom moet
+        // verantwoorden (implementatie/14b). Profielloos; de werking is in elk
+        // profiel gelijk.
+        'assistenttoegang' => [
+            'titel' => 'Assistenttoegang via MCP',
+            'categorie' => 'Techniek & beheer',
+            'bestand' => 'assistenttoegang.md',
+        ],
         'normteksten-invoeren' => [
             'titel' => 'De normteksten invoeren',
             'categorie' => 'Techniek & beheer',

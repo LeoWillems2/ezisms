@@ -22,7 +22,14 @@ class Raadpleging extends Model
     public $timestamps = false;
 
     /** @var list<string> */
-    protected $fillable = ['bewijsstuk_id', 'gebruiker_id', 'geraadpleegd_op'];
+    protected $fillable = ['bewijsstuk_id', 'gebruiker_id', 'geraadpleegd_op', 'kanaal'];
+
+    /**
+     * Langs welke weg het bestand het systeem verliet (implementatie/14b §6.2).
+     *
+     * @var list<string>
+     */
+    public const KANALEN = ['ui', 'assistent'];
 
     /** @var array<string, string> */
     protected $casts = ['geraadpleegd_op' => 'datetime'];
@@ -84,8 +91,12 @@ class Raadpleging extends Model
             return collect();
         }
 
+        // Alleen de UI telt: een assistent die het bestand ophaalt, is niet de
+        // persoon die het leest. Een bevestiging na alleen een samenvatting door
+        // een assistent blijft dus "zonder raadpleging" (implementatie/14b §6.2).
         return static::query()
             ->where('bewijsstuk_id', $bewijsstukId)
+            ->where('kanaal', 'ui')
             ->groupBy('gebruiker_id')
             ->selectRaw('gebruiker_id, MIN(geraadpleegd_op) as eerste')
             ->pluck('eerste', 'gebruiker_id')

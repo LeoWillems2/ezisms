@@ -3,7 +3,7 @@
      programmabeheer, doelgroepen en het uitzetten zijn muteer-schermen; het
      trainingen- en resultatenoverzicht mag ook de Auditor lezen (magAllesZien
      sluit de Medewerker uit, want uitvoeren impliceert lezen). --}}
-<flux:navbar class="mb-2">
+<flux:navbar class="mb-2 max-w-full overflow-x-auto">
     @can('heeft-niveau', ['bewustzijn-training', 'uitvoeren'])
         <flux:navbar.item :href="route('mijn-trainingen.index')" :current="request()->routeIs('mijn-trainingen.index')" wire:navigate>
             Mijn trainingen

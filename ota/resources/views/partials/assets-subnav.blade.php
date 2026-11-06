@@ -1,7 +1,7 @@
 {{-- Gedeelde sub-navigatie voor blok 3 (Asset & Classificatie). Eén top-level
      menu-item in de zijbalk ("Assets") verwijst naar de assetlijst; systemen
      zijn van hieruit bereikbaar. --}}
-<flux:navbar class="mb-2">
+<flux:navbar class="mb-2 max-w-full overflow-x-auto">
     <flux:navbar.item :href="route('assets.index')" :current="request()->routeIs('assets.*')" wire:navigate>
         Assets
     </flux:navbar.item>

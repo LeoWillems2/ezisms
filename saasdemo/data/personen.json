@@ -1,6 +1,6 @@
 {
   "_over": {
-    "wat": "De acht ISMS-accounts van FruitBV, hun rollen, het personeelsdossier (A.6) en de doelgroepen.",
+    "wat": "De negen accounts van FruitBV (acht in het ISMS, plus de Administrator), hun rollen, het personeelsdossier (A.6) en de doelgroepen.",
     "bron": "saasdemo/scenario.md §3",
     "wachtwoorden": "Worden bij het vullen gegenereerd en één keer op de console getoond. Ze staan bewust niet in dit bestand.",
     "let_op": "De twee ZZP-beheerders staan hier als gebruiker en NIET in het leveranciersregister; ze vallen in scope wegens productietoegang."
@@ -116,6 +116,20 @@
       "status": "inactief",
       "uit_dienst_in_maand": 19,
       "toelichting": "Gaat in M19 uit dienst; account gedeactiveerd en toegang ingetrokken. Zonder deze regel staat de gebruikersbeheerpagina op acht keer 'actief' en blijft de accountlevenscyclus uit blok 1 onzichtbaar."
+    },
+    {
+      "sleutel": "anton",
+      "naam": "Anton Aubergine",
+      "email": "anton@acme.example",
+      "rol": "Administrator",
+      "functie": "Applicatiebeheerder",
+      "eenheid": "platformbeheer",
+      "aangemaakt_in_maand": 0,
+      "nda_getekend_in_maand": 0,
+      "screening_type": "vog",
+      "screening_in_maand": 0,
+      "status": "actief",
+      "toelichting": "Beheert de installatie (export, toetsbestanden) zonder inzage in de inhoud van het ISMS (implementatie/01e). Zonder dit account waren /beheer/export en /beheer/toetsen in de demo niet te laten zien (Chrometoets 24-09-2026). Bewust geen lid van 'Alle gebruikers': hij kan het ISMS niet in, dus ook geen training of beleid bevestigen."
     }
   ],
 

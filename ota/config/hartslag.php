@@ -64,6 +64,9 @@ return [
 
         'isms:schoon-raadplegingen' => ['klasse' => 'inhaalbaar'],
 
+        // Opruimen; een gemiste nacht haalt de volgende in (14b §7.3).
+        'isms:assistent-opruimen' => ['klasse' => 'inhaalbaar'],
+
         // Gemengd, en dat is de reden dat deze klasse bestaat: gebeurtenis-KPI's
         // worden opgevangen door een langer venster (12g §3), toestand-KPI's
         // niet — de stand van 1 september is op 20 oktober niet meer op te

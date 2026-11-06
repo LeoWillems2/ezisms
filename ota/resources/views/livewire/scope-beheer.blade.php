@@ -49,7 +49,7 @@
                 </div>
             @endif
 
-            <div class="mt-4 flex gap-2">
+            <div class="mt-4 flex flex-wrap gap-2">
                 {{-- Read-only inzage, ook voor lezers zonder muteerrecht. --}}
                 <flux:button variant="ghost" icon="eye" wire:click="bekijkVersie({{ $actief->id }})">
                     Volledige versie bekijken

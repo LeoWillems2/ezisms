@@ -28,7 +28,27 @@ final class TrainingHandlers
     /** @return array<string, callable> */
     public function register(): array
     {
-        return ['training_ronde' => $this->trainingRonde(...)];
+        return [
+            'training_ronde' => $this->trainingRonde(...),
+            'doelgroepen_vastleggen' => $this->doelgroepenVastleggen(...),
+        ];
+    }
+
+    /**
+     * Legt doelgroepen vast los van een trainingsmodule. `borgDoelgroep` liep
+     * alleen via een module, zodat een doelgroep die alleen beleid gebruikt —
+     * de Directie bij FruitBV — nooit ontstond (Chrometoets 24-09-2026, D5).
+     */
+    private function doelgroepenVastleggen(array $g, int $maand, Simulatie $sim): void
+    {
+        Handelt::als($sim->ciso())
+            ->mits('heeft-niveau', ['bewustzijn-training', 'muteren'])
+            ->bij("M{$maand}/doelgroepen_vastleggen")
+            ->doe(function () use ($g, $sim) {
+                foreach ($g['sleutels'] as $sleutel) {
+                    $this->borgDoelgroep($sleutel, $sim);
+                }
+            });
     }
 
     private function trainingRonde(array $g, int $maand, Simulatie $sim): void

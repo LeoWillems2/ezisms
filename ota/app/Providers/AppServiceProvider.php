@@ -11,6 +11,7 @@ use App\Models\Auditplan;
 use App\Models\Auditprogramma;
 use App\Models\Auditronde;
 use App\Models\Beleidsdocument;
+use App\Models\Beleidsherziening;
 use App\Models\Beleidsversie;
 use App\Models\Beoordelingsniveau;
 use App\Models\Beveiligingssignaal;
@@ -54,21 +55,27 @@ use App\Models\Uitsluiting;
 use App\Models\Verbeteractie;
 use App\Models\Wijziging;
 use App\Models\Wijzigingssjabloon;
+use App\Support\Assistent\Aanroepcontext;
+use App\Support\Assistent\Koppelingen;
 use App\Support\Autorisatiegeheugen;
 use App\Support\Ketenhash;
 use App\Support\Normlabels;
 use App\Support\Pandoc;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Laravel\Fortify\Fortify;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -86,6 +93,14 @@ class AppServiceProvider extends ServiceProvider
         // Scoped: per request weggegooid, zodat het geheugen nooit een request
         // overleeft. Zie de klassenkop van Autorisatiegeheugen.
         $this->app->scoped(Autorisatiegeheugen::class);
+
+        // Wat een MCP-tool over zijn eigen aanroep meldt, voor de aanroeplog
+        // (implementatie/14b §7.1). Per verzoek, net als hierboven.
+        $this->app->scoped(Aanroepcontext::class);
+
+        // De Passport-routes registreert routes/ai.php zelf, en alleen als de
+        // assistenttoegang aan staat (14b §3.1).
+        Passport::ignoreRoutes();
     }
 
     /**
@@ -128,6 +143,50 @@ class AppServiceProvider extends ServiceProvider
         $this->registreerGeauditeerdeMassaUpdate();
         $this->registreerNormlabels();
         $this->registreerLokaleTijd();
+        $this->registreerAssistenttoegang();
+    }
+
+    /**
+     * Passport en de limieten voor de assistenttoegang (implementatie/14b §3).
+     * De routes staan in routes/ai.php; dit is wat daar niet kan.
+     */
+    private function registreerAssistenttoegang(): void
+    {
+        Passport::tokensExpireIn(now()->addMinutes((int) config('assistent.toegangstoken_minuten', 60)));
+        Passport::refreshTokensExpireIn(now()->addDays((int) config('assistent.verversingstoken_dagen', 30)));
+
+        if (filled(config('assistent.sleutelmap'))) {
+            Passport::loadKeysFrom((string) config('assistent.sleutelmap'));
+        }
+
+        // Ons toestemmingsscherm in plaats van dat van Passport (14b §3.3).
+        Passport::authorizationView('assistent.toestemming');
+
+        // Per gebruiker en niet per IP: connectoren van een AI-dienst delen
+        // adressen met andere klanten (14b §10.2).
+        RateLimiter::for('assistent', fn (Request $request) => Limit::perMinute(
+            (int) config('assistent.aanroepen_per_minuut', 120)
+        )->by('gebruiker:'.($request->user()?->getAuthIdentifier() ?? $request->ip())));
+
+        // Anoniem, dus wel per IP.
+        RateLimiter::for('assistent-registratie', fn (Request $request) => Limit::perHour(
+            (int) config('assistent.registraties_per_uur', 10)
+        )->by($request->ip()));
+
+        RateLimiter::for('assistent-token', fn (Request $request) => Limit::perMinute(30)->by($request->ip()));
+
+        // Koppelingen intrekken zodra iemand ze niet meer zou mogen maken
+        // (14b §3.5). De middleware van /mcp blokkeert al per verzoek; dit
+        // ruimt de tokens op, zodat ze bij een terugdraaiing niet vanzelf
+        // weer werken.
+        Gebruiker::updated(function (Gebruiker $gebruiker) {
+            if ($gebruiker->wasChanged('status') && ! $gebruiker->magInloggen()) {
+                Koppelingen::trekIn($gebruiker, reden: 'account '.$gebruiker->status);
+            }
+        });
+        RolToewijzing::deleted(fn () => Koppelingen::ruimOpVoorWieNietMeerMag());
+        RolPermissie::deleted(fn () => Koppelingen::ruimOpVoorWieNietMeerMag());
+        RolPermissie::updated(fn () => Koppelingen::ruimOpVoorWieNietMeerMag());
     }
 
     /**
@@ -323,6 +382,8 @@ class AppServiceProvider extends ServiceProvider
         Relation::enforceMorphMap([
             'gebruiker' => Gebruiker::class,
             'rol_toewijzing' => RolToewijzing::class,
+            // De rechtenmatrix (implementatie/14b §8.1).
+            'rol_permissie' => RolPermissie::class,
             // Koppeling met de externe identiteitsprovider (01j §2).
             'externe_identiteit' => ExterneIdentiteit::class,
             'scope_verklaring' => ScopeVerklaring::class,
@@ -353,6 +414,7 @@ class AppServiceProvider extends ServiceProvider
             'beleidsdocument' => Beleidsdocument::class,
             'beleidsversie' => Beleidsversie::class,
             'leesbevestiging' => Leesbevestiging::class,
+            'beleidsherziening' => Beleidsherziening::class,
             'incident' => Incident::class,
             'incident_melding' => IncidentMelding::class,
             'afwijking' => Afwijking::class,

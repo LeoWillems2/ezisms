@@ -46,6 +46,18 @@ class AfwijkingDetail extends Component
 
     public function mount(Afwijking $afwijking): void
     {
+        // De route staat open op `uitvoeren`, zodat een Medewerker de
+        // corrigerende maatregel kan afronden die op zijn naam staat. Dat
+        // niveau zegt niets over welke afwijking: zonder deze regel opende een
+        // Medewerker elke afwijking via het id, met grondoorzaak en al, terwijl
+        // de lijst voor hem dicht is (Chrometoets 24-09-2026, B1). 404 en niet
+        // 403, net als bij IncidentDetail: andermans afwijking bestaat voor
+        // deze gebruiker niet.
+        //
+        // De regel zelf staat in `Afwijking::scopeZichtbaar`, zodat de
+        // assistenttoegang (implementatie/14b) dezelfde leest.
+        abort_unless(Afwijking::query()->zichtbaar()->whereKey($afwijking->id)->exists(), 404);
+
         $this->afwijking = $afwijking;
         $this->eigenaarId = (string) $afwijking->eigenaar_id;
     }

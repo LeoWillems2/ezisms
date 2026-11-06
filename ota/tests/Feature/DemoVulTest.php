@@ -82,8 +82,9 @@ class DemoVulTest extends TestCase
     {
         $this->vul();
 
-        // De acht accounts uit personen.json minus Aurelius, die pas in M3 komt.
-        $this->assertSame(7, Gebruiker::count());
+        // De negen accounts uit personen.json minus Aurelius, die pas in M3
+        // komt. Anton (Administrator) is er sinds 24-09-2026 bij.
+        $this->assertSame(8, Gebruiker::count());
         $this->assertSame(10, OrganisatieEenheid::count());
 
         $scope = ScopeVerklaring::where('status', 'actief')->firstOrFail();

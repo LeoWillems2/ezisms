@@ -10,6 +10,7 @@
 #   2. eigendom      chown, idempotent, ongeacht welke uid de host gebruikt
 #   3. wachten op db PDO-lus (depends_on is niet genoeg)
 #   4. APP_KEY       lezen uit installatie/app_key, of eenmalig genereren
+#   4a. OAuth        sleutelpaar voor de assistenttoegang in storage/oauth (14b)
 #   4b. versie       APP_VERSION uit het manifest als .env hem leeg laat
 #   4c. sessiecookie SESSION_SECURE_COOKIE volgt het schema van APP_URL
 #   5. config:cache  HIER, ná stap 4 — config/app.php leest APP_KEY
@@ -332,6 +333,39 @@ else
     chown ezisms:ezisms "$SLEUTELPAD"
     chmod 0600 "$SLEUTELPAD"
 fi
+
+# ── 4a. OAuth-sleutels voor de assistenttoegang (implementatie/14b §10.3) ─────
+# Passport tekent de tokens van gekoppelde AI-assistenten met dit sleutelpaar.
+# Net als APP_KEY: één keer genereren, bewaren op de bind mount, daarna alleen
+# lezen. Nooit in het image (dan delen alle installaties één sleutel) en nooit
+# in de tarbal. Een nieuw paar maakt alle bestaande koppelingen ongeldig; dat
+# is ook de manier om ze in één keer allemaal te laten vervallen.
+#
+# Altijd, ook als ISMS_ASSISTENT uit staat: het kost niets, en wie de functie
+# later aanzet hoeft niet aan dit script te denken.
+#
+# In storage/ en niet in installatie/: php-fpm (www-data) leest de sleutels bij
+# elke tokencontrole, en deploy-docker.sh zet installatie/ na elke uitrol
+# recursief op ezisms. storage/ blijft van www-data (stap 2 en de uitrol). Dat
+# bleek in de dockertoets van 06-11-2026; de eerste versie stond in installatie/.
+
+OAUTHMAP="$STATE/storage/oauth"
+mkdir -p "$OAUTHMAP"
+if [[ ! -s $OAUTHMAP/oauth-private.key || ! -s $OAUTHMAP/oauth-public.key ]]; then
+    "$PHP" -r '
+        $sleutel = openssl_pkey_new(["private_key_bits" => 4096, "private_key_type" => OPENSSL_KEYTYPE_RSA]);
+        openssl_pkey_export($sleutel, $prive) || exit(1);
+        file_put_contents($argv[1]."/oauth-private.key", $prive);
+        file_put_contents($argv[1]."/oauth-public.key", openssl_pkey_get_details($sleutel)["key"]);
+    ' "$OAUTHMAP"
+    goed "OAuth-sleutels gegenereerd in storage/oauth"
+else
+    meld "OAuth-sleutels gelezen uit storage/oauth"
+fi
+chown -R www-data:www-data "$OAUTHMAP"
+chmod 0700 "$OAUTHMAP"
+chmod 0600 "$OAUTHMAP"/oauth-*.key
+export ISMS_OAUTH_SLEUTELS="$OAUTHMAP"
 
 # ── De databasevariant (implementatie/00s §6.4) ──────────────────────────────
 # Geschreven door deploy-docker.sh na de eerste geslaagde uitrol; hier alleen

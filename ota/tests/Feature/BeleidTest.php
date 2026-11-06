@@ -8,6 +8,7 @@ use App\Livewire\BeleidsdocumentenOverzicht;
 use App\Livewire\TakenOverzicht;
 use App\Models\AuditLogregel;
 use App\Models\Beleidsdocument;
+use App\Models\Beleidsherziening;
 use App\Models\Beleidsversie;
 use App\Models\Bewijsstuk;
 use App\Models\Gebruiker;
@@ -530,6 +531,94 @@ class BeleidTest extends TestCase
         // Vervangen versie: de openstaande herzieningstaak verdwijnt.
         $versie->update(['status' => 'vervangen']);
         $this->assertSame(0, Taak::where('soort', 'beleid-herziening')->count());
+    }
+
+    public function test_herzieningstaak_is_niet_met_de_hand_af_te_vinken(): void
+    {
+        // Tot 24-09-2026 wel: één klik, geen conclusie, en de herzieningsdatum
+        // bleef verstreken staan naast een gesloten taak (Chrometoets, B6).
+        $document = Beleidsdocument::factory()->create(['eigenaar_id' => $this->ciso->id]);
+        Beleidsversie::factory()->actief()->for($document, 'document')->create([
+            'volgende_herziening_gepland' => now()->subDay(),
+        ]);
+        $taak = Taak::where('soort', 'beleid-herziening')->firstOrFail();
+
+        Livewire::actingAs($this->ciso)
+            ->test(TakenOverzicht::class)
+            ->call('voltooien', $taak->id)
+            ->assertHasNoErrors()
+            ->assertSee('herziening is vastgelegd');
+
+        $this->assertNotSame('voltooid', $taak->fresh()->status);
+    }
+
+    public function test_vastgelegde_herziening_sluit_de_taak_en_schuift_de_termijn_door(): void
+    {
+        $document = Beleidsdocument::factory()->create(['eigenaar_id' => $this->ciso->id]);
+        $versie = Beleidsversie::factory()->actief()->for($document, 'document')->create([
+            'volgende_herziening_gepland' => now()->subDay(),
+        ]);
+        $oudeTaak = Taak::where('soort', 'beleid-herziening')->firstOrFail();
+        $volgende = now()->addYear()->toDateString();
+
+        $scherm = Livewire::actingAs($this->ciso)
+            ->test(BeleidsdocumentDetail::class, ['beleidsdocument' => $document])
+            ->call('nieuweHerziening');
+
+        // "Gedaan" is geen conclusie: een toelichting zonder reden wordt geweigerd.
+        $scherm->set(['herzieningToelichting' => 'Gedaan.', 'herzieningVolgende' => $volgende])
+            ->call('legHerzieningVast')
+            ->assertHasErrors(['herzieningToelichting' => 'min']);
+        $this->assertSame(0, Beleidsherziening::count());
+
+        $scherm->set('herzieningToelichting', 'Beoordeeld tegen de incidenten van dit jaar; het beleid dekt ze nog.')
+            ->call('legHerzieningVast')
+            ->assertHasNoErrors()
+            ->assertSee('Herziening vastgelegd');
+
+        $herziening = Beleidsherziening::sole();
+        $this->assertSame($this->ciso->id, $herziening->beoordeeld_door_id);
+        $this->assertSame($volgende, $versie->fresh()->volgende_herziening_gepland->toDateString());
+
+        // De oude ronde is af, en er staat één nieuwe taak op de nieuwe datum.
+        $this->assertSame('voltooid', $oudeTaak->fresh()->status);
+        $open = Taak::where('soort', 'beleid-herziening')->where('status', '!=', 'voltooid')->sole();
+        $this->assertSame($volgende, $open->deadline->toDateString());
+
+        // En in de trail, want dat is het bewijs bij A.5.1.
+        $this->assertTrue(AuditLogregel::where('entiteit_type', $herziening->getMorphClass())
+            ->where('entiteit_id', $herziening->id)->exists());
+    }
+
+    public function test_eigenaar_mag_herzien_maar_een_andere_medewerker_niet(): void
+    {
+        // De herzieningstaak ligt bij de eigenaar; kon hij hem niet afronden,
+        // dan was het een doodlopende weg.
+        $eigenaar = Gebruiker::factory()->metRol('Medewerker')->create();
+        $ander = Gebruiker::factory()->metRol('Medewerker')->create();
+        $document = Beleidsdocument::factory()->create(['eigenaar_id' => $eigenaar->id]);
+        Beleidsversie::factory()->actief()->for($document, 'document')->create([
+            'volgende_herziening_gepland' => now()->subDay(),
+        ]);
+
+        // fresh(): de observer heeft het document op `actief` gezet, deze
+        // instantie weet dat nog niet — en zonder volledige inzage opent
+        // alleen een actief document.
+        $document = $document->fresh();
+
+        Livewire::actingAs($ander)
+            ->test(BeleidsdocumentDetail::class, ['beleidsdocument' => $document])
+            ->call('nieuweHerziening')
+            ->assertForbidden();
+
+        Livewire::actingAs($eigenaar)
+            ->test(BeleidsdocumentDetail::class, ['beleidsdocument' => $document])
+            ->call('nieuweHerziening')
+            ->set('herzieningToelichting', 'Nagelopen met het team; geen wijzigingen in de werkwijze.')
+            ->call('legHerzieningVast')
+            ->assertHasNoErrors();
+
+        $this->assertSame(1, Beleidsherziening::count());
     }
 
     // --- Goedkeuringstaak (05b) --------------------------------------------

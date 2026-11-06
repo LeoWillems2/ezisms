@@ -6,6 +6,7 @@ use App\Livewire\Concerns\LevertSchermkopie;
 use App\Models\Gebruiker;
 use App\Models\Issue;
 use App\Models\Risico;
+use App\Support\Risicoselectie;
 use App\Support\Schermkopie;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
@@ -19,14 +20,7 @@ class RisicosOverzicht extends Component
     use LevertSchermkopie;
 
     /** Eén plek voor de statuslabels, zodat scherm en schermkopie niet uiteenlopen. */
-    private const STATUS_LABELS = [
-        'geidentificeerd' => 'Geïdentificeerd',
-        'beoordeeld' => 'Beoordeeld',
-        'behandelplan_opgesteld' => 'Behandelplan opgesteld',
-        'geaccepteerd' => 'Geaccepteerd',
-        'in_uitvoering' => 'In uitvoering',
-        'gemitigeerd' => 'Gemitigeerd',
-    ];
+    private const STATUS_LABELS = Risicoselectie::STATUS_LABELS;
 
     #[Url]
     public string $filterStatus = '';
@@ -121,18 +115,9 @@ class RisicosOverzicht extends Component
      */
     private function gefilterdeRisicos(): Collection
     {
-        $drempel = Risico::drempelwaarde();
-
-        return Risico::query()
-            ->with(['eigenaar.rollen'])
-            ->when($this->filterStatus !== '', fn ($q) => $q->where('status', $this->filterStatus))
-            ->when($this->alleenBovenDrempel, fn ($q) => $q->where('risicoscore', '>', $drempel))
-            ->when($this->filterIssue !== '', fn ($q) => $q->whereHas(
-                'aanleidingen', fn ($i) => $i->whereKey($this->filterIssue)
-            ))
-            ->orderByDesc('risicoscore')
-            ->orderBy('titel')
-            ->get();
+        // De query staat in Risicoselectie, zodat de assistenttool `risicos`
+        // dezelfde rijen ziet (implementatie/14b §4.3).
+        return Risicoselectie::query($this->filterStatus, $this->alleenBovenDrempel, $this->filterIssue)->get();
     }
 
     // --- Kopie voor de auditor (implementatie/12h) -------------------------

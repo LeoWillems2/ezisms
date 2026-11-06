@@ -69,8 +69,6 @@ final class Dashboardsignalen
             $bouwer->onbezorgdeBeveiligingssignalen();
         }
 
-        $bouwer->nietTeBerekenen();
-
         return $bouwer;
     }
 
@@ -346,26 +344,6 @@ final class Dashboardsignalen
             'De bewaking op misbruik van inloggegevens zag iets, maar er is geen syslogserver '
                 .'en geen mailkanaal ingesteld. Het signaal staat alleen in de audit trail.',
             (string) $aantal,
-        );
-    }
-
-    /**
-     * Blok 12 §4 vraagt om het signaal *scoredaling zonder gekoppeld bewijs in
-     * dezelfde periode*. Dat is vandaag niet te berekenen: het vraagt de drie
-     * Act-metingen op de audit trail, en die zijn niet gebouwd.
-     *
-     * De regel staat er toch, met de reden erbij. Anders is het gat alleen in
-     * het implementatieplan zichtbaar en niet voor wie het dashboard gebruikt —
-     * en juist dit signaal is bedoeld om te zien of iemand zijn cijfers poetst.
-     */
-    private function nietTeBerekenen(): void
-    {
-        $this->voegToe(
-            'neutraal',
-            'Scoredaling zonder onderliggend bewijs — nog niet gemeten',
-            'Dit signaal hoort er te zijn (blok 12 §4) maar vraagt metingen op de audit '
-                .'trail die nog niet bestaan.',
-            '—',
         );
     }
 

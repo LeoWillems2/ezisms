@@ -32,9 +32,12 @@ final class Navigatie
             new NavigatieItem('Incidenten', 'incidenten.index', 'incident-afwijkingenbeheer', 'exclamation-triangle', 'uitvoeren'),
             new NavigatieItem('Afwijkingen', 'afwijkingen.index', 'incident-afwijkingenbeheer', 'wrench-screwdriver', 'muteren'),
             new NavigatieItem('Leveranciers', 'leveranciers.index', 'leveranciers-derdenrisico', 'truck'),
-            // Op 'uitvoeren': de applicatiebeheerder meldt hier de aankondiging
-            // van zijn leverancier aan (implementatie/15 §5).
-            new NavigatieItem('Wijzigingsbeheer', 'wijzigingen.index', 'wijzigingsbeheer', 'arrow-path', 'uitvoeren'),
+            // Op 'lezen', gelijk aan de route: de applicatiebeheerder meldt hier
+            // de aankondiging van zijn leverancier aan (implementatie/15 §5, en
+            // `uitvoeren` impliceert `lezen`), en Management en de Auditor lezen
+            // het register mee. Stond tot 24-09-2026 op 'uitvoeren': dan kwamen
+            // zij er alleen via de URL in (Chrometoets, B8).
+            new NavigatieItem('Wijzigingsbeheer', 'wijzigingen.index', 'wijzigingsbeheer', 'arrow-path'),
             // Op 'lezen', zodat ook het (tijdelijke) Auditor-account de audits ziet.
             new NavigatieItem('Audits', 'audits.index', 'auditmanagement', 'clipboard-document-list'),
             new NavigatieItem('Management review', 'management-review.index', 'management-review-verbetercyclus', 'presentation-chart-line'),

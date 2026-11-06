@@ -42,7 +42,8 @@
             "jantien",
             "kees",
             "piet",
-            "keesje"
+            "keesje",
+            "anton"
           ],
           "door": "ciske"
         },
@@ -61,6 +62,15 @@
           "type": "bewijsstuk",
           "titel": "Directiebesluit invoering ISMS",
           "koppeling": "scope-v1"
+        },
+        {
+          "type": "doelgroepen_vastleggen",
+          "sleutels": [
+            "dg-alle",
+            "dg-beheerders",
+            "dg-directie"
+          ],
+          "toelichting": "De drie doelgroepen uit het personeelsdossier, ook de Directie die alleen beleid gebruikt en geen trainingsmodule."
         }
       ]
     },
@@ -258,6 +268,12 @@
           "aantal_jaren": 1,
           "status": "actief",
           "door": "ciske"
+        },
+        {
+          "type": "jaarplan_vaststellen",
+          "programma": "prog-voorbereiding",
+          "programmajaar": 1,
+          "toelichting": "Het jaarplan wordt vastgesteld vóór de eerste ronde erin loopt; zonder vaststelling bleef het een concept naast een afgeronde audit."
         },
         {
           "type": "auditronde",
@@ -471,6 +487,16 @@
           "type": "bewijsstuk",
           "titel": "Notulen directiebeoordeling 1",
           "koppeling": "review-1"
+        },
+        {
+          "type": "bevindingen_afhandelen",
+          "ronde": "ronde-nulmeting",
+          "notitie": "Meegenomen in het implementatieplan na de voorbereidingsaudit; de opvolging staat per maatregel in de SoA."
+        },
+        {
+          "type": "bevindingen_afhandelen",
+          "ronde": "ronde-intern-voorbereiding",
+          "notitie": "Besproken met de proceseigenaren en verwerkt in de betreffende procedures."
         }
       ]
     },
@@ -600,10 +626,26 @@
           "toelichting": "Programmajaar 1 loopt M12–M23. De programmajaren beginnen op de certificaatdatum, niet op 1 januari — precies het geval waar de kalenderjaar-verankering uit 11b op stukliep."
         },
         {
+          "type": "jaarplan_vaststellen",
+          "programma": "prog-cyclus",
+          "programmajaar": 1,
+          "toelichting": "Het jaarplan wordt vastgesteld vóór de eerste ronde erin loopt; zonder vaststelling bleef het een concept naast een afgeronde audit."
+        },
+        {
           "type": "beleid_publiceren",
           "document": "beleid-isb",
           "versie": 2,
           "door": "baas"
+        },
+        {
+          "type": "bevindingen_afhandelen",
+          "ronde": "ronde-cert-fase1",
+          "notitie": "Observatie van de certificerende instelling verwerkt vóór fase 2; toegelicht in het fase 2-gesprek."
+        },
+        {
+          "type": "bevindingen_afhandelen",
+          "ronde": "ronde-cert-fase2",
+          "notitie": "Observatie verwerkt in het corrigerend actieplan dat bij de certificerende instelling is ingediend."
         }
       ]
     },
@@ -657,6 +699,16 @@
           "type": "bewijsstuk",
           "titel": "Kwartaalreview toegangsrechten",
           "herhaal_per_kwartaal_vanaf_maand": 13
+        },
+        {
+          "type": "beleid_herzien",
+          "document": "beleid-toegang",
+          "toelichting": "Beoordeeld na de externe minor op A.5.18: het beleid schrijft de kwartaalreview al voor, het gat zat in de uitvoering. Ongewijzigd."
+        },
+        {
+          "type": "beleid_herzien",
+          "document": "beleid-gebruik",
+          "toelichting": "Nagelopen met Handel en Administratie; geen nieuwe middelen of werkwijzen sinds de publicatie. Ongewijzigd."
         }
       ]
     },
@@ -710,6 +762,11 @@
           "type": "bewijsstuk",
           "titel": "Datalekanalyse incident OTA",
           "koppeling": "incident-2"
+        },
+        {
+          "type": "beleid_herzien",
+          "document": "proc-change",
+          "toelichting": "Getoetst aan de wijzigingen van dit jaar: de procedure dekte ze alle, inclusief de spoedroute. Ongewijzigd."
         }
       ]
     },
@@ -743,6 +800,16 @@
           "type": "corrigerende_maatregel_voltooien",
           "afwijking": "afwijking-patchbeheer",
           "deel": "ota-anonimiseren"
+        },
+        {
+          "type": "beleid_herzien",
+          "document": "beleid-crypto",
+          "toelichting": "Geen nieuwe algoritmen of sleutelbeheer sinds de publicatie; de eisen aan TLS en opslag gelden nog. Ongewijzigd."
+        },
+        {
+          "type": "beleid_herzien",
+          "document": "beleid-leveranciers",
+          "toelichting": "Beoordeeld tijdens leveranciersronde 2. De eisen dekken de SnijBoon-bevinding; de uitvoering volgt via het actieplan. Ongewijzigd."
         }
       ]
     },
@@ -754,6 +821,16 @@
           "type": "taak_verlopen",
           "taaksjabloon": "Herbeoordeling risicoregister",
           "toelichting": "Wordt niet opgepakt en verloopt. Zichtbaar als duidelijke dip in 'Risico's binnen termijn herbeoordeeld' en als tweede knik in de takenKPI."
+        },
+        {
+          "type": "beleid_herzien",
+          "document": "beleid-bewaartermijnen",
+          "toelichting": "Bewaartermijnen vergeleken met de AVG-eisen van de belanghebbenden; geen wijziging in wettelijke termijnen. Ongewijzigd."
+        },
+        {
+          "type": "beleid_herzien",
+          "document": "proc-datalek",
+          "toelichting": "Getoetst aan incident 2 (M14): de datalekanalyse verliep volgens deze procedure. Ongewijzigd."
         }
       ]
     },
@@ -808,6 +885,11 @@
           "type": "risico_behandelplan",
           "sleutel": "risico-15",
           "door": "ciske"
+        },
+        {
+          "type": "beleid_herzien",
+          "document": "proc-interne-audit",
+          "toelichting": "Nagelopen vóór de eerste audit van de certificeringscyclus; de procedure sluit aan op het auditprogramma. Ongewijzigd."
         }
       ]
     },
@@ -920,6 +1002,11 @@
           "sleutel": "criteria-v2",
           "door": "ciske",
           "toelichting": "Uit besluit 2 volgt een scherpere acceptatiedrempel (15 naar 12) en een kwantitatieve band per schaalstap. De CISO stelt op en dient in; vaststellen doet de directie in M20."
+        },
+        {
+          "type": "beleid_herzien",
+          "document": "proc-backup",
+          "toelichting": "Getoetst aan de hersteltest en de logginguitbreiding van dit jaar; de frequenties blijven passend. Ongewijzigd."
         }
       ]
     },
@@ -981,6 +1068,12 @@
           "type": "wijziging_doorlopen",
           "sleutel": "wij-tls-spoed",
           "toelichting": "Wijzigingsbeheer (A.8.32): het dossier wordt aangemeld, in behandeling genomen en tot de in de fixture vastgelegde stap doorlopen."
+        },
+        {
+          "type": "bevindingen_afhandelen",
+          "ronde": "ronde-intern-jaar1",
+          "open_laten": 1,
+          "notitie": "Opgevolgd door de proceseigenaar; besproken in de directiebeoordeling van M19."
         }
       ]
     },

@@ -41,7 +41,77 @@ final class AuditHandlers
             'auditcyclus_voorbereiden' => $this->auditcyclusVoorbereiden(...),
             'auditprogramma_afsluiten' => $this->auditprogrammaAfsluiten(...),
             'auditronde' => $this->auditronde(...),
+            'bevindingen_afhandelen' => $this->bevindingenAfhandelen(...),
+            'jaarplan_vaststellen' => $this->jaarplanVaststellen(...),
         ];
+    }
+
+    /**
+     * Sluit de observaties en verbeterkansen van een ronde, zoals de CISO dat
+     * in het rondedossier doet: met een afhandelingsnotitie. Zonder dit stonden
+     * op M22 32 van de 37 FruitBV-bevindingen open, ook die uit de nulmeting van
+     * anderhalf jaar eerder (Chrometoets 24-09-2026, D3).
+     *
+     * `open_laten` houdt de laatste n open: een verbeterkans die nog loopt is
+     * geloofwaardiger dan een dossier dat precies op tijd leeg is. Een
+     * non-conformiteit sluit hier niet; die gaat via haar afwijking.
+     */
+    private function bevindingenAfhandelen(array $g, int $maand, Simulatie $sim): void
+    {
+        $ronde = $sim->fixtures()->model($g['ronde']);
+        $typen = $g['typen'] ?? ['observatie', 'verbeterkans'];
+
+        Handelt::als(isset($g['door']) ? $sim->gebruiker($g['door']) : $sim->ciso())
+            ->mits('heeft-niveau', ['auditmanagement', 'muteren'])
+            ->bij("M{$maand}/bevindingen_afhandelen/{$g['ronde']}")
+            ->doe(function () use ($ronde, $typen, $g, $maand) {
+                $open = Bevinding::where('auditronde_id', $ronde->id)
+                    ->whereIn('type', $typen)
+                    ->where('status', 'open')
+                    ->orderBy('id')
+                    ->get();
+
+                foreach ($open->slice(0, max(0, $open->count() - (int) ($g['open_laten'] ?? 0))) as $bevinding) {
+                    if (($reden = $bevinding->belemmeringVoorSluiten()) !== null) {
+                        throw new DemoFixtureFout("M{$maand}/bevindingen_afhandelen/{$g['ronde']}: {$reden}");
+                    }
+
+                    $bevinding->update([
+                        'status' => 'gesloten',
+                        'gesloten_op' => now()->toDateString(),
+                        'gesloten_door_id' => auth()->id(),
+                        'afhandelingsnotitie' => $g['notitie'],
+                    ]);
+                }
+            });
+    }
+
+    /**
+     * Stelt het jaarplan van een programmajaar vast, zoals de knop op het
+     * auditoverzicht. `isms:bereid-auditcyclus-voor` maakt de plannen als
+     * concept, en daar bleven ze: ook het plan van een jaar waarvan de ronde al
+     * was afgerond (Chrometoets 24-09-2026, D4).
+     */
+    private function jaarplanVaststellen(array $g, int $maand, Simulatie $sim): void
+    {
+        $programma = $sim->fixtures()->model($g['programma']);
+
+        Handelt::als($sim->ciso())
+            ->mits('heeft-niveau', ['auditmanagement', 'muteren'])
+            ->bij("M{$maand}/jaarplan_vaststellen/{$g['programma']} jaar {$g['programmajaar']}")
+            ->doe(function () use ($programma, $g, $maand) {
+                $plan = Auditplan::where('auditprogramma_id', $programma->id)
+                    ->where('programmajaar', (int) $g['programmajaar'])
+                    ->first();
+
+                if ($plan === null) {
+                    throw new DemoFixtureFout("M{$maand}/jaarplan_vaststellen: geen jaarplan voor programmajaar {$g['programmajaar']} van {$g['programma']}.");
+                }
+
+                if ($plan->status === 'concept') {
+                    $plan->update(['status' => 'vastgesteld']);
+                }
+            });
     }
 
     private function auditprogrammaAanmaken(array $g, int $maand, Simulatie $sim): void

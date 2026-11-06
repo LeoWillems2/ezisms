@@ -29,6 +29,10 @@ Schedule::command('isms:verloop-taken')->dailyAt('02:15');
 // dan het archiveren hierboven (implementatie/05 §14).
 Schedule::command('isms:schoon-raadplegingen')->dailyAt('02:30');
 
+// Assistenttoegang: aanroeplog op termijn, verlopen tokens en ongebruikte
+// clients weg (implementatie/14b §7.3). Ook als de functie uit staat.
+Schedule::command('isms:assistent-opruimen')->dailyAt('02:35');
+
 // De hartslag nalopen (implementatie/00m §8). Als laatste van de nacht, en dat
 // is het punt: alle commando's hierboven hebben dan hun hartslag geschreven, dus
 // de controle gaat over de nacht die net voorbij is en niet half over de vorige.

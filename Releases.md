@@ -14,6 +14,116 @@ geeft de oorspronkelijke tekst.
 
 ---
 
+## V4.1.0 — assistenttoegang via MCP
+
+*06-11-2026*
+
+Het ISMS is een MCP-server. Een gebruiker kan een AI-assistent koppelen, zoals
+Claude Code of claude.ai, die namens die gebruiker in het ISMS leest. De functie
+staat standaard uit (`ISMS_ASSISTENT`), en na het aanzetten mag nog geen enkele
+rol koppelen tot de CISO dat per rol aanzet. Het ISMS roept zelf geen AI-dienst
+aan en bewaart geen sleutel voor een AI-dienst.
+
+**Koppelen.** OAuth 2.1 met PKCE via Passport, langs het gewone loginscherm, dus
+met tweefactor of de identiteitsprovider, en daarna een eigen
+toestemmingsscherm. Bij elk verzoek controleert het systeem opnieuw het account,
+de rol en de scope. Een assistent mag alleen terugsturen naar `localhost` en
+naar de domeinen in `ISMS_ASSISTENT_REDIRECTS`.
+
+**Wat de assistent ziet.** Er zijn 12 alleen-lezen tools, van `isms-overzicht`
+en `zoek` tot `kpi-reeks`, `audit-dekking` en `open-acties`, en bestanden van
+bewijsstukken en beleidsversies. Elke tool toont precies wat het scherm aan
+dezelfde gebruiker toont. Waar die regel alleen in een scherm stond, staat hij nu
+in een klasse die scherm en tool delen (SoA, risico's, dekkingsmatrix,
+trainingen, beleid, afwijkingen). Een bestand gaat alleen mee als het nog
+overeenkomt met de hash bij het uploaden.
+
+**Beheer en vastlegging.**
+- `/assistenttoegang` voor de CISO: rollen aan of uit, koppelingen intrekken,
+  de aanroeplog. De Auditor leest mee.
+- *Assistenten* bij de eigen instellingen.
+- Wijzigingen in de rechtenmatrix staan nu in de audit trail.
+- Koppelingen worden ingetrokken bij een blokkade of als het recht vervalt.
+- Een raadpleging via een assistent telt bij leesbevestigingen niet als zelf
+  gelezen.
+- `isms:assistent-opruimen` draait elke nacht; met `--alles` hoort het bij
+  het uitzetten.
+
+**Docker.** De container maakt het sleutelpaar bij de eerste start aan in
+`storage/oauth`; dat hoort bij de back-up. `ISMS_ASSISTENT` en
+`ISMS_ASSISTENT_REDIRECTS` staan in de compose-lijsten. Kopieer bij het
+bijwerken het compose-bestand opnieuw, anders bereikt de instelling de container
+niet.
+
+**Verder.** Een kennisbankartikel *Assistenttoegang via MCP*, met een alinea voor
+de DPIA, en aanvullingen in de compliance-bijlagen 1 tot en met 3.
+
+Twee migraties (000074 en 000075). Suite `assistent`: 91 tests. Volledige
+suite: 1438 groen. De vier rode tests (Tijdweergave, Wijzigingsbeheer) falen ook
+op V4.0.0 en staan los van deze uitgave. Dockertoets §22 groen op SQLite en
+MySQL. De koppeling vanuit claude.ai is nog niet getoetst. `env.voorbeeld-image`
+wijst nog naar het image V3.9.0.
+
+---
+
+## V4.0.0 — plan voor assistenttoegang via MCP
+
+*05-11-2026*
+
+Het begin van de vierde reeks: het ISMS wordt een MCP-server, zodat een
+AI-assistent die de klant zelf kiest namens een gebruiker vragen kan stellen
+aan het ISMS. Deze uitgave bevat het implementatieplan; de bouw volgt.
+
+**Het plan** (`implementatie/14b-assistenttoegang-via-mcp.md`). Inloggen via
+OAuth met Passport, met tweefactor en externe IdP bij de toestemming. Alleen
+lezen. Standaard uit; de CISO zet het per rol aan. De assistent ziet wat de UI
+aan dezelfde gebruiker toont, inclusief de inhoud van bewijsstukken, en elke
+aanroep komt in een eigen log.
+
+**Verder.** CLAUDE.md legt vast dat tabelnamen nooit langer zijn dan de 64
+tekens die MySQL aankan. `env.voorbeeld-image` wijst naar het image V3.9.0.
+
+Geen migraties. Geen codewijzigingen sinds V3.9.0, dus de testsuite is niet
+opnieuw gedraaid.
+
+---
+
+## V3.9.0 — na de Chrometoets, en een image met verse PHP
+
+*22-10-2026*
+
+Een browserronde door het FruitBV-demo leverde negen bevindingen op, waarvan
+twee over autorisatie. Ook ziet het gevulde demo er nu verzorgd uit. Het
+Docker-image is opnieuw gebouwd met de PHP-beveiligingsupdate van Ubuntu
+(php8.5 8.5.4-0ubuntu1.5).
+
+**Autorisatie.** Een Medewerker kon elke afwijking openen via het id. Nu ziet hij
+alleen de afwijkingen waarvan hij eigenaar is of waarvan hij een maatregel
+draagt, net als bij incidenten. Hij verliest ook het leesrecht op het volledige
+gebruikersoverzicht (migratie 000073). Wijzigingsbeheer staat in het menu onder
+hetzelfde recht als de route zelf.
+
+**Herziening zonder nieuwe versie.** Een beleidsdocument kan herzien worden
+zonder dat er een nieuwe versie ontstaat: een verplichte conclusie met reden,
+waarna de taak sluit en de termijn doorschuift (migratie 000072). In */taken*
+kan zo'n taak niet worden voltooid zolang de herziening niet is vastgelegd.
+
+**Correcties.** Het dashboard toonde "vs. 12.774193548387 mnd". Dekkingsmatrix,
+auditprogramma en auditronde zetten groep 10 vóór groep 4. Een oude `.env` kon
+de applicatie op Engels zetten; de taal staat nu vast op Nederlands, met de
+volledige validatieteksten. De subnavigatie past op een scherm van 390 px.
+
+**Demo.** Implementatiebewijs bij de SoA-regels, beleid dat op tijd herzien
+wordt, afgehandelde observaties en een vastgesteld jaarplan. Bij beide
+scenario's (FruitBV en ZorgZeker) bevatte de eindstand eerder het tegendeel.
+De demoklok zet handelingen nu om 09:xx in plaats van om middernacht.
+
+**Image.** `buildimage.sh --vers` haalt de basislaag opnieuw op en bouwt zonder
+cache. Dat is nodig voor een beveiligingsupdate van een OS-pakket: de apt-regel
+in de Dockerfile verandert dan niet, dus anders komt de oude laag uit de cache.
+
+---
+
 ## V3.8.0 — een demo voor NEN 7510
 
 *23-09-2026*

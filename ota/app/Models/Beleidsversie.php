@@ -58,6 +58,11 @@ class Beleidsversie extends Model implements Taakbelemmering
         return $this->hasMany(Leesbevestiging::class);
     }
 
+    public function herzieningen(): HasMany
+    {
+        return $this->hasMany(Beleidsherziening::class);
+    }
+
     /** Inhoud is alleen te wijzigen zolang de versie nog niet gepubliceerd is. */
     public function isBewerkbaar(): bool
     {
@@ -156,8 +161,10 @@ class Beleidsversie extends Model implements Taakbelemmering
      * Houdt de knop *Voltooien* op `/taken` tegen zolang de handeling waar de
      * taak over gaat niet verricht is (implementatie/05b §6).
      *
-     * Beide taaksoorten van dit blok sluiten zichzelf: de goedkeuringstaak bij
-     * het publiceren, de leesbevestigingstaak zodra de bevestiging binnen is.
+     * De drie taaksoorten van dit blok sluiten zichzelf: de goedkeuringstaak bij
+     * het publiceren, de leesbevestigingstaak zodra de bevestiging binnen is, en
+     * de herzieningstaak zodra een herziening is vastgelegd (of een nieuwe
+     * versie deze vervangt).
      * Zonder deze rem is de taak met de hand af te vinken zonder dat er iets
      * gebeurt — de versie blijft ter goedkeuring liggen, de bevestiging blijft
      * uit, en de nachtelijke ronde zet de taak gewoon terug. Een knop die niets
@@ -176,6 +183,13 @@ class Beleidsversie extends Model implements Taakbelemmering
             'beleid-leesbevestiging' => $this->isBevestigdDoor($taak->eigenaar_id)
                 ? null
                 : 'Deze taak sluit vanzelf zodra u de leesbevestiging geeft. Open het document bij Beleid & procedures en bevestig daar dat u het gelezen hebt.',
+            // Tot 24-09-2026 viel deze soort door naar `null`: de taak ging met
+            // één klik dicht, zonder conclusie, en de herzieningsdatum bleef
+            // verstreken staan (Chrometoets, B6). Een herziening van ná het
+            // ontstaan van de taak telt; een oudere hoort bij de vorige ronde.
+            'beleid-herziening' => $this->herzieningen()->where('created_at', '>=', $taak->created_at)->exists()
+                ? null
+                : 'Deze taak sluit vanzelf zodra de herziening is vastgelegd. Open het document bij Beleid & procedures en leg daar onder Herziening de conclusie vast, of maak een nieuwe versie als het beleid moet veranderen.',
             default => null,
         };
     }

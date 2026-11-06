@@ -2,9 +2,9 @@
 
 namespace App\Livewire;
 
-use App\Models\Toetsopdracht;
 use App\Support\Recordscope;
 use App\Support\ToetsBestanden;
+use App\Support\Trainingsstand;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -30,14 +30,7 @@ class ToetsenResultaten extends Component
 
     public function render()
     {
-        $opdrachten = Toetsopdracht::query()
-            ->with(['taak.eigenaar'])
-            ->when($this->filterToets !== '', fn ($q) => $q->where('toets_bestand', $this->filterToets))
-            ->when($this->filterStatus === 'openstaand', fn ($q) => $q->where('status', '!=', 'geslaagd'))
-            ->when(! in_array($this->filterStatus, ['', 'openstaand'], true),
-                fn ($q) => $q->where('status', $this->filterStatus))
-            ->orderByDesc('id')
-            ->get();
+        $opdrachten = Trainingsstand::toetsresultaten($this->filterToets, $this->filterStatus);
 
         return view('livewire.toetsen-resultaten', [
             'opdrachten' => $opdrachten,

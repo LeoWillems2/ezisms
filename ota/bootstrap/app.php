@@ -53,5 +53,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // De MCP-route en de tokenroutes hebben geen scherm: een 401 moet een
+        // 401 blijven, met de WWW-Authenticate-kop die de client naar de
+        // OAuth-flow wijst, en geen redirect naar het loginscherm
+        // (implementatie/14b §4.1). Niet elke client stuurt een Accept-kop.
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request, Throwable $e) => $request->expectsJson()
+                || $request->is('mcp', 'oauth/token', 'oauth/register')
+        );
     })->create();

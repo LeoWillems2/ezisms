@@ -23,6 +23,7 @@ gegeven: bij het inrichten, bij het uitleveren of bij het opruimen.
 | dagelijks 02:00 | `isms:genereer-taken` | Het commando maakt terugkerende taken aan uit de sjablonen, plus signalen voor achterstallige retouren, SoA-beoordelingen en leesbevestigingen. |
 | dagelijks 02:15 | `isms:verloop-taken` | Taken waarvan de deadline is verstreken, krijgen de status *verlopen* en escaleren één niveau. |
 | dagelijks 02:30 | `isms:schoon-raadplegingen` | Registraties van bewijs-downloads die ouder zijn dan de bewaartermijn, worden verwijderd. Dit commando verwijdert de gegevens definitief. |
+| dagelijks 02:35 | `isms:assistent-opruimen` | De aanroeplog van de assistenttoegang wordt op zijn bewaartermijn gehouden, en verlopen tokens en ongebruikte koppelingen worden verwijderd. Het commando draait ook als de assistenttoegang uit staat. |
 | dagelijks 02:45 | `isms:controleer-hartslag` | Het commando controleert of alle taken hierboven werkelijk hebben gedraaid, en meldt wat er is gemist. |
 | maandelijks, de 1e om 03:00 | `isms:meet-kpis` | De maandelijkse KPI-meting legt per KPI de teller en de noemer onveranderlijk vast. |
 | jaarlijks, 31 december 23:00 | `isms:leg-restrisico-vast` | Het commando legt de jaarlijkse restrisico-snapshot per control vast. |
@@ -308,6 +309,14 @@ opnieuw en legt vast dat de verwijdering heeft plaatsgevonden. Vanaf dat moment
 bewijst de trail alleen nog wat er na die handeling is gebeurd. Deze optie is
 alleen bedoeld voor het opnieuw inrichten van een omgeving die nog niet in
 gebruik is.
+
+**`isms:assistent-opruimen --alles`**
+Dit commando trekt alle koppelingen met AI-assistenten in en verwijdert alle
+geregistreerde assistenten. Het hoort bij het uitzetten van `ISMS_ASSISTENT`: na
+het uitzetten bestaan de adressen niet meer, maar de tokens staan nog in de
+database en zouden bij opnieuw aanzetten weer werken. Zonder `--alles` is dit het
+nachtelijke onderhoud uit de tabel hierboven. De werking van de assistenttoegang
+staat in [Assistenttoegang via MCP](/kennisbank/assistenttoegang).
 
 > **`isms:demo-vul` wist eerst de volledige database.**
 >

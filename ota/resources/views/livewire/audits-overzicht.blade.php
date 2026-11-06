@@ -54,7 +54,7 @@
 
     @forelse ($plannen as $plan)
         <div>
-            <div class="mb-2 flex items-center justify-between gap-4">
+            <div class="mb-2 flex flex-wrap items-center justify-between gap-4">
                 <flux:heading size="lg">
                     Auditplan {{ $plan->jaar }}
                     {{-- Het jaartal is een label en geen sleutel (11e §0): zonder

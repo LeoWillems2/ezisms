@@ -1,7 +1,7 @@
 {{-- Gedeelde sub-navigatie voor blok 4 (Risico & SoA). Eén top-level menu-item
      in de zijbalk ("SoA & Risico's") verwijst naar de SoA; het risicoregister
      is van hieruit bereikbaar. --}}
-<flux:navbar class="mb-2">
+<flux:navbar class="mb-2 max-w-full overflow-x-auto">
     <flux:navbar.item :href="route('soa.index')" :current="request()->routeIs('soa.index')" wire:navigate>
         Statement of Applicability
     </flux:navbar.item>

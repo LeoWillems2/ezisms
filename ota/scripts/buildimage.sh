@@ -44,6 +44,7 @@ source "$SCRIPTMAP/distr-gemeenschappelijk.sh"
 : "${UIT:=}"         # doelmap voor de twee tarbals (standaard: naast de invoer)
 : "${TAG:=}"         # de image-tag (standaard: uit het manifest van de tarbal)
 : "${PLATFORM:=linux/amd64}"
+: "${VERS:=nee}"     # ja = basislaag ophalen en zonder cache bouwen (--vers)
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ── Namen in de uitlevering ──────────────────────────────────────────────────
@@ -65,6 +66,8 @@ Gebruik: buildimage.sh [opties]
   --uit=<map>         waar de twee tarbals komen (standaard: naast de invoer)
   --tag=<naam>        de image-tag (standaard: uit het manifest van de tarbal)
   --platform=<naam>   standaard linux/amd64
+  --vers              haal ubuntu:26.04 opnieuw op en bouw zonder cache, zodat
+                      apt de laatste (beveiligings)updates binnenhaalt
   -h, --help          deze uitleg
 
 Eerst een boom bouwen en dan pas een image:
@@ -86,6 +89,7 @@ for arg in "$@"; do
         --uit=*)      UIT=${arg#*=} ;;
         --tag=*)      TAG=${arg#*=} ;;
         --platform=*) PLATFORM=${arg#*=} ;;
+        --vers)       VERS=ja ;;
         -h|--help)    gebruik; exit 0 ;;
         *)            gebruik >&2; fout "onbekend argument: $arg" ;;
     esac
@@ -220,8 +224,18 @@ meld "image-tag: $IMAGE"
 # `docker load` van een manifestlijst gaat op oudere Docker-versies mis — precies
 # wat een doelhost kan zijn. De herkomst van dit image staat in het manifest van
 # de boom die erin zit, en dat is de vindplaats die hier telt.
-stap "Image bouwen — $IMAGE ($PLATFORM)"
+#
+# `--vers` is de uitzondering op beide, voor een beveiligingsupdate van PHP of
+# een ander OS-pakket. De apt-regel in de Dockerfile verandert dan niet, dus
+# zonder `--no-cache` komt die laag — met de oude pakketten — uit de cache, en
+# zonder `--pull` blijft de basislaag de oude. Gevolg: pandoc wordt opnieuw van
+# github.com gehaald (de hash in de Dockerfile bewaakt hem).
+VERS_VLAGGEN=()
+[[ $VERS == ja ]] && VERS_VLAGGEN=(--pull --no-cache)
+
+stap "Image bouwen — $IMAGE ($PLATFORM${VERS_VLAGGEN:+, vers: zonder cache})"
 docker build \
+    "${VERS_VLAGGEN[@]}" \
     --platform "$PLATFORM" \
     --provenance=false \
     --file "$BOOM/docker/Dockerfile" \

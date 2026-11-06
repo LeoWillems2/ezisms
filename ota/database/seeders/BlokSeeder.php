@@ -13,6 +13,10 @@ use Illuminate\Database\Seeder;
  * want het is geen ISMS-domein maar een beheerdomein — het bestaat om technisch
  * beheer buiten het ISMS te kunnen houden (implementatie/01e §0). Een blokcode
  * is hier het enige mechanisme dat "geen enkel ISMS-recht" kan uitdrukken.
+ *
+ * Een tweede: `assistenttoegang` (implementatie/14b §2.2). Geen domein maar een
+ * vergunning — een rij met `lezen` betekent "deze rol mag een AI-assistent
+ * koppelen". `RolPermissieSeeder` zet er nooit een rij op; dat doet de CISO.
  */
 class BlokSeeder extends Seeder
 {
@@ -34,6 +38,7 @@ class BlokSeeder extends Seeder
             ['code' => 'notificatie-integratielaag', 'naam' => 'Notificatie & Integratie'],
             ['code' => 'wijzigingsbeheer', 'naam' => 'Wijzigingsbeheer'],
             ['code' => 'installatiebeheer', 'naam' => 'Installatiebeheer'],
+            ['code' => 'assistenttoegang', 'naam' => 'Assistenttoegang (MCP)'],
         ];
 
         foreach ($blokken as $blok) {

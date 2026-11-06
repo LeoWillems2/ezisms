@@ -1,7 +1,7 @@
 {{-- Gedeelde sub-navigatie voor blok 2 (Context & Scope). Eén top-level
      menu-item in de zijbalk verwijst naar 'scope.show'; van daaruit zijn de
      losse registers via deze balk bereikbaar. --}}
-<flux:navbar class="mb-2">
+<flux:navbar class="mb-2 max-w-full overflow-x-auto">
     <flux:navbar.item :href="route('scope.show')" :current="request()->routeIs('scope.show')" wire:navigate>
         Scope-verklaring
     </flux:navbar.item>

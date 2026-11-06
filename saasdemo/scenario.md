@@ -128,6 +128,7 @@ naar kijkt.
 | Aurelius Aardappel (aurelius@acme.example) | Interne auditor | Auditor | voert de interne audits uit |
 | Piet Peer (piet@acme.example) | Medewerker Handel | Medewerker | geen ISMS-taken; doelgroep training en leesbevestiging |
 | Keesje Kers (keesje@acme.example) | Medewerker Administratie | Medewerker | idem |
+| Anton Aubergine (anton@acme.example) | Applicatiebeheerder | Administrator | beheert de installatie zonder inzage in het ISMS; sinds 24-09-2026 (§13) |
 
 **Het e-maildomein.** `acme.example`, en niet een bestaand domein. `.example` is
 door RFC 2606 gereserveerd en zal nooit van iemand zijn: wat de demo ook aan
@@ -498,3 +499,36 @@ motor sturen. Terugdraaien kan zolang er nog geen fixtures liggen.
 
 Stap 1 en 2 kunnen parallel — de fixtures raken de auditwijziging alleen in
 `tijdlijn.json`.
+
+---
+
+## 13. Bijstellingen na de Chrometoets (24-09-2026)
+
+De browserronde van `implementatie/00t-chrometoets-fruitbv.md` liet zien waar de
+demo er verwaarloosd uitzag, terwijl het scenario dat niet zo bedoelde. Vijf
+gaten zijn gedicht, elk als gebeurtenis in `data/tijdlijn.json` of als veld in
+de fixtures, zodat de motor generiek blijft:
+
+| Gat | Oplossing | Eindstand M22 |
+|---|---|---|
+| Geen bewijs bij de SoA-regels; KPI 0 van 80 | `met_bewijs` per implementatiegolf (`soa.json`): één implementatiebewijs per regel, een paar regels achter de implementatie | 76 van 80 |
+| Tien van dertien documenten over hun herzieningstermijn | `beleid_herzien` een maand vóór de vervaldatum, met een conclusie per document (M13–M19) | alleen de procedure toegangsrechten-review over de termijn — **bewuste tegenslag**: die herziening wacht op het monitoringbesluit uit de tweede directiebeoordeling (M19) |
+| 32 van 37 bevindingen open, ook die uit de nulmeting | `bevindingen_afhandelen` per ronde met een afhandelingsnotitie (M8, M12, M20); de laatste verbeterkans uit jaar 1 blijft lopen | 5 niet gesloten: 2 observaties uit de surveillance, 1 verbeterkans, de nulmeting-NC en de NC uit de surveillance |
+| Jaarplannen bleven concept, ook met een afgeronde ronde | `jaarplan_vaststellen` direct na het aanmaken van het programma (M4, M12) | jaar 2 en 3 (in de toekomst) blijven concept |
+| Doelgroep Directie ontstond nooit | `doelgroepen_vastleggen` in M0 | drie doelgroepen |
+
+Daarnaast:
+
+- **Anton Aubergine, Administrator** (§3 kent nu negen accounts). Zonder hem
+  waren export en toetsbestanden niet te demonstreren. Bewust geen lid van
+  *Alle gebruikers*: hij kan het ISMS niet in (implementatie/01e).
+- **Handelingen op een werkdagochtend.** De demoklok zet elke gebeurtenis op
+  09:xx in de weergavetijd in plaats van op 00:00 UTC; de maandafsluiting blijft
+  om middernacht. Geen enkele KPI-reeks veranderde daardoor.
+
+**Open punt.** De minor uit de nulmeting (doelstellingen niet meetbaar, 6.2)
+heeft geen afwijking en kan daarom niet sluiten: de app sluit een
+non-conformiteit alleen via een gesloten afwijking. Een afwijking met
+corrigerende maatregel (de KPI's met streefwaarden, M8) zou het verhaal
+afmaken, maar voegt een zesde afwijking toe aan tellingen die de tests
+vastleggen.

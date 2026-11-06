@@ -4,11 +4,14 @@ namespace Tests\Feature;
 
 use App\Models\Afwijking;
 use App\Models\AuditLogregel;
+use App\Models\Auditplan;
 use App\Models\Auditprogramma;
 use App\Models\Auditronde;
+use App\Models\Beleidsherziening;
 use App\Models\Beleidsversie;
 use App\Models\Bevinding;
 use App\Models\CorrigerendeMaatregel;
+use App\Models\Doelgroep;
 use App\Models\Gebruiker;
 use App\Models\Issue;
 use App\Models\KpiDefinitie;
@@ -209,10 +212,10 @@ class DemoEindstandTest extends TestCase
         $this->assertGreaterThan(0, RestrisicoSnapshot::whereNotNull('max_restrisico')->count());
     }
 
-    /** "Eén account is gedeactiveerd (Keesje), zeven zijn actief." */
+    /** "Eén account is gedeactiveerd (Keesje), acht zijn actief — waaronder de Administrator." */
     public function test_de_accountlevenscyclus_is_zichtbaar(): void
     {
-        $this->assertSame(7, Gebruiker::where('status', 'actief')->count());
+        $this->assertSame(8, Gebruiker::where('status', 'actief')->count());
 
         $uitDienst = Gebruiker::where('status', 'gedeactiveerd')->get();
 
@@ -635,5 +638,73 @@ class DemoEindstandTest extends TestCase
         $reeks = $handmatig->metingen()->orderBy('gemeten_op')->get();
         $this->assertSame('omlaag', $handmatig->richting);
         $this->assertGreaterThan($reeks->last()->percentage(), $reeks->first()->percentage());
+    }
+
+    // --- Demo-verbeteringen na de Chrometoets (24-09-2026) -------------------
+
+    /**
+     * D1: bewijs bij de SoA-regels. De KPI stond de hele demo op 0 van 80;
+     * het bewijs loopt nu bewust een paar regels achter op de implementatie.
+     */
+    public function test_geimplementeerde_regels_hebben_grotendeels_bewijs(): void
+    {
+        $metBewijs = SoaRegel::where('implementatiestatus', 'geimplementeerd')
+            ->whereIn('id', fn ($q) => $q->select('entiteit_id')->from('bewijs_koppelingen')->where('entiteit_type', 'soa_regel'))
+            ->count();
+
+        $this->assertSame(76, $metBewijs);
+        $this->assertSame(80, SoaRegel::where('implementatiestatus', 'geimplementeerd')->count());
+    }
+
+    /**
+     * D2: jaarlijkse herzieningen. Eén document staat bewust over de termijn
+     * (de procedure toegangsrechten-review wacht op het monitoringbesluit);
+     * de rest is op tijd beoordeeld.
+     */
+    public function test_beleid_is_herzien_op_een_bewuste_achterstand_na(): void
+    {
+        $over = Beleidsversie::with('document')->where('status', 'actief')->get()
+            ->filter(fn (Beleidsversie $v) => $v->herzieningVerstreken());
+
+        $this->assertSame(['Procedure toegangsrechten-review'], $over->map(fn ($v) => $v->document->titel)->values()->all());
+        $this->assertSame(9, Beleidsherziening::count());
+    }
+
+    /**
+     * D3: observaties en verbeterkansen worden afgehandeld. Open blijven de
+     * twee observaties van de surveillance, één lopende verbeterkans uit jaar
+     * 1, de nulmeting-NC zonder afwijking en de NC uit de surveillance.
+     */
+    public function test_oude_observaties_en_verbeterkansen_zijn_afgehandeld(): void
+    {
+        $this->assertSame(5, Bevinding::where('status', '!=', 'gesloten')->count());
+        $this->assertSame(0, Bevinding::where('status', 'gesloten')->whereNull('afhandelingsnotitie')
+            ->whereIn('type', ['observatie', 'verbeterkans'])->count());
+    }
+
+    /** D4: het jaarplan van een jaar met een afgeronde ronde is geen concept meer. */
+    public function test_de_jaarplannen_met_een_ronde_zijn_vastgesteld(): void
+    {
+        $this->assertSame(0, Auditplan::where('status', 'concept')
+            ->whereHas('rondes', fn ($q) => $q->where('status', 'afgerond'))->count());
+        // Jaar 2 en 3 liggen nog in de toekomst en blijven concept.
+        $this->assertSame(2, Auditplan::where('status', 'concept')->count());
+    }
+
+    /** D5 en het Administrator-account. */
+    public function test_directie_als_doelgroep_en_een_administrator(): void
+    {
+        $this->assertTrue(Doelgroep::where('naam', 'Directie')->exists());
+        $this->assertSame(1, Gebruiker::whereHas('rollen', fn ($q) => $q->where('naam', 'Administrator'))->count());
+    }
+
+    /** D7: handelingen vallen op een werkdagochtend, niet om middernacht UTC. */
+    public function test_handelingen_staan_niet_op_middernacht(): void
+    {
+        $uren = Leesbevestiging::pluck('bevestigd_op')
+            ->map(fn ($t) => $t->copy()->setTimezone(config('tijd.weergave'))->hour)
+            ->unique();
+
+        $this->assertSame([9], $uren->values()->all());
     }
 }

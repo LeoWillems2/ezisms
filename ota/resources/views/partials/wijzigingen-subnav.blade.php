@@ -6,7 +6,7 @@
      óók een tab die zo heet, en een CISO ziet beide schermen. Twee identieke
      labels voor twee verschillende soorten sjabloon is precies de verwarring
      die een menu hoort weg te nemen. --}}
-<flux:navbar class="mb-2">
+<flux:navbar class="mb-2 max-w-full overflow-x-auto">
     <flux:navbar.item :href="route('wijzigingen.index')" :current="request()->routeIs('wijzigingen.*')" wire:navigate>
         Register
     </flux:navbar.item>

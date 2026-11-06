@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Beleidsdocument;
+use App\Models\Beleidsherziening;
 use App\Models\Gebruiker;
 use App\Models\Leesbevestiging;
 use App\Models\OrganisatieEenheid;
@@ -13,8 +14,9 @@ use App\Support\Beleidsgoedkeuring;
 use App\Support\Beleidspublicatie;
 use App\Support\Bewijsopslag;
 use App\Support\Koppeling;
+use App\Support\Leesbevestigingslijst;
 use App\Support\Recordscope;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -52,6 +54,13 @@ class BeleidsdocumentDetail extends Component
     /** @var array<int, int> */
     public array $geselecteerdeSoaRegels = [];
 
+    // Herziening zonder nieuwe versie.
+    public bool $toontHerzieningFormulier = false;
+
+    public string $herzieningToelichting = '';
+
+    public ?string $herzieningVolgende = null;
+
     public function mount(Beleidsdocument $beleidsdocument): void
     {
         // 404 en niet 403: zonder volledige inzage bestaat een concept voor
@@ -83,6 +92,18 @@ class BeleidsdocumentDetail extends Component
     public function magAllesZien(): bool
     {
         return Recordscope::magAllesZien('beleid-maatregelbeheer');
+    }
+
+    /**
+     * Herzien mag wie het document beheert, én de eigenaar: bij hem ligt de
+     * herzieningstaak, en een taak die de eigenaar niet kan afronden is een
+     * doodlopende weg.
+     */
+    public function magHerzien(): bool
+    {
+        return $this->magMuteren()
+            || ($this->beleidsdocument->eigenaar_id !== null
+                && $this->beleidsdocument->eigenaar_id === auth()->id());
     }
 
     /** Koppelen vereist muteerrecht op beide blokken, net als in BewijsPaneel. */
@@ -239,6 +260,56 @@ class BeleidsdocumentDetail extends Component
         session()->flash('melding', 'Versie gepubliceerd. Openstaande leesbevestigingen worden vannacht als taak uitgezet.');
     }
 
+    // --- Herziening ---------------------------------------------------------
+
+    public function nieuweHerziening(): void
+    {
+        abort_unless($this->magHerzien(), 403);
+        $this->resetValidation();
+        $this->herzieningToelichting = '';
+        // Standaard een jaar verder: de termijn die de meeste organisaties voor
+        // hun beleid hanteren. Aanpasbaar in het formulier.
+        $this->herzieningVolgende = now()->addYear()->toDateString();
+        $this->toontHerzieningFormulier = true;
+    }
+
+    public function sluitHerzieningFormulier(): void
+    {
+        $this->toontHerzieningFormulier = false;
+    }
+
+    /**
+     * Legt vast dat de geldende versie beoordeeld is en ongewijzigd kan blijven.
+     * De observer sluit de herzieningstaak en zet de nieuwe termijn door.
+     */
+    public function legHerzieningVast(): void
+    {
+        abort_unless($this->magHerzien(), 403);
+
+        $versie = $this->beleidsdocument->actieveVersie;
+        abort_if($versie === null, 422);
+
+        $this->validate([
+            'herzieningToelichting' => ['required', 'string', 'min:'.Beleidsherziening::MINIMALE_TOELICHTING],
+            'herzieningVolgende' => ['required', 'date', 'after:today'],
+        ], attributes: [
+            'herzieningToelichting' => 'toelichting',
+            'herzieningVolgende' => 'volgende herziening',
+        ]);
+
+        $versie->herzieningen()->create([
+            'beoordeeld_door_id' => auth()->id(),
+            'beoordeeld_op' => now(),
+            'toelichting' => trim($this->herzieningToelichting),
+            'volgende_herziening_gepland' => $this->herzieningVolgende,
+        ]);
+
+        $this->beleidsdocument->refresh();
+        $this->toontHerzieningFormulier = false;
+        session()->flash('melding', 'Herziening vastgelegd. De volgende herziening staat op '
+            .Carbon::parse($this->herzieningVolgende)->format('d-m-Y').'.');
+    }
+
     // --- SoA-koppeling -----------------------------------------------------
 
     public function opslaanSoaKoppeling(): void
@@ -277,32 +348,6 @@ class BeleidsdocumentDetail extends Component
         session()->flash('melding', 'Uw leesbevestiging is vastgelegd.');
     }
 
-    /**
-     * Bevestigingen waarvan niet blijkt dat de bevestiger het bestand had.
-     *
-     * Bewust geen poort vóór de knop maar een signaal achteraf: iemand die het
-     * beleid in een teamsessie of op papier heeft gelezen, bevestigt terecht
-     * zonder download, en een verplichte download zou daar een vals negatief
-     * van maken. Het getal is stuurinformatie voor de CISO — een leesbevestiging
-     * blijft een verklaring, geen meting (implementatie/05 §14).
-     *
-     * @param  Collection<int, Leesbevestiging>  $bevestigingen
-     * @return array<int, bool> gebruiker_id => bevestigd zonder het bestand op te halen
-     */
-    private function bevestigdZonderRaadpleging($bevestigingen, ?int $bewijsstukId): array
-    {
-        $eerste = Raadpleging::eersteRaadplegingPerGebruiker($bewijsstukId);
-
-        return $bevestigingen
-            ->mapWithKeys(fn (Leesbevestiging $b) => [
-                // Ophalen ná het bevestigen telt niet: dan is er bevestigd op
-                // het moment dat het document nog niet was opgehaald.
-                $b->gebruiker_id => ! isset($eerste[$b->gebruiker_id])
-                    || $eerste[$b->gebruiker_id]->greaterThan($b->bevestigd_op),
-            ])
-            ->all();
-    }
-
     public function render()
     {
         $versies = $this->beleidsdocument->versies()
@@ -315,9 +360,12 @@ class BeleidsdocumentDetail extends Component
 
         $actieve = $this->beleidsdocument->actieveVersie;
 
-        $bevestigingen = $actieve && $this->magAllesZien()
-            ? $actieve->bevestigingen()->with('gebruiker')->get()
-            : collect();
+        // Wie wel en wie niet bevestigde: auditmateriaal, alleen voor wie alles
+        // ziet. De afleiding staat in Leesbevestigingslijst, zodat de
+        // assistenttool dezelfde lijst geeft (14b §4.3).
+        $lijst = $actieve && $this->magAllesZien()
+            ? Leesbevestigingslijst::voor($this->beleidsdocument, $actieve)
+            : Leesbevestigingslijst::leeg();
 
         return view('livewire.beleidsdocument-detail', [
             'versies' => $versies,
@@ -333,22 +381,23 @@ class BeleidsdocumentDetail extends Component
                 ? SoaRegel::with('maatregel')->where('van_toepassing', true)->get()
                     ->sortBy(fn (SoaRegel $regel) => $regel->maatregel->annex_a_referentie)
                 : collect(),
-            'bevestigingen' => $bevestigingen,
-            'zonderRaadpleging' => $this->bevestigdZonderRaadpleging($bevestigingen, $actieve?->bewijsstuk_id),
+            'bevestigingen' => $lijst->bevestigingen,
+            // Alleen voor wie alles ziet: net als de versiehistorie is dit
+            // auditmateriaal.
+            'herzieningen' => $actieve && $this->magAllesZien()
+                ? $actieve->herzieningen()->with('beoordelaar')->orderByDesc('beoordeeld_op')->get()
+                : collect(),
+            'zonderRaadpleging' => $lijst->zonderRaadpleging,
             // Heeft de ingelogde gebruiker het bestand zelf al opgehaald? Stuurt
             // alleen de toonzetting van de bevestigingsdialoog.
             'zelfGeraadpleegd' => $actieve?->bewijsstuk_id !== null && Raadpleging::query()
                 ->where('bewijsstuk_id', $actieve->bewijsstuk_id)
                 ->where('gebruiker_id', auth()->id())
+                ->where('kanaal', 'ui')
                 ->exists(),
             // Alleen de doelgroep telt als "nog niet bevestigd": iemand buiten
             // de afdeling hoeft niet te bevestigen (§6).
-            'nietBevestigd' => $actieve && $this->magAllesZien()
-                ? Gebruiker::whereIn('id', $this->beleidsdocument->doelgroepGebruikerIds())
-                    ->whereNotIn('id', $actieve->bevestigingen()->pluck('gebruiker_id'))
-                    ->orderBy('naam')
-                    ->get()
-                : collect(),
+            'nietBevestigd' => $lijst->nietBevestigd,
             'zelfBevestigd' => $actieve?->isBevestigdDoor(auth()->id()) ?? false,
         ]);
     }

@@ -136,7 +136,8 @@ class KennisbankOefeningTest extends TestCase
         // Het register.
         'Na toevoegen open je meteen het detailscherm om kans en impact te bepalen.' => 'resources/views/livewire/risicos-overzicht.blade.php',
         'Alleen boven de drempel' => 'resources/views/livewire/risicos-overzicht.blade.php',
-        'Behandelplan opgesteld' => 'app/Livewire/RisicosOverzicht.php',
+        // De statuslabels staan sinds 14b in Risicoselectie (scherm én assistent).
+        'Behandelplan opgesteld' => 'app/Support/Risicoselectie.php',
         // De trend: onveranderlijk, en de toelichting draagt de reden van de beweging.
         'de jaarsnapshots worden onveranderlijk vastgelegd en nooit herrekend.' => 'resources/views/livewire/restrisico-trend.blade.php',
         "Per control het hoogste netto-restrisico van de gekoppelde risico's, per peiljaar." => 'resources/views/livewire/restrisico-trend.blade.php',

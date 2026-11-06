@@ -8,6 +8,10 @@
             @endunless
             <flux:navlist.item href="{{ route('settings.tweefactor') }}" wire:navigate>Tweefactor</flux:navlist.item>
             <flux:navlist.item href="{{ route('settings.appearance') }}" wire:navigate>Weergave</flux:navlist.item>
+            {{-- Alleen als de assistenttoegang aan staat (implementatie/14b §8.2). --}}
+            @if (\Illuminate\Support\Facades\Route::has('settings.assistenten'))
+                <flux:navlist.item href="{{ route('settings.assistenten') }}" wire:navigate>Assistenten</flux:navlist.item>
+            @endif
         </flux:navlist>
     </div>
 

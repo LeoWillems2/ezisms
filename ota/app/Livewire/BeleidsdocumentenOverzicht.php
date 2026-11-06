@@ -3,11 +3,11 @@
 namespace App\Livewire;
 
 use App\Models\Beleidsdocument;
-use App\Models\Beleidsversie;
 use App\Models\Gebruiker;
 use App\Models\OrganisatieEenheid;
 use App\Rules\KiesbareGebruiker;
 use App\Support\Koppeling;
+use App\Support\Leesbevestigingslijst;
 use App\Support\Recordscope;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -181,19 +181,15 @@ class BeleidsdocumentenOverzicht extends Component
     public function openstaandeBevestigingen(): int
     {
         // Alleen documenten die op de eigen afdeling gericht zijn (§6). Zonder
-        // afdeling is er geen doelgroep om in te vallen.
-        $afdelingId = auth()->user()?->organisatie_eenheid_id;
+        // afdeling is er geen doelgroep om in te vallen. De query staat in
+        // Leesbevestigingslijst, zodat de assistenttool dezelfde lijst geeft.
+        $gebruiker = auth()->user();
 
-        if ($afdelingId === null) {
+        if ($gebruiker?->organisatie_eenheid_id === null) {
             return 0;
         }
 
-        return Beleidsversie::where('status', 'actief')
-            ->whereHas('document', fn ($q) => $q->zichtbaar()
-                ->where('leesbevestiging_vereist', true)
-                ->whereHas('afdelingen', fn ($a) => $a->where('organisatie_eenheden.id', $afdelingId)))
-            ->whereDoesntHave('bevestigingen', fn ($q) => $q->where('gebruiker_id', auth()->id()))
-            ->count();
+        return Leesbevestigingslijst::openstaandVoor($gebruiker)->count();
     }
 
     public function render()
