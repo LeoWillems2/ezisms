@@ -55,7 +55,7 @@
 # regelnummer, alleen een exitcode.
 set -Eeuo pipefail
 
-PREPHOST_VERSIE="1.0"
+PREPHOST_VERSIE="1.1"
 
 # ── Instellingen ─────────────────────────────────────────────────────────────
 # Alles via ": ${NAAM:=…}", dus per aanroep te overschrijven zonder het script
@@ -811,7 +811,21 @@ $toegang
 
     error_page 404 /index.php;
 
-    location ~ \.php\$ {
+    # Uploadpad: de symlink public/storage → shared/storage/app/public
+    # (deploy.sh). ^~ sluit de regex-locations hieronder uit: hier wordt alleen
+    # statisch geserveerd en wordt een script nooit uitgevoerd, ook niet als het
+    # blok hieronder ooit weer een algemene \\.php\$-location wordt.
+    location ^~ /storage/ {
+        location ~* \.(php|phar|phtml|php\d|pl|py|cgi|sh)\$ { return 404; }
+        try_files \$uri =404;
+    }
+
+    # Alleen de front controller gaat naar PHP. Elk ander .php-bestand onder
+    # public/ — ook een dat via een uploadmap is binnengekomen — wordt nooit
+    # uitgevoerd.
+    location ~* \.(php|phar|phtml|php\d)\$ { return 404; }
+
+    location = /index.php {
         # De pool die als $WEBGEBRUIKER draait — dezelfde gebruiker die storage/
         # bezit. Wijst dit naar een andere pool, dan breekt deploy.sh de uitrol
         # af (controleer_koppeling).

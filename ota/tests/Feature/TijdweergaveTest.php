@@ -27,14 +27,26 @@ class TijdweergaveTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * De klok van deze testwereld: zomertijd, ná alle testregels. Zonder vaste
+     * klok hangt de kolomkop ("Tijdstip (CEST)") af van het seizoen waarin de
+     * suite draait, en staan de auditregels van de seeders — meer dan één
+     * pagina van vijftig — als nieuwste bovenaan, zodat de testregels op
+     * pagina 2 belanden.
+     */
+    private const NU = '2026-08-20 12:00:00';
+
     private Gebruiker $ciso;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        // De seeders schrijven vóór alle testregels, dus onderaan de lijst.
+        Carbon::setTestNow('2026-08-01 00:00:00');
         $this->seed([RolSeeder::class, BlokSeeder::class, RolPermissieSeeder::class]);
         $this->ciso = Gebruiker::factory()->metRol('CISO')->create();
+        Carbon::setTestNow(self::NU);
 
         config()->set('tijd.weergave', 'Europe/Amsterdam');
     }
@@ -139,7 +151,7 @@ class TijdweergaveTest extends TestCase
             'nieuwe_waarde' => ['status' => 'actief'],
         ]);
 
-        Carbon::setTestNow();
+        Carbon::setTestNow(self::NU);
 
         return $regel;
     }

@@ -6,11 +6,41 @@ blijven de bron, dit bestand is de leesbare vorm ervan.
 **Versienummers.** De eerste cijferreeks springt bij een breuk in wat het product
 ís — V2.0.0 markeert het punt waarop de repo uitleverbaar werd. Het tweede cijfer
 telt uitgaven met nieuwe functionaliteit, het derde is voor correcties op een
-uitgave die al buiten staat. Tot nu toe zijn er drie zulke correcties geweest: V2.2.1,
-V3.5.1 en V3.5.2.
+uitgave die al buiten staat. Tot nu toe zijn er vier zulke correcties geweest: V2.2.1,
+V3.5.1, V3.5.2 en V4.1.1.
 
 Elke uitgave is een annotated tag; `git tag -l --format='%(contents)' V2.9.0`
 geeft de oorspronkelijke tekst.
+
+---
+
+## V4.1.1 — geen PHP meer uit een uploadmap
+
+*17-11-2026*
+
+Een verharding van de webserverconfiguratie, met daarnaast een correctie op
+het verzetten van een wijzigingsplanning.
+
+**nginx voert alleen `index.php` uit.** Alle vhosts — die van `prephost.sh`, het
+Docker-image en de ontwikkelmachine — stuurden elk `.php`-bestand onder
+`public/` naar PHP-FPM, dus ook een bestand dat via de symlink
+`public/storage` → `storage/app/public` binnenkwam. Uploads van de applicatie
+staan op private schijven en kwamen daar niet terecht, maar de map is
+schrijfbaar voor het webproces en was via het web bereikbaar. Nu gaat alleen de
+front controller naar PHP; elk ander script krijgt een 404, en `/storage/`
+wordt als tweede laag uitsluitend statisch geserveerd. Het vhost-voorbeeld in
+het slotscherm van `deploy.sh` volgt hetzelfde patroon.
+
+`prephost.sh` (nu 1.1) schrijft de vhost alleen bij het inrichten van een host.
+**Een bestaande installatie krijgt de wijziging niet vanzelf:** vervang in de
+vhost het blok `location ~ \.php$ { … }` door de drie blokken uit
+`prephost.sh` en herlaad nginx. Het image heeft de nieuwe configuratie vanaf
+deze versie.
+
+**Planning verzetten schoof een dag te ver.** Het verschil tussen de oude en de
+nieuwe planningsdatum werd in etmalen berekend en afgerond; na 12:00 UTC
+schoven de onafgeronde deadlines daardoor één dag te veel op. Het verschil is
+nu in kalenderdagen.
 
 ---
 

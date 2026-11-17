@@ -100,8 +100,11 @@ final class Wijzigingsdossier
             return;
         }
 
-        // Carbon 3 geeft een float; zonder cast is `=== 0` nooit waar.
-        $verschil = (int) round($vorige->diffInDays($geplandOp, absolute: false));
+        // Kalenderdagen, niet etmalen: `gepland_op` is een datum (middernacht),
+        // terwijl $geplandOp vaak een tijd meedraagt. Zonder startOfDay rondde
+        // het verschil na 12:00 een dag te veel op. Carbon 3 geeft een float;
+        // zonder cast is `=== 0` nooit waar.
+        $verschil = (int) round($vorige->copy()->startOfDay()->diffInDays($geplandOp->copy()->startOfDay(), absolute: false));
 
         if ($verschil === 0) {
             return;

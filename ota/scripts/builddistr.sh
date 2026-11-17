@@ -97,8 +97,11 @@ REPO=$(git -C "$SCRIPTMAP" rev-parse --show-toplevel) \
 git -C "$REPO" rev-parse --verify --quiet "$REF" >/dev/null \
     || fout "git-ref bestaat niet: $REF"
 
-COMMIT=$(git -C "$REPO" rev-parse "$REF")
-KORT=$(git -C "$REPO" rev-parse --short "$REF")
+# `^{commit}`: bij een annotated tag geeft een kale rev-parse de hash van het
+# tagobject, niet die van de commit. Dan stonden mapnaam, manifest en
+# uitrolhistorie op een hash die `git show` niet als commit kent (V4.1.0).
+COMMIT=$(git -C "$REPO" rev-parse "$REF^{commit}")
+KORT=$(git -C "$REPO" rev-parse --short "$REF^{commit}")
 # De tag waar deze boom precies op staat, of leeg. `--exact-match` en niet het
 # kale `git describe`: die verzint bij een commit ná een tag iets als
 # "V2.5.0-3-gab0b683", en dat is geen versienummer om in een zijbalk te zetten.

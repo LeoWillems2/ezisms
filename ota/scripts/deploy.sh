@@ -1865,11 +1865,19 @@ Twee dingen doet dit script bewust niet:
    vaste releasemap, want dan komt een volgende uitrol niet aan. Voor nginx:
 
      root $DOELPAD/current/public;
-     location ~ \.php\$ {
+     location ^~ /storage/ {
+         location ~* \.(php|phar|phtml|php\d|pl|py|cgi|sh)\$ { return 404; }
+         try_files \$uri =404;
+     }
+     location ~* \.(php|phar|phtml|php\d)\$ { return 404; }
+     location = /index.php {
          fastcgi_pass unix:${FPM_SOCKET:-/run/php/php$PHP_MAJMIN-fpm.sock};
          fastcgi_param SCRIPT_FILENAME \$realpath_root\$fastcgi_script_name;
          include fastcgi_params;
      }
+
+   Alleen index.php gaat naar PHP: een script dat via een uploadmap onder
+   public/ belandt, wordt zo nooit uitgevoerd.
 
    Dat is de standaardpool, die als $WEBGEBRUIKER draait — dezelfde gebruiker
    die storage/ bezit. Wijst u naar een andere pool, dan meldt de volgende
